@@ -1,5 +1,5 @@
 [package]
-name = "apple-frameworks-rs"
+name = "apple-frameworks"
 version = "0.1.0"
 edition = "2021"
 authors = ["Allister Isaiah Harvey <a.i.harvey@icloud.com>"]
