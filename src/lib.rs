@@ -1,6 +1,5 @@
 //! # A library to use Apple frameworks in Rust
 #![deny(
-    bad_style,
     const_err,
     dead_code,
     improper_ctypes,
@@ -26,3 +25,7 @@
     while_true
 )]
 #![warn(clippy::all, missing_debug_implementations)]
+#![allow(non_upper_case_globals)]
+
+pub mod foundation;
+pub mod objc;

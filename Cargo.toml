@@ -8,3 +8,9 @@ description = "Apple Frameworks for Rust"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+objc = "0.2.7"
+objc_id = "0.1.1"
+libc = "0.2.126"
+
+[dev-dependencies]
+test-case = "2.0.2"
