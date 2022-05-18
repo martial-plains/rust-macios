@@ -1,12 +1,9 @@
 use objc::{msg_send, runtime::BOOL, sel, sel_impl};
 
 use crate::objc::to_bool;
-pub use crate::objc::NSString;
+pub use crate::objc::NSString as String;
 
 use super::{ComparisonResult, Int};
-
-/// This is a mapping to the Objective-C NSString class.
-pub type String<'a> = NSString<'a>;
 
 /// Constants representing an ICU string transform.
 pub type StringTransform<'a> = *const String<'a>;
