@@ -27,5 +27,11 @@
 #![warn(clippy::all, missing_debug_implementations)]
 #![allow(non_upper_case_globals)]
 
+use ::objc::runtime::Object;
+
 pub mod foundation;
-pub mod objc;
+pub(crate) mod utils;
+
+/// An ID for an Objective-C object.
+#[allow(non_camel_case_types)]
+pub type id = *mut Object;

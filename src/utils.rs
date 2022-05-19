@@ -1,15 +1,4 @@
-use objc::runtime::Object;
-pub use objc::runtime::{BOOL, NO, YES};
-
-/// An ID for an Objective-C object.
-#[allow(non_camel_case_types)]
-pub type id = *mut Object;
-
-mod integers;
-mod strings;
-
-pub use integers::*;
-pub use strings::*;
+use objc::runtime::{BOOL, NO, YES};
 
 /// A helper function to convert an Objective-C bool to a Rust bool.
 #[inline(always)]
