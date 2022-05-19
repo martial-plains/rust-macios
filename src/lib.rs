@@ -30,6 +30,8 @@
 use ::objc::runtime::Object;
 
 pub mod foundation;
+pub mod natural_language;
+
 pub(crate) mod utils;
 
 /// An ID for an Objective-C object.
