@@ -1,5 +1,5 @@
 use std::{
-    fmt,
+    fmt::{self, Debug},
     marker::PhantomData,
     ops::{Deref, DerefMut},
     slice,
@@ -105,128 +105,6 @@ extern "C" {
 /// Size of UTF8 encoding
 const UTF8_ENCODING: usize = 4;
 
-/// This is a mapping to the Objective-C NSString class.
-#[derive(Debug)]
-#[repr(C)]
-pub struct String<'a> {
-    /// The raw pointer to the Objective-C object.
-    pub objc: Id<Object>,
-    marker: PhantomData<&'a ()>,
-}
-
-impl<'a> FromStr for String<'a> {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let objc = unsafe {
-            let nsstring: *mut Object = msg_send![class!(NSString), alloc];
-            Id::from_ptr(msg_send![nsstring, initWithBytes:s.as_ptr()
-                length:s.len()
-                encoding:UTF8_ENCODING
-            ])
-        };
-
-        Ok(String {
-            objc,
-            marker: PhantomData,
-        })
-    }
-}
-
-impl<'a> String<'a> {
-    /// Creates a new `NSString`
-    pub fn new() -> Self {
-        let objc = unsafe {
-            let nsstring: *mut Object = msg_send![class!(NSString), alloc];
-            Id::from_ptr(msg_send![nsstring, init])
-        };
-
-        String {
-            objc,
-            marker: PhantomData,
-        }
-    }
-
-    /// Creates a new `NSString` from a string slice. without copying the bytes.
-    ///
-    /// # Arguments
-    ///
-    /// * `s` - The string slice to create the `NSString` from.
-    pub fn from_no_cpy_str(s: &'a str) -> Self {
-        String {
-            objc: unsafe {
-                let nsstring: id = msg_send![class!(NSString), alloc];
-                Id::from_ptr(msg_send![nsstring, initWithBytesNoCopy:s.as_ptr()
-                    length:s.len()
-                    encoding:UTF8_ENCODING
-                    freeWhenDone:NO
-                ])
-            },
-
-            marker: PhantomData,
-        }
-    }
-
-    // In cases where we're vended an `NSString` by the system, this can be used to wrap and
-    /// retain it.
-    ///
-    /// # Safety
-    ///
-    /// This function is unsafe because it dereferrences a raw pointer.
-    pub unsafe fn retain(object: id) -> Self {
-        String {
-            objc: Id::from_ptr(object),
-            marker: PhantomData,
-        }
-    }
-
-    /// In some cases, we want to wrap a system-provided NSString without retaining it.
-    ///
-    /// # Safety
-    ///
-    /// This function is unsafe because it dereferrences a raw pointer.
-    pub unsafe fn from_retained(object: id) -> Self {
-        String {
-            objc: Id::from_retained_ptr(object),
-            marker: PhantomData,
-        }
-    }
-
-    /// Utility method for checking whether an `NSObject` is an `NSString`.
-    ///
-    /// # Safety
-    ///
-    /// This function is unsafe because it dereferrences a raw pointer.
-    pub unsafe fn is(obj: id) -> bool {
-        let result: BOOL = msg_send![obj, isKindOfClass: class!(NSString)];
-        to_bool(result)
-    }
-
-    /// Returns the UTF8 bytes for this `NSString`.
-    fn bytes(&self) -> *const u8 {
-        unsafe {
-            let bytes: *const c_char = msg_send![&*self.objc, UTF8String];
-            bytes as *const u8
-        }
-    }
-
-    /// Gets the proper byte length for this `NSString` (the UTF8 variant).
-    fn bytes_len(&self) -> UInt {
-        unsafe { msg_send![&*self.objc, lengthOfBytesUsingEncoding: UTF8_ENCODING] }
-    }
-
-    /// Convert this `NSString` into a `&str`.
-    pub fn as_str(&self) -> &str {
-        let bytes = self.bytes();
-        let len = self.bytes_len();
-
-        unsafe {
-            let bytes = slice::from_raw_parts(bytes, len as usize);
-            std::str::from_utf8(bytes).unwrap()
-        }
-    }
-}
-
 /// The following constants are provided by NSString as possible string encodings.
 #[allow(clippy::enum_clike_unportable_variant)]
 #[derive(Debug)]
@@ -327,7 +205,109 @@ impl CompareOptions {
     }
 }
 
+/// This is a mapping to the Objective-C NSString class.
+#[repr(C)]
+pub struct String<'a> {
+    /// The raw pointer to the Objective-C object.
+    pub objc: Id<Object>,
+    marker: PhantomData<&'a ()>,
+}
+
+impl<'a> String<'a> {}
+
 impl<'a> String<'_> {
+    /// Creates a new `NSString`
+    pub fn new() -> Self {
+        let objc = unsafe {
+            let nsstring: *mut Object = msg_send![class!(NSString), alloc];
+            Id::from_ptr(msg_send![nsstring, init])
+        };
+
+        String {
+            objc,
+            marker: PhantomData,
+        }
+    }
+
+    /// Creates a new `NSString` from a string slice. without copying the bytes.
+    ///
+    /// # Arguments
+    ///
+    /// * `s` - The string slice to create the `NSString` from.
+    pub fn from_no_cpy_str(s: &'a str) -> Self {
+        String {
+            objc: unsafe {
+                let nsstring: id = msg_send![class!(NSString), alloc];
+                Id::from_ptr(msg_send![nsstring, initWithBytesNoCopy:s.as_ptr()
+                    length:s.len()
+                    encoding:UTF8_ENCODING
+                    freeWhenDone:NO
+                ])
+            },
+
+            marker: PhantomData,
+        }
+    }
+
+    // In cases where we're vended an `NSString` by the system, this can be used to wrap and
+    /// retain it.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferrences a raw pointer.
+    pub unsafe fn retain(object: id) -> Self {
+        String {
+            objc: Id::from_ptr(object),
+            marker: PhantomData,
+        }
+    }
+
+    /// In some cases, we want to wrap a system-provided NSString without retaining it.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferrences a raw pointer.
+    pub unsafe fn from_retained(object: id) -> Self {
+        String {
+            objc: Id::from_retained_ptr(object),
+            marker: PhantomData,
+        }
+    }
+
+    /// Utility method for checking whether an `NSObject` is an `NSString`.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferrences a raw pointer.
+    pub unsafe fn is(obj: id) -> bool {
+        let result: BOOL = msg_send![obj, isKindOfClass: class!(NSString)];
+        to_bool(result)
+    }
+
+    /// Returns the UTF8 bytes for this `NSString`.
+    fn bytes(&self) -> *const u8 {
+        unsafe {
+            let bytes: *const c_char = msg_send![&*self.objc, UTF8String];
+            bytes as *const u8
+        }
+    }
+
+    /// Gets the proper byte length for this `NSString` (the UTF8 variant).
+    fn bytes_len(&self) -> UInt {
+        unsafe { msg_send![&*self.objc, lengthOfBytesUsingEncoding: UTF8_ENCODING] }
+    }
+
+    /// Convert this `NSString` into a `&str`.
+    pub fn as_str(&self) -> &str {
+        let bytes = self.bytes();
+        let len = self.bytes_len();
+
+        unsafe {
+            let bytes = slice::from_raw_parts(bytes, len as usize);
+            std::str::from_utf8(bytes).unwrap()
+        }
+    }
+
     /* Getting a String’s Length
      */
 
@@ -577,9 +557,34 @@ impl<'a> Default for String<'a> {
     }
 }
 
+impl Debug for String<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.as_str())
+    }
+}
+
 impl fmt::Display for String<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl<'a> FromStr for String<'a> {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let objc = unsafe {
+            let nsstring: *mut Object = msg_send![class!(NSString), alloc];
+            Id::from_ptr(msg_send![nsstring, initWithBytes:s.as_ptr()
+                length:s.len()
+                encoding:UTF8_ENCODING
+            ])
+        };
+
+        Ok(String {
+            objc,
+            marker: PhantomData,
+        })
     }
 }
 
