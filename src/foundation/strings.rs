@@ -1,4 +1,5 @@
 use std::{
+    ffi::CString,
     fmt::{self, Debug},
     marker::PhantomData,
     ops::{Deref, DerefMut},
@@ -108,7 +109,7 @@ const UTF8_ENCODING: usize = 4;
 /// The following constants are provided by NSString as possible string encodings.
 #[allow(clippy::enum_clike_unportable_variant)]
 #[derive(Debug)]
-#[repr(C)]
+#[repr(u64)]
 pub enum Encoding {
     /// Strict 7-bit ASCII encoding within 8-bit chars; ASCII values 0…127 only.
     ASCII = 1,
@@ -540,13 +541,22 @@ impl<'a> String<'_> {
      */
 
     /// Returns a new string made by appending to the receiver a given string.
-    pub fn applying_transform(&mut self, transform: StringTransform, reverse: bool) -> String<'a> {
-        unsafe {
+    pub fn applying_transform(
+        &mut self,
+        transform: StringTransform,
+        reverse: bool,
+    ) -> Option<String<'a>> {
+        let result: id = unsafe {
             msg_send![
             &*self.objc,
             stringByApplyingTransform: transform
             reverse: reverse
             ]
+        };
+        if result.is_null() {
+            None
+        } else {
+            Some(result.into())
         }
     }
 }
@@ -566,6 +576,12 @@ impl Debug for String<'_> {
 impl fmt::Display for String<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl Drop for String<'_> {
+    fn drop(&mut self) {
+        unsafe { msg_send![&*self.objc, release] }
     }
 }
 
@@ -592,6 +608,17 @@ impl From<String<'_>> for id {
     /// Consumes and returns the pointer to the underlying NSString instance.
     fn from(mut string: String) -> Self {
         &mut *string.objc
+    }
+}
+
+impl From<id> for String<'_> {
+    /// Creates a new String from a pointer to an NSString instance.
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
+    fn from(objc: id) -> Self {
+        String {
+            objc: unsafe { Id::from_ptr(objc) },
+            marker: PhantomData,
+        }
     }
 }
 
@@ -630,10 +657,12 @@ impl From<&str> for String<'_> {
     fn from(s: &str) -> Self {
         let objc = unsafe {
             let nsstring: *mut Object = msg_send![class!(NSString), alloc];
-            Id::from_ptr(msg_send![nsstring, initWithBytes:s.as_ptr()
-                length:s.len()
-                encoding:UTF8_ENCODING
-            ])
+            Id::from_ptr(
+                msg_send![nsstring, initWithBytes: CString::new(s).unwrap().into_raw() as *mut Object
+                    length:s.len()
+                    encoding:UTF8_ENCODING
+                ],
+            )
         };
 
         String {
@@ -648,10 +677,12 @@ impl From<(&str, Encoding)> for String<'_> {
     fn from((s, encoding): (&str, Encoding)) -> Self {
         let objc = unsafe {
             let nsstring: *mut Object = msg_send![class!(NSString), alloc];
-            Id::from_ptr(msg_send![nsstring, initWithBytes:s.as_ptr()
-                length:s.len()
-                encoding:encoding
-            ])
+            Id::from_ptr(
+                msg_send![nsstring, initWithBytes:CString::new(s).unwrap().into_raw() as *mut Object
+                    length:s.len()
+                    encoding:encoding
+                ],
+            )
         };
 
         String {
