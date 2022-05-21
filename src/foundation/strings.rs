@@ -234,7 +234,7 @@ impl<'a> String<'_> {
     /// # Arguments
     ///
     /// * `s` - The string slice to create the `NSString` from.
-    pub fn from_no_cpy_str(s: &'a str) -> Self {
+    pub fn init_with_no_cpy_str(s: &'a str) -> Self {
         String {
             objc: unsafe {
                 let nsstring: id = msg_send![class!(NSString), alloc];
@@ -245,19 +245,6 @@ impl<'a> String<'_> {
                 ])
             },
 
-            marker: PhantomData,
-        }
-    }
-
-    // In cases where we're vended an `NSString` by the system, this can be used to wrap and
-    /// retain it.
-    ///
-    /// # Safety
-    ///
-    /// This function is unsafe because it dereferrences a raw pointer.
-    pub unsafe fn retain(object: id) -> Self {
-        String {
-            objc: Id::from_ptr(object),
             marker: PhantomData,
         }
     }
@@ -622,6 +609,12 @@ impl fmt::Display for String<'_> {
     }
 }
 
+impl Clone for String<'_> {
+    fn clone(&self) -> Self {
+        unsafe { msg_send![&*self.objc, retain] }
+    }
+}
+
 impl From<String<'_>> for id {
     /// Consumes and returns the pointer to the underlying NSString instance.
     fn from(mut string: String) -> Self {
@@ -766,7 +759,7 @@ mod tests {
 
     #[test]
     fn test_from_no_cpy_str() {
-        let s = String::from_no_cpy_str("Hello, World!");
+        let s = String::init_with_no_cpy_str("Hello, World!");
         assert_eq!(s.as_str(), "Hello, World!");
     }
 
