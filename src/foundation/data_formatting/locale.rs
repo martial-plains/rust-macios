@@ -254,11 +254,17 @@ impl Locale {
 
 impl NSObjectProtocol for Locale {
     fn description(&self) -> String {
-        unsafe { msg_send![self.obj, description] }
+        unsafe {
+            let description: id = msg_send![self.obj, description];
+            description.into()
+        }
     }
 
     fn debug_description(&self) -> String {
-        unsafe { msg_send![self.obj, debugDescription] }
+        unsafe {
+            let description: id = msg_send![self.obj, debugDescription];
+            description.into()
+        }
     }
 }
 

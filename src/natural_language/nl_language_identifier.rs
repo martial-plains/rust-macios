@@ -8,7 +8,7 @@ use std::{
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{foundation::String, objective_c_runtime::NSObjectProtocol};
+use crate::{foundation::String, id, objective_c_runtime::NSObjectProtocol};
 
 use super::NLLanguage;
 
@@ -53,11 +53,13 @@ impl NLLanguageRecognizer {
 
 impl NSObjectProtocol for NLLanguageRecognizer {
     fn description(&self) -> String {
-        unsafe { msg_send![&*self.obj, description] }
+        let obj: id = unsafe { msg_send![&*self.obj, description] };
+        obj.into()
     }
 
     fn debug_description(&self) -> String {
-        unsafe { msg_send![&*self.obj, debugDescription] }
+        let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
+        obj.into()
     }
 }
 

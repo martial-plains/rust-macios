@@ -593,11 +593,17 @@ impl String {
 
 impl NSObjectProtocol for String {
     fn description(&self) -> String {
-        unsafe { msg_send![&*self.objc, description] }
+        unsafe {
+            let description: id = msg_send![&*self.objc, description];
+            description.into()
+        }
     }
 
     fn debug_description(&self) -> String {
-        unsafe { msg_send![&*self.objc, debugDescription] }
+        unsafe {
+            let description: id = msg_send![&*self.objc, debugDescription];
+            description.into()
+        }
     }
 }
 

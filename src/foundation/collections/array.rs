@@ -297,11 +297,13 @@ impl<T> Array<T> {
 
 impl NSObjectProtocol for Array<id> {
     fn description(&self) -> String {
-        unsafe { msg_send![&*self.obj, description] }
+        let obj: id = unsafe { msg_send![&*self.obj, description] };
+        obj.into()
     }
 
     fn debug_description(&self) -> String {
-        unsafe { msg_send![&*self.obj, debugDescription] }
+        let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
+        obj.into()
     }
 }
 
