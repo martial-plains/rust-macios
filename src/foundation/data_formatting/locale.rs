@@ -239,7 +239,7 @@ impl Locale {
         T: Into<String>,
     {
         let class = class!(NSLocale);
-        unsafe { msg_send![class, characterDirectionForLanguage: iso_language_code] }
+        unsafe { msg_send![class, characterDirectionForLanguage: iso_language_code.into()] }
     }
 
     /// Returns the direction of the sequence of lines for the specified ISO language code.
@@ -248,7 +248,7 @@ impl Locale {
         T: Into<String>,
     {
         let class = class!(NSLocale);
-        unsafe { msg_send![class, lineDirectionForLanguage: iso_language_code] }
+        unsafe { msg_send![class, lineDirectionForLanguage: iso_language_code.into()] }
     }
 }
 

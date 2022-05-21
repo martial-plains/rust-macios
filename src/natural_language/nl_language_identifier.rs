@@ -29,12 +29,17 @@ impl NLLanguageRecognizer {
         }
     }
 
+    /// The most likely language for the processed text.
+    pub fn dominant_language(&self) -> String {
+        unsafe { msg_send![self.obj, dominantLanguage] }
+    }
+
     /// Finds the most likely language of a piece of text.
-    pub fn dominant_language<T>(&self, string: T) -> NLLanguage
+    pub fn dominant_language_for<T>(&self, string: T) -> NLLanguage
     where
         T: Into<String>,
     {
-        unsafe { msg_send![self.obj, dominantLanguageForString: string] }
+        unsafe { msg_send![self.obj, dominantLanguageForString: string.into()] }
     }
 
     /// Analyzes the piece of text to determine its dominant language.
@@ -42,7 +47,7 @@ impl NLLanguageRecognizer {
     where
         T: Into<String>,
     {
-        unsafe { msg_send![self.obj, processString: string] }
+        unsafe { msg_send![self.obj, processString: string.into()] }
     }
 
     /// Resets the recognizer to its initial state.

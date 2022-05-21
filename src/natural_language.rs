@@ -7,10 +7,10 @@ pub use enums::*;
 use crate::foundation;
 
 /// The languages that the Natural Language framework supports.
-pub type NLLanguage = *mut foundation::String;
+pub type NLLanguage = foundation::String;
 
 /// Constants for the tag schemes specified when initializing a linguistic tagger.
-pub type NLTagScheme = *mut foundation::String;
+pub type NLTagScheme = foundation::String;
 
 mod nl_language;
 mod nl_language_identifier;

@@ -376,11 +376,11 @@ impl String {
         unsafe { msg_send![&*self.objc, compare: string.into()] }
     }
     /// Returns the result of invoking compare:options:range: with no options and the receiver’s full extent as the range.
-    pub fn localized_compare<T>(&self, string: &T) -> ComparisonResult
+    pub fn localized_compare<T>(&self, string: T) -> ComparisonResult
     where
         T: Into<String>,
     {
-        unsafe { msg_send![&*self.objc, localizedCompare: string] }
+        unsafe { msg_send![&*self.objc, localizedCompare: string.into()] }
     }
 
     /// Compares strings as sorted by the Finder.
@@ -446,8 +446,7 @@ impl String {
         T: Into<String>,
     {
         unsafe {
-            let prefix: String = prefix.into();
-            let result: BOOL = msg_send![&*self.objc, hasPrefix: prefix];
+            let result: BOOL = msg_send![&*self.objc, hasPrefix: prefix.into()];
             to_bool(result)
         }
     }
@@ -462,8 +461,7 @@ impl String {
         T: Into<String>,
     {
         unsafe {
-            let suffix: String = suffix.into();
-            let result: BOOL = msg_send![&*self.objc, hasSuffix: suffix];
+            let result: BOOL = msg_send![&*self.objc, hasSuffix: suffix.into()];
             to_bool(result)
         }
     }
@@ -478,8 +476,7 @@ impl String {
         T: Into<String>,
     {
         unsafe {
-            let string: String = string.into();
-            let result: BOOL = msg_send![&*self.objc, isEqualToString: string];
+            let result: BOOL = msg_send![&*self.objc, isEqualToString: string.into()];
             to_bool(result)
         }
     }
@@ -528,8 +525,7 @@ impl String {
         T: Into<String>,
     {
         unsafe {
-            let other: String = other.into();
-            let result: BOOL = msg_send![&*self.objc, containsString: other];
+            let result: BOOL = msg_send![&*self.objc, containsString: other.into()];
             to_bool(result)
         }
     }
@@ -750,7 +746,7 @@ impl From<(&str, Encoding)> for String {
 impl PartialEq for String {
     /// Checks if two `NSString`s are equal.
     fn eq(&self, other: &Self) -> bool {
-        self.localized_compare(other) == ComparisonResult::OrderedSame
+        self.localized_compare(other.clone()) == ComparisonResult::OrderedSame
     }
 }
 
