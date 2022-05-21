@@ -27,10 +27,11 @@
 #![warn(clippy::all, missing_debug_implementations)]
 #![allow(non_upper_case_globals)]
 
-use ::objc::runtime::Object;
+use objc::runtime::Object;
 
 pub mod foundation;
 pub mod natural_language;
+pub mod objective_c_runtime;
 
 pub(crate) mod utils;
 

@@ -14,7 +14,7 @@ use objc::{
 };
 use objc_id::Id;
 
-use crate::{id, utils::to_bool};
+use crate::{id, objective_c_runtime::NSObjectProtocol, utils::to_bool};
 
 use super::{ComparisonResult, Int, Locale, UInt};
 
@@ -591,6 +591,16 @@ impl String {
     }
 }
 
+impl NSObjectProtocol for String {
+    fn description(&self) -> String {
+        unsafe { msg_send![&*self.objc, description] }
+    }
+
+    fn debug_description(&self) -> String {
+        unsafe { msg_send![&*self.objc, debugDescription] }
+    }
+}
+
 impl Default for String {
     fn default() -> Self {
         Self::new()
@@ -599,13 +609,13 @@ impl Default for String {
 
 impl Debug for String {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self.as_str())
+        write!(f, "{}", self.description().as_str())
     }
 }
 
 impl fmt::Display for String {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.as_str())
+        write!(f, "{}", self.debug_description().as_str())
     }
 }
 

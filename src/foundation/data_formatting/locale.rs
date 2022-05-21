@@ -9,6 +9,7 @@ use objc_id::Id;
 use crate::{
     foundation::{Array, String},
     id,
+    objective_c_runtime::NSObjectProtocol,
 };
 
 use self::key::NSLocaleKey;
@@ -40,18 +41,6 @@ pub struct Locale {
 impl Locale {
     /* Initializing a Locale
      */
-
-    /// Returns a locale initialized using the given locale identifier.
-    pub fn locale_with_locale_identifier<T>(locale_identifier: T) -> Self
-    where
-        T: Into<String>,
-    {
-        unsafe {
-            let class: Locale = msg_send![class!(NSLocale), alloc];
-            let obj = msg_send![class, localeWithLocaleIdentifier: locale_identifier];
-            Locale { obj }
-        }
-    }
 
     /// Initializes a locale using a given locale identifier.
     pub fn init_with_locale_identifier<T>(locale_identifier: T) -> Self
@@ -263,15 +252,25 @@ impl Locale {
     }
 }
 
+impl NSObjectProtocol for Locale {
+    fn description(&self) -> String {
+        unsafe { msg_send![self.obj, description] }
+    }
+
+    fn debug_description(&self) -> String {
+        unsafe { msg_send![self.obj, debugDescription] }
+    }
+}
+
 impl Display for Locale {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.locale_identifier())
+        write!(f, "{}", self.description())
     }
 }
 
 impl Debug for Locale {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Locale: {}", self)
+        write!(f, "Locale: {}", self.debug_description())
     }
 }
 

@@ -9,6 +9,7 @@ use objc_id::Id;
 use crate::{
     foundation::{Locale, String, UInt},
     id,
+    objective_c_runtime::NSObjectProtocol,
     utils::to_bool,
 };
 
@@ -116,7 +117,7 @@ impl<T> Array<T> {
     where
         T: From<id>,
     {
-        unsafe { to_bool(msg_send![self.obj, containsObject: object]) }
+        unsafe { to_bool(msg_send![&*self.obj, containsObject: object]) }
     }
 
     /// The number of objects in the array.
@@ -181,7 +182,7 @@ impl<T> Array<T> {
     where
         T: From<id>,
     {
-        unsafe { msg_send![self.obj, indexOfObject: object] }
+        unsafe { msg_send![&*self.obj, indexOfObject: object] }
     }
 
     /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
@@ -232,7 +233,7 @@ impl<T> Array<T> {
     where
         T: From<id>,
     {
-        unsafe { to_bool(msg_send![self.obj, isEqualToArray: other.clone().obj]) }
+        unsafe { to_bool(msg_send![&*self.obj, isEqualToArray: other.clone().obj]) }
     }
 
     /* Deriving New Arrays
@@ -243,7 +244,7 @@ impl<T> Array<T> {
     where
         T: From<id>,
     {
-        Array::new(unsafe { msg_send![self.obj, arrayByAddingObject: object] })
+        Array::new(unsafe { msg_send![&*self.obj, arrayByAddingObject: object] })
     }
 
     /// Returns a new array that is a copy of the receiving array with the objects contained in another array added to the end.
@@ -261,25 +262,22 @@ impl<T> Array<T> {
     where
         T: From<id>,
     {
-        Array::new(unsafe { msg_send![self.obj, subarrayWithRange: range] })
+        Array::new(unsafe { msg_send![&*self.obj, subarrayWithRange: range] })
     }
 
     /* Creating a Description
      */
 
     /// A string that represents the contents of the array, formatted as a property list.
-    pub fn description(&self) -> String {
-        unsafe { msg_send![self.obj, description] }
-    }
 
     /// Returns a string that represents the contents of the array, formatted as a property list.
     pub fn description_with_locale(&self, locale: &Locale) -> String {
-        unsafe { msg_send![self.obj, descriptionWithLocale: locale.clone().obj] }
+        unsafe { msg_send![&*self.obj, descriptionWithLocale: locale.clone().obj] }
     }
 
     /// Returns a string that represents the contents of the array, formatted as a property list.
     pub fn description_with_locale_indent(&self, locale: &Locale, indent: UInt) -> String {
-        unsafe { msg_send![self.obj, descriptionWithLocale: locale.clone().obj indent: indent] }
+        unsafe { msg_send![&*self.obj, descriptionWithLocale: locale.clone().obj indent: indent] }
     }
 
     /* Rust Conversions
@@ -294,6 +292,16 @@ impl<T> Array<T> {
             array: self,
             index: 0,
         }
+    }
+}
+
+impl NSObjectProtocol for Array<id> {
+    fn description(&self) -> String {
+        unsafe { msg_send![&*self.obj, description] }
+    }
+
+    fn debug_description(&self) -> String {
+        unsafe { msg_send![&*self.obj, debugDescription] }
     }
 }
 
