@@ -42,9 +42,9 @@ impl Locale {
      */
 
     /// Returns a locale initialized using the given locale identifier.
-    pub fn locale_with_locale_identifier<'a, T>(locale_identifier: T) -> Self
+    pub fn locale_with_locale_identifier<T>(locale_identifier: T) -> Self
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe {
             let class: Locale = msg_send![class!(NSLocale), alloc];
@@ -54,9 +54,9 @@ impl Locale {
     }
 
     /// Initializes a locale using a given locale identifier.
-    pub fn init_with_locale_identifier<'a, T>(locale_identifier: T) -> Self
+    pub fn init_with_locale_identifier<T>(locale_identifier: T) -> Self
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe {
             let class: Locale = msg_send![class!(NSLocale), alloc];
@@ -90,31 +90,31 @@ impl Locale {
      */
 
     /// The list of locale identifiers available on the system.
-    pub fn available_locale_identifiers<'a>() -> Array<String<'a>> {
+    pub fn available_locale_identifiers() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, availableLocaleIdentifiers] }
     }
 
     /// The list of known country or region codes.
-    pub fn iso_country_codes<'a>() -> Array<String<'a>> {
+    pub fn iso_country_codes() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOCountryCodes] }
     }
 
     /// The list of known language codes.
-    pub fn iso_language_codes<'a>() -> Array<String<'a>> {
+    pub fn iso_language_codes() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOLanguageCodes] }
     }
 
     /// The list of known currency codes.
-    pub fn iso_currency_codes<'a>() -> Array<String<'a>> {
+    pub fn iso_currency_codes() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOCurrencyCodes] }
     }
 
     /// A list of commonly encountered currency codes.
-    pub fn common_isocurrency_codes<'a>() -> Array<String<'a>> {
+    pub fn common_isocurrency_codes() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, commonISOCurrencyCodes] }
     }
@@ -219,9 +219,9 @@ impl Locale {
     }
 
     /// Returns the display name for the given locale component value.
-    pub fn display_name_for_key_value<'a, T>(&self, key: NSLocaleKey, value: T) -> Option<String>
+    pub fn display_name_for_key_value<T>(&self, key: NSLocaleKey, value: T) -> Option<String>
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         let result: id = unsafe { msg_send![self.obj, displayNameForKey: key value: value.into()] };
 
@@ -236,7 +236,7 @@ impl Locale {
      */
 
     /// An ordered list of the user's preferred languages.
-    pub fn preferred_languages<'a>() -> Array<String<'a>> {
+    pub fn preferred_languages() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, preferredLanguages] }
     }
@@ -245,18 +245,18 @@ impl Locale {
      */
 
     /// Returns the direction of the sequence of characters in a line for the specified ISO language code.
-    pub fn character_direction_for_language<'a, T>(&self, iso_language_code: T) -> LanguageDirection
+    pub fn character_direction_for_language<T>(&self, iso_language_code: T) -> LanguageDirection
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         let class = class!(NSLocale);
         unsafe { msg_send![class, characterDirectionForLanguage: iso_language_code] }
     }
 
     /// Returns the direction of the sequence of lines for the specified ISO language code.
-    pub fn line_direction_for_language<'a, T>(&self, iso_language_code: T) -> LanguageDirection
+    pub fn line_direction_for_language<T>(&self, iso_language_code: T) -> LanguageDirection
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         let class = class!(NSLocale);
         unsafe { msg_send![class, lineDirectionForLanguage: iso_language_code] }

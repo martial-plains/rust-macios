@@ -19,7 +19,7 @@ use crate::{id, utils::to_bool};
 use super::{ComparisonResult, Int, Locale, UInt};
 
 /// Constants representing an ICU string transform.
-pub type StringTransform<'a> = *const String<'a>;
+pub type StringTransform = *const String;
 
 #[allow(improper_ctypes)]
 #[link(name = "Foundation", kind = "framework")]
@@ -29,76 +29,76 @@ extern "C" {
 
     /// A constant containing the transliteration of a string from any script to Latin script.
     #[link_name = "NSStringTransformToLatin"]
-    pub static ToLatin: StringTransform<'static>;
+    pub static ToLatin: StringTransform;
 
     /// LatinToArabic
     #[link_name = "NSStringTransformLatinToArabic"]
-    pub static LatinToArabic: StringTransform<'static>;
+    pub static LatinToArabic: StringTransform;
 
     /// A constant containing the transliteration of a string from Latin script to Cyrillic script.
     #[link_name = "NSStringTransformLatinToCyrillic"]
-    pub static LatinToCyrillic: StringTransform<'static>;
+    pub static LatinToCyrillic: StringTransform;
 
     /// A constant containing the transliteration of a string from Latin script to Greek script.
     #[link_name = "NSStringTransformLatinToGreek"]
-    pub static LatinToGreek: StringTransform<'static>;
+    pub static LatinToGreek: StringTransform;
 
     /// A constant containing the transliteration of a string from Latin script to Hangul script.
     #[link_name = "NSStringTransformLatinToHangul"]
-    pub static LatinToHangul: StringTransform<'static>;
+    pub static LatinToHangul: StringTransform;
 
     /// A constant containing the transliteration of a string from Latin script to Hebrew script.
     #[link_name = "NSStringTransformLatinToHebrew"]
-    pub static LatinToHebrew: StringTransform<'static>;
+    pub static LatinToHebrew: StringTransform;
 
     /// A constant containing the transliteration of a string from Latin script to Hiragana script.
     #[link_name = "NSStringTransformLatinToHiragana"]
-    pub static LatinToHiragana: StringTransform<'static>;
+    pub static LatinToHiragana: StringTransform;
 
     /// A constant containing the transliteration of a string from Latin script to Katakana script.
     #[link_name = "NSStringTransformLatinToKatakana"]
-    pub static LatinToKatakana: StringTransform<'static>;
+    pub static LatinToKatakana: StringTransform;
 
     /// A constant containing the transliteration of a string from Latin script to Thai script.
     #[link_name = "NSStringTransformLatinToThai"]
-    pub static LatinToThai: StringTransform<'static>;
+    pub static LatinToThai: StringTransform;
 
     /// A constant containing the transliteration of a string from Hiragana script to Katakana script.
     #[link_name = "NSStringTransformHiraganaToKatakana"]
-    pub static HiraganaToKatakana: StringTransform<'static>;
+    pub static HiraganaToKatakana: StringTransform;
 
     /// A constant containing the transliteration of a string from Han script to Latin.
     #[link_name = "NSStringTransformHanziToLatin"]
-    pub static MandarinToLatin: StringTransform<'static>;
+    pub static MandarinToLatin: StringTransform;
 
     /* Diacritic and Combining Mark Removal
      */
 
     /// A constant containing the transformation of a string by removing diacritics.
     #[link_name = "NSStringTransformStripDiacritics"]
-    pub static StripDiacritics: StringTransform<'static>;
+    pub static StripDiacritics: StringTransform;
 
     /// A constant containing the transformation of a string by removing combining marks.
     #[link_name = "NSStringTransformStripCombiningMarks"]
-    pub static StripCombiningMarks: StringTransform<'static>;
+    pub static StripCombiningMarks: StringTransform;
 
     /* Halfwidth and Fullwidth Form Conversion
      */
 
     /// A constant containing the transformation of a string from full-width CJK characters to half-width forms.
     #[link_name = "NSStringTransformFullwidthToHalfwidth"]
-    pub static FullwidthToHalfwidth: StringTransform<'static>;
+    pub static FullwidthToHalfwidth: StringTransform;
 
     /* Character Representation
      */
 
     /// An identifier for a transform that converts characters to Unicode names.
     #[link_name = "NSStringTransformToUnicodeName"]
-    pub static ToUnicodeName: StringTransform<'static>;
+    pub static ToUnicodeName: StringTransform;
 
     /// A constant containing the transformation of a string from characters to XML hexadecimal escape codes.
     #[link_name = "NSStringTransformToXMLHex"]
-    pub static ToXMLHex: StringTransform<'static>;
+    pub static ToXMLHex: StringTransform;
 
 }
 
@@ -207,15 +207,15 @@ impl CompareOptions {
 
 /// This is a mapping to the Objective-C NSString class.
 #[repr(C)]
-pub struct String<'a> {
+pub struct String {
     /// The raw pointer to the Objective-C object.
     pub objc: Id<Object>,
-    marker: PhantomData<&'a ()>,
+    marker: PhantomData<()>,
 }
 
-impl<'a> String<'a> {}
+impl String {}
 
-impl<'a> String<'_> {
+impl String {
     /// Creates a new `NSString`
     pub fn new() -> Self {
         let objc = unsafe {
@@ -234,7 +234,7 @@ impl<'a> String<'_> {
     /// # Arguments
     ///
     /// * `s` - The string slice to create the `NSString` from.
-    pub fn init_with_no_cpy_str(s: &'a str) -> Self {
+    pub fn init_with_no_cpy_str(s: &str) -> Self {
         String {
             objc: unsafe {
                 let nsstring: id = msg_send![class!(NSString), alloc];
@@ -343,7 +343,7 @@ impl<'a> String<'_> {
     /// * `string` - The string to compare.
     pub fn case_insensitive_compare<T>(&self, string: T) -> ComparisonResult
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe { msg_send![&*self.objc, caseInsensitiveCompare: string.into()] }
     }
@@ -355,7 +355,7 @@ impl<'a> String<'_> {
     /// * `string` - The string to compare.
     pub fn localized_case_insensitive_compare<T>(&self, string: T) -> ComparisonResult
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe { msg_send![&*self.objc, localizedCaseInsensitiveCompare: string.into()] }
     }
@@ -371,14 +371,14 @@ impl<'a> String<'_> {
     /// This value must not be nil. If this value is nil, the behavior is undefined and may change in future versions of macOS.
     pub fn compare<T>(&self, string: T) -> ComparisonResult
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe { msg_send![&*self.objc, compare: string.into()] }
     }
     /// Returns the result of invoking compare:options:range: with no options and the receiver’s full extent as the range.
     pub fn localized_compare<T>(&self, string: &T) -> ComparisonResult
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe { msg_send![&*self.objc, localizedCompare: string] }
     }
@@ -394,7 +394,7 @@ impl<'a> String<'_> {
     /// The result of the comparison.
     pub fn localized_standard_compare<T>(&self, string: T) -> ComparisonResult
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe { msg_send![&*self.objc, localizedStandardCompare: string.into()] }
     }
@@ -402,7 +402,7 @@ impl<'a> String<'_> {
     /// Compares the string with the specified string using the given options.
     pub fn compare_with_options<T>(&self, string: T, options: CompareOptions) -> ComparisonResult
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe { msg_send![&*self.objc, compare: string.into() options: options] }
     }
@@ -415,7 +415,7 @@ impl<'a> String<'_> {
         range: Range<UInt>,
     ) -> ComparisonResult
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe { msg_send![&*self.objc, compare: string.into() options: options range: range] }
     }
@@ -429,7 +429,7 @@ impl<'a> String<'_> {
         locale: Locale,
     ) -> ComparisonResult
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe {
             msg_send![&*self.objc, compare: string.into() options: options range: range locale: locale]
@@ -443,7 +443,7 @@ impl<'a> String<'_> {
     /// * `prefix` - The prefix to search for.
     pub fn has_prefix<T>(&self, prefix: T) -> bool
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe {
             let prefix: String = prefix.into();
@@ -459,7 +459,7 @@ impl<'a> String<'_> {
     /// * `suffix` - The suffix to search for.
     pub fn has_suffix<T>(&self, suffix: T) -> bool
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe {
             let suffix: String = suffix.into();
@@ -475,7 +475,7 @@ impl<'a> String<'_> {
     /// * `string` - The string to compare with the receiver.
     pub fn is_equal_to<T>(&self, string: T) -> bool
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe {
             let string: String = string.into();
@@ -494,7 +494,7 @@ impl<'a> String<'_> {
     /// * `string` - The string to append to the receiver. This value must not be nil.
     pub fn appending<T>(&self, string: T) -> String
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe { msg_send![&*self.objc, stringByAppendingString: string.into()] }
     }
@@ -512,7 +512,7 @@ impl<'a> String<'_> {
     /// A new string formed from the receiver by either removing characters from the end, or by appending as many occurrences of `pad_string` as necessary.
     pub fn padding<T>(&self, new_length: Int, pad_string: T, starting_at: Int) -> String
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe {
             msg_send![&*self.objc, stringByPaddingToLength: new_length withString: pad_string.into() startingAtIndex: starting_at]
@@ -525,7 +525,7 @@ impl<'a> String<'_> {
     /// Returns a boolean value indicating whether the string contains a given string by performing a case-sensitive, locale-unaware search.
     pub fn contains<T>(&self, other: T) -> bool
     where
-        T: Into<String<'a>>,
+        T: Into<String>,
     {
         unsafe {
             let other: String = other.into();
@@ -538,32 +538,32 @@ impl<'a> String<'_> {
      */
 
     /// A lowercase representation of the string.
-    pub fn lowercased(&self) -> String<'a> {
+    pub fn lowercased(&self) -> String {
         unsafe { msg_send![&*self.objc, lowercaseString] }
     }
 
     /// Returns a version of the string with all letters converted to lowercase, taking into account the current locale.
-    pub fn localized_lowercase(&self) -> String<'a> {
+    pub fn localized_lowercase(&self) -> String {
         unsafe { msg_send![&*self.objc, localizedLowercaseString] }
     }
 
     /// An uppercase representation of the string.
-    pub fn uppercased(&self) -> String<'a> {
+    pub fn uppercased(&self) -> String {
         unsafe { msg_send![&*self.objc, uppercaseString] }
     }
 
     /// Returns a version of the string with all letters converted to uppercase, taking into account the current locale.
-    pub fn localized_uppercase(&self) -> String<'a> {
+    pub fn localized_uppercase(&self) -> String {
         unsafe { msg_send![&*self.objc, localizedUppercaseString] }
     }
 
     /// A capitalized representation of the string.
-    pub fn capitalized(&self) -> String<'a> {
+    pub fn capitalized(&self) -> String {
         unsafe { msg_send![&*self.objc, capitalizedString] }
     }
 
     /// Returns a capitalized representation of the receiver using the current locale.
-    pub fn localized_capitalized(&self) -> String<'a> {
+    pub fn localized_capitalized(&self) -> String {
         unsafe { msg_send![&*self.objc, localizedCapitalizedString] }
     }
 
@@ -575,7 +575,7 @@ impl<'a> String<'_> {
         &mut self,
         transform: StringTransform,
         reverse: bool,
-    ) -> Option<String<'a>> {
+    ) -> Option<String> {
         let result: id = unsafe {
             msg_send![
             &*self.objc,
@@ -591,38 +591,38 @@ impl<'a> String<'_> {
     }
 }
 
-impl<'a> Default for String<'a> {
+impl Default for String {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Debug for String<'_> {
+impl Debug for String {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.as_str())
     }
 }
 
-impl fmt::Display for String<'_> {
+impl fmt::Display for String {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.as_str())
     }
 }
 
-impl Clone for String<'_> {
+impl Clone for String {
     fn clone(&self) -> Self {
         unsafe { msg_send![&*self.objc, retain] }
     }
 }
 
-impl From<String<'_>> for id {
+impl From<String> for id {
     /// Consumes and returns the pointer to the underlying NSString instance.
     fn from(mut string: String) -> Self {
         &mut *string.objc
     }
 }
 
-impl From<id> for String<'_> {
+impl From<id> for String {
     /// Creates a new String from a pointer to an NSString instance.
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn from(objc: id) -> Self {
@@ -633,7 +633,7 @@ impl From<id> for String<'_> {
     }
 }
 
-impl Deref for String<'_> {
+impl Deref for String {
     type Target = Object;
 
     /// Derefs to the underlying Objective-C Object.
@@ -642,14 +642,14 @@ impl Deref for String<'_> {
     }
 }
 
-impl DerefMut for String<'_> {
+impl DerefMut for String {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
         &mut *self.objc
     }
 }
 
-impl From<std::string::String> for String<'_> {
+impl From<std::string::String> for String {
     /// Creates a new `NSString` from a `String`.
     fn from(s: std::string::String) -> Self {
         String {
@@ -663,7 +663,7 @@ impl From<std::string::String> for String<'_> {
     }
 }
 
-impl From<&str> for String<'_> {
+impl From<&str> for String {
     /// Creates a new `NSString` from a `&str`.
     fn from(s: &str) -> Self {
         let objc = unsafe {
@@ -683,7 +683,7 @@ impl From<&str> for String<'_> {
     }
 }
 
-impl From<char> for String<'_> {
+impl From<char> for String {
     /// Creates a new `NSString` from a `char`.
     fn from(c: char) -> Self {
         let objc = unsafe {
@@ -703,7 +703,7 @@ impl From<char> for String<'_> {
     }
 }
 
-impl From<String<'_>> for &str {
+impl From<String> for &str {
     /// Converts a `NSString` to a `&str`.
     fn from(string: String) -> Self {
         unsafe {
@@ -713,7 +713,7 @@ impl From<String<'_>> for &str {
     }
 }
 
-impl From<(&str, Encoding)> for String<'_> {
+impl From<(&str, Encoding)> for String {
     /// Creates a new `NSString` from a `&str` and an encoding.
     fn from((s, encoding): (&str, Encoding)) -> Self {
         let objc = unsafe {
@@ -731,14 +731,14 @@ impl From<(&str, Encoding)> for String<'_> {
     }
 }
 
-impl PartialEq for String<'_> {
+impl PartialEq for String {
     /// Checks if two `NSString`s are equal.
     fn eq(&self, other: &Self) -> bool {
         self.localized_compare(other) == ComparisonResult::OrderedSame
     }
 }
 
-impl PartialEq<&str> for String<'_> {
+impl PartialEq<&str> for String {
     /// Checks if a `NSString` is equal to a `&str`.
     fn eq(&self, other: &&str) -> bool {
         self.as_str() == *other
