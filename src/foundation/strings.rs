@@ -1,10 +1,9 @@
 use std::{
-    ffi::CString,
+    ffi::{CStr, CString},
     fmt::{self, Debug},
     marker::PhantomData,
-    ops::{Deref, DerefMut},
+    ops::{Deref, DerefMut, Range},
     slice,
-    str::FromStr,
 };
 
 use libc::c_char;
@@ -17,7 +16,7 @@ use objc_id::Id;
 
 use crate::{id, utils::to_bool};
 
-use super::{ComparisonResult, Int, UInt};
+use super::{ComparisonResult, Int, Locale, UInt};
 
 /// Constants representing an ICU string transform.
 pub type StringTransform<'a> = *const String<'a>;
@@ -389,6 +388,13 @@ impl<'a> String<'_> {
     {
         unsafe { msg_send![&*self.objc, compare: string.into()] }
     }
+    /// Returns the result of invoking compare:options:range: with no options and the receiver’s full extent as the range.
+    pub fn localized_compare<T>(&self, string: &T) -> ComparisonResult
+    where
+        T: Into<String<'a>>,
+    {
+        unsafe { msg_send![&*self.objc, localizedCompare: string] }
+    }
 
     /// Compares strings as sorted by the Finder.
     ///
@@ -404,6 +410,43 @@ impl<'a> String<'_> {
         T: Into<String<'a>>,
     {
         unsafe { msg_send![&*self.objc, localizedStandardCompare: string.into()] }
+    }
+
+    /// Compares the string with the specified string using the given options.
+    pub fn compare_with_options<T>(&self, string: T, options: CompareOptions) -> ComparisonResult
+    where
+        T: Into<String<'a>>,
+    {
+        unsafe { msg_send![&*self.objc, compare: string.into() options: options] }
+    }
+
+    /// Returns the result of invoking compare(_:options:range:locale:) with a nil locale.
+    pub fn compare_with_options_range<T>(
+        &self,
+        string: T,
+        options: CompareOptions,
+        range: Range<UInt>,
+    ) -> ComparisonResult
+    where
+        T: Into<String<'a>>,
+    {
+        unsafe { msg_send![&*self.objc, compare: string.into() options: options range: range] }
+    }
+
+    /// Compares the string using the specified options and returns the lexical ordering for the range.
+    pub fn compare_with_options_range_locale<T>(
+        &self,
+        string: T,
+        options: CompareOptions,
+        range: Range<UInt>,
+        locale: Locale,
+    ) -> ComparisonResult
+    where
+        T: Into<String<'a>>,
+    {
+        unsafe {
+            msg_send![&*self.objc, compare: string.into() options: options range: range locale: locale]
+        }
     }
 
     /// Returns a Boolean value that indicates whether a given string matches the beginning characters of the receiver.
@@ -579,31 +622,6 @@ impl fmt::Display for String<'_> {
     }
 }
 
-impl Drop for String<'_> {
-    fn drop(&mut self) {
-        unsafe { msg_send![&*self.objc, release] }
-    }
-}
-
-impl<'a> FromStr for String<'a> {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let objc = unsafe {
-            let nsstring: *mut Object = msg_send![class!(NSString), alloc];
-            Id::from_ptr(msg_send![nsstring, initWithBytes:s.as_ptr()
-                length:s.len()
-                encoding:UTF8_ENCODING
-            ])
-        };
-
-        Ok(String {
-            objc,
-            marker: PhantomData,
-        })
-    }
-}
-
 impl From<String<'_>> for id {
     /// Consumes and returns the pointer to the underlying NSString instance.
     fn from(mut string: String) -> Self {
@@ -672,17 +690,45 @@ impl From<&str> for String<'_> {
     }
 }
 
+impl From<char> for String<'_> {
+    /// Creates a new `NSString` from a `char`.
+    fn from(c: char) -> Self {
+        let objc = unsafe {
+            let nsstring: *mut Object = msg_send![class!(NSString), alloc];
+            Id::from_ptr(
+                msg_send![nsstring, initWithBytes: c.encode_utf8(&mut [0; 4]).as_ptr()
+                    length:1
+                    encoding:UTF8_ENCODING
+                ],
+            )
+        };
+
+        String {
+            objc,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl From<String<'_>> for &str {
+    /// Converts a `NSString` to a `&str`.
+    fn from(string: String) -> Self {
+        unsafe {
+            let ptr: *const c_char = msg_send![string.objc, UTF8String];
+            CStr::from_ptr(ptr).to_str().unwrap()
+        }
+    }
+}
+
 impl From<(&str, Encoding)> for String<'_> {
     /// Creates a new `NSString` from a `&str` and an encoding.
     fn from((s, encoding): (&str, Encoding)) -> Self {
         let objc = unsafe {
             let nsstring: *mut Object = msg_send![class!(NSString), alloc];
-            Id::from_ptr(
-                msg_send![nsstring, initWithBytes:CString::new(s).unwrap().into_raw() as *mut Object
-                    length:s.len()
-                    encoding:encoding
-                ],
-            )
+            Id::from_ptr(msg_send![nsstring, initWithBytes:s.as_ptr()
+                length:s.len()
+                encoding:encoding
+            ])
         };
 
         String {
@@ -695,10 +741,14 @@ impl From<(&str, Encoding)> for String<'_> {
 impl PartialEq for String<'_> {
     /// Checks if two `NSString`s are equal.
     fn eq(&self, other: &Self) -> bool {
-        unsafe {
-            let result: BOOL = msg_send![&*self.objc, isEqualToString:&*other.objc];
-            to_bool(result)
-        }
+        self.localized_compare(other) == ComparisonResult::OrderedSame
+    }
+}
+
+impl PartialEq<&str> for String<'_> {
+    /// Checks if a `NSString` is equal to a `&str`.
+    fn eq(&self, other: &&str) -> bool {
+        self.as_str() == *other
     }
 }
 
@@ -710,7 +760,7 @@ mod tests {
 
     #[test]
     fn test_from_str() {
-        let s = String::from_str("Hello, World!").unwrap();
+        let s = String::from("Hello, World!");
         assert_eq!(s.as_str(), "Hello, World!");
     }
 
@@ -722,32 +772,20 @@ mod tests {
 
     #[test]
     fn test_bytes_len() {
-        let s = String::from_str("Hello, World!").unwrap();
+        let s = String::from("Hello, World!");
         assert_eq!(s.bytes_len(), 13);
     }
 
     #[test]
     fn test_as_str() {
-        let s = String::from_str("Hello, World!").unwrap();
+        let s = String::from("Hello, World!");
         assert_eq!(s.as_str(), "Hello, World!");
     }
 
     #[test]
     fn test_to_string() {
-        let s = String::from_str("Hello, World!").unwrap();
+        let s = String::from("Hello, World!");
         assert_eq!(s.to_string(), "Hello, World!".to_string());
-    }
-
-    #[test]
-    fn test_eq() {
-        let s1 = String::from_str("Hello, World!").unwrap();
-        let s2 = String::from_str("Hello, World!").unwrap();
-        let s3 = String::from_str("Hello, World!").unwrap();
-        let s4 = String::from_str("Hello, World!").unwrap();
-
-        assert_eq!(s1, s2);
-        assert_eq!(s1, s3);
-        assert_eq!(s1, s4);
     }
 
     #[test]
@@ -861,5 +899,12 @@ mod tests {
             s.localized_standard_compare("Goodbye, World!"),
             ComparisonResult::OrderedDescending
         );
+    }
+
+    #[test]
+    fn test_applying_transform() {
+        let mut s = String::from("Katakana!");
+        let transform = unsafe { LatinToKatakana };
+        assert_eq!(s.applying_transform(transform, false).unwrap(), "カタカナ!");
     }
 }
