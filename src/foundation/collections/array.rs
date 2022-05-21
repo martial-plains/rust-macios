@@ -1,6 +1,6 @@
 use std::{
     fmt::Debug,
-    ops::{Deref, DerefMut, Range},
+    ops::{Deref, DerefMut, Index, Range},
 };
 
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
@@ -28,7 +28,7 @@ pub struct Array<T> {
 
 impl<'a, T> Iterator for ArrayIter<'a, T>
 where
-    T: Debug + From<id>,
+    T: From<id>,
 {
     type Item = T;
 
@@ -288,7 +288,7 @@ impl<T> Array<T> {
     /// Returns an iterator over the objects in the array.
     pub fn iter(&self) -> ArrayIter<'_, T>
     where
-        T: Debug + From<id>,
+        T: From<id>,
     {
         ArrayIter {
             array: self,
@@ -317,6 +317,30 @@ where
 impl<T> Clone for Array<T> {
     fn clone(&self) -> Self {
         Array::new(unsafe { msg_send![self.obj, retain] })
+    }
+}
+
+impl<'a, T> IntoIterator for &'a Array<T>
+where
+    T: From<id>,
+{
+    type Item = T;
+    type IntoIter = ArrayIter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+impl<T> Index<UInt> for Array<T>
+where
+    Array<T>: AsRef<[T]>,
+    T: From<id>,
+{
+    type Output = T;
+
+    fn index(&self, index: UInt) -> &Self::Output {
+        &self.as_ref()[index as usize]
     }
 }
 
