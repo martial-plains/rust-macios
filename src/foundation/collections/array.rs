@@ -1,6 +1,6 @@
 use std::{
     fmt::Debug,
-    ops::{Deref, DerefMut, Index, Range},
+    ops::{Deref, DerefMut, Range},
 };
 
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
@@ -329,18 +329,6 @@ where
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
-    }
-}
-
-impl<T> Index<UInt> for Array<T>
-where
-    Array<T>: AsRef<[T]>,
-    T: From<id>,
-{
-    type Output = T;
-
-    fn index(&self, index: UInt) -> &Self::Output {
-        &self.as_ref()[index as usize]
     }
 }
 
