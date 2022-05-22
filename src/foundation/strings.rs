@@ -3,7 +3,6 @@ use std::{
     fmt::{self, Debug},
     marker::PhantomData,
     ops::{Deref, DerefMut, Range},
-    slice,
 };
 
 use libc::c_char;
@@ -14,14 +13,17 @@ use objc::{
 };
 use objc_id::Id;
 
-use crate::{id, objective_c_runtime::NSObjectProtocol, utils::to_bool};
+use crate::{id, objective_c_runtime::NSObject, utils::to_bool};
 
 use super::{ComparisonResult, Int, Locale, UInt};
+
+/// Type for UTF-16 code units.
+#[allow(non_camel_case_types)]
+type unichar = u16;
 
 /// Constants representing an ICU string transform.
 pub type StringTransform = *const String;
 
-#[allow(improper_ctypes)]
 #[link(name = "Foundation", kind = "framework")]
 extern "C" {
     /* Transliteration
@@ -106,7 +108,6 @@ extern "C" {
 const UTF8_ENCODING: usize = 4;
 
 /// The following constants are provided by NSString as possible string encodings.
-#[allow(clippy::enum_clike_unportable_variant)]
 #[derive(Debug)]
 #[repr(u64)]
 pub enum Encoding {
@@ -229,26 +230,6 @@ impl String {
         }
     }
 
-    /// Creates a new `NSString` from a string slice. without copying the bytes.
-    ///
-    /// # Arguments
-    ///
-    /// * `s` - The string slice to create the `NSString` from.
-    pub fn init_with_no_cpy_str(s: &str) -> Self {
-        String {
-            objc: unsafe {
-                let nsstring: id = msg_send![class!(NSString), alloc];
-                Id::from_ptr(msg_send![nsstring, initWithBytesNoCopy:s.as_ptr()
-                    length:s.len()
-                    encoding:UTF8_ENCODING
-                    freeWhenDone:NO
-                ])
-            },
-
-            marker: PhantomData,
-        }
-    }
-
     /// In some cases, we want to wrap a system-provided NSString without retaining it.
     ///
     /// # Safety
@@ -272,26 +253,111 @@ impl String {
     }
 
     /// Returns the UTF8 bytes for this `NSString`.
-    fn bytes(&self) -> *const u8 {
+    fn bytes(&self) -> *const c_char {
         unsafe {
             let bytes: *const c_char = msg_send![&*self.objc, UTF8String];
-            bytes as *const u8
+            bytes
         }
     }
 
     /// Gets the proper byte length for this `NSString` (the UTF8 variant).
-    fn bytes_len(&self) -> UInt {
+    pub fn bytes_len(&self) -> UInt {
         unsafe { msg_send![&*self.objc, lengthOfBytesUsingEncoding: UTF8_ENCODING] }
     }
 
     /// Convert this `NSString` into a `&str`.
     pub fn as_str(&self) -> &str {
         let bytes = self.bytes();
-        let len = self.bytes_len();
 
         unsafe {
-            let bytes = slice::from_raw_parts(bytes, len as usize);
-            std::str::from_utf8(bytes).unwrap()
+            let bytes = CStr::from_ptr(bytes);
+            bytes.to_str().unwrap()
+        }
+    }
+
+    /* Creating and Initializing Strings
+     */
+
+    /// Returns an initialized NSString object that contains no characters.
+    pub fn init() -> Self {
+        let objc = unsafe {
+            let nsstring: *mut Object = msg_send![class!(NSString), alloc];
+            Id::from_ptr(msg_send![nsstring, init])
+        };
+
+        String {
+            objc,
+            marker: PhantomData,
+        }
+    }
+
+    /// Returns an initialized NSString object containing a given number of bytes from a given
+    /// buffer of bytes interpreted in a given encoding.
+    pub fn init_with_bytes_len_encoding(
+        bytes: *const c_char,
+        len: UInt,
+        encoding: Encoding,
+    ) -> Self {
+        let objc = unsafe {
+            let nsstring: *mut Object = msg_send![class!(NSString), alloc];
+            Id::from_ptr(msg_send![nsstring, initWithBytes:bytes
+                length:len
+                encoding:encoding
+            ])
+        };
+
+        String {
+            objc,
+            marker: PhantomData,
+        }
+    }
+
+    /// Returns an initialized NSString object that contains a given number of bytes from
+    /// a given buffer of bytes interpreted in a given encoding, and optionally frees the buffer.
+    ///
+    /// # Arguments
+    ///
+    /// * `s` - The string slice to create the `NSString` from.
+    pub fn init_with_no_cpy_str(s: &str) -> Self {
+        String {
+            objc: unsafe {
+                let nsstring: id = msg_send![class!(NSString), alloc];
+                Id::from_ptr(msg_send![nsstring, initWithBytesNoCopy:s.as_ptr()
+                    length:s.len()
+                    encoding:UTF8_ENCODING
+                    freeWhenDone:NO
+                ])
+            },
+
+            marker: PhantomData,
+        }
+    }
+
+    /// Returns an initialized NSString object that contains a given number of characters from
+    /// a given C array of UTF-16 code units.
+    pub fn init_with_characters_len(characters: *const unichar, len: UInt) -> Self {
+        let objc = unsafe {
+            let nsstring: *mut Object = msg_send![class!(NSString), alloc];
+            Id::from_ptr(msg_send![nsstring, initWithCharacters:characters
+                length:len
+            ])
+        };
+
+        String {
+            objc,
+            marker: PhantomData,
+        }
+    }
+
+    /// Returns an NSString object initialized by copying the characters from another given string.
+    pub fn init_with_str(s: &str) -> Self {
+        String {
+            objc: unsafe {
+                let nsstring: id = msg_send![class!(NSString), alloc];
+                Id::from_ptr(msg_send![nsstring, initWithString:s.as_ptr()])
+            },
+
+            marker: PhantomData,
         }
     }
 
@@ -582,23 +648,38 @@ impl String {
         if result.is_null() {
             None
         } else {
-            Some(result.into())
+            Some(String::from_id(result))
         }
     }
 }
 
-impl NSObjectProtocol for String {
+impl NSObject for String {
+    fn init() -> Self {
+        todo!()
+    }
+
+    fn as_id(mut self) -> id {
+        &mut *self.objc
+    }
+
+    fn from_id(obj: id) -> Self {
+        String {
+            objc: unsafe { Id::from_ptr(obj) },
+            marker: PhantomData,
+        }
+    }
+
     fn description(&self) -> String {
         unsafe {
             let description: id = msg_send![&*self.objc, description];
-            description.into()
+            String::from_id(description)
         }
     }
 
     fn debug_description(&self) -> String {
         unsafe {
             let description: id = msg_send![&*self.objc, debugDescription];
-            description.into()
+            String::from_id(description)
         }
     }
 }
@@ -624,24 +705,6 @@ impl fmt::Display for String {
 impl Clone for String {
     fn clone(&self) -> Self {
         unsafe { msg_send![&*self.objc, retain] }
-    }
-}
-
-impl From<String> for id {
-    /// Consumes and returns the pointer to the underlying NSString instance.
-    fn from(mut string: String) -> Self {
-        &mut *string.objc
-    }
-}
-
-impl From<id> for String {
-    /// Creates a new String from a pointer to an NSString instance.
-    #[allow(clippy::not_unsafe_ptr_arg_deref)]
-    fn from(objc: id) -> Self {
-        String {
-            objc: unsafe { Id::from_ptr(objc) },
-            marker: PhantomData,
-        }
     }
 }
 
@@ -773,6 +836,13 @@ mod tests {
     fn test_from_no_cpy_str() {
         let s = String::init_with_no_cpy_str("Hello, World!");
         assert_eq!(s.as_str(), "Hello, World!");
+    }
+
+    #[test]
+    fn test_bytes() {
+        let s = String::from("Hello, World!");
+        let other = s.bytes();
+        assert_eq!(s.bytes(), other);
     }
 
     #[test]

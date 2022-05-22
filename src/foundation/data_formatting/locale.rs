@@ -9,7 +9,7 @@ use objc_id::Id;
 use crate::{
     foundation::{Array, String},
     id,
-    objective_c_runtime::NSObjectProtocol,
+    objective_c_runtime::NSObject,
 };
 
 use self::key::NSLocaleKey;
@@ -217,7 +217,7 @@ impl Locale {
         if result.is_null() {
             None
         } else {
-            Some(result.into())
+            Some(String::from_id(result))
         }
     }
 
@@ -252,18 +252,30 @@ impl Locale {
     }
 }
 
-impl NSObjectProtocol for Locale {
+impl NSObject for Locale {
+    fn init() -> Self {
+        todo!()
+    }
+
+    fn as_id(mut self) -> id {
+        &mut *self.obj
+    }
+
+    fn from_id(_obj: id) -> Self {
+        todo!()
+    }
+
     fn description(&self) -> String {
         unsafe {
             let description: id = msg_send![self.obj, description];
-            description.into()
+            String::from_id(description)
         }
     }
 
     fn debug_description(&self) -> String {
         unsafe {
             let description: id = msg_send![self.obj, debugDescription];
-            description.into()
+            String::from_id(description)
         }
     }
 }
@@ -314,7 +326,6 @@ impl From<Locale> for id {
 
 impl From<id> for Locale {
     /// Converts the `Object` into a `Locale`.
-    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn from(val: id) -> Self {
         Locale {
             obj: unsafe { msg_send![val, retain] },

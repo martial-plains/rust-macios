@@ -25,7 +25,13 @@
     while_true
 )]
 #![warn(clippy::all, missing_debug_implementations)]
-#![allow(non_upper_case_globals)]
+#![allow(
+    non_upper_case_globals,
+    clippy::let_unit_value,
+    clippy::enum_clike_unportable_variant,
+    clippy::not_unsafe_ptr_arg_deref,
+    improper_ctypes
+)]
 
 use objc::runtime::Object;
 

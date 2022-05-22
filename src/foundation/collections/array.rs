@@ -9,7 +9,7 @@ use objc_id::Id;
 use crate::{
     foundation::{Locale, String, UInt},
     id,
-    objective_c_runtime::NSObjectProtocol,
+    objective_c_runtime::NSObject,
     utils::to_bool,
 };
 
@@ -29,7 +29,7 @@ pub struct Array<T> {
 
 impl<'a, T> Iterator for ArrayIter<'a, T>
 where
-    T: From<id>,
+    T: NSObject,
 {
     type Item = T;
 
@@ -50,7 +50,6 @@ impl<T> Array<T> {
     /// # Safety
     ///
     /// The caller must ensure that the pointer is valid.
-    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub fn new(ptr: *mut Object) -> Self {
         Self {
             obj: unsafe { Id::from_ptr(ptr) },
@@ -69,7 +68,7 @@ impl<T> Array<T> {
     /// A new array with the specified capacity.
     pub fn from_objects(objects: &[T]) -> Self
     where
-        T: From<id>,
+        T: NSObject,
     {
         Array::new(unsafe {
             msg_send![class!(NSArray),
@@ -115,7 +114,7 @@ impl<T> Array<T> {
     ///
     pub fn contains(&self, object: T) -> bool
     where
-        T: From<id>,
+        T: NSObject,
     {
         unsafe { to_bool(msg_send![&*self.obj, containsObject: object]) }
     }
@@ -128,14 +127,14 @@ impl<T> Array<T> {
     /// The first object in the array.
     pub fn first_object(&self) -> Option<T>
     where
-        T: From<id>,
+        T: NSObject,
     {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, firstObject];
             if ptr.is_null() {
                 None
             } else {
-                Some(ptr.into())
+                Some(T::from_id(ptr))
             }
         }
     }
@@ -143,14 +142,14 @@ impl<T> Array<T> {
     /// The last object in the array.
     pub fn last_object(&self) -> Option<T>
     where
-        T: From<id>,
+        T: NSObject,
     {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, lastObject];
             if ptr.is_null() {
                 None
             } else {
-                Some(ptr.into())
+                Some(T::from_id(ptr))
             }
         }
     }
@@ -158,11 +157,11 @@ impl<T> Array<T> {
     /// The object at the specified index.
     pub fn object_at(&self, index: UInt) -> T
     where
-        T: From<id>,
+        T: NSObject,
     {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, objectAtIndex: index];
-            ptr.into()
+            T::from_id(ptr)
         }
     }
 
@@ -180,7 +179,7 @@ impl<T> Array<T> {
     /// Returns the lowest index whose corresponding array value is equal to a given object.
     pub fn index_of(&self, object: T) -> UInt
     where
-        T: From<id>,
+        T: NSObject,
     {
         unsafe { msg_send![&*self.obj, indexOfObject: object] }
     }
@@ -188,7 +187,7 @@ impl<T> Array<T> {
     /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
     pub fn index_of_object_in_range(&self, object: T, range: Range<UInt>) -> UInt
     where
-        T: From<id>,
+        T: NSObject,
     {
         unsafe { msg_send![self.obj, indexOfObject: object inRange: range] }
     }
@@ -196,7 +195,7 @@ impl<T> Array<T> {
     /// Returns the lowest index whose corresponding array value is identical to a given object.
     pub fn index_of_object_identical_to(&self, object: T) -> UInt
     where
-        T: From<id>,
+        T: NSObject,
     {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object] }
     }
@@ -204,7 +203,7 @@ impl<T> Array<T> {
     /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
     pub fn index_of_object_identical_to_in_range(&self, object: T, range: Range<UInt>) -> UInt
     where
-        T: From<id>,
+        T: NSObject,
     {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object inRange: range] }
     }
@@ -215,7 +214,7 @@ impl<T> Array<T> {
     /// Returns the first object contained in the receiving array that’s equal to an object in another given array.
     pub fn first_object_common_with(&self, other: &Array<T>) -> Option<T>
     where
-        T: From<id>,
+        T: NSObject,
     {
         unsafe {
             let ptr: *mut Object =
@@ -223,7 +222,7 @@ impl<T> Array<T> {
             if ptr.is_null() {
                 None
             } else {
-                Some(ptr.into())
+                Some(T::from_id(ptr))
             }
         }
     }
@@ -231,7 +230,7 @@ impl<T> Array<T> {
     /// Compares the receiving array to another array.
     pub fn is_equal_to(&self, other: &Array<T>) -> bool
     where
-        T: From<id>,
+        T: NSObject,
     {
         unsafe { to_bool(msg_send![&*self.obj, isEqualToArray: other.clone().obj]) }
     }
@@ -242,7 +241,7 @@ impl<T> Array<T> {
     /// Returns a new array that is a copy of the receiving array with a given object added to the end.
     pub fn adding(&self, object: T) -> Array<T>
     where
-        T: From<id>,
+        T: NSObject,
     {
         Array::new(unsafe { msg_send![&*self.obj, arrayByAddingObject: object] })
     }
@@ -250,7 +249,7 @@ impl<T> Array<T> {
     /// Returns a new array that is a copy of the receiving array with the objects contained in another array added to the end.
     pub fn adding_objects(&self, objects: &Array<T>) -> Array<T>
     where
-        T: From<id>,
+        T: NSObject,
     {
         Array::new(unsafe {
             msg_send![self.obj, arrayByAddingObjectsFromArray: objects.clone().obj]
@@ -260,7 +259,7 @@ impl<T> Array<T> {
     /// Returns a new array containing the receiving array’s elements that fall within the limits specified by a given range.
     pub fn subarray_with_range(&self, range: Range<UInt>) -> Array<T>
     where
-        T: From<id>,
+        T: NSObject,
     {
         Array::new(unsafe { msg_send![&*self.obj, subarrayWithRange: range] })
     }
@@ -286,7 +285,7 @@ impl<T> Array<T> {
     /// Returns an iterator over the objects in the array.
     pub fn iter(&self) -> ArrayIter<'_, T>
     where
-        T: From<id>,
+        T: NSObject,
     {
         ArrayIter {
             array: self,
@@ -295,21 +294,34 @@ impl<T> Array<T> {
     }
 }
 
-impl NSObjectProtocol for Array<id> {
+impl<T> NSObject for Array<T> {
+    fn init() -> Self {
+        todo!()
+    }
+
+    #[allow(trivial_casts)]
+    fn as_id(self) -> id {
+        &*self as *const _ as *mut _
+    }
+
+    fn from_id(_obj: id) -> Self {
+        todo!()
+    }
+
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        obj.into()
+        String::from_id(obj)
     }
 
     fn debug_description(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        obj.into()
+        String::from_id(obj)
     }
 }
 
 impl<T> Debug for Array<T>
 where
-    T: Debug + From<id>,
+    T: Debug + NSObject,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{{")?;
@@ -332,7 +344,7 @@ impl<T> Clone for Array<T> {
 
 impl<'a, T> IntoIterator for &'a Array<T>
 where
-    T: From<id>,
+    T: NSObject,
 {
     type Item = T;
     type IntoIter = ArrayIter<'a, T>;
@@ -344,7 +356,7 @@ where
 
 impl<T> From<Vec<T>> for Array<T>
 where
-    T: From<id>,
+    T: NSObject,
 {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<T>) -> Self {
@@ -354,14 +366,6 @@ where
                 count:objects.len()
             ]
         })
-    }
-}
-
-impl<T> From<Array<T>> for *mut Object {
-    /// Consumes and returns the pointer to the underlying NSArray.
-    #[allow(trivial_casts)]
-    fn from(array: Array<T>) -> Self {
-        &*array as *const _ as *mut _
     }
 }
 

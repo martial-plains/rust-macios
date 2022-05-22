@@ -2,7 +2,6 @@
 
 use super::NLLanguage;
 
-#[allow(improper_ctypes)]
 extern "C" {
     /* Languages
      */

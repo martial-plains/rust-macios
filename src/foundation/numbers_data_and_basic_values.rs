@@ -10,6 +10,8 @@ pub type UInt = libc::c_uint;
 #[cfg(target_pointer_width = "64")]
 pub type Int = libc::c_long;
 
+mod int_conversions;
+
 /// Describes an unsigned integer.
 #[cfg(target_pointer_width = "64")]
 pub type UInt = libc::c_ulong;

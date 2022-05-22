@@ -2,7 +2,6 @@
 
 use super::NLTagScheme;
 
-#[allow(improper_ctypes)]
 extern "C" {
     /* Schemes
      */

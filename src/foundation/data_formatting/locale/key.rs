@@ -5,7 +5,6 @@ use crate::foundation::String;
 /// The keys used to access components of a locale.
 pub type NSLocaleKey = *mut String;
 
-#[allow(improper_ctypes)]
 extern "C" {
     /// The locale identifier.
     #[link_name = "NSLocaleIdentifier"]
