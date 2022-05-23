@@ -78,6 +78,11 @@ impl NSObject for NLLanguageRecognizer {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
         String::from_id(obj)
     }
+
+    fn retain(&self) -> Self {
+        let obj: id = unsafe { msg_send![&*self.obj, retain] };
+        Self::from_id(obj)
+    }
 }
 
 impl fmt::Debug for NLLanguageRecognizer {

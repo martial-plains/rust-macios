@@ -1,3 +1,9 @@
+mod int_conversions;
+
+mod nsnumber;
+
+pub use nsnumber::*;
+
 /// Describes an integer.
 #[cfg(target_pointer_width = "32")]
 pub type Int = libc::c_int;
@@ -9,8 +15,6 @@ pub type UInt = libc::c_uint;
 /// Describes an integer.
 #[cfg(target_pointer_width = "64")]
 pub type Int = libc::c_long;
-
-mod int_conversions;
 
 /// Describes an unsigned integer.
 #[cfg(target_pointer_width = "64")]

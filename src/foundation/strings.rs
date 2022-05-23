@@ -682,6 +682,10 @@ impl NSObject for String {
             String::from_id(description)
         }
     }
+
+    fn retain(&self) -> Self {
+        unsafe { msg_send![&*self.objc, retain] }
+    }
 }
 
 impl Default for String {

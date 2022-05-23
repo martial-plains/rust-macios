@@ -35,4 +35,8 @@ impl NSObject for Int {
     fn debug_description(&self) -> String {
         todo!()
     }
+
+    fn retain(&self) -> Self {
+        todo!()
+    }
 }

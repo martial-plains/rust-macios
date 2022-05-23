@@ -115,6 +115,16 @@ impl<K, V> NSObject for Dictionary<K, V> {
         let obj: id = unsafe { msg_send![self.obj, debugDescription] };
         String::from_id(obj)
     }
+
+    fn retain(&self) -> Self {
+        let obj: id = unsafe { msg_send![&*self.obj, retain] };
+        Self {
+            obj: unsafe { Id::from_ptr(obj) },
+
+            _key: PhantomData,
+            _value: PhantomData,
+        }
+    }
 }
 
 impl<K, V> Debug for Dictionary<K, V> {
@@ -322,6 +332,16 @@ impl<K, V> NSObject for MutableDictionary<K, V> {
     fn debug_description(&self) -> String {
         let obj: id = unsafe { msg_send![self.obj, debugDescription] };
         String::from_id(obj)
+    }
+
+    fn retain(&self) -> Self {
+        let obj: id = unsafe { msg_send![&*self.obj, retain] };
+        Self {
+            obj: unsafe { Id::from_ptr(obj) },
+
+            _key: PhantomData,
+            _value: PhantomData,
+        }
     }
 }
 

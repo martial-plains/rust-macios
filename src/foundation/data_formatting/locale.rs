@@ -278,6 +278,10 @@ impl NSObject for Locale {
             String::from_id(description)
         }
     }
+
+    fn retain(&self) -> Self {
+        unsafe { msg_send![self.obj, retain] }
+    }
 }
 
 impl Display for Locale {

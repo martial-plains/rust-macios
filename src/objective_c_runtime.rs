@@ -27,4 +27,10 @@ pub trait NSObject {
 
     /// Returns a string that represents the contents of the receiving class.
     fn debug_description(&self) -> String;
+
+    /* Obselte Methods
+     */
+
+    /// Increments the receiver’s reference count.
+    fn retain(&self) -> Self;
 }
