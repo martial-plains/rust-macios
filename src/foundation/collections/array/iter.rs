@@ -1,6 +1,6 @@
 use crate::{
-    foundation::{traits::NSArray, NSNumber, String, UInt},
-    objective_c_runtime::traits::NSObject,
+    foundation::{traits::t_NSArray, NSNumber, String, UInt},
+    objective_c_runtime::traits::t_NSObject,
 };
 
 use super::{ns_mutable_array::MutableArray, Array};
@@ -14,7 +14,7 @@ pub struct Iter<'a, T> {
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: NSObject,
+    T: t_NSObject,
 {
     type Item = T;
 
@@ -31,7 +31,7 @@ where
 
 impl<'a, T> FromIterator<&'a T> for Array<T>
 where
-    T: NSObject + 'a,
+    T: t_NSObject + 'a,
 {
     fn from_iter<I>(iter: I) -> Self
     where

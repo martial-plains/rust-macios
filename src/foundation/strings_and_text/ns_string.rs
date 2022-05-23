@@ -14,9 +14,9 @@ use objc::{
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::NSString as t_NSString, ComparisonResult, Int, Locale, UInt},
+    foundation::{traits::t_NSString, ComparisonResult, Int, Locale, UInt},
     id,
-    objective_c_runtime::traits::NSObject,
+    objective_c_runtime::traits::t_NSObject,
     utils::to_bool,
 };
 
@@ -30,7 +30,7 @@ pub struct String {
     marker: PhantomData<()>,
 }
 
-impl NSObject for String {
+impl t_NSObject for String {
     fn init() -> Self {
         unsafe { msg_send![class!(NSString), new] }
     }

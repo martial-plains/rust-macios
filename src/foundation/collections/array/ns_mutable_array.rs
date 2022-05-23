@@ -10,7 +10,7 @@ use objc_id::Id;
 use crate::{
     foundation::{Array, String, UInt},
     id,
-    objective_c_runtime::traits::NSObject,
+    objective_c_runtime::traits::t_NSObject,
 };
 
 /// A dynamic ordered collection of objects.
@@ -22,7 +22,7 @@ pub struct MutableArray<T> {
 
 impl<T> MutableArray<T>
 where
-    T: NSObject,
+    T: t_NSObject,
 {
     /// Creates a new `MutableArray`.
     pub fn new() -> Self {
@@ -172,14 +172,14 @@ where
 
 impl<T> Default for MutableArray<T>
 where
-    T: NSObject,
+    T: t_NSObject,
 {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> NSObject for MutableArray<T> {
+impl<T> t_NSObject for MutableArray<T> {
     fn init() -> Self {
         let obj: id = unsafe { msg_send![class!(NSMutableArray), init] };
 

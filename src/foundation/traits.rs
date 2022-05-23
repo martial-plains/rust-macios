@@ -9,7 +9,7 @@ use objc::runtime::Object;
 use crate::{
     foundation::String,
     id,
-    objective_c_runtime::traits::{NSObject, NSValue},
+    objective_c_runtime::traits::{t_NSObject, t_NSValue},
 };
 
 use super::{
@@ -18,7 +18,7 @@ use super::{
 };
 
 /// A static, plain-text Unicode string object.
-pub trait NSString: NSObject {
+pub trait t_NSString: t_NSObject {
     /// Creates a new `NSString`
     fn new() -> Self;
 
@@ -269,7 +269,7 @@ pub trait NSString: NSObject {
 }
 
 /// The group of methods that are used with `NSNumber` objects.
-pub trait NSNumber: NSValue {
+pub trait t_NSNumber: t_NSValue {
     /* Creating an NSNumber Object
      */
 
@@ -437,7 +437,7 @@ pub trait NSNumber: NSValue {
 }
 
 /// The `Locale` class provides information about the user’s locale and formatting preferences.
-pub trait NSLocale: NSObject {
+pub trait t_NSLocale: t_NSObject {
     /* Initializing a Locale
      */
 
@@ -565,7 +565,7 @@ pub trait NSLocale: NSObject {
 }
 
 /// A static ordered collection of objects.
-pub trait NSArray<T> {
+pub trait t_NSArray<T> {
     /// Creates a new `Array` from a raw pointer.
     ///
     /// # Safety
@@ -584,7 +584,7 @@ pub trait NSArray<T> {
     /// A new array with the specified capacity.
     fn from_objects(objects: &[T]) -> Self
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /// In some cases, we're vended an `NSArray` by the system, and it's ideal to not retain that.
     /// This handles that edge case.
@@ -617,7 +617,7 @@ pub trait NSArray<T> {
     ///
     fn contains(&self, object: T) -> bool
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /// The number of objects in the array.
     fn count(&self) -> UInt;
@@ -625,17 +625,17 @@ pub trait NSArray<T> {
     /// The first object in the array.
     fn first_object(&self) -> Option<T>
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /// The last object in the array.
     fn last_object(&self) -> Option<T>
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /// The object at the specified index.
     fn object_at(&self, index: UInt) -> T
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /// The index of the specified object.
     fn object_at_indexed_subscript(&self, index: UInt) -> Option<id>;
@@ -646,22 +646,22 @@ pub trait NSArray<T> {
     /// Returns the lowest index whose corresponding array value is equal to a given object.
     fn index_of(&self, object: T) -> UInt
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
     fn index_of_object_in_range(&self, object: T, range: Range<UInt>) -> UInt
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /// Returns the lowest index whose corresponding array value is identical to a given object.
     fn index_of_object_identical_to(&self, object: T) -> UInt
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
     fn index_of_object_identical_to_in_range(&self, object: T, range: Range<UInt>) -> UInt
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /* Comparing Arrays
      */
@@ -669,12 +669,12 @@ pub trait NSArray<T> {
     /// Returns the first object contained in the receiving array that’s equal to an object in another given array.
     fn first_object_common_with(&self, other: &Array<T>) -> Option<T>
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /// Compares the receiving array to another array.
     fn is_equal_to(&self, other: &Array<T>) -> bool
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /* Deriving New Arrays
      */
@@ -682,17 +682,17 @@ pub trait NSArray<T> {
     /// Returns a new array that is a copy of the receiving array with a given object added to the end.
     fn adding(&self, object: T) -> Array<T>
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /// Returns a new array that is a copy of the receiving array with the objects contained in another array added to the end.
     fn adding_objects(&self, objects: &Array<T>) -> Array<T>
     where
-        T: NSObject;
+        T: t_NSObject;
 
     /// Returns a new array containing the receiving array’s elements that fall within the limits specified by a given range.
     fn subarray_with_range(&self, range: Range<UInt>) -> Array<T>
     where
-        T: NSObject;
+        T: t_NSObject;
     /* Creating a Description
      */
 
@@ -710,11 +710,11 @@ pub trait NSArray<T> {
     /// Returns an iterator over the objects in the array.
     fn iter(&self) -> super::array::iter::Iter<'_, T>
     where
-        T: NSObject;
+        T: t_NSObject;
 }
 
 /// A mutable, static ordered collection of objects.
-pub trait NSMutableArray<T>: NSArray<T> {
+pub trait t_NSMutableArray<T>: t_NSArray<T> {
     /// Creates a new `MutableArray`.
     fn new() -> Self;
 
@@ -798,7 +798,7 @@ pub trait NSMutableArray<T>: NSArray<T> {
 }
 
 /// A dynamic collection of objects associated with unique keys.
-pub trait NSMutableDictionary<K, V>: NSDictionary<K, V> {
+pub trait t_NSMutableDictionary<K, V>: t_NSDictionary<K, V> {
     /// Creates and initialize a dictionary
     fn init_with_dictionary(&mut self, dictionary: super::Dictionary<K, V>);
 
@@ -808,8 +808,8 @@ pub trait NSMutableDictionary<K, V>: NSDictionary<K, V> {
     /// Adds a given key-value pair to the dictionary.
     fn set_object(&mut self, key: K, value: V)
     where
-        K: NSObject,
-        V: NSObject;
+        K: t_NSObject,
+        V: t_NSObject;
 
     /// Adds a given key-value pair to the dictionary.
     fn set_object_for_keyed_superscript(&mut self, key: K, value: V)
@@ -843,11 +843,11 @@ pub trait NSMutableDictionary<K, V>: NSDictionary<K, V> {
     /// Removes from the dictionary entries specified by elements in a given array.
     fn remove_objects_for_keys(&mut self, keys: Array<K>)
     where
-        K: NSObject;
+        K: t_NSObject;
 }
 
 /// A static collection of objects associated with unique keys.
-pub trait NSDictionary<K, V>: NSObject {
+pub trait t_NSDictionary<K, V>: t_NSObject {
     /* Creating an Empty Dictionary
      */
 

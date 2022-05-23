@@ -6,10 +6,10 @@ use objc_id::Id;
 use crate::{
     foundation::{String, UInt},
     id,
-    objective_c_runtime::traits::NSObject,
+    objective_c_runtime::traits::t_NSObject,
 };
 
-use super::{traits::NLTokenizer as t_NLTokenizer, NLTokenUnit};
+use super::{traits::t_NLTokenizer, NLTokenUnit};
 
 /// A tokenizer that segments natural language text into semantic units.
 pub struct NLTokenizer {
@@ -17,7 +17,7 @@ pub struct NLTokenizer {
     pub obj: Id<Object>,
 }
 
-impl NSObject for NLTokenizer {
+impl t_NSObject for NLTokenizer {
     fn init() -> Self {
         unsafe {
             let cls = class!(NLTokenizer);

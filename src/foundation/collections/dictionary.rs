@@ -10,9 +10,9 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::NSDictionary as t_NSDictionary, String, UInt},
+    foundation::{traits::t_NSDictionary, String, UInt},
     id,
-    objective_c_runtime::traits::NSObject,
+    objective_c_runtime::traits::t_NSObject,
 };
 
 use super::Array;
@@ -25,7 +25,7 @@ pub struct Dictionary<K, V> {
     _value: PhantomData<V>,
 }
 
-impl<K, V> NSObject for Dictionary<K, V> {
+impl<K, V> t_NSObject for Dictionary<K, V> {
     fn init() -> Self {
         unsafe {
             let cls = class!(NSDictionary);
@@ -202,8 +202,8 @@ impl<K, V> MutableDictionary<K, V> {
     /// Adds a given key-value pair to the dictionary.
     pub fn set_object(&mut self, key: K, value: V)
     where
-        K: NSObject,
-        V: NSObject,
+        K: t_NSObject,
+        V: t_NSObject,
     {
         unsafe {
             let _: () = msg_send![self.obj, setObject: value.to_id() forKey: &*key.to_id()];
@@ -280,7 +280,7 @@ impl<K, V> MutableDictionary<K, V> {
     /// Removes from the dictionary entries specified by elements in a given array.
     pub fn remove_objects_for_keys(&mut self, keys: Array<K>)
     where
-        K: NSObject,
+        K: t_NSObject,
     {
         unsafe {
             let keys: id = keys.to_id();
@@ -296,7 +296,7 @@ impl<K, V> Default for MutableDictionary<K, V> {
     }
 }
 
-impl<K, V> NSObject for MutableDictionary<K, V> {
+impl<K, V> t_NSObject for MutableDictionary<K, V> {
     fn init() -> Self {
         todo!()
     }

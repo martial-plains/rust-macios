@@ -2,13 +2,13 @@ use std::ops::Range;
 
 use crate::{
     foundation::{Dictionary, NSNumber, String, UInt},
-    objective_c_runtime::traits::NSObject,
+    objective_c_runtime::traits::t_NSObject,
 };
 
 use super::{NLLanguage, NLTokenUnit};
 
 /// A tokenizer that segments natural language text into semantic units.
-pub trait NLTokenizer: NSObject {
+pub trait t_NLTokenizer: t_NSObject {
     /* Creating a Tokenizer
      */
 
@@ -44,7 +44,7 @@ pub trait NLTokenizer: NSObject {
 
 /// The language of a body of text.
 
-pub trait NLLanguageRecognizer: NSObject {
+pub trait t_NLLanguageRecognizer: t_NSObject {
     /// The most likely language for the processed text.
     fn dominant_language(&self) -> String;
 

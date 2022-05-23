@@ -11,8 +11,8 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::NSNumber as t_NSNumber, ComparisonResult, Locale, String},
-    objective_c_runtime::traits::{NSObject, NSValue},
+    foundation::{traits::t_NSNumber, ComparisonResult, Locale, String},
+    objective_c_runtime::traits::{t_NSObject, t_NSValue},
 };
 
 use super::{Int, UInt};
@@ -23,7 +23,7 @@ pub struct NSNumber {
     pub obj: Id<Object>,
 }
 
-impl NSObject for NSNumber {
+impl t_NSObject for NSNumber {
     fn init() -> Self {
         let obj = unsafe { msg_send![class!(NSNumber), new] };
         NSNumber { obj }
@@ -61,7 +61,7 @@ impl NSObject for NSNumber {
     }
 }
 
-impl NSValue for NSNumber {}
+impl t_NSValue for NSNumber {}
 
 impl t_NSNumber for NSNumber {
     fn number_with_bool(value: bool) -> Self {

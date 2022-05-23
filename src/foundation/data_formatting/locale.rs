@@ -7,9 +7,9 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::NSLocale as t_NSLocacle, Array, String},
+    foundation::{traits::t_NSLocale, Array, String},
     id,
-    objective_c_runtime::traits::NSObject,
+    objective_c_runtime::traits::t_NSObject,
 };
 
 use self::key::NSLocaleKey;
@@ -38,7 +38,7 @@ pub struct Locale {
     pub obj: Id<Object>,
 }
 
-impl t_NSLocacle for Locale {
+impl t_NSLocale for Locale {
     fn init_with_locale_identifier<T>(locale_identifier: T) -> Self
     where
         T: Into<String>,
@@ -197,7 +197,7 @@ impl t_NSLocacle for Locale {
     }
 }
 
-impl NSObject for Locale {
+impl t_NSObject for Locale {
     fn init() -> Self {
         todo!()
     }

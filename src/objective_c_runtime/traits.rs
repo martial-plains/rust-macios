@@ -1,7 +1,7 @@
 use crate::{foundation::String, id};
 
 /// The group of methods that are fundamental to all Objective-C objects.
-pub trait NSObject {
+pub trait t_NSObject {
     /* Creating, Copying, and Deallocating Objects
      */
 
@@ -34,4 +34,4 @@ pub trait NSObject {
 }
 
 /// The group of methods that are fundamental to all Objective-C objects.
-pub trait NSValue: NSObject {}
+pub trait t_NSValue: t_NSObject {}

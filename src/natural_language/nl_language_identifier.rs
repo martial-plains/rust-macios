@@ -11,10 +11,10 @@ use objc_id::Id;
 use crate::{
     foundation::{Dictionary, NSNumber, String, UInt},
     id,
-    objective_c_runtime::traits::NSObject,
+    objective_c_runtime::traits::t_NSObject,
 };
 
-use super::{traits::NLLanguageRecognizer as t_NLLanguageRecognizer, NLLanguage};
+use super::{traits::t_NLLanguageRecognizer, NLLanguage};
 
 /// The language of a body of text.
 pub struct NLLanguageRecognizer {
@@ -22,7 +22,7 @@ pub struct NLLanguageRecognizer {
     pub obj: Id<Object>,
 }
 
-impl NSObject for NLLanguageRecognizer {
+impl t_NSObject for NLLanguageRecognizer {
     fn init() -> Self {
         unsafe {
             let cls = class!(NLLanguageRecognizer);
