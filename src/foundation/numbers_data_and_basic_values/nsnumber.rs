@@ -11,180 +11,11 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{ComparisonResult, Locale, String},
-    id,
-    objective_c_runtime::NSObject,
+    foundation::{traits::NSNumber as t_NSNumber, ComparisonResult, Locale, String},
+    objective_c_runtime::traits::{NSObject, NSValue},
 };
 
 use super::{Int, UInt};
-
-/// The group of methods that are used with `NSNumber` objects.
-pub trait NSNumberable {
-    /* Creating an NSNumber Object
-     */
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as a BOOL.
-    fn number_with_bool(value: bool) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as a signed char.
-    fn number_with_char(value: c_schar) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as a double.
-    fn number_with_double(value: c_double) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as a float.
-    fn number_with_float(value: c_float) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as a signed int.
-    fn number_with_int(value: c_int) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as an NSInteger.
-    fn number_with_integer(value: Int) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as a signed long.
-    fn number_with_long(value: c_long) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as a signed long long.
-    fn number_with_long_long(value: c_longlong) -> Self;
-
-    /// Creates and returns an NSNumber object containing value, treating it as a signed short.
-    fn number_with_short(value: c_short) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned char.
-    fn number_with_unsigned_char(value: c_uchar) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned int.
-    fn number_with_unsigned_int(value: c_uint) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as an NSUInteger.
-    fn number_with_unsigned_integer(value: UInt) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned long.
-    fn number_with_unsigned_long(value: c_ulong) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned long long.
-    fn number_with_unsigned_long_long(value: c_ulonglong) -> Self;
-
-    /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned short.
-    fn number_with_unsigned_short(value: c_ushort) -> Self;
-
-    /* Initializing an NSNumber Object
-     */
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as a BOOL.
-    fn init_with_bool(&self, value: bool) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as a signed char.
-    fn init_with_char(&self, value: c_schar) -> Self;
-
-    /// Returns an NSNumber object initialized to contain value, treated as a double.
-    fn init_with_double(&self, value: c_double) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as a float.
-    fn init_with_float(&self, value: c_float) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as a signed int.
-    fn init_with_int(&self, value: c_int) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as an NSInteger.
-    fn init_with_integer(&self, value: Int) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as a signed long.
-    fn init_with_long(&self, value: c_long) -> Self;
-
-    /// Returns an NSNumber object initialized to contain value, treated as a signed long long.
-    fn init_with_long_long(&self, value: c_longlong) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as a signed short.
-    fn init_with_short(&self, value: c_short) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned char.
-    fn init_with_unsigned_char(&self, value: c_uchar) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned int.
-    fn init_with_unsigned_int(&self, value: c_uint) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as an NSUInteger.
-    fn init_with_unsigned_integer(&self, value: c_uint) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned long.
-    fn init_with_unsigned_long(&self, value: c_ulong) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned long long.
-    fn init_with_unsigned_long_long(&self, value: c_ulonglong) -> Self;
-
-    /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned short.
-    fn init_with_unsigned_short(&self, value: c_ushort) -> Self;
-
-    /* Accessing Numeric Values
-     */
-
-    /// The number object's value expressed as a Boolean value.
-    fn bool_value(&self) -> bool;
-
-    /// The number object's value expressed as a char.
-    fn char_value(&self) -> c_schar;
-
-    /// The number object's value expressed as an NSDecimal structure.
-    //// fn decimal_value(&self) -> NSDecimal;
-
-    /// The number object's value expressed as a double, converted as necessary.
-    fn double_value(&self) -> c_double;
-
-    /// The number object's value expressed as a float, converted as necessary.
-    fn float_value(&self) -> c_float;
-
-    /// The number object's value expressed as an int, converted as necessary.
-    fn int_value(&self) -> c_int;
-
-    /// The number object's value expressed as an NSInteger object, converted as necessary.
-    fn integer_value(&self) -> Int;
-
-    /// The number object’s value expressed as a long long, converted as necessary.
-    fn long_long_value(&self) -> c_longlong;
-
-    /// The number object’s value expressed as a long, converted as necessary.
-    fn long_value(&self) -> c_long;
-
-    /// The number object's value expressed as a short, converted as necessary.
-    fn short_value(&self) -> c_short;
-
-    /// The number object's value expressed as an unsigned char, converted as necessary.
-    fn unsigned_char_value(&self) -> c_uchar;
-
-    /// The number object's value expressed as an NSUInteger object, converted as necessary.
-    fn unsigned_integer_value(&self) -> UInt;
-
-    /// The number object's value expressed as an unsigned int, converted as necessary.
-    fn unsigned_int_value(&self) -> c_uint;
-
-    /// The number object’s value expressed as an unsigned long long, converted as necessary.
-    fn unsigned_long_long_value(&self) -> c_ulonglong;
-
-    /// The number object's value expressed as an unsigned long, converted as necessary.
-    fn unsigned_long_value(&self) -> c_ulong;
-
-    /// The number object's value expressed as an unsigned short, converted as necessary.
-    fn unsigned_short_value(&self) -> c_ushort;
-
-    /* Retrieving String Representations
-     */
-
-    /// Returns a string that represents the contents of the number object for a given locale.
-    fn description_with_locale(&self, locale: Locale) -> String;
-
-    /// The number object's value expressed as a human-readable string.
-    fn string_value(&self) -> String;
-
-    /* Comparing NSNumber Objects
-     */
-
-    /// Returns an NSComparisonResult value that indicates whether the number object’s value is greater than, equal to, or less than a given number.
-    fn compare(&self, other: &Self) -> ComparisonResult;
-
-    /// Returns a Boolean value that indicates whether the number object’s value and a given number are equal.    
-    fn is_equal_to_number(&self, other: &Self) -> bool;
-}
 
 /// An object wrapper for primitive scalar numeric values.
 pub struct NSNumber {
@@ -192,7 +23,47 @@ pub struct NSNumber {
     pub obj: Id<Object>,
 }
 
-impl NSNumberable for NSNumber {
+impl NSObject for NSNumber {
+    fn init() -> Self {
+        let obj = unsafe { msg_send![class!(NSNumber), new] };
+        NSNumber { obj }
+    }
+
+    fn to_id(mut self) -> crate::id {
+        &mut *self.obj
+    }
+
+    fn from_id(obj: crate::id) -> Self {
+        Self {
+            obj: unsafe { Id::from_ptr(obj) },
+        }
+    }
+
+    fn description(&self) -> String {
+        unsafe {
+            let description = msg_send![self.obj, description];
+            String::from_id(description)
+        }
+    }
+
+    fn debug_description(&self) -> String {
+        unsafe {
+            let description = msg_send![self.obj, debugDescription];
+            String::from_id(description)
+        }
+    }
+
+    fn retain(&self) -> Self {
+        unsafe {
+            let obj = msg_send![self.obj, retain];
+            Self { obj }
+        }
+    }
+}
+
+impl NSValue for NSNumber {}
+
+impl t_NSNumber for NSNumber {
     fn number_with_bool(value: bool) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithBool: value];
@@ -514,44 +385,6 @@ impl DerefMut for NSNumber {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
         &mut *self.obj
-    }
-}
-
-impl NSObject for NSNumber {
-    fn init() -> Self {
-        unsafe {
-            let obj: NSNumber = msg_send![class!(NSNumber), alloc];
-            let obj = msg_send![obj, init];
-            NSNumber { obj }
-        }
-    }
-
-    fn to_id(mut self) -> id {
-        &mut *self.obj
-    }
-
-    fn from_id(obj: id) -> Self {
-        NSNumber {
-            obj: unsafe { Id::from_ptr(obj) },
-        }
-    }
-
-    fn description(&self) -> String {
-        unsafe {
-            let description = msg_send![self.obj, description];
-            String::from_id(description)
-        }
-    }
-
-    fn debug_description(&self) -> String {
-        unsafe {
-            let description = msg_send![self.obj, debugDescription];
-            String::from_id(description)
-        }
-    }
-
-    fn retain(&self) -> Self {
-        unsafe { msg_send![self.obj, retain] }
     }
 }
 

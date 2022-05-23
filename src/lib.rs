@@ -26,6 +26,7 @@
 )]
 #![warn(clippy::all, missing_debug_implementations)]
 #![allow(
+    non_camel_case_types,
     non_upper_case_globals,
     clippy::let_unit_value,
     clippy::enum_clike_unportable_variant,
@@ -44,3 +45,8 @@ pub(crate) mod utils;
 /// An ID for an Objective-C object.
 #[allow(non_camel_case_types)]
 pub type id = *mut Object;
+
+// TODO: Create better dictionary implementation
+// TODO: Create better array implementation
+// TODO: Create macro for creating a dictionary
+// TODO: Create macro for creating an array

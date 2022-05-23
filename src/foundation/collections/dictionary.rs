@@ -10,9 +10,9 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{String, UInt},
+    foundation::{traits::NSDictionary as t_NSDictionary, String, UInt},
     id,
-    objective_c_runtime::NSObject,
+    objective_c_runtime::traits::NSObject,
 };
 
 use super::Array;
@@ -23,65 +23,6 @@ pub struct Dictionary<K, V> {
     pub obj: Id<Object>,
     _key: PhantomData<K>,
     _value: PhantomData<V>,
-}
-
-impl<K, V> Dictionary<K, V> {
-    /* Creating an Empty Dictionary
-     */
-
-    /// Creates an empty dictionary.
-    pub fn new() -> Self {
-        unsafe {
-            let cls = class!(NSDictionary);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj = msg_send![obj, init];
-            Self {
-                obj: Id::from_ptr(obj),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
-    }
-
-    /* Creating a Dictionary from Objects and Keys
-     */
-
-    /// Creates a dictionary containing entries constructed from the contents of an array of keys and an array of values.
-    pub fn dictionary_with_objects(objects: Array<V>, keys: Array<K>) -> Self {
-        unsafe {
-            let cls = class!(NSDictionary);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj = msg_send![obj, dictionaryWithObjects: objects forKeys: keys];
-            Self {
-                obj: Id::from_ptr(obj),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
-    }
-
-    /// Creates a mutable dictionary containing entries constructed from the contents of an array of keys and an array of values.
-    pub fn as_mut_dictionary(&mut self) -> MutableDictionary<K, V> {
-        unsafe {
-            let cls = class!(NSMutableDictionary);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj: id = msg_send![obj, initWithDictionary: &*self.obj];
-            MutableDictionary {
-                obj: Id::from_ptr(obj),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
-    }
-
-    /* Counting Entries
-     */
-
-    /// The number of entries in the dictionary.
-
-    pub fn count(&self) -> UInt {
-        unsafe { msg_send![self.obj, count] }
-    }
 }
 
 impl<K, V> NSObject for Dictionary<K, V> {
@@ -124,6 +65,51 @@ impl<K, V> NSObject for Dictionary<K, V> {
             _key: PhantomData,
             _value: PhantomData,
         }
+    }
+}
+
+impl<K, V> t_NSDictionary<K, V> for Dictionary<K, V> {
+    fn new() -> Self {
+        unsafe {
+            let cls = class!(NSDictionary);
+            let obj: *mut Object = msg_send![cls, new];
+            let obj = msg_send![obj, init];
+            Self {
+                obj: Id::from_ptr(obj),
+                _key: PhantomData,
+                _value: PhantomData,
+            }
+        }
+    }
+
+    fn dictionary_with_objects(objects: Array<V>, keys: Array<K>) -> Self {
+        unsafe {
+            let cls = class!(NSDictionary);
+            let obj: *mut Object = msg_send![cls, new];
+            let obj = msg_send![obj, dictionaryWithObjects: objects forKeys: keys];
+            Self {
+                obj: Id::from_ptr(obj),
+                _key: PhantomData,
+                _value: PhantomData,
+            }
+        }
+    }
+
+    fn as_mut_dictionary(&mut self) -> MutableDictionary<K, V> {
+        unsafe {
+            let cls = class!(NSMutableDictionary);
+            let obj: *mut Object = msg_send![cls, new];
+            let obj: id = msg_send![obj, initWithDictionary: &*self.obj];
+            MutableDictionary {
+                obj: Id::from_ptr(obj),
+                _key: PhantomData,
+                _value: PhantomData,
+            }
+        }
+    }
+
+    fn count(&self) -> UInt {
+        unsafe { msg_send![self.obj, count] }
     }
 }
 

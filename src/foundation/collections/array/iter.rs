@@ -1,9 +1,9 @@
 use crate::{
-    foundation::{NSNumber, String, UInt},
-    objective_c_runtime::NSObject,
+    foundation::{traits::NSArray, NSNumber, String, UInt},
+    objective_c_runtime::traits::NSObject,
 };
 
-use super::{Array, MutableArray};
+use super::{ns_mutable_array::MutableArray, Array};
 
 /// An iterator for `Array`
 #[allow(missing_debug_implementations)]
