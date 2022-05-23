@@ -61,7 +61,7 @@ impl NSObject for NLLanguageRecognizer {
         todo!()
     }
 
-    fn as_id(self) -> id {
+    fn to_id(self) -> id {
         todo!()
     }
 

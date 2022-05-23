@@ -98,7 +98,7 @@ impl<K, V> NSObject for Dictionary<K, V> {
         }
     }
 
-    fn as_id(self) -> id {
+    fn to_id(self) -> id {
         todo!()
     }
 
@@ -210,7 +210,7 @@ impl<K, V> MutableDictionary<K, V> {
         V: NSObject,
     {
         unsafe {
-            let _: () = msg_send![self.obj, setObject: value.as_id() forKey: &*key.as_id()];
+            let _: () = msg_send![self.obj, setObject: value.to_id() forKey: &*key.to_id()];
 
             // TODO: Fix this function where the key value can be set without having the need for the thread to sleep after the call.
             std::thread::sleep(Duration::from_micros(10));
@@ -287,7 +287,7 @@ impl<K, V> MutableDictionary<K, V> {
         K: NSObject,
     {
         unsafe {
-            let keys: id = keys.as_id();
+            let keys: id = keys.to_id();
             let obj: *mut Object = msg_send![self.obj, removeObjectsForKeys: keys];
             self.obj = Id::from_ptr(obj);
         }
@@ -306,7 +306,7 @@ impl<K, V> NSObject for MutableDictionary<K, V> {
     }
 
     #[allow(trivial_casts)]
-    fn as_id(self) -> id {
+    fn to_id(self) -> id {
         &*self as *const _ as *mut _
     }
 

@@ -257,7 +257,7 @@ impl NSObject for Locale {
         todo!()
     }
 
-    fn as_id(mut self) -> id {
+    fn to_id(mut self) -> id {
         &mut *self.obj
     }
 

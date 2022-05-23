@@ -300,7 +300,7 @@ impl<T> NSObject for Array<T> {
     }
 
     #[allow(trivial_casts)]
-    fn as_id(self) -> id {
+    fn to_id(self) -> id {
         &*self as *const _ as *mut _
     }
 

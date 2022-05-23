@@ -658,7 +658,7 @@ impl NSObject for String {
         todo!()
     }
 
-    fn as_id(mut self) -> id {
+    fn to_id(mut self) -> id {
         &mut *self.objc
     }
 

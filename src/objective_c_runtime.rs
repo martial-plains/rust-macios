@@ -11,7 +11,7 @@ pub trait NSObject {
     fn init() -> Self;
 
     /// Returns a an `id`.
-    fn as_id(self) -> id;
+    fn to_id(self) -> id;
 
     /// Returns `Self` representation of the object.
     fn from_id(obj: id) -> Self;

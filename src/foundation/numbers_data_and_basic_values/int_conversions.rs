@@ -9,7 +9,7 @@ impl NSObject for Int {
         todo!()
     }
 
-    fn as_id(self) -> id {
+    fn to_id(self) -> id {
         unsafe {
             let cls = class!(NSNumber);
             let result: id = msg_send![cls, numberWithInt: self];
