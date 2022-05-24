@@ -1456,3 +1456,9 @@ pub trait t_NSDecimalNumberBehaviors {
     /// Returns the number of digits allowed after the decimal separator.
     fn scale(&self) -> c_short;
 }
+
+/// A container for information broadcast through a notification center to all registered observers.
+pub trait t_NSNotification: t_NSObject {
+    /// Initializes an empty notification.
+    fn init() -> Self;
+}

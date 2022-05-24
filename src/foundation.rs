@@ -6,11 +6,13 @@ pub mod traits;
 mod collections;
 mod data_formatting;
 mod filters_and_sorting;
+mod notifications;
 mod numbers_data_and_basic_values;
 mod strings_and_text;
 
 pub use collections::*;
 pub use data_formatting::*;
 pub use filters_and_sorting::*;
+pub use notifications::ns_notification::*;
 pub use numbers_data_and_basic_values::*;
 pub use strings_and_text::*;
