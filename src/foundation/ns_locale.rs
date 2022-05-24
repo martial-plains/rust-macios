@@ -12,9 +12,7 @@ use crate::{
     objective_c_runtime::traits::t_NSObject,
 };
 
-use self::key::NSLocaleKey;
-
-pub mod key;
+use super::NSLocaleKey;
 
 /// The directions that a language may take across a page of text.
 #[repr(usize)]
@@ -39,9 +37,9 @@ pub struct Locale {
 }
 
 impl t_NSLocale for Locale {
-    fn initWithLocaleIdentifier<T>(locale_identifier: T) -> Self
+    fn initWithLocaleIdentifier<S>(locale_identifier: S) -> Self
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe {
             let class: Locale = msg_send![class!(NSLocale), alloc];
@@ -180,17 +178,17 @@ impl t_NSLocale for Locale {
         unsafe { msg_send![class, preferredLanguages] }
     }
 
-    fn characterDirectionForLanguage<T>(&self, iso_language_code: T) -> LanguageDirection
+    fn characterDirectionForLanguage<S>(&self, iso_language_code: S) -> LanguageDirection
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         let class = class!(NSLocale);
         unsafe { msg_send![class, characterDirectionForLanguage: iso_language_code.into()] }
     }
 
-    fn lineDirectionForLanguage<T>(&self, iso_language_code: T) -> LanguageDirection
+    fn lineDirectionForLanguage<S>(&self, iso_language_code: S) -> LanguageDirection
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         let class = class!(NSLocale);
         unsafe { msg_send![class, lineDirectionForLanguage: iso_language_code.into()] }

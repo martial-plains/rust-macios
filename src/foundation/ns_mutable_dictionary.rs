@@ -1,6 +1,6 @@
 use std::{
     borrow::Borrow,
-    fmt::{Debug, Display, Error, Formatter},
+    fmt,
     marker::PhantomData,
     ops::{Deref, DerefMut},
     time::Duration,
@@ -9,149 +9,9 @@ use std::{
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{
-    foundation::{traits::t_NSDictionary, String, UInt},
-    id,
-    objective_c_runtime::traits::t_NSObject,
-};
+use crate::{id, objective_c_runtime::traits::t_NSObject};
 
-use super::Array;
-
-/// A static collection of objects associated with unique keys.
-pub struct Dictionary<K, V> {
-    /// The raw pointer to the Objective-C object.
-    pub obj: Id<Object>,
-    _key: PhantomData<K>,
-    _value: PhantomData<V>,
-}
-
-impl<K, V> t_NSObject for Dictionary<K, V> {
-    fn init() -> Self {
-        unsafe {
-            let cls = class!(NSDictionary);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj = msg_send![obj, init];
-            Self {
-                obj: Id::from_ptr(obj),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
-    }
-
-    fn toId(self) -> id {
-        todo!()
-    }
-
-    fn fromId(_obj: id) -> Self {
-        todo!()
-    }
-
-    fn description(&self) -> String {
-        let obj: id = unsafe { msg_send![self.obj, description] };
-        String::fromId(obj)
-    }
-
-    fn debugDescription(&self) -> String {
-        let obj: id = unsafe { msg_send![self.obj, debugDescription] };
-        String::fromId(obj)
-    }
-
-    fn retain(&self) -> Self {
-        let obj: id = unsafe { msg_send![&*self.obj, retain] };
-        Self {
-            obj: unsafe { Id::from_ptr(obj) },
-
-            _key: PhantomData,
-            _value: PhantomData,
-        }
-    }
-}
-
-impl<K, V> t_NSDictionary<K, V> for Dictionary<K, V> {
-    fn new() -> Self {
-        unsafe {
-            let cls = class!(NSDictionary);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj = msg_send![obj, init];
-            Self {
-                obj: Id::from_ptr(obj),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
-    }
-
-    fn dictionaryWithObjects(objects: Array<V>, keys: Array<K>) -> Self {
-        unsafe {
-            let cls = class!(NSDictionary);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj = msg_send![obj, dictionaryWithObjects: objects forKeys: keys];
-            Self {
-                obj: Id::from_ptr(obj),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
-    }
-
-    fn asMutDictionary(&mut self) -> MutableDictionary<K, V> {
-        unsafe {
-            let cls = class!(NSMutableDictionary);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj: id = msg_send![obj, initWithDictionary: &*self.obj];
-            MutableDictionary {
-                obj: Id::from_ptr(obj),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
-    }
-
-    fn count(&self) -> UInt {
-        unsafe { msg_send![self.obj, count] }
-    }
-}
-
-impl<K, V> Debug for Dictionary<K, V> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", self.debugDescription())
-    }
-}
-
-impl<K, V> Display for Dictionary<K, V> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", self.description())
-    }
-}
-
-impl<K, V> Default for Dictionary<K, V> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<K, V> AsMut<Dictionary<K, V>> for Dictionary<K, V> {
-    fn as_mut(&mut self) -> &mut Self {
-        self
-    }
-}
-
-impl<K, V> Deref for Dictionary<K, V> {
-    type Target = Object;
-
-    /// Derefs to the underlying Objective-C Object.
-    fn deref(&self) -> &Object {
-        &*self.obj
-    }
-}
-
-impl<K, V> DerefMut for Dictionary<K, V> {
-    /// Derefs to the underlying Objective-C Object.
-    fn deref_mut(&mut self) -> &mut Object {
-        &mut *self.obj
-    }
-}
+use super::{Array, Dictionary, String};
 
 /// A dynamic collection of objects associated with unique keys.
 pub struct MutableDictionary<K, V> {
@@ -331,18 +191,18 @@ impl<K, V> t_NSObject for MutableDictionary<K, V> {
     }
 }
 
-impl<K, V> Debug for MutableDictionary<K, V>
+impl<K, V> fmt::Debug for MutableDictionary<K, V>
 where
-    K: Debug,
-    V: Debug,
+    K: fmt::Debug,
+    V: fmt::Debug,
 {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{}", self.debugDescription())
     }
 }
 
-impl Display for MutableDictionary<String, String> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+impl fmt::Display for MutableDictionary<String, String> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{}", self.description())
     }
 }
@@ -366,5 +226,20 @@ impl<K, V> DerefMut for MutableDictionary<K, V> {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
         &mut *self.obj
+    }
+}
+
+impl<K, V> From<Dictionary<K, V>> for MutableDictionary<K, V>
+where
+    K: Into<id>,
+    V: Into<id>,
+{
+    fn from(dictionary: Dictionary<K, V>) -> Self {
+        Self {
+            obj: dictionary.obj,
+
+            _key: PhantomData,
+            _value: PhantomData,
+        }
     }
 }

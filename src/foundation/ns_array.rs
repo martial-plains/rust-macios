@@ -14,7 +14,12 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{iter::Iter, ns_mutable_array::MutableArray};
+use self::iter::Iter;
+
+use super::ns_mutable_array::MutableArray;
+
+/// Iterator for Array
+pub mod iter;
 
 /// A static ordered collection of objects.
 pub struct Array<T> {

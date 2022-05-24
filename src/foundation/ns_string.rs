@@ -20,7 +20,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{unichar, CompareOptions, Encoding, StringTransform, UTF8_ENCODING};
+use super::{string::Encoding, StringTransform, UTF8_ENCODING, CompareOptions, unichar};
 
 /// This is a mapping to the Objective-C NSString class.
 #[repr(C)]
@@ -193,78 +193,78 @@ impl t_NSString for String {
         unsafe { msg_send![&*self.objc, characterAtIndex: index] }
     }
 
-    fn caseInsensitiveCompare<T>(&self, string: T) -> ComparisonResult
+    fn caseInsensitiveCompare<S>(&self, string: S) -> ComparisonResult
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe { msg_send![&*self.objc, caseInsensitiveCompare: string.into()] }
     }
 
-    fn localizedCaseInsensitiveCompare<T>(&self, string: T) -> ComparisonResult
+    fn localizedCaseInsensitiveCompare<S>(&self, string: S) -> ComparisonResult
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe { msg_send![&*self.objc, localizedCaseInsensitiveCompare: string.into()] }
     }
 
-    fn compare<T>(&self, string: T) -> ComparisonResult
+    fn compare<S>(&self, string: S) -> ComparisonResult
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe { msg_send![&*self.objc, compare: string.into()] }
     }
 
-    fn localizedCompare<T>(&self, string: T) -> ComparisonResult
+    fn localizedCompare<S>(&self, string: S) -> ComparisonResult
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe { msg_send![&*self.objc, localizedCompare: string.into()] }
     }
 
-    fn localized_standard_compare<T>(&self, string: T) -> ComparisonResult
+    fn localized_standard_compare<S>(&self, string: S) -> ComparisonResult
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe { msg_send![&*self.objc, localizedStandardCompare: string.into()] }
     }
 
-    fn compareWithOptions<T>(&self, string: T, options: CompareOptions) -> ComparisonResult
+    fn compareWithOptions<S>(&self, string: S, options: CompareOptions) -> ComparisonResult
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe { msg_send![&*self.objc, compare: string.into() options: options] }
     }
 
-    fn compareWithOptionsRange<T>(
+    fn compareWithOptionsRange<S>(
         &self,
-        string: T,
+        string: S,
         options: CompareOptions,
         range: Range<UInt>,
     ) -> ComparisonResult
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe { msg_send![&*self.objc, compare: string.into() options: options range: range] }
     }
 
-    fn compareWithOptionsRangeLocale<T>(
+    fn compareWithOptionsRangeLocale<S>(
         &self,
-        string: T,
+        string: S,
         options: CompareOptions,
         range: Range<UInt>,
         locale: Locale,
     ) -> ComparisonResult
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe {
             msg_send![&*self.objc, compare: string.into() options: options range: range locale: locale]
         }
     }
 
-    fn hasPrefix<T>(&self, prefix: T) -> bool
+    fn hasPrefix<S>(&self, prefix: S) -> bool
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe {
             let result: BOOL = msg_send![&*self.objc, hasPrefix: prefix.into()];
@@ -272,9 +272,9 @@ impl t_NSString for String {
         }
     }
 
-    fn hasSuffix<T>(&self, suffix: T) -> bool
+    fn hasSuffix<S>(&self, suffix: S) -> bool
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe {
             let result: BOOL = msg_send![&*self.objc, hasSuffix: suffix.into()];
@@ -282,9 +282,9 @@ impl t_NSString for String {
         }
     }
 
-    fn isEqualTo<T>(&self, string: T) -> bool
+    fn isEqualTo<S>(&self, string: S) -> bool
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe {
             let result: BOOL = msg_send![&*self.objc, isEqualToString: string.into()];
@@ -292,25 +292,25 @@ impl t_NSString for String {
         }
     }
 
-    fn appending<T>(&self, string: T) -> String
+    fn appending<s>(&self, string: s) -> String
     where
-        T: Into<String>,
+        s: Into<String>,
     {
         unsafe { msg_send![&*self.objc, stringByAppendingString: string.into()] }
     }
 
-    fn padding<T>(&self, new_length: Int, pad_string: T, starting_at: Int) -> String
+    fn padding<S>(&self, new_length: Int, pad_string: S, starting_at: Int) -> String
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe {
             msg_send![&*self.objc, stringByPaddingToLength: new_length withString: pad_string.into() startingAtIndex: starting_at]
         }
     }
 
-    fn contains<T>(&self, other: T) -> bool
+    fn contains<S>(&self, other: S) -> bool
     where
-        T: Into<String>,
+        S: Into<String>,
     {
         unsafe {
             let result: BOOL = msg_send![&*self.objc, containsString: other.into()];
@@ -500,7 +500,9 @@ impl PartialEq<&str> for String {
 
 #[cfg(test)]
 mod tests {
-    use crate::foundation::{string_transforms::LatinToKatakana, ComparisonResult};
+    use crate::foundation::{
+        string::Encoding, string_transform::LatinToKatakana, ComparisonResult,
+    };
 
     use super::*;
 

@@ -1,9 +1,3 @@
-mod nsdecimal;
-mod nsnumber;
-
-pub use nsdecimal::*;
-pub use nsnumber::*;
-
 /// Describes an integer.
 #[cfg(target_pointer_width = "32")]
 pub type Int = libc::c_int;
@@ -46,3 +40,12 @@ pub type UInt64 = libc::c_ulonglong;
 
 /// A double-precision, floating-point value type.
 pub type Double = libc::c_double;
+
+/// Type for UTF-16 code units.
+#[allow(non_camel_case_types)]
+pub type unichar = u16;
+
+/// Constants representing an ICU string transform.
+pub type StringTransform = *const String;
+/// The keys used to access components of a locale.
+pub type NSLocaleKey = *mut String;

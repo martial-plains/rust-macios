@@ -37,4 +37,3 @@ pub trait t_NSObject {
 
 /// The group of methods that are fundamental to all Objective-C objects.
 pub trait t_NSValue: t_NSObject {}
-

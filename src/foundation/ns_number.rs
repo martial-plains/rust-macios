@@ -11,11 +11,9 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::t_NSNumber, ComparisonResult, Locale, String},
+    foundation::{traits::t_NSNumber, ComparisonResult, Int, Locale, String, UInt},
     objective_c_runtime::traits::{t_NSObject, t_NSValue},
 };
-
-use super::{Int, UInt};
 
 /// An object wrapper for primitive scalar numeric values.
 pub struct NSNumber {
