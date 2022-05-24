@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::{ops::Range, sync::Arc};
 
 use libc::{
     c_char, c_double, c_float, c_int, c_long, c_longlong, c_schar, c_short, c_uchar, c_uint,
@@ -14,7 +14,7 @@ use crate::{
 
 use super::{
     key::NSLocaleKey, unichar, Array, CompareOptions, ComparisonResult, Encoding, Int,
-    LanguageDirection, StringTransform, UInt,
+    LanguageDirection, NSDecimalNumber, NSRoundingMode, StringTransform, UInt,
 };
 
 /// A static, plain-text Unicode string object.
@@ -868,4 +868,183 @@ pub trait t_NSDictionary<K, V>: t_NSObject {
 
     /// The number of entries in the dictionary.
     fn count(&self) -> UInt;
+}
+
+/// An object for representing and performing arithmetic on base-10 numbers.
+pub trait t_NSDecimalNumber: t_NSNumber {
+    /* Creating a Decimal Number
+     */
+
+    /// Creates and returns a decimal number equivalent to a given decimal structure.
+    fn decimal_number_with_decimal(decimal: NSDecimalNumber) -> Self;
+
+    /// Creates and returns a decimal number equivalent to the number specified by the arguments.
+    fn decimal_number_with_mantissa(
+        mantissa: c_ulonglong,
+        exponent: c_short,
+        is_negative: bool,
+    ) -> Self;
+
+    /// Creates a decimal number whose value is equivalent to that in a given numeric string.
+    fn decimal_number_with_string<S>(string: S) -> Self
+    where
+        S: Into<String>;
+
+    /// Creates a decimal number whose value is equivalent to that in a given numeric string, interpreted using a given locale.
+    fn decimal_number_with_string_locale<S, L>(string: S, locale: L) -> Self
+    where
+        S: Into<String>,
+        L: t_NSLocale;
+
+    /// A decimal number equivalent to the number 1.0.
+    fn one() -> Self;
+
+    /// A decimal number equivalent to the number 0.0.
+    fn zero() -> Self;
+
+    /// A decimal number that specifies no number.
+    fn not_a_number() -> Self;
+
+    /* Initializing a Decimal Number
+     */
+
+    /// Initializes a decimal number to represent a given decimal.
+    fn init_with_decimal(&mut self, decimal: NSDecimalNumber);
+
+    /// Initializes a decimal number using the given mantissa, exponent, and sign.
+    fn init_with_mantissa_exponent_is_negative(
+        &mut self,
+        mantissa: c_ulonglong,
+        exponent: c_short,
+        is_negative: bool,
+    );
+
+    /// Initializes a decimal number so that its value is equivalent to that in a given numeric string.
+    fn init_with_string<S>(&mut self, string: S)
+    where
+        S: Into<String>;
+
+    /// Initializes a decimal number so that its value is equivalent to that in a given numeric string, interpreted using a given locale.
+    fn init_with_string_locale<S, L>(&mut self, string: S, locale: L)
+    where
+        S: Into<String>,
+        L: t_NSLocale;
+
+    /* Performing Arithmetic
+     */
+
+    /// Adds this number to another given number.
+    fn decimal_number_by_adding(&self, decimal_number: Self) -> Self;
+
+    /// Subtracts another given number from this one.
+    fn decimal_number_by_subtracting(&self, decimal_number: Self) -> Self;
+
+    /// Multiplies the number by another given number.
+    fn decimal_number_by_multiplying_by(&self, decimal_number: Self) -> Self;
+
+    /// Divides the number by another given number.
+    fn decimal_number_by_dividing_by(&self, decimal_number: Self) -> Self;
+
+    /// Raises the number to a given power.
+    fn decimal_number_by_raising_to_power(&self, power: c_uint) -> Self;
+
+    /// Multiplies the number by 10 raised to the given power.
+    fn decimal_number_by_multiplying_by_power_of_10(&self, power: c_short) -> Self;
+
+    /// Adds this number to another given number using the specified behavior.
+    fn decimal_number_by_adding_with_behavior(
+        &self,
+        decimal_number: &Self,
+        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+    ) -> Self;
+
+    /// Subtracts this a given number from this one using the specified behavior.
+    fn decimal_number_by_subtracting_with_behavior(
+        &self,
+        decimal_number: &Self,
+        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+    ) -> Self;
+
+    /// Multiplies this number by another given number using the specified behavior.
+    fn decimal_number_by_multiplying_by_with_behavior(
+        &self,
+        decimal_number: &Self,
+        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+    ) -> Self;
+
+    /// Divides this number by another given number using the specified behavior.
+    fn decimal_number_by_dividing_by_with_behavior(
+        &self,
+        decimal_number: &Self,
+        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+    ) -> Self;
+
+    /// Raises the number to a given power using the specified behavior.
+    fn decimal_number_by_raising_to_power_with_behavior(
+        &self,
+        power: c_uint,
+        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+    ) -> Self;
+
+    /// Multiplies the number by 10 raised to the given power using the specified behavior.
+    fn decimal_number_by_multiplying_by_power_of_10_with_behavior(
+        &self,
+        power: c_short,
+        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+    ) -> Self;
+
+    /* Rounding Off
+     */
+    /// Returns a rounded version of the decimal number using the specified rounding behavior.
+    fn decimal_number_by_rounding_according_to_behavior(
+        &self,
+        behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+    ) -> Self;
+
+    /* Managing Behavior
+     */
+
+    /// The way arithmetic methods round off and handle error conditions.
+    fn default_behavior() -> Arc<dyn t_NSDecimalNumberBehaviors>;
+
+    /// Sets the way arithmetic methods round off and handle error conditions.
+    fn set_default_behavior(behavior: Arc<dyn t_NSDecimalNumberBehaviors>);
+
+    /// The decimal number’s closest approximate double value.
+    fn double_value(&self) -> f64;
+
+    /// Returns a string representation of the decimal number appropriate for the specified locale.
+    fn description_with_locale<L>(&self, locale: L) -> String
+    where
+        L: t_NSLocale;
+
+    /// A C string containing the Objective-C type for the data contained in the decimal number object.
+    fn objc_type(&self) -> *const c_char;
+
+    /* Comparing Decimal Numbers
+     */
+
+    /// Compares this decimal number and another.
+    fn compare(&self, decimal_number: &Self) -> ComparisonResult;
+
+    /* Getting Maximum and Minimum Possible Values
+     */
+
+    /// Returns the largest possible value of a decimal number.
+    fn maximum_decimal_number() -> Self;
+
+    /// Returns the smallest possible value of a decimal number.
+    fn minimum_decimal_number() -> Self;
+}
+
+/// A protocol that declares three methods that control the discretionary aspects of working with decimal numbers.
+pub trait t_NSDecimalNumberBehaviors {
+    /* Rounding Behavior
+     */
+
+    /// Returns the way that NSDecimalNumber's decimalNumberBy... methods round their return values.
+    fn rounding_mode(&self) -> NSRoundingMode;
+
+    /// Returns the number of digits allowed after the decimal separator.
+    fn scale(&self) -> c_short;
 }

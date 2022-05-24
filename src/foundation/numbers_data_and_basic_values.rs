@@ -1,5 +1,7 @@
+mod nsdecimal;
 mod nsnumber;
 
+pub use nsdecimal::*;
 pub use nsnumber::*;
 
 /// Describes an integer.
