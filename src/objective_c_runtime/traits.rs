@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use crate::{foundation::String, id};
 
 /// The group of methods that are fundamental to all Objective-C objects.
@@ -9,10 +11,10 @@ pub trait t_NSObject {
     fn init() -> Self;
 
     /// Returns a an `id`.
-    fn to_id(self) -> id;
+    fn toId(self) -> id;
 
     /// Returns `Self` representation of the object.
-    fn from_id(obj: id) -> Self;
+    fn fromId(obj: id) -> Self;
 
     /* Describing Objects
      */
@@ -24,7 +26,7 @@ pub trait t_NSObject {
      */
 
     /// Returns a string that represents the contents of the receiving class.
-    fn debug_description(&self) -> String;
+    fn debugDescription(&self) -> String;
 
     /* Obselte Methods
      */

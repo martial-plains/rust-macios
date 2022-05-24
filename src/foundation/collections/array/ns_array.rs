@@ -31,7 +31,7 @@ impl<T> t_NSArray<T> for Array<T> {
         }
     }
 
-    fn from_objects(objects: &[T]) -> Self
+    fn fromObjects(objects: &[T]) -> Self
     where
         T: t_NSObject,
     {
@@ -43,7 +43,7 @@ impl<T> t_NSArray<T> for Array<T> {
         })
     }
 
-    unsafe fn from_retained(array: id) -> Self {
+    unsafe fn fromRetained(array: id) -> Self {
         Array {
             obj: Id::from_retained_ptr(array),
             _marker: PhantomData,
@@ -61,7 +61,7 @@ impl<T> t_NSArray<T> for Array<T> {
         unsafe { msg_send![self.obj, count] }
     }
 
-    fn first_object(&self) -> Option<T>
+    fn firstObject(&self) -> Option<T>
     where
         T: t_NSObject,
     {
@@ -70,12 +70,12 @@ impl<T> t_NSArray<T> for Array<T> {
             if ptr.is_null() {
                 None
             } else {
-                Some(T::from_id(ptr))
+                Some(T::fromId(ptr))
             }
         }
     }
 
-    fn last_object(&self) -> Option<T>
+    fn lastObject(&self) -> Option<T>
     where
         T: t_NSObject,
     {
@@ -84,57 +84,57 @@ impl<T> t_NSArray<T> for Array<T> {
             if ptr.is_null() {
                 None
             } else {
-                Some(T::from_id(ptr))
+                Some(T::fromId(ptr))
             }
         }
     }
 
-    fn object_at(&self, index: UInt) -> T
+    fn objectAt(&self, index: UInt) -> T
     where
         T: t_NSObject,
     {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, objectAtIndex: index];
-            T::from_id(ptr)
+            T::fromId(ptr)
         }
     }
 
-    fn object_at_indexed_subscript(&self, index: UInt) -> Option<id> {
+    fn objectAtIndexedSubscript(&self, index: UInt) -> Option<id> {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, objectAtIndexedSubscript: index];
             ptr.into()
         }
     }
 
-    fn index_of(&self, object: T) -> UInt
+    fn indexOf(&self, object: T) -> UInt
     where
         T: t_NSObject,
     {
         unsafe { msg_send![&*self.obj, indexOfObject: object] }
     }
 
-    fn index_of_object_in_range(&self, object: T, range: Range<UInt>) -> UInt
+    fn indexOfObjectInRange(&self, object: T, range: Range<UInt>) -> UInt
     where
         T: t_NSObject,
     {
         unsafe { msg_send![self.obj, indexOfObject: object inRange: range] }
     }
 
-    fn index_of_object_identical_to(&self, object: T) -> UInt
+    fn indexOfObjectIdenticalTo(&self, object: T) -> UInt
     where
         T: t_NSObject,
     {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object] }
     }
 
-    fn index_of_object_identical_to_in_range(&self, object: T, range: Range<UInt>) -> UInt
+    fn indexOfObjectIdenticalToInRange(&self, object: T, range: Range<UInt>) -> UInt
     where
         T: t_NSObject,
     {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object inRange: range] }
     }
 
-    fn first_object_common_with(&self, other: &Array<T>) -> Option<T>
+    fn firstObjectCommonWith(&self, other: &Array<T>) -> Option<T>
     where
         T: t_NSObject,
     {
@@ -144,12 +144,12 @@ impl<T> t_NSArray<T> for Array<T> {
             if ptr.is_null() {
                 None
             } else {
-                Some(T::from_id(ptr))
+                Some(T::fromId(ptr))
             }
         }
     }
 
-    fn is_equal_to(&self, other: &Array<T>) -> bool
+    fn isEqualTo(&self, other: &Array<T>) -> bool
     where
         T: t_NSObject,
     {
@@ -163,7 +163,7 @@ impl<T> t_NSArray<T> for Array<T> {
         Array::new(unsafe { msg_send![&*self.obj, arrayByAddingObject: object] })
     }
 
-    fn adding_objects(&self, objects: &Array<T>) -> Array<T>
+    fn addingObjects(&self, objects: &Array<T>) -> Array<T>
     where
         T: t_NSObject,
     {
@@ -172,18 +172,18 @@ impl<T> t_NSArray<T> for Array<T> {
         })
     }
 
-    fn subarray_with_range(&self, range: Range<UInt>) -> Array<T>
+    fn subarrayWithRange(&self, range: Range<UInt>) -> Array<T>
     where
         T: t_NSObject,
     {
         Array::new(unsafe { msg_send![&*self.obj, subarrayWithRange: range] })
     }
 
-    fn description_with_locale(&self, locale: &Locale) -> String {
+    fn descriptionWithLocale(&self, locale: &Locale) -> String {
         unsafe { msg_send![&*self.obj, descriptionWithLocale: locale.clone().obj] }
     }
 
-    fn description_with_locale_indent(&self, locale: &Locale, indent: UInt) -> String {
+    fn descriptionWithLocaleIndent(&self, locale: &Locale, indent: UInt) -> String {
         unsafe { msg_send![&*self.obj, descriptionWithLocale: locale.clone().obj indent: indent] }
     }
 
@@ -209,22 +209,22 @@ impl<T> t_NSObject for Array<T> {
     }
 
     #[allow(trivial_casts)]
-    fn to_id(self) -> id {
+    fn toId(self) -> id {
         &*self as *const _ as *mut _
     }
 
-    fn from_id(_obj: id) -> Self {
+    fn fromId(_obj: id) -> Self {
         todo!()
     }
 
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
-    fn debug_description(&self) -> String {
+    fn debugDescription(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
     fn retain(&self) -> Self {
@@ -241,7 +241,7 @@ where
     T: fmt::Debug + t_NSObject,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.debug_description())
+        write!(f, "{}", self.debugDescription())
     }
 }
 

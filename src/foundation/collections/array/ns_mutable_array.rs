@@ -91,7 +91,7 @@ where
 
     /// Inserts a given object at the end of the array.
     pub fn add(&mut self, object: &T) {
-        unsafe { msg_send![&mut *self.obj, addObject: object.retain().to_id()] }
+        unsafe { msg_send![&mut *self.obj, addObject: object.retain().toId()] }
     }
 
     /// Adds the objects contained in another given array to the end of the receiving array’s content.
@@ -101,7 +101,7 @@ where
 
     /// Inserts a given object into the array’s contents at a given index.
     pub fn insert(&mut self, index: UInt, object: &T) {
-        unsafe { msg_send![&mut *self.obj, insertObject: object.retain().to_id() atIndex: index] }
+        unsafe { msg_send![&mut *self.obj, insertObject: object.retain().toId() atIndex: index] }
     }
 
     /* Removing Objects
@@ -119,12 +119,12 @@ where
 
     /// Removes all occurrences in the array of a given object.
     pub fn remove_object(&mut self, object: &T) {
-        unsafe { msg_send![&mut *self.obj, removeObject: object.retain().to_id()] }
+        unsafe { msg_send![&mut *self.obj, removeObject: object.retain().toId()] }
     }
 
     /// Removes all occurrences within a specified range in the array of a given object.
     pub fn remove_object_in_range(&mut self, object: &T, range: Range<UInt>) {
-        unsafe { msg_send![&mut *self.obj, removeObject: object.retain().to_id() inRange: range] }
+        unsafe { msg_send![&mut *self.obj, removeObject: object.retain().toId() inRange: range] }
     }
 
     /// Removes the object at index .
@@ -134,13 +134,13 @@ where
 
     /// Removes all occurrences of a given object in the array.
     pub fn remove_object_identical_to(&mut self, object: &T) {
-        unsafe { msg_send![&mut *self.obj, removeObjectIdenticalTo: object.retain().to_id()] }
+        unsafe { msg_send![&mut *self.obj, removeObjectIdenticalTo: object.retain().toId()] }
     }
 
     /// Removes all occurrences of anObject within the specified range in the array.
     pub fn remove_object_identical_to_in_range(&mut self, object: &T, range: Range<UInt>) {
         unsafe {
-            msg_send![&mut *self.obj, removeObjectIdenticalTo: object.retain().to_id() inRange: range]
+            msg_send![&mut *self.obj, removeObjectIdenticalTo: object.retain().toId() inRange: range]
         }
     }
 
@@ -160,7 +160,7 @@ where
     /// Replaces the object at index with anObject.
     pub fn replace_object_at_index(&mut self, index: UInt, object: &T) {
         unsafe {
-            msg_send![&mut *self.obj, replaceObjectAtIndex: index withObject: object.retain().to_id()]
+            msg_send![&mut *self.obj, replaceObjectAtIndex: index withObject: object.retain().toId()]
         }
     }
 
@@ -190,22 +190,22 @@ impl<T> t_NSObject for MutableArray<T> {
     }
 
     #[allow(trivial_casts)]
-    fn to_id(self) -> id {
+    fn toId(self) -> id {
         &*self as *const _ as *mut _
     }
 
-    fn from_id(_obj: id) -> Self {
+    fn fromId(_obj: id) -> Self {
         todo!()
     }
 
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
-    fn debug_description(&self) -> String {
+    fn debugDescription(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
     fn retain(&self) -> Self {
@@ -219,7 +219,7 @@ impl<T> t_NSObject for MutableArray<T> {
 
 impl fmt::Debug for MutableArray<id> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}", self.debug_description())
+        write!(f, "{}", self.debugDescription())
     }
 }
 

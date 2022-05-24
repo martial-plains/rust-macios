@@ -39,7 +39,7 @@ pub struct Locale {
 }
 
 impl t_NSLocale for Locale {
-    fn init_with_locale_identifier<T>(locale_identifier: T) -> Self
+    fn initWithLocaleIdentifier<T>(locale_identifier: T) -> Self
     where
         T: Into<String>,
     {
@@ -50,7 +50,7 @@ impl t_NSLocale for Locale {
         }
     }
 
-    fn auto_updating_current(&self) -> Locale {
+    fn autoUpdatingCurrent(&self) -> Locale {
         let class = class!(NSLocale);
         unsafe { msg_send![class, autoupdatingCurrent] }
     }
@@ -65,104 +65,104 @@ impl t_NSLocale for Locale {
         unsafe { msg_send![class, systemLocale] }
     }
 
-    fn available_locale_identifiers() -> Array<String> {
+    fn availableLocaleIdentifiers() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, availableLocaleIdentifiers] }
     }
 
-    fn iso_country_codes() -> Array<String> {
+    fn isoCountryCodes() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOCountryCodes] }
     }
 
-    fn iso_language_codes() -> Array<String> {
+    fn isoLanguageCodes() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOLanguageCodes] }
     }
 
-    fn iso_currency_codes() -> Array<String> {
+    fn isoCurrencyCodes() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOCurrencyCodes] }
     }
 
-    fn common_isocurrency_codes() -> Array<String> {
+    fn commonIsocurrencyCodes() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, commonISOCurrencyCodes] }
     }
 
-    fn locale_identifier(&self) -> String {
+    fn localeIdentifier(&self) -> String {
         unsafe { msg_send![self.obj, localeIdentifier] }
     }
 
-    fn country_code(&self) -> String {
+    fn countryCode(&self) -> String {
         unsafe { msg_send![self.obj, countryCode] }
     }
 
-    fn language_code(&self) -> String {
+    fn languageCode(&self) -> String {
         unsafe { msg_send![self.obj, languageCode] }
     }
 
-    fn script_code(&self) -> String {
+    fn scriptCode(&self) -> String {
         unsafe { msg_send![self.obj, scriptCode] }
     }
 
-    fn variant_code(&self) -> String {
+    fn variantCode(&self) -> String {
         unsafe { msg_send![self.obj, variantCode] }
     }
 
-    fn collation_identifier(&self) -> String {
+    fn collationIdentifier(&self) -> String {
         unsafe { msg_send![self.obj, collationIdentifier] }
     }
 
-    fn collator_identifier(&self) -> String {
+    fn collatorIdentifier(&self) -> String {
         unsafe { msg_send![self.obj, collatorIdentifier] }
     }
 
-    fn uses_metric_system(&self) -> bool {
+    fn usesMetricSystem(&self) -> bool {
         unsafe { msg_send![self.obj, usesMetricSystem] }
     }
 
-    fn decimal_separator(&self) -> String {
+    fn decimalSeparator(&self) -> String {
         unsafe { msg_send![self.obj, decimalSeparator] }
     }
 
-    fn grouping_separator(&self) -> String {
+    fn groupingSeparator(&self) -> String {
         unsafe { msg_send![self.obj, groupingSeparator] }
     }
 
-    fn currency_code(&self) -> String {
+    fn currencyCode(&self) -> String {
         unsafe { msg_send![self.obj, currencyCode] }
     }
 
-    fn currency_symbol(&self) -> String {
+    fn currencySymbol(&self) -> String {
         unsafe { msg_send![self.obj, currencySymbol] }
     }
 
-    fn calendar_identifier(&self) -> String {
+    fn calendarIdentifier(&self) -> String {
         unsafe { msg_send![self.obj, calendarIdentifier] }
     }
 
-    fn quotation_begin_delimiter(&self) -> String {
+    fn quotationBeginDelimiter(&self) -> String {
         unsafe { msg_send![self.obj, quotationBeginDelimiter] }
     }
 
-    fn quotation_end_delimiter(&self) -> String {
+    fn quotationEndDelimiter(&self) -> String {
         unsafe { msg_send![self.obj, quotationEndDelimiter] }
     }
 
-    fn alternate_quotation_begin_delimiter(&self) -> String {
+    fn alternateQuotationBeginDelimiter(&self) -> String {
         unsafe { msg_send![self.obj, alternateQuotationBeginDelimiter] }
     }
 
-    fn alternate_quotation_end_delimiter(&self) -> String {
+    fn alternateQuotationEndDelimiter(&self) -> String {
         unsafe { msg_send![self.obj, alternateQuotationEndDelimiter] }
     }
 
-    fn object_for_key(&self, key: NSLocaleKey) -> Option<Object> {
+    fn objectForKey(&self, key: NSLocaleKey) -> Option<Object> {
         unsafe { msg_send![self.obj, objectForKey: key] }
     }
 
-    fn display_name_for_key_value<T>(&self, key: NSLocaleKey, value: T) -> Option<String>
+    fn displayNameForKeyValue<T>(&self, key: NSLocaleKey, value: T) -> Option<String>
     where
         T: Into<String>,
     {
@@ -171,16 +171,16 @@ impl t_NSLocale for Locale {
         if result.is_null() {
             None
         } else {
-            Some(String::from_id(result))
+            Some(String::fromId(result))
         }
     }
 
-    fn preferred_languages() -> Array<String> {
+    fn preferredLanguages() -> Array<String> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, preferredLanguages] }
     }
 
-    fn character_direction_for_language<T>(&self, iso_language_code: T) -> LanguageDirection
+    fn characterDirectionForLanguage<T>(&self, iso_language_code: T) -> LanguageDirection
     where
         T: Into<String>,
     {
@@ -188,7 +188,7 @@ impl t_NSLocale for Locale {
         unsafe { msg_send![class, characterDirectionForLanguage: iso_language_code.into()] }
     }
 
-    fn line_direction_for_language<T>(&self, iso_language_code: T) -> LanguageDirection
+    fn lineDirectionForLanguage<T>(&self, iso_language_code: T) -> LanguageDirection
     where
         T: Into<String>,
     {
@@ -202,25 +202,25 @@ impl t_NSObject for Locale {
         todo!()
     }
 
-    fn to_id(mut self) -> id {
+    fn toId(mut self) -> id {
         &mut *self.obj
     }
 
-    fn from_id(_obj: id) -> Self {
+    fn fromId(_obj: id) -> Self {
         todo!()
     }
 
     fn description(&self) -> String {
         unsafe {
             let description: id = msg_send![self.obj, description];
-            String::from_id(description)
+            String::fromId(description)
         }
     }
 
-    fn debug_description(&self) -> String {
+    fn debugDescription(&self) -> String {
         unsafe {
             let description: id = msg_send![self.obj, debugDescription];
-            String::from_id(description)
+            String::fromId(description)
         }
     }
 
@@ -237,7 +237,7 @@ impl Display for Locale {
 
 impl Debug for Locale {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Locale: {}", self.debug_description())
+        write!(f, "Locale: {}", self.debugDescription())
     }
 }
 

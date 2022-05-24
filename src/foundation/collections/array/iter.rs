@@ -22,7 +22,7 @@ where
         if self.index >= self.array.count() {
             None
         } else {
-            let item = self.array.object_at(self.index);
+            let item = self.array.objectAt(self.index);
             self.index += 1;
             Some(item)
         }

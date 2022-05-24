@@ -27,11 +27,11 @@ impl t_NSObject for NLTokenizer {
         }
     }
 
-    fn to_id(mut self) -> id {
+    fn toId(mut self) -> id {
         &mut *self.obj
     }
 
-    fn from_id(obj: id) -> Self {
+    fn fromId(obj: id) -> Self {
         Self {
             obj: unsafe { Id::from_ptr(obj) },
         }
@@ -39,12 +39,12 @@ impl t_NSObject for NLTokenizer {
 
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
-    fn debug_description(&self) -> String {
+    fn debugDescription(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
     fn retain(&self) -> Self {
@@ -59,7 +59,7 @@ impl t_NSObject for NLTokenizer {
 
 impl fmt::Debug for NLTokenizer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<{}>", self.debug_description())
+        write!(f, "<{}>", self.debugDescription())
     }
 }
 
@@ -73,7 +73,7 @@ impl t_NLTokenizer for NLTokenizer {
     /* Creating a Tokenizer
      */
 
-    fn init_with_unit(unit: NLTokenUnit) -> Self {
+    fn initWithUnit(unit: NLTokenUnit) -> Self {
         unsafe {
             let cls = class!(NLTokenizer);
             let obj: *mut Object = msg_send![cls, new];
@@ -86,14 +86,14 @@ impl t_NLTokenizer for NLTokenizer {
         unsafe { msg_send![&*self.obj, string] }
     }
 
-    fn set_string<S>(&self, string: S)
+    fn setString<S>(&self, string: S)
     where
         S: Into<String>,
     {
         unsafe { msg_send![self.obj, setString: string.into()] }
     }
 
-    fn set_language(&self, language: String) {
+    fn setLanguage(&self, language: String) {
         unsafe { msg_send![self.obj, setLanguage: language] }
     }
 
@@ -101,11 +101,11 @@ impl t_NLTokenizer for NLTokenizer {
         unsafe { msg_send![self.obj, unit] }
     }
 
-    fn token_range_at_index(&self, character_index: UInt) -> Range<UInt> {
+    fn tokenRangeAtIndex(&self, character_index: UInt) -> Range<UInt> {
         unsafe { msg_send![self.obj, tokenRangeAtIndex: character_index] }
     }
 
-    fn token_range_for_range(&self, range: Range<UInt>) -> Range<UInt> {
+    fn tokenRangeForRange(&self, range: Range<UInt>) -> Range<UInt> {
         unsafe { msg_send![self.obj, tokenRangeForRange: range] }
     }
 }

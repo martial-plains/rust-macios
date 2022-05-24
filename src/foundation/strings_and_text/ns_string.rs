@@ -35,11 +35,11 @@ impl t_NSObject for String {
         unsafe { msg_send![class!(NSString), new] }
     }
 
-    fn to_id(mut self) -> id {
+    fn toId(mut self) -> id {
         &mut *self.objc
     }
 
-    fn from_id(obj: id) -> Self {
+    fn fromId(obj: id) -> Self {
         String {
             objc: unsafe { Id::from_ptr(obj) },
             marker: PhantomData,
@@ -49,14 +49,14 @@ impl t_NSObject for String {
     fn description(&self) -> String {
         unsafe {
             let description: id = msg_send![&*self.objc, description];
-            String::from_id(description)
+            String::fromId(description)
         }
     }
 
-    fn debug_description(&self) -> String {
+    fn debugDescription(&self) -> String {
         unsafe {
             let description: id = msg_send![&*self.objc, debugDescription];
-            String::from_id(description)
+            String::fromId(description)
         }
     }
 
@@ -78,7 +78,7 @@ impl t_NSString for String {
         }
     }
 
-    unsafe fn from_retained(object: id) -> Self {
+    unsafe fn fromRetained(object: id) -> Self {
         String {
             objc: Id::from_retained_ptr(object),
             marker: PhantomData,
@@ -97,11 +97,11 @@ impl t_NSString for String {
         }
     }
 
-    fn bytes_len(&self) -> UInt {
+    fn bytesLen(&self) -> UInt {
         unsafe { msg_send![&*self.objc, lengthOfBytesUsingEncoding: UTF8_ENCODING] }
     }
 
-    fn as_str(&self) -> &str {
+    fn asStr(&self) -> &str {
         let bytes = self.bytes();
 
         unsafe {
@@ -122,7 +122,7 @@ impl t_NSString for String {
         }
     }
 
-    fn init_with_bytes_len_encoding(bytes: *const c_char, len: UInt, encoding: Encoding) -> Self {
+    fn initWithBytesLenEncoding(bytes: *const c_char, len: UInt, encoding: Encoding) -> Self {
         let objc = unsafe {
             let nsstring: *mut Object = msg_send![class!(NSString), alloc];
             Id::from_ptr(msg_send![nsstring, initWithBytes:bytes
@@ -137,7 +137,7 @@ impl t_NSString for String {
         }
     }
 
-    fn init_with_no_cpy_str(s: &str) -> Self {
+    fn initWithNoCpyStr(s: &str) -> Self {
         String {
             objc: unsafe {
                 let nsstring: id = msg_send![class!(NSString), alloc];
@@ -152,7 +152,7 @@ impl t_NSString for String {
         }
     }
 
-    fn init_with_characters_len(characters: *const unichar, len: UInt) -> Self {
+    fn initWithCharactersLen(characters: *const unichar, len: UInt) -> Self {
         let objc = unsafe {
             let nsstring: *mut Object = msg_send![class!(NSString), alloc];
             Id::from_ptr(msg_send![nsstring, initWithCharacters:characters
@@ -166,7 +166,7 @@ impl t_NSString for String {
         }
     }
 
-    fn init_with_str(s: &str) -> Self {
+    fn initWithStr(s: &str) -> Self {
         String {
             objc: unsafe {
                 let nsstring: id = msg_send![class!(NSString), alloc];
@@ -181,26 +181,26 @@ impl t_NSString for String {
         unsafe { msg_send![&*self.objc, length] }
     }
 
-    fn length_of_bytes(&self, enc: Encoding) -> Int {
+    fn lengthOfBytesUsingEncoding(&self, enc: Encoding) -> Int {
         unsafe { msg_send![&*self.objc, lengthOfBytesUsingEncoding: enc] }
     }
 
-    fn maximum_length_of_bytes(&self, enc: Encoding) -> Int {
+    fn maximumLengthOfBytesUsingEncoding(&self, enc: Encoding) -> Int {
         unsafe { msg_send![&*self.objc, maximumLengthOfBytesUsingEncoding: enc] }
     }
 
-    fn character_at(&self, index: Int) -> char {
+    fn characterAtIndex(&self, index: Int) -> char {
         unsafe { msg_send![&*self.objc, characterAtIndex: index] }
     }
 
-    fn case_insensitive_compare<T>(&self, string: T) -> ComparisonResult
+    fn caseInsensitiveCompare<T>(&self, string: T) -> ComparisonResult
     where
         T: Into<String>,
     {
         unsafe { msg_send![&*self.objc, caseInsensitiveCompare: string.into()] }
     }
 
-    fn localized_case_insensitive_compare<T>(&self, string: T) -> ComparisonResult
+    fn localizedCaseInsensitiveCompare<T>(&self, string: T) -> ComparisonResult
     where
         T: Into<String>,
     {
@@ -214,7 +214,7 @@ impl t_NSString for String {
         unsafe { msg_send![&*self.objc, compare: string.into()] }
     }
 
-    fn localized_compare<T>(&self, string: T) -> ComparisonResult
+    fn localizedCompare<T>(&self, string: T) -> ComparisonResult
     where
         T: Into<String>,
     {
@@ -228,14 +228,14 @@ impl t_NSString for String {
         unsafe { msg_send![&*self.objc, localizedStandardCompare: string.into()] }
     }
 
-    fn compare_with_options<T>(&self, string: T, options: CompareOptions) -> ComparisonResult
+    fn compareWithOptions<T>(&self, string: T, options: CompareOptions) -> ComparisonResult
     where
         T: Into<String>,
     {
         unsafe { msg_send![&*self.objc, compare: string.into() options: options] }
     }
 
-    fn compare_with_options_range<T>(
+    fn compareWithOptionsRange<T>(
         &self,
         string: T,
         options: CompareOptions,
@@ -247,7 +247,7 @@ impl t_NSString for String {
         unsafe { msg_send![&*self.objc, compare: string.into() options: options range: range] }
     }
 
-    fn compare_with_options_range_locale<T>(
+    fn compareWithOptionsRangeLocale<T>(
         &self,
         string: T,
         options: CompareOptions,
@@ -262,7 +262,7 @@ impl t_NSString for String {
         }
     }
 
-    fn has_prefix<T>(&self, prefix: T) -> bool
+    fn hasPrefix<T>(&self, prefix: T) -> bool
     where
         T: Into<String>,
     {
@@ -272,7 +272,7 @@ impl t_NSString for String {
         }
     }
 
-    fn has_suffix<T>(&self, suffix: T) -> bool
+    fn hasSuffix<T>(&self, suffix: T) -> bool
     where
         T: Into<String>,
     {
@@ -282,7 +282,7 @@ impl t_NSString for String {
         }
     }
 
-    fn is_equal_to<T>(&self, string: T) -> bool
+    fn isEqualTo<T>(&self, string: T) -> bool
     where
         T: Into<String>,
     {
@@ -322,7 +322,7 @@ impl t_NSString for String {
         unsafe { msg_send![&*self.objc, lowercaseString] }
     }
 
-    fn localized_lowercase(&self) -> String {
+    fn localizedLowercase(&self) -> String {
         unsafe { msg_send![&*self.objc, localizedLowercaseString] }
     }
 
@@ -330,7 +330,7 @@ impl t_NSString for String {
         unsafe { msg_send![&*self.objc, uppercaseString] }
     }
 
-    fn localized_uppercase(&self) -> String {
+    fn localizedUppercase(&self) -> String {
         unsafe { msg_send![&*self.objc, localizedUppercaseString] }
     }
 
@@ -338,11 +338,15 @@ impl t_NSString for String {
         unsafe { msg_send![&*self.objc, capitalizedString] }
     }
 
-    fn localized_capitalized(&self) -> String {
+    fn localizedCapitalized(&self) -> String {
         unsafe { msg_send![&*self.objc, localizedCapitalizedString] }
     }
 
-    fn applying_transform(&mut self, transform: StringTransform, reverse: bool) -> Option<String> {
+    fn stringByApplyingTransform(
+        &mut self,
+        transform: StringTransform,
+        reverse: bool,
+    ) -> Option<String> {
         let result: id = unsafe {
             msg_send![
             &*self.objc,
@@ -353,7 +357,7 @@ impl t_NSString for String {
         if result.is_null() {
             None
         } else {
-            Some(String::from_id(result))
+            Some(String::fromId(result))
         }
     }
 }
@@ -366,13 +370,13 @@ impl Default for String {
 
 impl fmt::Debug for String {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.description().as_str())
+        write!(f, "{}", self.description().asStr())
     }
 }
 
 impl fmt::Display for String {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.debug_description().as_str())
+        write!(f, "{}", self.debugDescription().asStr())
     }
 }
 
@@ -483,14 +487,14 @@ impl From<(&str, Encoding)> for String {
 impl PartialEq for String {
     /// Checks if two `NSString`s are equal.
     fn eq(&self, other: &Self) -> bool {
-        self.localized_compare(other.clone()) == ComparisonResult::OrderedSame
+        self.localizedCompare(other.clone()) == ComparisonResult::OrderedSame
     }
 }
 
 impl PartialEq<&str> for String {
     /// Checks if a `NSString` is equal to a `&str`.
     fn eq(&self, other: &&str) -> bool {
-        self.as_str() == *other
+        self.asStr() == *other
     }
 }
 
@@ -503,13 +507,13 @@ mod tests {
     #[test]
     fn test_from_str() {
         let s = String::from("Hello, World!");
-        assert_eq!(s.as_str(), "Hello, World!");
+        assert_eq!(s.asStr(), "Hello, World!");
     }
 
     #[test]
     fn test_from_no_cpy_str() {
-        let s = String::init_with_no_cpy_str("Hello, World!");
-        assert_eq!(s.as_str(), "Hello, World!");
+        let s = String::initWithNoCpyStr("Hello, World!");
+        assert_eq!(s.asStr(), "Hello, World!");
     }
 
     #[test]
@@ -522,13 +526,13 @@ mod tests {
     #[test]
     fn test_bytes_len() {
         let s = String::from("Hello, World!");
-        assert_eq!(s.bytes_len(), 13);
+        assert_eq!(s.bytesLen(), 13);
     }
 
     #[test]
     fn test_as_str() {
         let s = String::from("Hello, World!");
-        assert_eq!(s.as_str(), "Hello, World!");
+        assert_eq!(s.asStr(), "Hello, World!");
     }
 
     #[test]
@@ -553,63 +557,63 @@ mod tests {
     #[test]
     fn test_character_at() {
         let s = String::from("Hello, World!");
-        assert_eq!(s.character_at(0), 'H');
-        assert_eq!(s.character_at(1), 'e');
-        assert_eq!(s.character_at(2), 'l');
-        assert_eq!(s.character_at(3), 'l');
-        assert_eq!(s.character_at(4), 'o');
-        assert_eq!(s.character_at(5), ',');
-        assert_eq!(s.character_at(6), ' ');
-        assert_eq!(s.character_at(7), 'W');
-        assert_eq!(s.character_at(8), 'o');
-        assert_eq!(s.character_at(9), 'r');
-        assert_eq!(s.character_at(10), 'l');
-        assert_eq!(s.character_at(11), 'd');
-        assert_eq!(s.character_at(12), '!');
+        assert_eq!(s.characterAtIndex(0), 'H');
+        assert_eq!(s.characterAtIndex(1), 'e');
+        assert_eq!(s.characterAtIndex(2), 'l');
+        assert_eq!(s.characterAtIndex(3), 'l');
+        assert_eq!(s.characterAtIndex(4), 'o');
+        assert_eq!(s.characterAtIndex(5), ',');
+        assert_eq!(s.characterAtIndex(6), ' ');
+        assert_eq!(s.characterAtIndex(7), 'W');
+        assert_eq!(s.characterAtIndex(8), 'o');
+        assert_eq!(s.characterAtIndex(9), 'r');
+        assert_eq!(s.characterAtIndex(10), 'l');
+        assert_eq!(s.characterAtIndex(11), 'd');
+        assert_eq!(s.characterAtIndex(12), '!');
     }
 
     #[test]
     fn test_has_prefix() {
         let s = String::from("Hello, World!");
-        assert!(s.has_prefix("Hello"));
-        assert!(!s.has_prefix("Goodbye"));
+        assert!(s.hasPrefix("Hello"));
+        assert!(!s.hasPrefix("Goodbye"));
     }
 
     #[test]
     fn test_has_suffix() {
         let s = String::from("Hello, World!");
-        assert!(s.has_suffix("World!"));
-        assert!(!s.has_suffix("Goodbye"));
+        assert!(s.hasSuffix("World!"));
+        assert!(!s.hasSuffix("Goodbye"));
     }
 
     #[test]
     fn test_is_equal_to() {
         let s = String::from("Hello, World!");
-        assert!(s.is_equal_to("Hello, World!"));
-        assert!(!s.is_equal_to("Goodbye, World!"));
+        assert!(s.isEqualTo("Hello, World!"));
+        assert!(!s.isEqualTo("Goodbye, World!"));
     }
 
     #[test]
     fn test_length_of_bytes() {
         let s = String::from("Hello, World!");
-        assert_eq!(s.length_of_bytes(Encoding::UTF8), 13);
+        assert_eq!(s.lengthOfBytesUsingEncoding(Encoding::UTF8), 13);
     }
 
     #[test]
     fn test_maximum_length_of_bytes() {
         let s = String::from("Hello, World!");
-        assert_eq!(s.maximum_length_of_bytes(Encoding::UTF8), 39);
+        assert_eq!(s.maximumLengthOfBytesUsingEncoding(Encoding::UTF8), 39);
     }
 
     #[test]
     fn test_case_insensitive_compare() {
         let s = String::from("Hello, World!");
         assert_eq!(
-            s.case_insensitive_compare("hello, world!"),
+            s.caseInsensitiveCompare("hello, world!"),
             ComparisonResult::OrderedSame
         );
         assert_eq!(
-            s.case_insensitive_compare("goodbye, world!"),
+            s.caseInsensitiveCompare("goodbye, world!"),
             ComparisonResult::OrderedDescending
         );
     }
@@ -618,11 +622,11 @@ mod tests {
     fn test_localized_case_insensitive_compare() {
         let s = String::from("Hello, World!");
         assert_eq!(
-            s.localized_case_insensitive_compare("hello, world!"),
+            s.localizedCaseInsensitiveCompare("hello, world!"),
             ComparisonResult::OrderedSame
         );
         assert_eq!(
-            s.localized_case_insensitive_compare("goodbye, world!"),
+            s.localizedCaseInsensitiveCompare("goodbye, world!"),
             ComparisonResult::OrderedDescending
         );
     }
@@ -654,6 +658,9 @@ mod tests {
     fn test_applying_transform() {
         let mut s = String::from("Katakana!");
         let transform = unsafe { LatinToKatakana };
-        assert_eq!(s.applying_transform(transform, false).unwrap(), "カタカナ!");
+        assert_eq!(
+            s.stringByApplyingTransform(transform, false).unwrap(),
+            "カタカナ!"
+        );
     }
 }

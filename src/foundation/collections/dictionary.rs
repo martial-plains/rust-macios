@@ -39,22 +39,22 @@ impl<K, V> t_NSObject for Dictionary<K, V> {
         }
     }
 
-    fn to_id(self) -> id {
+    fn toId(self) -> id {
         todo!()
     }
 
-    fn from_id(_obj: id) -> Self {
+    fn fromId(_obj: id) -> Self {
         todo!()
     }
 
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![self.obj, description] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
-    fn debug_description(&self) -> String {
+    fn debugDescription(&self) -> String {
         let obj: id = unsafe { msg_send![self.obj, debugDescription] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
     fn retain(&self) -> Self {
@@ -82,7 +82,7 @@ impl<K, V> t_NSDictionary<K, V> for Dictionary<K, V> {
         }
     }
 
-    fn dictionary_with_objects(objects: Array<V>, keys: Array<K>) -> Self {
+    fn dictionaryWithObjects(objects: Array<V>, keys: Array<K>) -> Self {
         unsafe {
             let cls = class!(NSDictionary);
             let obj: *mut Object = msg_send![cls, new];
@@ -95,7 +95,7 @@ impl<K, V> t_NSDictionary<K, V> for Dictionary<K, V> {
         }
     }
 
-    fn as_mut_dictionary(&mut self) -> MutableDictionary<K, V> {
+    fn asMutDictionary(&mut self) -> MutableDictionary<K, V> {
         unsafe {
             let cls = class!(NSMutableDictionary);
             let obj: *mut Object = msg_send![cls, new];
@@ -115,7 +115,7 @@ impl<K, V> t_NSDictionary<K, V> for Dictionary<K, V> {
 
 impl<K, V> Debug for Dictionary<K, V> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", self.debug_description())
+        write!(f, "{}", self.debugDescription())
     }
 }
 
@@ -206,7 +206,7 @@ impl<K, V> MutableDictionary<K, V> {
         V: t_NSObject,
     {
         unsafe {
-            let _: () = msg_send![self.obj, setObject: value.to_id() forKey: &*key.to_id()];
+            let _: () = msg_send![self.obj, setObject: value.toId() forKey: &*key.toId()];
 
             // TODO: Fix this function where the key value can be set without having the need for the thread to sleep after the call.
             std::thread::sleep(Duration::from_micros(10));
@@ -283,7 +283,7 @@ impl<K, V> MutableDictionary<K, V> {
         K: t_NSObject,
     {
         unsafe {
-            let keys: id = keys.to_id();
+            let keys: id = keys.toId();
             let obj: *mut Object = msg_send![self.obj, removeObjectsForKeys: keys];
             self.obj = Id::from_ptr(obj);
         }
@@ -302,22 +302,22 @@ impl<K, V> t_NSObject for MutableDictionary<K, V> {
     }
 
     #[allow(trivial_casts)]
-    fn to_id(self) -> id {
+    fn toId(self) -> id {
         &*self as *const _ as *mut _
     }
 
-    fn from_id(_obj: id) -> Self {
+    fn fromId(_obj: id) -> Self {
         todo!()
     }
 
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![self.obj, description] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
-    fn debug_description(&self) -> String {
+    fn debugDescription(&self) -> String {
         let obj: id = unsafe { msg_send![self.obj, debugDescription] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
     fn retain(&self) -> Self {
@@ -337,7 +337,7 @@ where
     V: Debug,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "{}", self.debug_description())
+        write!(f, "{}", self.debugDescription())
     }
 }
 

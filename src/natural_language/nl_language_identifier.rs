@@ -31,38 +31,38 @@ impl t_NSObject for NLLanguageRecognizer {
         }
     }
 
-    fn to_id(mut self) -> id {
+    fn toId(mut self) -> id {
         &mut *self.obj
     }
 
-    fn from_id(_obj: id) -> Self {
+    fn fromId(_obj: id) -> Self {
         todo!()
     }
 
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
-    fn debug_description(&self) -> String {
+    fn debugDescription(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        String::from_id(obj)
+        String::fromId(obj)
     }
 
     fn retain(&self) -> Self {
         let obj: id = unsafe { msg_send![&*self.obj, retain] };
-        Self::from_id(obj)
+        Self::fromId(obj)
     }
 }
 
 impl t_NLLanguageRecognizer for NLLanguageRecognizer {
     /// The most likely language for the processed text.
-    fn dominant_language(&self) -> String {
+    fn dominantLanguage(&self) -> String {
         unsafe { msg_send![self.obj, dominantLanguage] }
     }
 
     /// Finds the most likely language of a piece of text.
-    fn dominant_language_for<T>(&self, string: T) -> NLLanguage
+    fn dominantLanguageFor<T>(&self, string: T) -> NLLanguage
     where
         T: Into<String>,
     {
@@ -70,7 +70,7 @@ impl t_NLLanguageRecognizer for NLLanguageRecognizer {
     }
 
     /// Analyzes the piece of text to determine its dominant language.
-    fn process_string<T>(&self, string: T)
+    fn processString<T>(&self, string: T)
     where
         T: Into<String>,
     {
@@ -78,7 +78,7 @@ impl t_NLLanguageRecognizer for NLLanguageRecognizer {
     }
 
     /// Generates the probabilities of possible languages for the processed text.
-    fn language_hypotheses(&self, max_hypotheses: UInt) -> Dictionary<NLLanguage, NSNumber> {
+    fn languageHypotheses(&self, max_hypotheses: UInt) -> Dictionary<NLLanguage, NSNumber> {
         unsafe { msg_send![&*self.obj, languageHypothesesWithMaximum: max_hypotheses] }
     }
 
@@ -91,29 +91,29 @@ impl t_NLLanguageRecognizer for NLLanguageRecognizer {
      */
 
     /// A dictionary that maps languages to their probabilities in the language identification process.
-    fn language_hints(&self) -> Dictionary<NLLanguage, NSNumber> {
+    fn languageHints(&self) -> Dictionary<NLLanguage, NSNumber> {
         unsafe { msg_send![&*self.obj, languageHints] }
     }
 
     /// Sets a dictionary that maps languages to their probabilities in the language identification process.
-    fn set_language_hints(&self, language_hints: Dictionary<NLLanguage, NSNumber>) {
+    fn setLanguageHints(&self, language_hints: Dictionary<NLLanguage, NSNumber>) {
         unsafe { msg_send![self.obj, setLanguageHints: language_hints] }
     }
 
     /// Limits the set of possible languages that the recognizer will return.
-    fn language_constraints(&self) -> Dictionary<NLLanguage, NSNumber> {
+    fn languageConstraints(&self) -> Dictionary<NLLanguage, NSNumber> {
         unsafe { msg_send![&*self.obj, languageConstraints] }
     }
 
     /// Sets the limits  of the set of possible languages that the recognizer will return.
-    fn set_language_constraints(&self, language_constraints: Dictionary<NLLanguage, NSNumber>) {
+    fn setLanguageConstraints(&self, language_constraints: Dictionary<NLLanguage, NSNumber>) {
         unsafe { msg_send![self.obj, setLanguageConstraints: language_constraints] }
     }
 }
 
 impl fmt::Debug for NLLanguageRecognizer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.debug_description())
+        write!(f, "{:?}", self.debugDescription())
     }
 }
 
