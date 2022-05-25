@@ -16,7 +16,7 @@ use crate::{
 
 use self::iter::Iter;
 
-use super::ns_mutable_array::MutableArray;
+use super::{ns_mutable_array::MutableArray, NSNumber};
 
 /// Iterator for Array
 pub mod iter;
@@ -278,6 +278,110 @@ where
 {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<T>) -> Self {
+        unsafe {
+            Array::new(msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ])
+        }
+    }
+}
+
+impl From<Vec<i8>> for Array<NSNumber> {
+    /// Given a set of `Object`s, creates an `Array` that holds them.
+    fn from(objects: Vec<i8>) -> Self {
+        let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
+        unsafe {
+            Array::new(msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ])
+        }
+    }
+}
+
+impl From<Vec<i16>> for Array<NSNumber> {
+    /// Given a set of `Object`s, creates an `Array` that holds them.
+    fn from(objects: Vec<i16>) -> Self {
+        let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
+        unsafe {
+            Array::new(msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ])
+        }
+    }
+}
+
+impl From<Vec<i32>> for Array<NSNumber> {
+    /// Given a set of `Object`s, creates an `Array` that holds them.
+    fn from(objects: Vec<i32>) -> Self {
+        let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
+        unsafe {
+            Array::new(msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ])
+        }
+    }
+}
+
+impl From<Vec<i64>> for Array<NSNumber> {
+    /// Given a set of `Object`s, creates an `Array` that holds them.
+    fn from(objects: Vec<i64>) -> Self {
+        let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
+        unsafe {
+            Array::new(msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ])
+        }
+    }
+}
+
+impl From<Vec<u8>> for Array<NSNumber> {
+    /// Given a set of `Object`s, creates an `Array` that holds them.
+    fn from(objects: Vec<u8>) -> Self {
+        let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
+        unsafe {
+            Array::new(msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ])
+        }
+    }
+}
+
+impl From<Vec<u16>> for Array<NSNumber> {
+    /// Given a set of `Object`s, creates an `Array` that holds them.
+    fn from(objects: Vec<u16>) -> Self {
+        let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
+        unsafe {
+            Array::new(msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ])
+        }
+    }
+}
+
+impl From<Vec<u32>> for Array<NSNumber> {
+    /// Given a set of `Object`s, creates an `Array` that holds them.
+    fn from(objects: Vec<u32>) -> Self {
+        let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
+        unsafe {
+            Array::new(msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ])
+        }
+    }
+}
+
+impl From<Vec<u64>> for Array<NSNumber> {
+    /// Given a set of `Object`s, creates an `Array` that holds them.
+    fn from(objects: Vec<u64>) -> Self {
+        let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
         unsafe {
             Array::new(msg_send![class!(NSArray),
                 arrayWithObjects:objects.as_ptr()
