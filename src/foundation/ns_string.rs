@@ -30,6 +30,26 @@ pub struct String {
     marker: PhantomData<()>,
 }
 
+impl String {
+    /// Returns the UTF8 bytes for this `NSString`.
+    pub fn bytes(&self) -> *const c_char {
+        unsafe {
+            let bytes: *const c_char = msg_send![&*self.objc, UTF8String];
+            bytes
+        }
+    }
+
+    /// Convert this `NSString` into a `&str`.
+    pub fn as_str(&self) -> Result<&str, std::str::Utf8Error> {
+        let bytes = self.bytes();
+
+        unsafe {
+            let bytes = CStr::from_ptr(bytes);
+            bytes.to_str()
+        }
+    }
+}
+
 impl t_NSObject for String {
     fn init() -> Self {
         unsafe { msg_send![class!(NSString), new] }
@@ -66,48 +86,8 @@ impl t_NSObject for String {
 }
 
 impl t_NSString for String {
-    fn new() -> Self {
-        let objc = unsafe {
-            let nsstring: *mut Object = msg_send![class!(NSString), alloc];
-            Id::from_ptr(msg_send![nsstring, init])
-        };
-
-        String {
-            objc,
-            marker: PhantomData,
-        }
-    }
-
-    unsafe fn fromRetained(object: id) -> Self {
-        String {
-            objc: Id::from_retained_ptr(object),
-            marker: PhantomData,
-        }
-    }
-
-    unsafe fn is(obj: id) -> bool {
-        let result: BOOL = msg_send![obj, isKindOfClass: class!(NSString)];
-        to_bool(result)
-    }
-
-    fn bytes(&self) -> *const c_char {
-        unsafe {
-            let bytes: *const c_char = msg_send![&*self.objc, UTF8String];
-            bytes
-        }
-    }
-
-    fn bytesLen(&self) -> UInt {
-        unsafe { msg_send![&*self.objc, lengthOfBytesUsingEncoding: UTF8_ENCODING] }
-    }
-
-    fn asStr(&self) -> &str {
-        let bytes = self.bytes();
-
-        unsafe {
-            let bytes = CStr::from_ptr(bytes);
-            bytes.to_str().unwrap()
-        }
+    fn string() -> Self {
+        unsafe { msg_send![class!(NSString), string] }
     }
 
     fn init() -> Self {
@@ -364,19 +344,19 @@ impl t_NSString for String {
 
 impl Default for String {
     fn default() -> Self {
-        Self::new()
+        Self::string()
     }
 }
 
 impl fmt::Debug for String {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.description().asStr())
+        write!(f, "{}", self.description().as_str().unwrap())
     }
 }
 
 impl fmt::Display for String {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.debugDescription().asStr())
+        write!(f, "{}", self.debugDescription().as_str().unwrap())
     }
 }
 
@@ -494,7 +474,7 @@ impl PartialEq for String {
 impl PartialEq<&str> for String {
     /// Checks if a `NSString` is equal to a `&str`.
     fn eq(&self, other: &&str) -> bool {
-        self.asStr() == *other
+        self.as_str().unwrap() == *other
     }
 }
 
@@ -509,13 +489,13 @@ mod tests {
     #[test]
     fn test_from_str() {
         let s = String::from("Hello, World!");
-        assert_eq!(s.asStr(), "Hello, World!");
+        assert_eq!(s, "Hello, World!");
     }
 
     #[test]
     fn test_from_no_cpy_str() {
         let s = String::initWithNoCpyStr("Hello, World!");
-        assert_eq!(s.asStr(), "Hello, World!");
+        assert_eq!(s, "Hello, World!");
     }
 
     #[test]
@@ -528,13 +508,13 @@ mod tests {
     #[test]
     fn test_bytes_len() {
         let s = String::from("Hello, World!");
-        assert_eq!(s.bytesLen(), 13);
+        assert_eq!(s.lengthOfBytesUsingEncoding(Encoding::UTF8), 13);
     }
 
     #[test]
     fn test_as_str() {
         let s = String::from("Hello, World!");
-        assert_eq!(s.asStr(), "Hello, World!");
+        assert_eq!(s, "Hello, World!");
     }
 
     #[test]

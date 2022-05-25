@@ -7,40 +7,16 @@ use crate::{
         string::Encoding, unichar, CompareOptions, ComparisonResult, Int, Locale, String,
         StringTransform, UInt,
     },
-    id,
     objective_c_runtime::traits::t_NSObject,
 };
 
 /// A static, plain-text Unicode string object.
 pub trait t_NSString: t_NSObject {
-    /// Creates a new `NSString`
-    fn new() -> Self;
-
-    /// In some cases, we want to wrap a system-provided NSString without retaining it.
-    ///
-    /// # Safety
-    ///
-    /// This function is unsafe because it dereferrences a raw pointer.
-    unsafe fn fromRetained(object: id) -> Self;
-
-    /// Utility method for checking whether an `NSObject` is an `NSString`.
-    ///
-    /// # Safety
-    ///
-    /// This function is unsafe because it dereferrences a raw pointer.
-    unsafe fn is(obj: id) -> bool;
-
-    /// Returns the UTF8 bytes for this `NSString`.
-    fn bytes(&self) -> *const c_char;
-
-    /// Gets the proper byte length for this `NSString` (the UTF8 variant).
-    fn bytesLen(&self) -> UInt;
-
-    /// Convert this `NSString` into a `&str`.
-    fn asStr(&self) -> &str;
-
     /* Creating and Initializing Strings
      */
+
+    /// Creates a new `NSString`
+    fn string() -> Self;
 
     /// Returns an initialized NSString object that contains no characters.
     fn init() -> Self;
