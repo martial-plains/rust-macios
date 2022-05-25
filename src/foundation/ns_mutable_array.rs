@@ -189,23 +189,22 @@ impl<T> t_NSObject for MutableArray<T> {
         }
     }
 
-    #[allow(trivial_casts)]
-    fn toId(self) -> id {
-        &*self as *const _ as *mut _
+    fn toId(mut self) -> id {
+        &mut *self.obj
     }
 
-    fn fromId(_obj: id) -> Self {
+    unsafe fn fromId(_obj: id) -> Self {
         todo!()
     }
 
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        String::fromId(obj)
+        unsafe { String::fromId(obj) }
     }
 
     fn debugDescription(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        String::fromId(obj)
+        unsafe { String::fromId(obj) }
     }
 
     fn retain(&self) -> Self {

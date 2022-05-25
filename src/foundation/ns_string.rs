@@ -20,7 +20,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{string::Encoding, StringTransform, UTF8_ENCODING, CompareOptions, unichar};
+use super::{string::Encoding, unichar, CompareOptions, StringTransform, UTF8_ENCODING};
 
 /// This is a mapping to the Objective-C NSString class.
 #[repr(C)]
@@ -39,9 +39,9 @@ impl t_NSObject for String {
         &mut *self.objc
     }
 
-    fn fromId(obj: id) -> Self {
+    unsafe fn fromId(obj: id) -> Self {
         String {
-            objc: unsafe { Id::from_ptr(obj) },
+            objc: Id::from_ptr(obj),
             marker: PhantomData,
         }
     }
@@ -357,7 +357,7 @@ impl t_NSString for String {
         if result.is_null() {
             None
         } else {
-            Some(String::fromId(result))
+            Some(unsafe { String::fromId(result) })
         }
     }
 }

@@ -31,9 +31,9 @@ impl t_NSObject for NSNumber {
         &mut *self.obj
     }
 
-    fn fromId(obj: crate::id) -> Self {
+    unsafe fn fromId(obj: crate::id) -> Self {
         Self {
-            obj: unsafe { Id::from_ptr(obj) },
+            obj: Id::from_ptr(obj),
         }
     }
 

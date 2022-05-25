@@ -42,10 +42,15 @@ pub type UInt64 = libc::c_ulonglong;
 pub type Double = libc::c_double;
 
 /// Type for UTF-16 code units.
-#[allow(non_camel_case_types)]
 pub type unichar = u16;
 
 /// Constants representing an ICU string transform.
-pub type StringTransform = *const String;
+pub type StringTransform = *const super::String;
 /// The keys used to access components of a locale.
-pub type NSLocaleKey = *mut String;
+pub type NSLocaleKey = *mut super::String;
+
+/// These constants specify mutability options in property lists.
+pub type NSPropertyListWriteOptions = super::NSPropertyListMutabilityOptions;
+
+/// The only read options supported are described in NSPropertyListMutabilityOptions.
+pub type NSPropertyListReadOptions = super::NSPropertyListMutabilityOptions;

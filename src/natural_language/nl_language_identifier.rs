@@ -35,23 +35,23 @@ impl t_NSObject for NLLanguageRecognizer {
         &mut *self.obj
     }
 
-    fn fromId(_obj: id) -> Self {
+    unsafe fn fromId(_obj: id) -> Self {
         todo!()
     }
 
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        String::fromId(obj)
+        unsafe { String::fromId(obj) }
     }
 
     fn debugDescription(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        String::fromId(obj)
+        unsafe { String::fromId(obj) }
     }
 
     fn retain(&self) -> Self {
         let obj: id = unsafe { msg_send![&*self.obj, retain] };
-        Self::fromId(obj)
+        unsafe { Self::fromId(obj) }
     }
 }
 

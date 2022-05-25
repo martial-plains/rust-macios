@@ -66,7 +66,7 @@ impl<K, V> MutableDictionary<K, V> {
         V: t_NSObject,
     {
         unsafe {
-            let _: () = msg_send![self.obj, setObject: value.toId() forKey: &*key.toId()];
+            let _: id = msg_send![self.obj, setObject: value.toId() forKey: &*key.toId()];
 
             // TODO: Fix this function where the key value can be set without having the need for the thread to sleep after the call.
             std::thread::sleep(Duration::from_micros(10));
@@ -94,7 +94,7 @@ impl<K, V> MutableDictionary<K, V> {
         V: Into<id>,
     {
         unsafe {
-            let _: () = msg_send![self.obj, setValue: value.into() forKey: &*key.into()];
+            let _: id = msg_send![self.obj, setValue: value.into() forKey: &*key.into()];
         }
     }
 
@@ -161,23 +161,22 @@ impl<K, V> t_NSObject for MutableDictionary<K, V> {
         todo!()
     }
 
-    #[allow(trivial_casts)]
-    fn toId(self) -> id {
-        &*self as *const _ as *mut _
+    fn toId(mut self) -> id {
+        &mut *self.obj
     }
 
-    fn fromId(_obj: id) -> Self {
+    unsafe fn fromId(_obj: id) -> Self {
         todo!()
     }
 
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![self.obj, description] };
-        String::fromId(obj)
+        unsafe { String::fromId(obj) }
     }
 
     fn debugDescription(&self) -> String {
         let obj: id = unsafe { msg_send![self.obj, debugDescription] };
-        String::fromId(obj)
+        unsafe { String::fromId(obj) }
     }
 
     fn retain(&self) -> Self {

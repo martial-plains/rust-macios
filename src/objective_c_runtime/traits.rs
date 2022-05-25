@@ -1,4 +1,3 @@
-#![allow(non_snake_case)]
 
 use crate::{foundation::String, id};
 
@@ -14,7 +13,11 @@ pub trait t_NSObject {
     fn toId(self) -> id;
 
     /// Returns `Self` representation of the object.
-    fn fromId(obj: id) -> Self;
+    /// 
+    /// # Safety
+    /// 
+    /// This function dereferences a raw pointer
+    unsafe fn fromId(obj: id) -> Self;
 
     /* Describing Objects
      */

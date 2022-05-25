@@ -27,9 +27,9 @@ impl t_NSObject for NSNotification {
         &mut *self.obj
     }
 
-    fn fromId(obj: id) -> Self {
+    unsafe fn fromId(obj: id) -> Self {
         Self {
-            obj: unsafe { Id::from_ptr(obj) },
+            obj: Id::from_ptr(obj),
         }
     }
 

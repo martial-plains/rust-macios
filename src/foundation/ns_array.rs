@@ -29,23 +29,21 @@ pub struct Array<T> {
 }
 
 impl<T> t_NSArray<T> for Array<T> {
-    fn new(ptr: *mut Object) -> Self {
+    unsafe fn new(ptr: *mut Object) -> Self {
         Self {
-            obj: unsafe { Id::from_ptr(ptr) },
+            obj: Id::from_ptr(ptr),
             _marker: PhantomData,
         }
     }
 
-    fn fromObjects(objects: &[T]) -> Self
+    unsafe fn fromObjects(objects: &[T]) -> Self
     where
         T: t_NSObject,
     {
-        Array::new(unsafe {
-            msg_send![class!(NSArray),
-                arrayWithObjects:objects.as_ptr()
-                count:objects.len()
-            ]
-        })
+        Array::new(msg_send![class!(NSArray),
+            arrayWithObjects:objects.as_ptr()
+            count:objects.len()
+        ])
     }
 
     unsafe fn fromRetained(array: id) -> Self {
@@ -161,27 +159,25 @@ impl<T> t_NSArray<T> for Array<T> {
         unsafe { to_bool(msg_send![&*self.obj, isEqualToArray: other.clone().obj]) }
     }
 
-    fn adding(&self, object: T) -> Array<T>
+    unsafe fn adding(&self, object: T) -> Array<T>
     where
         T: t_NSObject,
     {
-        Array::new(unsafe { msg_send![&*self.obj, arrayByAddingObject: object] })
+        Array::new(msg_send![&*self.obj, arrayByAddingObject: object])
     }
 
-    fn addingObjects(&self, objects: &Array<T>) -> Array<T>
+    unsafe fn addingObjects(&self, objects: &Array<T>) -> Array<T>
     where
         T: t_NSObject,
     {
-        Array::new(unsafe {
-            msg_send![self.obj, arrayByAddingObjectsFromArray: objects.clone().obj]
-        })
+        Array::new(msg_send![self.obj, arrayByAddingObjectsFromArray: objects.clone().obj])
     }
 
-    fn subarrayWithRange(&self, range: Range<UInt>) -> Array<T>
+    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> Array<T>
     where
         T: t_NSObject,
     {
-        Array::new(unsafe { msg_send![&*self.obj, subarrayWithRange: range] })
+        Array::new(msg_send![&*self.obj, subarrayWithRange: range])
     }
 
     fn descriptionWithLocale(&self, locale: &Locale) -> String {
@@ -213,23 +209,22 @@ impl<T> t_NSObject for Array<T> {
         }
     }
 
-    #[allow(trivial_casts)]
-    fn toId(self) -> id {
-        &*self as *const _ as *mut _
+    fn toId(mut self) -> id {
+        &mut *self.obj
     }
 
-    fn fromId(_obj: id) -> Self {
+    unsafe fn fromId(_obj: id) -> Self {
         todo!()
     }
 
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        String::fromId(obj)
+        unsafe { String::fromId(obj) }
     }
 
     fn debugDescription(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        String::fromId(obj)
+        unsafe { String::fromId(obj) }
     }
 
     fn retain(&self) -> Self {
@@ -261,7 +256,7 @@ where
 
 impl<T> Clone for Array<T> {
     fn clone(&self) -> Self {
-        Array::new(unsafe { msg_send![self.obj, retain] })
+        unsafe { Array::new(msg_send![self.obj, retain]) }
     }
 }
 
@@ -283,12 +278,12 @@ where
 {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<T>) -> Self {
-        Array::new(unsafe {
-            msg_send![class!(NSArray),
+        unsafe {
+            Array::new(msg_send![class!(NSArray),
                 arrayWithObjects:objects.as_ptr()
                 count:objects.len()
-            ]
-        })
+            ])
+        }
     }
 }
 
@@ -299,7 +294,7 @@ where
     /// Given an `Array` of `Object`s, creates a new `Array` that holds them.
     fn from(array: MutableArray<T>) -> Self {
         let arr: MutableArray<T> = MutableArray::init();
-        Array::<T>::new(unsafe { msg_send![arr.obj, arrayWithArray: array] })
+        unsafe { Array::<T>::new(msg_send![arr.obj, arrayWithArray: array]) }
     }
 }
 

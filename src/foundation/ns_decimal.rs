@@ -18,6 +18,8 @@ use crate::{
     objective_c_runtime::traits::{t_NSObject, t_NSValue},
 };
 
+use super::{NSCalculationError, NSRoundingMode};
+
 /// Type alias for `NSDecimalNumber`.
 pub type NSDecimal = NSDecimalNumber;
 
@@ -130,9 +132,9 @@ impl t_NSObject for NSDecimalNumber {
         &mut *self.obj
     }
 
-    fn fromId(obj: id) -> Self {
+    unsafe fn fromId(obj: id) -> Self {
         Self {
-            obj: unsafe { Id::from_ptr(obj) },
+            obj: Id::from_ptr(obj),
         }
     }
 
@@ -424,7 +426,7 @@ impl t_NSDecimalNumber for NSDecimalNumber {
 
     fn initWithDecimal(&mut self, decimal: NSDecimalNumber) {
         unsafe {
-            let _: () = msg_send![self.obj, initWithDecimal: decimal.obj];
+            let _: id = msg_send![self.obj, initWithDecimal: decimal.obj];
         }
     }
 
@@ -435,7 +437,7 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         is_negative: bool,
     ) {
         unsafe {
-            let _: () = msg_send![
+            let _: id = msg_send![
                 self.obj,
                 initWithMantissa: mantissa
                 exponent: exponent
@@ -800,34 +802,4 @@ impl Add<NSDecimalNumber> for f64 {
     fn add(self, other: NSDecimalNumber) -> Self::Output {
         other.add(self)
     }
-}
-
-/// These constants specify rounding behaviors.
-#[derive(Debug)]
-#[repr(u64)]
-pub enum NSRoundingMode {
-    /// Round to the closest possible return value; when caught halfway between two positive numbers, round up; when caught between two negative numbers, round down.
-    RoundPlain,
-    /// Round return values down.
-    RoundDown,
-    /// Round return values up.
-    RoundUp,
-    /// Round to the closest possible return value; when halfway between two possibilities, return the possibility whose last digit is even.
-    RoundBankers,
-}
-
-/// Calculation error constants used to describe an error in exceptionDuringOperation:error:leftOperand:rightOperand:.
-#[derive(Debug)]
-#[repr(u64)]
-pub enum NSCalculationError {
-    /// No error occurred.
-    None,
-    /// The number can’t be represented in 38 significant digits.
-    PrecisionLoss,
-    /// The number is too small to represent.
-    Underflow,
-    /// The number is too large to represent.
-    Overflow,
-    /// The caller tried to divide by 0.
-    DivideByZero,
 }

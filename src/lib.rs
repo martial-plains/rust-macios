@@ -25,14 +25,7 @@
     while_true
 )]
 #![warn(clippy::all, missing_debug_implementations)]
-#![allow(
-    non_camel_case_types,
-    non_upper_case_globals,
-    clippy::let_unit_value,
-    clippy::enum_clike_unportable_variant,
-    clippy::not_unsafe_ptr_arg_deref,
-    improper_ctypes
-)]
+#![allow(nonstandard_style, improper_ctypes)]
 
 use objc::runtime::Object;
 
@@ -43,7 +36,6 @@ pub mod objective_c_runtime;
 pub(crate) mod utils;
 
 /// An ID for an Objective-C object.
-#[allow(non_camel_case_types)]
 pub type id = *mut Object;
 
 // TODO: Create better dictionary implementation

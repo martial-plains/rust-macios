@@ -31,20 +31,20 @@ impl t_NSObject for NLTokenizer {
         &mut *self.obj
     }
 
-    fn fromId(obj: id) -> Self {
+    unsafe fn fromId(obj: id) -> Self {
         Self {
-            obj: unsafe { Id::from_ptr(obj) },
+            obj: Id::from_ptr(obj),
         }
     }
 
     fn description(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        String::fromId(obj)
+        unsafe { String::fromId(obj) }
     }
 
     fn debugDescription(&self) -> String {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        String::fromId(obj)
+        unsafe { String::fromId(obj) }
     }
 
     fn retain(&self) -> Self {

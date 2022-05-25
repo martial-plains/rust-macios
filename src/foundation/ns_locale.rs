@@ -169,7 +169,7 @@ impl t_NSLocale for Locale {
         if result.is_null() {
             None
         } else {
-            Some(String::fromId(result))
+            Some(unsafe { String::fromId(result) })
         }
     }
 
@@ -204,7 +204,7 @@ impl t_NSObject for Locale {
         &mut *self.obj
     }
 
-    fn fromId(_obj: id) -> Self {
+    unsafe fn fromId(_obj: id) -> Self {
         todo!()
     }
 
@@ -265,9 +265,8 @@ impl DerefMut for Locale {
 
 impl From<Locale> for id {
     /// Converts the `Locale` into an `Object`.
-    #[allow(trivial_casts)]
-    fn from(val: Locale) -> Self {
-        &*val as *const _ as *mut Object
+    fn from(mut val: Locale) -> Self {
+        &mut *val.obj
     }
 }
 

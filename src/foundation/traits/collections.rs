@@ -15,7 +15,7 @@ pub trait t_NSArray<T> {
     /// # Safety
     ///
     /// The caller must ensure that the pointer is valid.
-    fn new(ptr: *mut Object) -> Self;
+    unsafe fn new(ptr: *mut Object) -> Self;
 
     /// Creates a new array with the specified capacity.
     ///
@@ -26,7 +26,11 @@ pub trait t_NSArray<T> {
     /// # Returns
     ///
     /// A new array with the specified capacity.
-    fn fromObjects(objects: &[T]) -> Self
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    unsafe fn fromObjects(objects: &[T]) -> Self
     where
         T: t_NSObject;
 
@@ -47,7 +51,7 @@ pub trait t_NSArray<T> {
     unsafe fn fromRetained(array: id) -> Self;
 
     /* Querying an Array
-     */
+    */
 
     /// Returns a Boolean value that indicates whether a given object is present in the array.
     ///
@@ -85,7 +89,7 @@ pub trait t_NSArray<T> {
     fn objectAtIndexedSubscript(&self, index: UInt) -> Option<id>;
 
     /* Finding Objects in an Array
-     */
+    */
 
     /// Returns the lowest index whose corresponding array value is equal to a given object.
     fn indexOf(&self, object: T) -> UInt
@@ -108,7 +112,7 @@ pub trait t_NSArray<T> {
         T: t_NSObject;
 
     /* Comparing Arrays
-     */
+    */
 
     /// Returns the first object contained in the receiving array that’s equal to an object in another given array.
     fn firstObjectCommonWith(&self, other: &Array<T>) -> Option<T>
@@ -121,24 +125,36 @@ pub trait t_NSArray<T> {
         T: t_NSObject;
 
     /* Deriving New Arrays
-     */
+    */
 
     /// Returns a new array that is a copy of the receiving array with a given object added to the end.
-    fn adding(&self, object: T) -> Array<T>
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    unsafe fn adding(&self, object: T) -> Array<T>
     where
         T: t_NSObject;
 
     /// Returns a new array that is a copy of the receiving array with the objects contained in another array added to the end.
-    fn addingObjects(&self, objects: &Array<T>) -> Array<T>
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    unsafe fn addingObjects(&self, objects: &Array<T>) -> Array<T>
     where
         T: t_NSObject;
 
     /// Returns a new array containing the receiving array’s elements that fall within the limits specified by a given range.
-    fn subarrayWithRange(&self, range: Range<UInt>) -> Array<T>
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> Array<T>
     where
         T: t_NSObject;
     /* Creating a Description
-     */
+    */
 
     /// A string that represents the contents of the array, formatted as a property list.
 
@@ -149,7 +165,7 @@ pub trait t_NSArray<T> {
     fn descriptionWithLocaleIndent(&self, locale: &Locale, indent: UInt) -> String;
 
     /* Rust Conversions
-     */
+    */
 
     /// Returns an iterator over the objects in the array.
     fn iter(&self) -> iter::Iter<'_, T>

@@ -1,13 +1,16 @@
 use crate::{
-    foundation::{traits::t_NSArray, NSNumber, String, UInt, MutableArray},
+    foundation::{traits::t_NSArray, MutableArray, NSNumber, String, UInt},
     objective_c_runtime::traits::t_NSObject,
 };
 
 use super::Array;
 
 /// An iterator for `Array`
-#[allow(missing_debug_implementations)]
-pub struct Iter<'a, T> {
+#[derive(Debug)]
+pub struct Iter<'a, T>
+where
+    T: t_NSObject,
+{
     pub(super) array: &'a Array<T>,
     pub(super) index: UInt,
 }
