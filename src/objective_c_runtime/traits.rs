@@ -1,5 +1,4 @@
-
-use crate::{foundation::String, id};
+use crate::{foundation::NSString, id};
 
 /// The group of methods that are fundamental to all Objective-C objects.
 pub trait t_NSObject {
@@ -13,9 +12,9 @@ pub trait t_NSObject {
     fn toId(self) -> id;
 
     /// Returns `Self` representation of the object.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// This function dereferences a raw pointer
     unsafe fn fromId(obj: id) -> Self;
 
@@ -23,13 +22,13 @@ pub trait t_NSObject {
      */
 
     /// Returns a string that represents the contents of the receiving class.
-    fn description(&self) -> String;
+    fn description(&self) -> NSString;
 
     /* Supporting Discardable Content
      */
 
     /// Returns a string that represents the contents of the receiving class.
-    fn debugDescription(&self) -> String;
+    fn debugDescription(&self) -> NSString;
 
     /* Obselte Methods
      */

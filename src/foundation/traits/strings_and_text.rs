@@ -4,8 +4,8 @@ use libc::c_char;
 
 use crate::{
     foundation::{
-        string::Encoding, unichar, CompareOptions, ComparisonResult, Int, Locale, String,
-        StringTransform, UInt,
+        string::Encoding, unichar, CompareOptions, ComparisonResult, Int, NSLocale, NSString,
+        NSStringTransform, UInt,
     },
     objective_c_runtime::traits::t_NSObject,
 };
@@ -136,7 +136,7 @@ pub trait t_NSString: t_NSObject {
     /// and `OrderedDescending` if the receiver follows `string`.
     fn caseInsensitiveCompare<S>(&self, string: S) -> ComparisonResult
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Compares the string with a given string using a case-insensitive, localized, comparison.
     ///
@@ -152,7 +152,7 @@ pub trait t_NSString: t_NSObject {
     /// and `OrderedDescending` if the receiver follows `string`
     fn localizedCaseInsensitiveCompare<S>(&self, string: S) -> ComparisonResult
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Returns the result of invoking compare:options:range: with no options
     /// and the receiver’s full extent as the range.
@@ -174,7 +174,7 @@ pub trait t_NSString: t_NSObject {
     /// and `OrderedDescending` if the receiver follows `string`
     fn compare<S>(&self, string: S) -> ComparisonResult
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Returns the result of invoking compare:options:range: with no options
     /// and the receiver’s full extent as the range.
@@ -189,7 +189,7 @@ pub trait t_NSString: t_NSObject {
     /// and `OrderedDescending` if the receiver follows `string`
     fn localizedCompare<S>(&self, string: S) -> ComparisonResult
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Compares strings as sorted by the Finder.
     ///
@@ -202,7 +202,7 @@ pub trait t_NSString: t_NSObject {
     /// The result of the comparison.
     fn localized_standard_compare<S>(&self, string: S) -> ComparisonResult
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Compares the string with the specified string using the given options.
     ///
@@ -220,7 +220,7 @@ pub trait t_NSString: t_NSObject {
     /// and `OrderedDescending` if the receiver follows `string`
     fn compareWithOptions<S>(&self, string: S, mask: CompareOptions) -> ComparisonResult
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Returns the result of invoking compare(_:options:range:locale:) with a nil locale.
     ///
@@ -243,7 +243,7 @@ pub trait t_NSString: t_NSObject {
         range: Range<UInt>,
     ) -> ComparisonResult
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Compares the string using the specified options and returns the lexical ordering for the range.
     ///
@@ -265,10 +265,10 @@ pub trait t_NSString: t_NSObject {
         string: S,
         options: CompareOptions,
         range: Range<UInt>,
-        locale: Locale,
+        locale: NSLocale,
     ) -> ComparisonResult
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Returns a Boolean value that indicates whether a given string matches the beginning characters of the receiver.
     ///
@@ -281,7 +281,7 @@ pub trait t_NSString: t_NSObject {
     /// Returns `true` if the string begins with the prefix, otherwise `false`.
     fn hasPrefix<S>(&self, prefix: S) -> bool
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Returns a Boolean value that indicates whether a given string matches the ending characters of the receiver.
     ///
@@ -294,7 +294,7 @@ pub trait t_NSString: t_NSObject {
     /// Returns `true` if the string ends with the suffix, otherwise `false`.
     fn hasSuffix<S>(&self, suffix: S) -> bool
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Returns a Boolean value that indicates whether a given string is equal to the receiver using a literal Unicode-based comparison.
     ///
@@ -307,7 +307,7 @@ pub trait t_NSString: t_NSObject {
     /// Returns `true` if the string is equal to the receiver, otherwise `false`.
     fn isEqualTo<S>(&self, string: S) -> bool
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /* Combining Strings
      */
@@ -317,9 +317,9 @@ pub trait t_NSString: t_NSObject {
     /// # Arguments
     ///
     /// * `string` - The string to append to the receiver. This value must not be nil.
-    fn appending<S>(&self, string: S) -> String
+    fn appending<S>(&self, string: S) -> NSString
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Returns a new string formed from the receiver by either removing characters from the end, or by appending as many occurrences as necessary of a given pad string.
     ///
@@ -332,9 +332,9 @@ pub trait t_NSString: t_NSObject {
     /// # Returns
     ///
     /// A new string formed from the receiver by either removing characters from the end, or by appending as many occurrences of `pad_string` as necessary.
-    fn padding<S>(&self, new_length: Int, pad_string: S, starting_at: Int) -> String
+    fn padding<S>(&self, new_length: Int, pad_string: S, starting_at: Int) -> NSString
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /* Finding Characters and Substrings
      */
@@ -350,31 +350,31 @@ pub trait t_NSString: t_NSObject {
     /// Returns `true` if `string` is contained in the receiver, otherwise `false`.
     fn contains<S>(&self, other: S) -> bool
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /* Changing Case
      */
 
     /// A lowercase representation of the string.
-    fn lowercased(&self) -> String;
+    fn lowercased(&self) -> NSString;
 
     /// Returns a version of the string with all letters converted to lowercase,
     /// taking into account the current locale.
-    fn localizedLowercase(&self) -> String;
+    fn localizedLowercase(&self) -> NSString;
 
     /// An uppercase representation of the string.
-    fn uppercased(&self) -> String;
+    fn uppercased(&self) -> NSString;
 
     /// Returns a version of the string with all letters converted to uppercase,
     /// taking into account the current locale.
-    fn localizedUppercase(&self) -> String;
+    fn localizedUppercase(&self) -> NSString;
 
     /// A capitalized representation of the string.
-    fn capitalized(&self) -> String;
+    fn capitalized(&self) -> NSString;
 
     /// Returns a capitalized representation of the receiver using the current
     /// locale.
-    fn localizedCapitalized(&self) -> String;
+    fn localizedCapitalized(&self) -> NSString;
 
     /* Transforming Strings
      */
@@ -387,7 +387,7 @@ pub trait t_NSString: t_NSObject {
     /// * `reverse` - If `true`, the transformation is applied in reverse.
     fn stringByApplyingTransform(
         &mut self,
-        transform: StringTransform,
+        transform: NSStringTransform,
         reverse: bool,
-    ) -> Option<String>;
+    ) -> Option<NSString>;
 }

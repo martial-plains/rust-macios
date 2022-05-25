@@ -3,7 +3,7 @@ use std::ops::Range;
 use objc::runtime::Object;
 
 use crate::{
-    foundation::{ns_array::iter, Array, Dictionary, Locale, String, UInt},
+    foundation::{ns_array::iter, NSArray, NSDictionary, NSLocale, NSString, UInt},
     id,
     objective_c_runtime::traits::t_NSObject,
 };
@@ -51,7 +51,7 @@ pub trait t_NSArray<T> {
     unsafe fn fromRetained(array: id) -> Self;
 
     /* Querying an Array
-    */
+     */
 
     /// Returns a Boolean value that indicates whether a given object is present in the array.
     ///
@@ -89,7 +89,7 @@ pub trait t_NSArray<T> {
     fn objectAtIndexedSubscript(&self, index: UInt) -> Option<id>;
 
     /* Finding Objects in an Array
-    */
+     */
 
     /// Returns the lowest index whose corresponding array value is equal to a given object.
     fn indexOf(&self, object: T) -> UInt
@@ -112,27 +112,27 @@ pub trait t_NSArray<T> {
         T: t_NSObject;
 
     /* Comparing Arrays
-    */
+     */
 
     /// Returns the first object contained in the receiving array that’s equal to an object in another given array.
-    fn firstObjectCommonWith(&self, other: &Array<T>) -> Option<T>
+    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T>
     where
         T: t_NSObject;
 
     /// Compares the receiving array to another array.
-    fn isEqualTo(&self, other: &Array<T>) -> bool
+    fn isEqualTo(&self, other: &NSArray<T>) -> bool
     where
         T: t_NSObject;
 
     /* Deriving New Arrays
-    */
+     */
 
     /// Returns a new array that is a copy of the receiving array with a given object added to the end.
     ///
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn adding(&self, object: T) -> Array<T>
+    unsafe fn adding(&self, object: T) -> NSArray<T>
     where
         T: t_NSObject;
 
@@ -141,7 +141,7 @@ pub trait t_NSArray<T> {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn addingObjects(&self, objects: &Array<T>) -> Array<T>
+    unsafe fn addingObjects(&self, objects: &NSArray<T>) -> NSArray<T>
     where
         T: t_NSObject;
 
@@ -150,22 +150,22 @@ pub trait t_NSArray<T> {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> Array<T>
+    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T>
     where
         T: t_NSObject;
     /* Creating a Description
-    */
+     */
 
     /// A string that represents the contents of the array, formatted as a property list.
 
     /// Returns a string that represents the contents of the array, formatted as a property list.
-    fn descriptionWithLocale(&self, locale: &Locale) -> String;
+    fn descriptionWithLocale(&self, locale: &NSLocale) -> NSString;
 
     /// Returns a string that represents the contents of the array, formatted as a property list.
-    fn descriptionWithLocaleIndent(&self, locale: &Locale, indent: UInt) -> String;
+    fn descriptionWithLocaleIndent(&self, locale: &NSLocale, indent: UInt) -> NSString;
 
     /* Rust Conversions
-    */
+     */
 
     /// Returns an iterator over the objects in the array.
     fn iter(&self) -> iter::Iter<'_, T>
@@ -190,12 +190,12 @@ pub trait t_NSMutableArray<T>: t_NSArray<T> {
     /// Creates and returns a mutable array containing the contents of the file specified by the given path.
     fn array_with_contents_of_file<S>(path: S) -> Self
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Creates and returns a mutable array containing the contents specified by a given URL.
     fn arrayWithContentsOfUrl<S>(url: S) -> Self
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Returns an array, initialized with enough memory to initially hold a given number of objects.
     fn initWithCapacity(capacity: UInt) -> Self;
@@ -203,7 +203,7 @@ pub trait t_NSMutableArray<T>: t_NSArray<T> {
     /// Initializes a newly allocated mutable array with the contents of the file specified by a given path
     fn initWithContentsOfFile<S>(&mut self, path: S) -> bool
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /* Adding Objects
      */
@@ -212,7 +212,7 @@ pub trait t_NSMutableArray<T>: t_NSArray<T> {
     fn add(&mut self, object: &T);
 
     /// Adds the objects contained in another given array to the end of the receiving array’s content.
-    fn addObjectsFromArray(&mut self, other_array: &Array<T>);
+    fn addObjectsFromArray(&mut self, other_array: &NSArray<T>);
 
     /// Inserts a given object into the array’s contents at a given index.
     fn insert(&mut self, index: UInt, object: &T);
@@ -242,7 +242,7 @@ pub trait t_NSMutableArray<T>: t_NSArray<T> {
     fn removeObjectIdenticalToInRange(&mut self, object: &T, range: Range<UInt>);
 
     /// Removes from the receiving array the objects in another given array.
-    fn removeObjectsInArray(&mut self, other_array: &Array<T>);
+    fn removeObjectsInArray(&mut self, other_array: &NSArray<T>);
 
     /// Removes from the array each of the objects within a given range.
     fn removeObjectsInRange(&mut self, range: Range<UInt>);
@@ -254,13 +254,13 @@ pub trait t_NSMutableArray<T>: t_NSArray<T> {
     fn replaceObjectAtIndex(&mut self, index: UInt, object: &T);
 
     /// Sets the receiving array’s elements to those in another given array.
-    fn setArray(&mut self, other_array: &Array<T>);
+    fn setArray(&mut self, other_array: &NSArray<T>);
 }
 
 /// A dynamic collection of objects associated with unique keys.
 pub trait t_NSMutableDictionary<K, V>: t_NSDictionary<K, V> {
     /// Creates and initialize a dictionary
-    fn initWithDictionary(&mut self, dictionary: Dictionary<K, V>);
+    fn initWithDictionary(&mut self, dictionary: NSDictionary<K, V>);
 
     /* Adding Entries to a Mutable Dictionary
      */
@@ -280,14 +280,14 @@ pub trait t_NSMutableDictionary<K, V>: t_NSDictionary<K, V> {
     /// Adds a given key-value pair to the dictionary.
     fn setValue(&mut self, key: K, value: V)
     where
-        K: Into<String>,
+        K: Into<NSString>,
         V: Into<id>;
 
     /// Adds to the receiving dictionary the entries from another dictionary.
-    fn addEntriesFromDictionary(&mut self, dictionary: Dictionary<K, V>);
+    fn addEntriesFromDictionary(&mut self, dictionary: NSDictionary<K, V>);
 
     /// Sets the contents of the receiving dictionary to entries in a given dictionary.
-    fn setDictionary(&mut self, dictionary: Dictionary<K, V>);
+    fn setDictionary(&mut self, dictionary: NSDictionary<K, V>);
 
     /* Removing Entries From a Mutable Dictionary
      */
@@ -301,7 +301,7 @@ pub trait t_NSMutableDictionary<K, V>: t_NSDictionary<K, V> {
     fn removeAllObjects(&mut self);
 
     /// Removes from the dictionary entries specified by elements in a given array.
-    fn removeObjectsForKeys(&mut self, keys: Array<K>)
+    fn removeObjectsForKeys(&mut self, keys: NSArray<K>)
     where
         K: t_NSObject;
 }
@@ -318,7 +318,7 @@ pub trait t_NSDictionary<K, V>: t_NSObject {
      */
 
     /// Creates a dictionary containing entries constructed from the contents of an array of keys and an array of values.
-    fn dictionaryWithObjects(objects: Array<V>, keys: Array<K>) -> Self;
+    fn dictionaryWithObjects(objects: NSArray<V>, keys: NSArray<K>) -> Self;
 
     /* Counting Entries
      */

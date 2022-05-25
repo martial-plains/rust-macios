@@ -11,17 +11,17 @@ use objc_id::Id;
 
 use crate::{id, objective_c_runtime::traits::t_NSObject};
 
-use super::{Array, Dictionary, String};
+use super::{NSArray, NSDictionary, NSString};
 
 /// A dynamic collection of objects associated with unique keys.
-pub struct MutableDictionary<K, V> {
+pub struct NSMutableDictionary<K, V> {
     /// The raw pointer to the Objective-C object.
     pub obj: Id<Object>,
     _key: PhantomData<K>,
     _value: PhantomData<V>,
 }
 
-impl<K, V> MutableDictionary<K, V> {
+impl<K, V> NSMutableDictionary<K, V> {
     /// Creates an empty dictionary.
     pub fn new() -> Self {
         unsafe {
@@ -49,7 +49,7 @@ impl<K, V> MutableDictionary<K, V> {
     }
 
     /// Creates and initialize a dictionary
-    pub fn init_with_dictionary(&mut self, dictionary: Dictionary<K, V>) {
+    pub fn init_with_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
         unsafe {
             let obj: *mut Object = msg_send![self.obj, setDictionary: dictionary.obj];
             self.obj = Id::from_ptr(obj);
@@ -90,7 +90,7 @@ impl<K, V> MutableDictionary<K, V> {
     /// Adds a given key-value pair to the dictionary.
     pub fn set_value(&mut self, key: K, value: V)
     where
-        K: Into<String>,
+        K: Into<NSString>,
         V: Into<id>,
     {
         unsafe {
@@ -99,7 +99,7 @@ impl<K, V> MutableDictionary<K, V> {
     }
 
     /// Adds to the receiving dictionary the entries from another dictionary.
-    pub fn add_entries_from_dictionary(&mut self, dictionary: Dictionary<K, V>) {
+    pub fn add_entries_from_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
         unsafe {
             let obj: *mut Object = msg_send![self.obj, addEntriesFromDictionary: dictionary.obj];
             self.obj = Id::from_ptr(obj);
@@ -107,7 +107,7 @@ impl<K, V> MutableDictionary<K, V> {
     }
 
     /// Sets the contents of the receiving dictionary to entries in a given dictionary.
-    pub fn set_dictionary(&mut self, dictionary: Dictionary<K, V>) {
+    pub fn set_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
         unsafe {
             let obj: *mut Object = msg_send![self.obj, setDictionary: dictionary.obj];
             self.obj = Id::from_ptr(obj);
@@ -138,7 +138,7 @@ impl<K, V> MutableDictionary<K, V> {
     }
 
     /// Removes from the dictionary entries specified by elements in a given array.
-    pub fn remove_objects_for_keys(&mut self, keys: Array<K>)
+    pub fn remove_objects_for_keys(&mut self, keys: NSArray<K>)
     where
         K: t_NSObject,
     {
@@ -150,13 +150,13 @@ impl<K, V> MutableDictionary<K, V> {
     }
 }
 
-impl<K, V> Default for MutableDictionary<K, V> {
+impl<K, V> Default for NSMutableDictionary<K, V> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<K, V> t_NSObject for MutableDictionary<K, V> {
+impl<K, V> t_NSObject for NSMutableDictionary<K, V> {
     fn init() -> Self {
         todo!()
     }
@@ -169,14 +169,14 @@ impl<K, V> t_NSObject for MutableDictionary<K, V> {
         todo!()
     }
 
-    fn description(&self) -> String {
+    fn description(&self) -> NSString {
         let obj: id = unsafe { msg_send![self.obj, description] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
-    fn debugDescription(&self) -> String {
+    fn debugDescription(&self) -> NSString {
         let obj: id = unsafe { msg_send![self.obj, debugDescription] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
     fn retain(&self) -> Self {
@@ -190,7 +190,7 @@ impl<K, V> t_NSObject for MutableDictionary<K, V> {
     }
 }
 
-impl<K, V> fmt::Debug for MutableDictionary<K, V>
+impl<K, V> fmt::Debug for NSMutableDictionary<K, V>
 where
     K: fmt::Debug,
     V: fmt::Debug,
@@ -200,19 +200,19 @@ where
     }
 }
 
-impl fmt::Display for MutableDictionary<String, String> {
+impl fmt::Display for NSMutableDictionary<NSString, NSString> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{}", self.description())
     }
 }
 
-impl Borrow<Dictionary<String, String>> for MutableDictionary<String, String> {
-    fn borrow(&self) -> &Dictionary<String, String> {
+impl Borrow<NSDictionary<NSString, NSString>> for NSMutableDictionary<NSString, NSString> {
+    fn borrow(&self) -> &NSDictionary<NSString, NSString> {
         unsafe { msg_send![self.obj, dictionaryWithDictionary: self] }
     }
 }
 
-impl<K, V> Deref for MutableDictionary<K, V> {
+impl<K, V> Deref for NSMutableDictionary<K, V> {
     type Target = Object;
 
     /// Derefs to the underlying Objective-C Object.
@@ -221,19 +221,19 @@ impl<K, V> Deref for MutableDictionary<K, V> {
     }
 }
 
-impl<K, V> DerefMut for MutableDictionary<K, V> {
+impl<K, V> DerefMut for NSMutableDictionary<K, V> {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
         &mut *self.obj
     }
 }
 
-impl<K, V> From<Dictionary<K, V>> for MutableDictionary<K, V>
+impl<K, V> From<NSDictionary<K, V>> for NSMutableDictionary<K, V>
 where
     K: Into<id>,
     V: Into<id>,
 {
-    fn from(dictionary: Dictionary<K, V>) -> Self {
+    fn from(dictionary: NSDictionary<K, V>) -> Self {
         Self {
             obj: dictionary.obj,
 

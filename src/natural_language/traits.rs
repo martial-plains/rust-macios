@@ -1,8 +1,7 @@
-
 use std::ops::Range;
 
 use crate::{
-    foundation::{Dictionary, NSNumber, String, UInt},
+    foundation::{NSDictionary, NSNumber, NSString, UInt},
     objective_c_runtime::traits::t_NSObject,
 };
 
@@ -20,15 +19,15 @@ pub trait t_NLTokenizer: t_NSObject {
      */
 
     /// The text to be tokenized.
-    fn string(&self) -> String;
+    fn string(&self) -> NSString;
 
     /// Sets the text to be tokenized.
     fn setString<S>(&self, string: S)
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Sets the language of the text to be tokenized.
-    fn setLanguage(&self, language: String);
+    fn setLanguage(&self, language: NSString);
 
     /// The linguistic unit that this tokenizer uses.
     fn unit(&self) -> NLTokenUnit;
@@ -47,20 +46,20 @@ pub trait t_NLTokenizer: t_NSObject {
 
 pub trait t_NLLanguageRecognizer: t_NSObject {
     /// The most likely language for the processed text.
-    fn dominantLanguage(&self) -> String;
+    fn dominantLanguage(&self) -> NSString;
 
     /// Finds the most likely language of a piece of text.
     fn dominantLanguageFor<T>(&self, string: T) -> NLLanguage
     where
-        T: Into<String>;
+        T: Into<NSString>;
 
     /// Analyzes the piece of text to determine its dominant language.
     fn processString<T>(&self, string: T)
     where
-        T: Into<String>;
+        T: Into<NSString>;
 
     /// Generates the probabilities of possible languages for the processed text.
-    fn languageHypotheses(&self, max_hypotheses: UInt) -> Dictionary<NLLanguage, NSNumber>;
+    fn languageHypotheses(&self, max_hypotheses: UInt) -> NSDictionary<NLLanguage, NSNumber>;
 
     /// Resets the recognizer to its initial state.
     fn reset(&self);
@@ -69,14 +68,14 @@ pub trait t_NLLanguageRecognizer: t_NSObject {
      */
 
     /// A dictionary that maps languages to their probabilities in the language identification process.
-    fn languageHints(&self) -> Dictionary<NLLanguage, NSNumber>;
+    fn languageHints(&self) -> NSDictionary<NLLanguage, NSNumber>;
 
     /// Sets a dictionary that maps languages to their probabilities in the language identification process.
-    fn setLanguageHints(&self, language_hints: Dictionary<NLLanguage, NSNumber>);
+    fn setLanguageHints(&self, language_hints: NSDictionary<NLLanguage, NSNumber>);
 
     /// Limits the set of possible languages that the recognizer will return.
-    fn languageConstraints(&self) -> Dictionary<NLLanguage, NSNumber>;
+    fn languageConstraints(&self) -> NSDictionary<NLLanguage, NSNumber>;
 
     /// Sets the limits  of the set of possible languages that the recognizer will return.
-    fn setLanguageConstraints(&self, language_constraints: Dictionary<NLLanguage, NSNumber>);
+    fn setLanguageConstraints(&self, language_constraints: NSDictionary<NLLanguage, NSNumber>);
 }

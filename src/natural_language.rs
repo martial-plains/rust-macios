@@ -3,10 +3,10 @@
 use crate::foundation;
 
 /// The languages that the Natural Language framework supports.
-pub type NLLanguage = foundation::String;
+pub type NLLanguage = foundation::NSString;
 
 /// Constants for the tag schemes specified when initializing a linguistic tagger.
-pub type NLTagScheme = foundation::String;
+pub type NLTagScheme = foundation::NSString;
 
 /// Traits for the Natural Language framework.
 pub mod traits;

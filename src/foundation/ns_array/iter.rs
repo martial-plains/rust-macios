@@ -1,9 +1,9 @@
 use crate::{
-    foundation::{traits::t_NSArray, MutableArray, NSNumber, String, UInt},
+    foundation::{traits::t_NSArray, NSMutableArray, NSNumber, NSString, UInt},
     objective_c_runtime::traits::t_NSObject,
 };
 
-use super::Array;
+use super::NSArray;
 
 /// An iterator for `Array`
 #[derive(Debug)]
@@ -11,7 +11,7 @@ pub struct Iter<'a, T>
 where
     T: t_NSObject,
 {
-    pub(super) array: &'a Array<T>,
+    pub(super) array: &'a NSArray<T>,
     pub(super) index: UInt,
 }
 
@@ -32,7 +32,7 @@ where
     }
 }
 
-impl<'a, T> FromIterator<&'a T> for Array<T>
+impl<'a, T> FromIterator<&'a T> for NSArray<T>
 where
     T: t_NSObject + 'a,
 {
@@ -40,39 +40,39 @@ where
     where
         I: IntoIterator<Item = &'a T>,
     {
-        let mut mut_arr = MutableArray::new();
+        let mut mut_arr = NSMutableArray::new();
         for item in iter {
             mut_arr.add(item);
         }
 
-        Array::from(mut_arr)
+        NSArray::from(mut_arr)
     }
 }
 
-impl FromIterator<String> for Array<String> {
+impl FromIterator<NSString> for NSArray<NSString> {
     fn from_iter<I>(iter: I) -> Self
     where
-        I: IntoIterator<Item = String>,
+        I: IntoIterator<Item = NSString>,
     {
-        let mut mut_arr = MutableArray::new();
+        let mut mut_arr = NSMutableArray::new();
         for item in iter {
             mut_arr.add(&item);
         }
 
-        Array::from(mut_arr)
+        NSArray::from(mut_arr)
     }
 }
 
-impl FromIterator<NSNumber> for Array<NSNumber> {
+impl FromIterator<NSNumber> for NSArray<NSNumber> {
     fn from_iter<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = NSNumber>,
     {
-        let mut mut_arr = MutableArray::new();
+        let mut mut_arr = NSMutableArray::new();
         for item in iter {
             mut_arr.add(&item);
         }
 
-        Array::from(mut_arr)
+        NSArray::from(mut_arr)
     }
 }

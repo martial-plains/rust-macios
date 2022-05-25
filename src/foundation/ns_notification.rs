@@ -7,7 +7,7 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::t_NSNotification, String},
+    foundation::{traits::t_NSNotification, NSString},
     id,
     objective_c_runtime::traits::t_NSObject,
 };
@@ -33,17 +33,17 @@ impl t_NSObject for NSNotification {
         }
     }
 
-    fn description(&self) -> String {
+    fn description(&self) -> NSString {
         unsafe {
             let description: id = msg_send![&*self.obj, description];
-            String::fromId(description)
+            NSString::fromId(description)
         }
     }
 
-    fn debugDescription(&self) -> String {
+    fn debugDescription(&self) -> NSString {
         unsafe {
             let debug_description: id = msg_send![&*self.obj, debugDescription];
-            String::fromId(debug_description)
+            NSString::fromId(debug_description)
         }
     }
 

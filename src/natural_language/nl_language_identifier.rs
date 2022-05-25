@@ -9,7 +9,7 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{Dictionary, NSNumber, String, UInt},
+    foundation::{NSDictionary, NSNumber, NSString, UInt},
     id,
     objective_c_runtime::traits::t_NSObject,
 };
@@ -39,14 +39,14 @@ impl t_NSObject for NLLanguageRecognizer {
         todo!()
     }
 
-    fn description(&self) -> String {
+    fn description(&self) -> NSString {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
-    fn debugDescription(&self) -> String {
+    fn debugDescription(&self) -> NSString {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
     fn retain(&self) -> Self {
@@ -57,14 +57,14 @@ impl t_NSObject for NLLanguageRecognizer {
 
 impl t_NLLanguageRecognizer for NLLanguageRecognizer {
     /// The most likely language for the processed text.
-    fn dominantLanguage(&self) -> String {
+    fn dominantLanguage(&self) -> NSString {
         unsafe { msg_send![self.obj, dominantLanguage] }
     }
 
     /// Finds the most likely language of a piece of text.
     fn dominantLanguageFor<T>(&self, string: T) -> NLLanguage
     where
-        T: Into<String>,
+        T: Into<NSString>,
     {
         unsafe { msg_send![self.obj, dominantLanguageForString: string.into()] }
     }
@@ -72,13 +72,13 @@ impl t_NLLanguageRecognizer for NLLanguageRecognizer {
     /// Analyzes the piece of text to determine its dominant language.
     fn processString<T>(&self, string: T)
     where
-        T: Into<String>,
+        T: Into<NSString>,
     {
         unsafe { msg_send![self.obj, processString: string.into()] }
     }
 
     /// Generates the probabilities of possible languages for the processed text.
-    fn languageHypotheses(&self, max_hypotheses: UInt) -> Dictionary<NLLanguage, NSNumber> {
+    fn languageHypotheses(&self, max_hypotheses: UInt) -> NSDictionary<NLLanguage, NSNumber> {
         unsafe { msg_send![&*self.obj, languageHypothesesWithMaximum: max_hypotheses] }
     }
 
@@ -91,22 +91,22 @@ impl t_NLLanguageRecognizer for NLLanguageRecognizer {
      */
 
     /// A dictionary that maps languages to their probabilities in the language identification process.
-    fn languageHints(&self) -> Dictionary<NLLanguage, NSNumber> {
+    fn languageHints(&self) -> NSDictionary<NLLanguage, NSNumber> {
         unsafe { msg_send![&*self.obj, languageHints] }
     }
 
     /// Sets a dictionary that maps languages to their probabilities in the language identification process.
-    fn setLanguageHints(&self, language_hints: Dictionary<NLLanguage, NSNumber>) {
+    fn setLanguageHints(&self, language_hints: NSDictionary<NLLanguage, NSNumber>) {
         unsafe { msg_send![self.obj, setLanguageHints: language_hints] }
     }
 
     /// Limits the set of possible languages that the recognizer will return.
-    fn languageConstraints(&self) -> Dictionary<NLLanguage, NSNumber> {
+    fn languageConstraints(&self) -> NSDictionary<NLLanguage, NSNumber> {
         unsafe { msg_send![&*self.obj, languageConstraints] }
     }
 
     /// Sets the limits  of the set of possible languages that the recognizer will return.
-    fn setLanguageConstraints(&self, language_constraints: Dictionary<NLLanguage, NSNumber>) {
+    fn setLanguageConstraints(&self, language_constraints: NSDictionary<NLLanguage, NSNumber>) {
         unsafe { msg_send![self.obj, setLanguageConstraints: language_constraints] }
     }
 }

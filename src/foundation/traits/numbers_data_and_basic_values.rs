@@ -6,7 +6,9 @@ use libc::{
 };
 
 use crate::{
-    foundation::{ComparisonResult, Int, Locale, NSDecimalNumber, NSRoundingMode, String, UInt},
+    foundation::{
+        ComparisonResult, Int, NSDecimalNumber, NSLocale, NSRoundingMode, NSString, UInt,
+    },
     objective_c_runtime::traits::t_NSValue,
 };
 
@@ -409,10 +411,10 @@ pub trait t_NSNumber: t_NSValue {
     /// # Returns
     ///
     /// A string that represents the contents of the number object formatted using the locale information in `locale`.
-    fn descriptionWithLocale(&self, locale: Locale) -> String;
+    fn descriptionWithLocale(&self, locale: NSLocale) -> NSString;
 
     /// The number object's value expressed as a human-readable string.
-    fn stringValue(&self) -> String;
+    fn stringValue(&self) -> NSString;
 
     /* Comparing NSNumber Objects
      */
@@ -450,12 +452,12 @@ pub trait t_NSDecimalNumber: t_NSNumber {
     /// Creates a decimal number whose value is equivalent to that in a given numeric string.
     fn decimalNumberWithString<S>(string: S) -> Self
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Creates a decimal number whose value is equivalent to that in a given numeric string, interpreted using a given locale.
     fn decimalNumberWithStringLocale<S, L>(string: S, locale: L) -> Self
     where
-        S: Into<String>,
+        S: Into<NSString>,
         L: t_NSLocale;
 
     /// A decimal number equivalent to the number 1.0.
@@ -484,12 +486,12 @@ pub trait t_NSDecimalNumber: t_NSNumber {
     /// Initializes a decimal number so that its value is equivalent to that in a given numeric string.
     fn initWithString<S>(&mut self, string: S)
     where
-        S: Into<String>;
+        S: Into<NSString>;
 
     /// Initializes a decimal number so that its value is equivalent to that in a given numeric string, interpreted using a given locale.
     fn initWithStringLocale<S, L>(&mut self, string: S, locale: L)
     where
-        S: Into<String>,
+        S: Into<NSString>,
         L: t_NSLocale;
 
     /* Performing Arithmetic
@@ -576,7 +578,7 @@ pub trait t_NSDecimalNumber: t_NSNumber {
     fn doubleValue(&self) -> f64;
 
     /// Returns a string representation of the decimal number appropriate for the specified locale.
-    fn descriptionWithLocale<L>(&self, locale: L) -> String
+    fn descriptionWithLocale<L>(&self, locale: L) -> NSString
     where
         L: t_NSLocale;
 

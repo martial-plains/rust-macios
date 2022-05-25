@@ -11,7 +11,7 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::t_NSNumber, ComparisonResult, Int, Locale, String, UInt},
+    foundation::{traits::t_NSNumber, ComparisonResult, Int, NSLocale, NSString, UInt},
     objective_c_runtime::traits::{t_NSObject, t_NSValue},
 };
 
@@ -37,17 +37,17 @@ impl t_NSObject for NSNumber {
         }
     }
 
-    fn description(&self) -> String {
+    fn description(&self) -> NSString {
         unsafe {
             let description = msg_send![self.obj, description];
-            String::fromId(description)
+            NSString::fromId(description)
         }
     }
 
-    fn debugDescription(&self) -> String {
+    fn debugDescription(&self) -> NSString {
         unsafe {
             let description = msg_send![self.obj, debugDescription];
-            String::fromId(description)
+            NSString::fromId(description)
         }
     }
 
@@ -347,17 +347,17 @@ impl t_NSNumber for NSNumber {
         unsafe { msg_send![self.obj, unsignedShortValue] }
     }
 
-    fn descriptionWithLocale(&self, locale: Locale) -> String {
+    fn descriptionWithLocale(&self, locale: NSLocale) -> NSString {
         unsafe {
             let description = msg_send![self.obj, descriptionWithLocale: locale.obj];
-            String::fromId(description)
+            NSString::fromId(description)
         }
     }
 
-    fn stringValue(&self) -> String {
+    fn stringValue(&self) -> NSString {
         unsafe {
             let description = msg_send![self.obj, stringValue];
-            String::fromId(description)
+            NSString::fromId(description)
         }
     }
 

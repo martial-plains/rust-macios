@@ -4,7 +4,7 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{String, UInt},
+    foundation::{NSString, UInt},
     id,
     objective_c_runtime::traits::t_NSObject,
 };
@@ -37,14 +37,14 @@ impl t_NSObject for NLTokenizer {
         }
     }
 
-    fn description(&self) -> String {
+    fn description(&self) -> NSString {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
-    fn debugDescription(&self) -> String {
+    fn debugDescription(&self) -> NSString {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
     fn retain(&self) -> Self {
@@ -82,18 +82,18 @@ impl t_NLTokenizer for NLTokenizer {
         }
     }
 
-    fn string(&self) -> String {
+    fn string(&self) -> NSString {
         unsafe { msg_send![&*self.obj, string] }
     }
 
     fn setString<S>(&self, string: S)
     where
-        S: Into<String>,
+        S: Into<NSString>,
     {
         unsafe { msg_send![self.obj, setString: string.into()] }
     }
 
-    fn setLanguage(&self, language: String) {
+    fn setLanguage(&self, language: NSString) {
         unsafe { msg_send![self.obj, setLanguage: language] }
     }
 

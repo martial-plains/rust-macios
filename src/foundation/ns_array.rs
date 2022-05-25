@@ -8,7 +8,7 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::t_NSArray, Locale, String, UInt},
+    foundation::{traits::t_NSArray, NSLocale, NSString, UInt},
     id,
     objective_c_runtime::traits::t_NSObject,
     utils::to_bool,
@@ -16,19 +16,19 @@ use crate::{
 
 use self::iter::Iter;
 
-use super::{ns_mutable_array::MutableArray, NSNumber};
+use super::{ns_mutable_array::NSMutableArray, NSNumber};
 
 /// Iterator for Array
 pub mod iter;
 
 /// A static ordered collection of objects.
-pub struct Array<T> {
+pub struct NSArray<T> {
     /// The underlying Objective-C object.
     pub obj: Id<Object>,
     _marker: PhantomData<T>,
 }
 
-impl<T> t_NSArray<T> for Array<T> {
+impl<T> t_NSArray<T> for NSArray<T> {
     unsafe fn new(ptr: *mut Object) -> Self {
         Self {
             obj: Id::from_ptr(ptr),
@@ -40,14 +40,14 @@ impl<T> t_NSArray<T> for Array<T> {
     where
         T: t_NSObject,
     {
-        Array::new(msg_send![class!(NSArray),
+        NSArray::new(msg_send![class!(NSArray),
             arrayWithObjects:objects.as_ptr()
             count:objects.len()
         ])
     }
 
     unsafe fn fromRetained(array: id) -> Self {
-        Array {
+        NSArray {
             obj: Id::from_retained_ptr(array),
             _marker: PhantomData,
         }
@@ -137,7 +137,7 @@ impl<T> t_NSArray<T> for Array<T> {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object inRange: range] }
     }
 
-    fn firstObjectCommonWith(&self, other: &Array<T>) -> Option<T>
+    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T>
     where
         T: t_NSObject,
     {
@@ -152,39 +152,39 @@ impl<T> t_NSArray<T> for Array<T> {
         }
     }
 
-    fn isEqualTo(&self, other: &Array<T>) -> bool
+    fn isEqualTo(&self, other: &NSArray<T>) -> bool
     where
         T: t_NSObject,
     {
         unsafe { to_bool(msg_send![&*self.obj, isEqualToArray: other.clone().obj]) }
     }
 
-    unsafe fn adding(&self, object: T) -> Array<T>
+    unsafe fn adding(&self, object: T) -> NSArray<T>
     where
         T: t_NSObject,
     {
-        Array::new(msg_send![&*self.obj, arrayByAddingObject: object])
+        NSArray::new(msg_send![&*self.obj, arrayByAddingObject: object])
     }
 
-    unsafe fn addingObjects(&self, objects: &Array<T>) -> Array<T>
+    unsafe fn addingObjects(&self, objects: &NSArray<T>) -> NSArray<T>
     where
         T: t_NSObject,
     {
-        Array::new(msg_send![self.obj, arrayByAddingObjectsFromArray: objects.clone().obj])
+        NSArray::new(msg_send![self.obj, arrayByAddingObjectsFromArray: objects.clone().obj])
     }
 
-    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> Array<T>
+    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T>
     where
         T: t_NSObject,
     {
-        Array::new(msg_send![&*self.obj, subarrayWithRange: range])
+        NSArray::new(msg_send![&*self.obj, subarrayWithRange: range])
     }
 
-    fn descriptionWithLocale(&self, locale: &Locale) -> String {
+    fn descriptionWithLocale(&self, locale: &NSLocale) -> NSString {
         unsafe { msg_send![&*self.obj, descriptionWithLocale: locale.clone().obj] }
     }
 
-    fn descriptionWithLocaleIndent(&self, locale: &Locale, indent: UInt) -> String {
+    fn descriptionWithLocaleIndent(&self, locale: &NSLocale, indent: UInt) -> NSString {
         unsafe { msg_send![&*self.obj, descriptionWithLocale: locale.clone().obj indent: indent] }
     }
 
@@ -199,7 +199,7 @@ impl<T> t_NSArray<T> for Array<T> {
     }
 }
 
-impl<T> t_NSObject for Array<T> {
+impl<T> t_NSObject for NSArray<T> {
     fn init() -> Self {
         let obj: id = unsafe { msg_send![class!(NSArray), init] };
 
@@ -217,14 +217,14 @@ impl<T> t_NSObject for Array<T> {
         todo!()
     }
 
-    fn description(&self) -> String {
+    fn description(&self) -> NSString {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
-    fn debugDescription(&self) -> String {
+    fn debugDescription(&self) -> NSString {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
     fn retain(&self) -> Self {
@@ -236,7 +236,7 @@ impl<T> t_NSObject for Array<T> {
     }
 }
 
-impl<T> fmt::Debug for Array<T>
+impl<T> fmt::Debug for NSArray<T>
 where
     T: fmt::Debug + t_NSObject,
 {
@@ -245,7 +245,7 @@ where
     }
 }
 
-impl<T> fmt::Display for Array<T>
+impl<T> fmt::Display for NSArray<T>
 where
     T: fmt::Display + t_NSObject,
 {
@@ -254,13 +254,13 @@ where
     }
 }
 
-impl<T> Clone for Array<T> {
+impl<T> Clone for NSArray<T> {
     fn clone(&self) -> Self {
-        unsafe { Array::new(msg_send![self.obj, retain]) }
+        unsafe { NSArray::new(msg_send![self.obj, retain]) }
     }
 }
 
-impl<'a, T> IntoIterator for &'a Array<T>
+impl<'a, T> IntoIterator for &'a NSArray<T>
 where
     T: t_NSObject,
 {
@@ -272,14 +272,14 @@ where
     }
 }
 
-impl<T> From<Vec<T>> for Array<T>
+impl<T> From<Vec<T>> for NSArray<T>
 where
     T: t_NSObject,
 {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<T>) -> Self {
         unsafe {
-            Array::new(msg_send![class!(NSArray),
+            NSArray::new(msg_send![class!(NSArray),
                 arrayWithObjects:objects.as_ptr()
                 count:objects.len()
             ])
@@ -287,12 +287,12 @@ where
     }
 }
 
-impl From<Vec<i8>> for Array<NSNumber> {
+impl From<Vec<i8>> for NSArray<NSNumber> {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<i8>) -> Self {
         let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
         unsafe {
-            Array::new(msg_send![class!(NSArray),
+            NSArray::new(msg_send![class!(NSArray),
                 arrayWithObjects:objects.as_ptr()
                 count:objects.len()
             ])
@@ -300,12 +300,12 @@ impl From<Vec<i8>> for Array<NSNumber> {
     }
 }
 
-impl From<Vec<i16>> for Array<NSNumber> {
+impl From<Vec<i16>> for NSArray<NSNumber> {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<i16>) -> Self {
         let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
         unsafe {
-            Array::new(msg_send![class!(NSArray),
+            NSArray::new(msg_send![class!(NSArray),
                 arrayWithObjects:objects.as_ptr()
                 count:objects.len()
             ])
@@ -313,12 +313,12 @@ impl From<Vec<i16>> for Array<NSNumber> {
     }
 }
 
-impl From<Vec<i32>> for Array<NSNumber> {
+impl From<Vec<i32>> for NSArray<NSNumber> {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<i32>) -> Self {
         let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
         unsafe {
-            Array::new(msg_send![class!(NSArray),
+            NSArray::new(msg_send![class!(NSArray),
                 arrayWithObjects:objects.as_ptr()
                 count:objects.len()
             ])
@@ -326,12 +326,12 @@ impl From<Vec<i32>> for Array<NSNumber> {
     }
 }
 
-impl From<Vec<i64>> for Array<NSNumber> {
+impl From<Vec<i64>> for NSArray<NSNumber> {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<i64>) -> Self {
         let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
         unsafe {
-            Array::new(msg_send![class!(NSArray),
+            NSArray::new(msg_send![class!(NSArray),
                 arrayWithObjects:objects.as_ptr()
                 count:objects.len()
             ])
@@ -339,12 +339,12 @@ impl From<Vec<i64>> for Array<NSNumber> {
     }
 }
 
-impl From<Vec<u8>> for Array<NSNumber> {
+impl From<Vec<u8>> for NSArray<NSNumber> {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<u8>) -> Self {
         let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
         unsafe {
-            Array::new(msg_send![class!(NSArray),
+            NSArray::new(msg_send![class!(NSArray),
                 arrayWithObjects:objects.as_ptr()
                 count:objects.len()
             ])
@@ -352,12 +352,12 @@ impl From<Vec<u8>> for Array<NSNumber> {
     }
 }
 
-impl From<Vec<u16>> for Array<NSNumber> {
+impl From<Vec<u16>> for NSArray<NSNumber> {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<u16>) -> Self {
         let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
         unsafe {
-            Array::new(msg_send![class!(NSArray),
+            NSArray::new(msg_send![class!(NSArray),
                 arrayWithObjects:objects.as_ptr()
                 count:objects.len()
             ])
@@ -365,12 +365,12 @@ impl From<Vec<u16>> for Array<NSNumber> {
     }
 }
 
-impl From<Vec<u32>> for Array<NSNumber> {
+impl From<Vec<u32>> for NSArray<NSNumber> {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<u32>) -> Self {
         let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
         unsafe {
-            Array::new(msg_send![class!(NSArray),
+            NSArray::new(msg_send![class!(NSArray),
                 arrayWithObjects:objects.as_ptr()
                 count:objects.len()
             ])
@@ -378,12 +378,12 @@ impl From<Vec<u32>> for Array<NSNumber> {
     }
 }
 
-impl From<Vec<u64>> for Array<NSNumber> {
+impl From<Vec<u64>> for NSArray<NSNumber> {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<u64>) -> Self {
         let objects: Vec<NSNumber> = objects.iter().map(|i| NSNumber::from(*i)).collect();
         unsafe {
-            Array::new(msg_send![class!(NSArray),
+            NSArray::new(msg_send![class!(NSArray),
                 arrayWithObjects:objects.as_ptr()
                 count:objects.len()
             ])
@@ -391,18 +391,18 @@ impl From<Vec<u64>> for Array<NSNumber> {
     }
 }
 
-impl<T> From<MutableArray<T>> for Array<T>
+impl<T> From<NSMutableArray<T>> for NSArray<T>
 where
     T: t_NSObject,
 {
     /// Given an `Array` of `Object`s, creates a new `Array` that holds them.
-    fn from(array: MutableArray<T>) -> Self {
-        let arr: MutableArray<T> = MutableArray::init();
-        unsafe { Array::<T>::new(msg_send![arr.obj, arrayWithArray: array]) }
+    fn from(array: NSMutableArray<T>) -> Self {
+        let arr: NSMutableArray<T> = NSMutableArray::init();
+        unsafe { NSArray::<T>::new(msg_send![arr.obj, arrayWithArray: array]) }
     }
 }
 
-impl<T> Deref for Array<T> {
+impl<T> Deref for NSArray<T> {
     type Target = Object;
 
     /// Derefs to the underlying Objective-C Object.
@@ -411,7 +411,7 @@ impl<T> Deref for Array<T> {
     }
 }
 
-impl<T> DerefMut for Array<T> {
+impl<T> DerefMut for NSArray<T> {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
         &mut *self.obj

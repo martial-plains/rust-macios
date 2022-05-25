@@ -9,17 +9,17 @@ use objc_id::Id;
 
 use crate::{id, objective_c_runtime::traits::t_NSObject};
 
-use super::{traits::t_NSDictionary, Array, String, UInt};
+use super::{traits::t_NSDictionary, NSArray, NSString, UInt};
 
 /// A static collection of objects associated with unique keys.
-pub struct Dictionary<K, V> {
+pub struct NSDictionary<K, V> {
     /// The raw pointer to the Objective-C object.
     pub obj: Id<Object>,
     _key: PhantomData<K>,
     _value: PhantomData<V>,
 }
 
-impl<K, V> t_NSObject for Dictionary<K, V> {
+impl<K, V> t_NSObject for NSDictionary<K, V> {
     fn init() -> Self {
         unsafe {
             let cls = class!(NSDictionary);
@@ -41,14 +41,14 @@ impl<K, V> t_NSObject for Dictionary<K, V> {
         todo!()
     }
 
-    fn description(&self) -> String {
+    fn description(&self) -> NSString {
         let obj: id = unsafe { msg_send![self.obj, description] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
-    fn debugDescription(&self) -> String {
+    fn debugDescription(&self) -> NSString {
         let obj: id = unsafe { msg_send![self.obj, debugDescription] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
     fn retain(&self) -> Self {
@@ -62,7 +62,7 @@ impl<K, V> t_NSObject for Dictionary<K, V> {
     }
 }
 
-impl<K, V> t_NSDictionary<K, V> for Dictionary<K, V> {
+impl<K, V> t_NSDictionary<K, V> for NSDictionary<K, V> {
     fn new() -> Self {
         unsafe {
             let cls = class!(NSDictionary);
@@ -76,7 +76,7 @@ impl<K, V> t_NSDictionary<K, V> for Dictionary<K, V> {
         }
     }
 
-    fn dictionaryWithObjects(objects: Array<V>, keys: Array<K>) -> Self {
+    fn dictionaryWithObjects(objects: NSArray<V>, keys: NSArray<K>) -> Self {
         unsafe {
             let cls = class!(NSDictionary);
             let obj: *mut Object = msg_send![cls, new];
@@ -94,31 +94,31 @@ impl<K, V> t_NSDictionary<K, V> for Dictionary<K, V> {
     }
 }
 
-impl<K, V> fmt::Debug for Dictionary<K, V> {
+impl<K, V> fmt::Debug for NSDictionary<K, V> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{}", self.debugDescription())
     }
 }
 
-impl<K, V> fmt::Display for Dictionary<K, V> {
+impl<K, V> fmt::Display for NSDictionary<K, V> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{}", self.description())
     }
 }
 
-impl<K, V> Default for Dictionary<K, V> {
+impl<K, V> Default for NSDictionary<K, V> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<K, V> AsMut<Dictionary<K, V>> for Dictionary<K, V> {
+impl<K, V> AsMut<NSDictionary<K, V>> for NSDictionary<K, V> {
     fn as_mut(&mut self) -> &mut Self {
         self
     }
 }
 
-impl<K, V> Deref for Dictionary<K, V> {
+impl<K, V> Deref for NSDictionary<K, V> {
     type Target = Object;
 
     /// Derefs to the underlying Objective-C Object.
@@ -127,7 +127,7 @@ impl<K, V> Deref for Dictionary<K, V> {
     }
 }
 
-impl<K, V> DerefMut for Dictionary<K, V> {
+impl<K, V> DerefMut for NSDictionary<K, V> {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
         &mut *self.obj

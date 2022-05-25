@@ -12,7 +12,7 @@ use objc_id::Id;
 use crate::{
     foundation::{
         traits::{t_NSDecimalNumber, t_NSNumber},
-        ComparisonResult, Locale, String,
+        ComparisonResult, NSLocale, NSString,
     },
     id,
     objective_c_runtime::traits::{t_NSObject, t_NSValue},
@@ -35,7 +35,7 @@ extern "C" {
      */
 
     /// Returns a string representation of the decimal value appropriate for the specified locale.
-    pub fn NSDecimalString(dcm: *const NSDecimal, locale: Locale) -> String;
+    pub fn NSDecimalString(dcm: *const NSDecimal, locale: NSLocale) -> NSString;
 
     /// Compacts the decimal structure for efficiency.
     pub fn NSDecimalCompact(number: *mut NSDecimal);
@@ -138,17 +138,17 @@ impl t_NSObject for NSDecimalNumber {
         }
     }
 
-    fn description(&self) -> String {
+    fn description(&self) -> NSString {
         unsafe {
             let obj = msg_send![&*self.obj, description];
-            String::fromId(obj)
+            NSString::fromId(obj)
         }
     }
 
-    fn debugDescription(&self) -> String {
+    fn debugDescription(&self) -> NSString {
         unsafe {
             let obj = msg_send![&*self.obj, debugDescription];
-            String::fromId(obj)
+            NSString::fromId(obj)
         }
     }
 
@@ -343,17 +343,17 @@ impl t_NSNumber for NSDecimalNumber {
         unsafe { msg_send![self.obj, unsignedShortValue] }
     }
 
-    fn descriptionWithLocale(&self, locale: Locale) -> String {
+    fn descriptionWithLocale(&self, locale: NSLocale) -> NSString {
         unsafe {
             let id: id = msg_send![self.obj, descriptionWithLocale: locale.obj];
-            String::fromId(id)
+            NSString::fromId(id)
         }
     }
 
-    fn stringValue(&self) -> String {
+    fn stringValue(&self) -> NSString {
         unsafe {
             let id: id = msg_send![self.obj, stringValue];
-            String::fromId(id)
+            NSString::fromId(id)
         }
     }
 
@@ -388,7 +388,7 @@ impl t_NSDecimalNumber for NSDecimalNumber {
 
     fn decimalNumberWithString<S>(string: S) -> Self
     where
-        S: Into<String>,
+        S: Into<NSString>,
     {
         unsafe {
             msg_send![
@@ -400,7 +400,7 @@ impl t_NSDecimalNumber for NSDecimalNumber {
 
     fn decimalNumberWithStringLocale<S, L>(string: S, locale: L) -> Self
     where
-        S: Into<String>,
+        S: Into<NSString>,
         L: crate::foundation::traits::t_NSLocale,
     {
         unsafe {
@@ -448,14 +448,14 @@ impl t_NSDecimalNumber for NSDecimalNumber {
 
     fn initWithString<S>(&mut self, string: S)
     where
-        S: Into<String>,
+        S: Into<NSString>,
     {
         unsafe { msg_send![self.obj, initWithString: string.into()] }
     }
 
     fn initWithStringLocale<S, L>(&mut self, string: S, locale: L)
     where
-        S: Into<String>,
+        S: Into<NSString>,
         L: crate::foundation::traits::t_NSLocale,
     {
         unsafe { msg_send![self.obj, initWithString: string.into() locale: locale] }
@@ -595,12 +595,12 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         unsafe { msg_send![self.obj, doubleValue] }
     }
 
-    fn descriptionWithLocale<L>(&self, locale: L) -> String
+    fn descriptionWithLocale<L>(&self, locale: L) -> NSString
     where
         L: crate::foundation::traits::t_NSLocale,
     {
         unsafe {
-            let class: String = msg_send![self.obj, descriptionWithLocale: locale];
+            let class: NSString = msg_send![self.obj, descriptionWithLocale: locale];
             class
         }
     }
@@ -709,7 +709,7 @@ impl From<c_double> for NSDecimalNumber {
 
 impl<S> From<S> for NSDecimalNumber
 where
-    S: Into<String>,
+    S: Into<NSString>,
 {
     fn from(value: S) -> Self {
         NSDecimalNumber::decimalNumberWithString(value)

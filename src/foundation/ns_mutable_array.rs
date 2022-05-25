@@ -8,25 +8,25 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{Array, String, UInt},
+    foundation::{NSArray, NSString, UInt},
     id,
     objective_c_runtime::traits::t_NSObject,
 };
 
 /// A dynamic ordered collection of objects.
-pub struct MutableArray<T> {
+pub struct NSMutableArray<T> {
     /// The underlying Objective-C object.
     pub obj: Id<Object>,
     _marker: PhantomData<T>,
 }
 
-impl<T> MutableArray<T>
+impl<T> NSMutableArray<T>
 where
     T: t_NSObject,
 {
     /// Creates a new `MutableArray`.
     pub fn new() -> Self {
-        MutableArray {
+        NSMutableArray {
             obj: unsafe { msg_send![class!(NSMutableArray), array] },
             _marker: PhantomData,
         }
@@ -42,7 +42,7 @@ where
 
     /// Creates and returns an NSMutableArray object with enough allocated memory to initially hold a given number of objects.
     pub fn array_with_capacity(capacity: usize) -> Self {
-        MutableArray {
+        NSMutableArray {
             obj: unsafe { msg_send![class!(NSMutableArray), arrayWithCapacity: capacity] },
             _marker: PhantomData,
         }
@@ -51,9 +51,9 @@ where
     /// Creates and returns a mutable array containing the contents of the file specified by the given path.
     pub fn array_with_contents_of_file<S>(path: S) -> Self
     where
-        S: Into<String>,
+        S: Into<NSString>,
     {
-        MutableArray {
+        NSMutableArray {
             obj: unsafe { msg_send![class!(NSMutableArray), arrayWithContentsOfFile: path.into()] },
             _marker: PhantomData,
         }
@@ -62,9 +62,9 @@ where
     /// Creates and returns a mutable array containing the contents specified by a given URL.
     pub fn array_with_contents_of_url<S>(url: S) -> Self
     where
-        S: Into<String>,
+        S: Into<NSString>,
     {
-        MutableArray {
+        NSMutableArray {
             obj: unsafe { msg_send![class!(NSMutableArray), arrayWithContentsOfURL: url.into()] },
             _marker: PhantomData,
         }
@@ -72,7 +72,7 @@ where
 
     /// Returns an array, initialized with enough memory to initially hold a given number of objects.
     pub fn init_with_capacity(capacity: UInt) -> Self {
-        MutableArray {
+        NSMutableArray {
             obj: unsafe { msg_send![class!(NSMutableArray), arrayWithCapacity: capacity] },
             _marker: PhantomData,
         }
@@ -81,7 +81,7 @@ where
     /// Initializes a newly allocated mutable array with the contents of the file specified by a given path
     pub fn init_with_contents_of_file<S>(&mut self, path: S) -> bool
     where
-        S: Into<String>,
+        S: Into<NSString>,
     {
         unsafe { msg_send![&mut *self.obj, initWithContentsOfFile: path.into()] }
     }
@@ -95,7 +95,7 @@ where
     }
 
     /// Adds the objects contained in another given array to the end of the receiving array’s content.
-    pub fn add_objects_from_array(&mut self, other_array: &Array<T>) {
+    pub fn add_objects_from_array(&mut self, other_array: &NSArray<T>) {
         unsafe { msg_send![&mut *self.obj, addObjectsFromArray: other_array] }
     }
 
@@ -145,7 +145,7 @@ where
     }
 
     /// Removes from the receiving array the objects in another given array.
-    pub fn remove_objects_in_array(&mut self, other_array: &Array<T>) {
+    pub fn remove_objects_in_array(&mut self, other_array: &NSArray<T>) {
         unsafe { msg_send![&mut *self.obj, removeObjectsInArray: other_array] }
     }
 
@@ -165,12 +165,12 @@ where
     }
 
     /// Sets the receiving array’s elements to those in another given array.
-    pub fn set_array(&mut self, other_array: &Array<T>) {
+    pub fn set_array(&mut self, other_array: &NSArray<T>) {
         unsafe { msg_send![&mut *self.obj, setArray: other_array] }
     }
 }
 
-impl<T> Default for MutableArray<T>
+impl<T> Default for NSMutableArray<T>
 where
     T: t_NSObject,
 {
@@ -179,7 +179,7 @@ where
     }
 }
 
-impl<T> t_NSObject for MutableArray<T> {
+impl<T> t_NSObject for NSMutableArray<T> {
     fn init() -> Self {
         let obj: id = unsafe { msg_send![class!(NSMutableArray), init] };
 
@@ -197,14 +197,14 @@ impl<T> t_NSObject for MutableArray<T> {
         todo!()
     }
 
-    fn description(&self) -> String {
+    fn description(&self) -> NSString {
         let obj: id = unsafe { msg_send![&*self.obj, description] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
-    fn debugDescription(&self) -> String {
+    fn debugDescription(&self) -> NSString {
         let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        unsafe { String::fromId(obj) }
+        unsafe { NSString::fromId(obj) }
     }
 
     fn retain(&self) -> Self {
@@ -216,19 +216,19 @@ impl<T> t_NSObject for MutableArray<T> {
     }
 }
 
-impl fmt::Debug for MutableArray<id> {
+impl fmt::Debug for NSMutableArray<id> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.debugDescription())
     }
 }
 
-impl fmt::Display for MutableArray<id> {
+impl fmt::Display for NSMutableArray<id> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.description())
     }
 }
 
-impl<T> Deref for MutableArray<T> {
+impl<T> Deref for NSMutableArray<T> {
     type Target = Object;
 
     /// Derefs to the underlying Objective-C Object.
@@ -237,14 +237,14 @@ impl<T> Deref for MutableArray<T> {
     }
 }
 
-impl<T> DerefMut for MutableArray<T> {
+impl<T> DerefMut for NSMutableArray<T> {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
         &mut *self.obj
     }
 }
 
-impl<T> Clone for MutableArray<T> {
+impl<T> Clone for NSMutableArray<T> {
     fn clone(&self) -> Self {
         self.retain()
     }

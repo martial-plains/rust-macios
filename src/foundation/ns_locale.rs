@@ -7,7 +7,7 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::t_NSLocale, Array, String},
+    foundation::{traits::t_NSLocale, NSArray, NSString},
     id,
     objective_c_runtime::traits::t_NSObject,
 };
@@ -31,88 +31,88 @@ pub enum LanguageDirection {
 }
 
 /// The `Locale` class provides information about the user’s locale and formatting preferences.
-pub struct Locale {
+pub struct NSLocale {
     /// The raw pointer to the Objective-C object.
     pub obj: Id<Object>,
 }
 
-impl t_NSLocale for Locale {
+impl t_NSLocale for NSLocale {
     fn initWithLocaleIdentifier<S>(locale_identifier: S) -> Self
     where
-        S: Into<String>,
+        S: Into<NSString>,
     {
         unsafe {
-            let class: Locale = msg_send![class!(NSLocale), alloc];
+            let class: NSLocale = msg_send![class!(NSLocale), alloc];
             let obj = msg_send![class, initWithLocaleIdentifier: locale_identifier.into()];
-            Locale { obj }
+            NSLocale { obj }
         }
     }
 
-    fn autoUpdatingCurrent(&self) -> Locale {
+    fn autoUpdatingCurrent(&self) -> NSLocale {
         let class = class!(NSLocale);
         unsafe { msg_send![class, autoupdatingCurrent] }
     }
 
-    fn current() -> Locale {
+    fn current() -> NSLocale {
         let class = class!(NSLocale);
         unsafe { msg_send![class, currentLocale] }
     }
 
-    fn system() -> Locale {
+    fn system() -> NSLocale {
         let class = class!(NSLocale);
         unsafe { msg_send![class, systemLocale] }
     }
 
-    fn availableLocaleIdentifiers() -> Array<String> {
+    fn availableLocaleIdentifiers() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, availableLocaleIdentifiers] }
     }
 
-    fn isoCountryCodes() -> Array<String> {
+    fn isoCountryCodes() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOCountryCodes] }
     }
 
-    fn isoLanguageCodes() -> Array<String> {
+    fn isoLanguageCodes() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOLanguageCodes] }
     }
 
-    fn isoCurrencyCodes() -> Array<String> {
+    fn isoCurrencyCodes() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOCurrencyCodes] }
     }
 
-    fn commonIsocurrencyCodes() -> Array<String> {
+    fn commonIsocurrencyCodes() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, commonISOCurrencyCodes] }
     }
 
-    fn localeIdentifier(&self) -> String {
+    fn localeIdentifier(&self) -> NSString {
         unsafe { msg_send![self.obj, localeIdentifier] }
     }
 
-    fn countryCode(&self) -> String {
+    fn countryCode(&self) -> NSString {
         unsafe { msg_send![self.obj, countryCode] }
     }
 
-    fn languageCode(&self) -> String {
+    fn languageCode(&self) -> NSString {
         unsafe { msg_send![self.obj, languageCode] }
     }
 
-    fn scriptCode(&self) -> String {
+    fn scriptCode(&self) -> NSString {
         unsafe { msg_send![self.obj, scriptCode] }
     }
 
-    fn variantCode(&self) -> String {
+    fn variantCode(&self) -> NSString {
         unsafe { msg_send![self.obj, variantCode] }
     }
 
-    fn collationIdentifier(&self) -> String {
+    fn collationIdentifier(&self) -> NSString {
         unsafe { msg_send![self.obj, collationIdentifier] }
     }
 
-    fn collatorIdentifier(&self) -> String {
+    fn collatorIdentifier(&self) -> NSString {
         unsafe { msg_send![self.obj, collatorIdentifier] }
     }
 
@@ -120,39 +120,39 @@ impl t_NSLocale for Locale {
         unsafe { msg_send![self.obj, usesMetricSystem] }
     }
 
-    fn decimalSeparator(&self) -> String {
+    fn decimalSeparator(&self) -> NSString {
         unsafe { msg_send![self.obj, decimalSeparator] }
     }
 
-    fn groupingSeparator(&self) -> String {
+    fn groupingSeparator(&self) -> NSString {
         unsafe { msg_send![self.obj, groupingSeparator] }
     }
 
-    fn currencyCode(&self) -> String {
+    fn currencyCode(&self) -> NSString {
         unsafe { msg_send![self.obj, currencyCode] }
     }
 
-    fn currencySymbol(&self) -> String {
+    fn currencySymbol(&self) -> NSString {
         unsafe { msg_send![self.obj, currencySymbol] }
     }
 
-    fn calendarIdentifier(&self) -> String {
+    fn calendarIdentifier(&self) -> NSString {
         unsafe { msg_send![self.obj, calendarIdentifier] }
     }
 
-    fn quotationBeginDelimiter(&self) -> String {
+    fn quotationBeginDelimiter(&self) -> NSString {
         unsafe { msg_send![self.obj, quotationBeginDelimiter] }
     }
 
-    fn quotationEndDelimiter(&self) -> String {
+    fn quotationEndDelimiter(&self) -> NSString {
         unsafe { msg_send![self.obj, quotationEndDelimiter] }
     }
 
-    fn alternateQuotationBeginDelimiter(&self) -> String {
+    fn alternateQuotationBeginDelimiter(&self) -> NSString {
         unsafe { msg_send![self.obj, alternateQuotationBeginDelimiter] }
     }
 
-    fn alternateQuotationEndDelimiter(&self) -> String {
+    fn alternateQuotationEndDelimiter(&self) -> NSString {
         unsafe { msg_send![self.obj, alternateQuotationEndDelimiter] }
     }
 
@@ -160,27 +160,27 @@ impl t_NSLocale for Locale {
         unsafe { msg_send![self.obj, objectForKey: key] }
     }
 
-    fn displayNameForKeyValue<T>(&self, key: NSLocaleKey, value: T) -> Option<String>
+    fn displayNameForKeyValue<T>(&self, key: NSLocaleKey, value: T) -> Option<NSString>
     where
-        T: Into<String>,
+        T: Into<NSString>,
     {
         let result: id = unsafe { msg_send![self.obj, displayNameForKey: key value: value.into()] };
 
         if result.is_null() {
             None
         } else {
-            Some(unsafe { String::fromId(result) })
+            Some(unsafe { NSString::fromId(result) })
         }
     }
 
-    fn preferredLanguages() -> Array<String> {
+    fn preferredLanguages() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, preferredLanguages] }
     }
 
     fn characterDirectionForLanguage<S>(&self, iso_language_code: S) -> LanguageDirection
     where
-        S: Into<String>,
+        S: Into<NSString>,
     {
         let class = class!(NSLocale);
         unsafe { msg_send![class, characterDirectionForLanguage: iso_language_code.into()] }
@@ -188,14 +188,14 @@ impl t_NSLocale for Locale {
 
     fn lineDirectionForLanguage<S>(&self, iso_language_code: S) -> LanguageDirection
     where
-        S: Into<String>,
+        S: Into<NSString>,
     {
         let class = class!(NSLocale);
         unsafe { msg_send![class, lineDirectionForLanguage: iso_language_code.into()] }
     }
 }
 
-impl t_NSObject for Locale {
+impl t_NSObject for NSLocale {
     fn init() -> Self {
         todo!()
     }
@@ -208,17 +208,17 @@ impl t_NSObject for Locale {
         todo!()
     }
 
-    fn description(&self) -> String {
+    fn description(&self) -> NSString {
         unsafe {
             let description: id = msg_send![self.obj, description];
-            String::fromId(description)
+            NSString::fromId(description)
         }
     }
 
-    fn debugDescription(&self) -> String {
+    fn debugDescription(&self) -> NSString {
         unsafe {
             let description: id = msg_send![self.obj, debugDescription];
-            String::fromId(description)
+            NSString::fromId(description)
         }
     }
 
@@ -227,27 +227,27 @@ impl t_NSObject for Locale {
     }
 }
 
-impl Display for Locale {
+impl Display for NSLocale {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.description())
     }
 }
 
-impl Debug for Locale {
+impl Debug for NSLocale {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Locale: {}", self.debugDescription())
     }
 }
 
-impl Clone for Locale {
+impl Clone for NSLocale {
     fn clone(&self) -> Self {
-        Locale {
+        NSLocale {
             obj: { unsafe { msg_send![self.obj, retain] } },
         }
     }
 }
 
-impl Deref for Locale {
+impl Deref for NSLocale {
     type Target = Object;
 
     /// Derefs to the underlying Objective-C Object.
@@ -256,24 +256,24 @@ impl Deref for Locale {
     }
 }
 
-impl DerefMut for Locale {
+impl DerefMut for NSLocale {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
         &mut *self.obj
     }
 }
 
-impl From<Locale> for id {
+impl From<NSLocale> for id {
     /// Converts the `Locale` into an `Object`.
-    fn from(mut val: Locale) -> Self {
+    fn from(mut val: NSLocale) -> Self {
         &mut *val.obj
     }
 }
 
-impl From<id> for Locale {
+impl From<id> for NSLocale {
     /// Converts the `Object` into a `Locale`.
     fn from(val: id) -> Self {
-        Locale {
+        NSLocale {
             obj: unsafe { msg_send![val, retain] },
         }
     }
