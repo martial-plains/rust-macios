@@ -375,6 +375,32 @@ impl From<Vec<u64>> for NSArray<NSNumber> {
     }
 }
 
+impl From<Vec<&str>> for NSArray<NSString> {
+    fn from(objects: Vec<&str>) -> Self {
+        let objects: Vec<NSString> = objects.iter().map(|s| NSString::from(*s)).collect();
+        unsafe {
+            let cls: id = msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ];
+            NSArray::from(cls)
+        }
+    }
+}
+
+impl From<Vec<String>> for NSArray<NSString> {
+    fn from(objects: Vec<String>) -> Self {
+        let objects: Vec<NSString> = objects.iter().map(|s| NSString::from(s.clone())).collect();
+        unsafe {
+            let cls: id = msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ];
+            NSArray::from(cls)
+        }
+    }
+}
+
 impl<T> From<NSMutableArray<T>> for NSArray<T>
 where
     T: t_NSObject,

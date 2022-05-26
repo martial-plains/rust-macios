@@ -386,10 +386,16 @@ impl DerefMut for NSString {
 impl From<String> for NSString {
     /// Creates a new `NSString` from a `String`.
     fn from(s: String) -> Self {
+        let c_string = CString::new(s.clone()).unwrap();
         NSString {
             objc: unsafe {
                 let nsstring: id = msg_send![class!(NSString), alloc];
-                Id::from_ptr(msg_send![nsstring, initWithString:s.as_str()])
+                Id::from_ptr(
+                    msg_send![nsstring, initWithBytes:c_string.into_raw() as *mut Object
+                        length:s.len()
+                        encoding:UTF8_ENCODING
+                    ],
+                )
             },
 
             marker: PhantomData,
