@@ -7,6 +7,9 @@ mod type_defs;
 /// Traits for working with the Foundation framework.
 pub mod traits;
 
+/// Macros for working with the Foundation framework.
+pub mod macros;
+
 pub use constants::*;
 pub use enums::*;
 pub use type_defs::*;

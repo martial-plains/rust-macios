@@ -1,14 +1,10 @@
-use apple_frameworks::foundation::{traits::t_NSArray, NSArray, NSMutableArray, NSNumber};
+#[macro_use]
+extern crate apple_frameworks;
 
 fn main() {
-    let arr = [NSNumber::from(1), NSNumber::from(2), NSNumber::from(3)];
+    let nsarr = NSArray![1, 2, 3];
 
-    let nsarr = NSArray::from(&arr[..]);
-
-    let new_arr =
-        unsafe { nsarr.arrayByAddingObjectsFromArray(NSArray::from(vec![NSNumber::from(4)])) };
-
-    for i in &new_arr {
-        println!("{}", i);
+    for item in &nsarr {
+        println!("{}", item);
     }
 }
