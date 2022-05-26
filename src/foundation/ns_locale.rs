@@ -196,7 +196,7 @@ impl t_NSLocale for NSLocale {
 }
 
 impl t_NSObject for NSLocale {
-    fn init() -> Self {
+    fn new() -> Self {
         todo!()
     }
 

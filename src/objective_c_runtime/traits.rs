@@ -6,7 +6,7 @@ pub trait t_NSObject {
      */
 
     /// Implemented by subclasses to initialize a new object (the receiver) immediately after memory for it has been allocated.
-    fn init() -> Self;
+    fn new() -> Self;
 
     /// Returns a an `id`.
     fn toId(self) -> id;

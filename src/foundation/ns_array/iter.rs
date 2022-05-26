@@ -1,5 +1,5 @@
 use crate::{
-    foundation::{traits::t_NSArray, NSMutableArray, NSNumber, NSString, UInt},
+    foundation::{traits::{t_NSArray, t_NSMutableArray}, NSMutableArray, NSNumber, NSString, UInt},
     objective_c_runtime::traits::t_NSObject,
 };
 

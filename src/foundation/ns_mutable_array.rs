@@ -13,6 +13,8 @@ use crate::{
     objective_c_runtime::traits::t_NSObject,
 };
 
+use super::traits::{t_NSArray, t_NSMutableArray};
+
 /// A dynamic ordered collection of objects.
 pub struct NSMutableArray<T> {
     /// The underlying Objective-C object.
@@ -20,28 +22,119 @@ pub struct NSMutableArray<T> {
     _marker: PhantomData<T>,
 }
 
-impl<T> NSMutableArray<T>
+impl<T> t_NSArray<T> for NSMutableArray<T>
 where
     T: t_NSObject,
 {
-    /// Creates a new `MutableArray`.
-    pub fn new() -> Self {
-        NSMutableArray {
-            obj: unsafe { msg_send![class!(NSMutableArray), array] },
-            _marker: PhantomData,
-        }
+    fn contains(&self, object: T) -> bool {
+        unsafe { msg_send![self.obj, containsObject: object] }
     }
 
-    /// The number of objects in the array.
-    pub fn count(&self) -> UInt {
+    fn count(&self) -> UInt {
         unsafe { msg_send![self.obj, count] }
     }
 
+    fn firstObject(&self) -> Option<T> {
+        unsafe {
+            let obj: id = msg_send![self.obj, firstObject];
+            if obj.is_null() {
+                None
+            } else {
+                Some(T::fromId(obj))
+            }
+        }
+    }
+
+    fn lastObject(&self) -> Option<T> {
+        unsafe {
+            let obj: id = msg_send![self.obj, lastObject];
+            if obj.is_null() {
+                None
+            } else {
+                Some(T::fromId(obj))
+            }
+        }
+    }
+
+    fn objectAt(&self, index: UInt) -> T {
+        unsafe { T::fromId(msg_send![self.obj, objectAtIndex: index]) }
+    }
+
+    fn objectAtIndexedSubscript(&self, index: UInt) -> Option<id> {
+        unsafe {
+            let obj: id = msg_send![self.obj, objectAtIndexedSubscript: index];
+            if obj.is_null() {
+                None
+            } else {
+                Some(obj)
+            }
+        }
+    }
+
+    fn indexOf(&self, object: T) -> UInt {
+        unsafe { msg_send![self.obj, indexOfObject: object] }
+    }
+
+    fn indexOfObjectInRange(&self, object: T, range: Range<UInt>) -> UInt {
+        unsafe { msg_send![self.obj, indexOfObject: object inRange: range] }
+    }
+
+    fn indexOfObjectIdenticalTo(&self, object: T) -> UInt {
+        unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object] }
+    }
+
+    fn indexOfObjectIdenticalToInRange(&self, object: T, range: Range<UInt>) -> UInt {
+        unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object inRange: range] }
+    }
+
+    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T> {
+        unsafe {
+            let obj: id = msg_send![self.obj, firstObjectCommonWithArray: other];
+            if obj.is_null() {
+                None
+            } else {
+                Some(T::fromId(obj))
+            }
+        }
+    }
+
+    fn isEqualTo(&self, other: &NSArray<T>) -> bool {
+        unsafe { msg_send![self.obj, isEqualToArray: other] }
+    }
+
+    unsafe fn adding(&self, object: T) -> NSArray<T> {
+        NSArray::fromId(msg_send![self.obj, addingObject: object])
+    }
+
+    unsafe fn arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
+    where
+        A: t_NSArray<T>,
+    {
+        NSArray::fromId(msg_send![self.obj, arrayByAddingObjectsFromArray: objects])
+    }
+
+    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T> {
+        NSArray::fromId(msg_send![self.obj, subarrayWithRange: range])
+    }
+
+    fn descriptionWithLocale(&self, locale: &super::NSLocale) -> NSString {
+        unsafe { msg_send![self.obj, descriptionWithLocale: locale] }
+    }
+
+    fn descriptionWithLocaleIndent(&self, locale: &super::NSLocale, indent: UInt) -> NSString {
+        unsafe { msg_send![self.obj, descriptionWithLocale: locale indent: indent] }
+    }
+}
+
+impl<T> t_NSMutableArray<T> for NSMutableArray<T>
+where
+    T: t_NSObject,
+{
     /* Creating and Initializing a Mutable Array
      */
 
     /// Creates and returns an NSMutableArray object with enough allocated memory to initially hold a given number of objects.
-    pub fn array_with_capacity(capacity: usize) -> Self {
+    fn arrayWithCapacity(capacity: usize) -> Self {
         NSMutableArray {
             obj: unsafe { msg_send![class!(NSMutableArray), arrayWithCapacity: capacity] },
             _marker: PhantomData,
@@ -49,7 +142,7 @@ where
     }
 
     /// Creates and returns a mutable array containing the contents of the file specified by the given path.
-    pub fn array_with_contents_of_file<S>(path: S) -> Self
+    fn array_with_contents_of_file<S>(path: S) -> Self
     where
         S: Into<NSString>,
     {
@@ -59,8 +152,10 @@ where
         }
     }
 
-    /// Creates and returns a mutable array containing the contents specified by a given URL.
-    pub fn array_with_contents_of_url<S>(url: S) -> Self
+    /* Adding Objects
+     */
+
+    fn arrayWithContentsOfUrl<S>(url: S) -> Self
     where
         S: Into<NSString>,
     {
@@ -71,101 +166,93 @@ where
     }
 
     /// Returns an array, initialized with enough memory to initially hold a given number of objects.
-    pub fn init_with_capacity(capacity: UInt) -> Self {
+    fn initWithCapacity(capacity: UInt) -> Self {
         NSMutableArray {
             obj: unsafe { msg_send![class!(NSMutableArray), arrayWithCapacity: capacity] },
             _marker: PhantomData,
         }
     }
 
-    /// Initializes a newly allocated mutable array with the contents of the file specified by a given path
-    pub fn init_with_contents_of_file<S>(&mut self, path: S) -> bool
+    /* Removing Objects
+     */
+
+    fn initWithContentsOfFile<S>(&mut self, path: S) -> bool
     where
         S: Into<NSString>,
     {
-        unsafe { msg_send![&mut *self.obj, initWithContentsOfFile: path.into()] }
+        unsafe { msg_send![self.obj, initWithContentsOfFile: path.into()] }
     }
 
-    /* Adding Objects
-     */
-
     /// Inserts a given object at the end of the array.
-    pub fn add(&mut self, object: &T) {
-        unsafe { msg_send![&mut *self.obj, addObject: object.retain().toId()] }
+    fn add(&mut self, object: &T) {
+        unsafe { msg_send![&mut *self.obj, addObject: object] }
     }
 
     /// Adds the objects contained in another given array to the end of the receiving array’s content.
-    pub fn add_objects_from_array(&mut self, other_array: &NSArray<T>) {
+    fn addObjectsFromArray(&mut self, other_array: &NSArray<T>) {
         unsafe { msg_send![&mut *self.obj, addObjectsFromArray: other_array] }
     }
 
     /// Inserts a given object into the array’s contents at a given index.
-    pub fn insert(&mut self, index: UInt, object: &T) {
-        unsafe { msg_send![&mut *self.obj, insertObject: object.retain().toId() atIndex: index] }
+    fn insert(&mut self, index: UInt, object: &T) {
+        unsafe { msg_send![&mut *self.obj, insertObject: object atIndex: index] }
     }
 
-    /* Removing Objects
-     */
-
     /// Empties the array of all its elements.
-    pub fn remove_all_objects(&mut self) {
+    fn removeAllObjects(&mut self) {
         unsafe { msg_send![&mut *self.obj, removeAllObjects] }
     }
 
     /// Removes the object with the highest-valued index in the array
-    pub fn remove_last_object(&mut self) {
+    fn removeLastObject(&mut self) {
         unsafe { msg_send![&mut *self.obj, removeLastObject] }
-    }
-
-    /// Removes all occurrences in the array of a given object.
-    pub fn remove_object(&mut self, object: &T) {
-        unsafe { msg_send![&mut *self.obj, removeObject: object.retain().toId()] }
-    }
-
-    /// Removes all occurrences within a specified range in the array of a given object.
-    pub fn remove_object_in_range(&mut self, object: &T, range: Range<UInt>) {
-        unsafe { msg_send![&mut *self.obj, removeObject: object.retain().toId() inRange: range] }
-    }
-
-    /// Removes the object at index .
-    pub fn remove_object_at_index(&mut self, index: UInt) {
-        unsafe { msg_send![&mut *self.obj, removeObjectAtIndex: index] }
-    }
-
-    /// Removes all occurrences of a given object in the array.
-    pub fn remove_object_identical_to(&mut self, object: &T) {
-        unsafe { msg_send![&mut *self.obj, removeObjectIdenticalTo: object.retain().toId()] }
-    }
-
-    /// Removes all occurrences of anObject within the specified range in the array.
-    pub fn remove_object_identical_to_in_range(&mut self, object: &T, range: Range<UInt>) {
-        unsafe {
-            msg_send![&mut *self.obj, removeObjectIdenticalTo: object.retain().toId() inRange: range]
-        }
-    }
-
-    /// Removes from the receiving array the objects in another given array.
-    pub fn remove_objects_in_array(&mut self, other_array: &NSArray<T>) {
-        unsafe { msg_send![&mut *self.obj, removeObjectsInArray: other_array] }
-    }
-
-    /// Removes from the array each of the objects within a given range.
-    pub fn remove_objects_in_range(&mut self, range: Range<UInt>) {
-        unsafe { msg_send![&mut *self.obj, removeObjectsInRange: range] }
     }
 
     /* Replacing Objects
      */
 
+    /// Removes all occurrences in the array of a given object.
+    fn removeObject(&mut self, object: &T) {
+        unsafe { msg_send![&mut *self.obj, removeObject: object] }
+    }
+
+    /// Removes all occurrences within a specified range in the array of a given object.
+    fn removeObjectInRange(&mut self, object: &T, range: Range<UInt>) {
+        unsafe { msg_send![&mut *self.obj, removeObject: object inRange: range] }
+    }
+
+    /// Removes the object at index .
+    fn removeObjectAtIndex(&mut self, index: UInt) {
+        unsafe { msg_send![&mut *self.obj, removeObjectAtIndex: index] }
+    }
+
+    /// Removes all occurrences of a given object in the array.
+    fn removeObjectIdenticalTo(&mut self, object: &T) {
+        unsafe { msg_send![&mut *self.obj, removeObjectIdenticalTo: object] }
+    }
+
+    /// Removes all occurrences of anObject within the specified range in the array.
+    fn removeObjectIdenticalToInRange(&mut self, object: &T, range: Range<UInt>) {
+        unsafe { msg_send![&mut *self.obj, removeObjectIdenticalTo: object inRange: range] }
+    }
+
+    /// Removes from the receiving array the objects in another given array.
+    fn removeObjectsInArray(&mut self, other_array: &NSArray<T>) {
+        unsafe { msg_send![&mut *self.obj, removeObjectsInArray: other_array] }
+    }
+
+    /// Removes from the array each of the objects within a given range.
+    fn removeObjectsInRange(&mut self, range: Range<UInt>) {
+        unsafe { msg_send![&mut *self.obj, removeObjectsInRange: range] }
+    }
+
     /// Replaces the object at index with anObject.
-    pub fn replace_object_at_index(&mut self, index: UInt, object: &T) {
-        unsafe {
-            msg_send![&mut *self.obj, replaceObjectAtIndex: index withObject: object.retain().toId()]
-        }
+    fn replaceObjectAtIndex(&mut self, index: UInt, object: &T) {
+        unsafe { msg_send![&mut *self.obj, replaceObjectAtIndex: index withObject: object] }
     }
 
     /// Sets the receiving array’s elements to those in another given array.
-    pub fn set_array(&mut self, other_array: &NSArray<T>) {
+    fn setArray(&mut self, other_array: &NSArray<T>) {
         unsafe { msg_send![&mut *self.obj, setArray: other_array] }
     }
 }
@@ -180,7 +267,7 @@ where
 }
 
 impl<T> t_NSObject for NSMutableArray<T> {
-    fn init() -> Self {
+    fn new() -> Self {
         let obj: id = unsafe { msg_send![class!(NSMutableArray), init] };
 
         Self {
@@ -271,6 +358,18 @@ where
                 arrayWithObjects:array.as_ptr()
                 count:array.len()
             ];
+            NSMutableArray::from(cls)
+        }
+    }
+}
+
+impl<T> From<UInt> for NSMutableArray<T>
+where
+    T: t_NSObject,
+{
+    fn from(capacity: UInt) -> Self {
+        unsafe {
+            let cls: *mut Object = msg_send![class!(NSArray), arrayWithCapacity: capacity];
             NSMutableArray::from(cls)
         }
     }

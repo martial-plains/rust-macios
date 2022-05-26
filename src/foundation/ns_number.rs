@@ -22,7 +22,7 @@ pub struct NSNumber {
 }
 
 impl t_NSObject for NSNumber {
-    fn init() -> Self {
+    fn new() -> Self {
         let obj = unsafe { msg_send![class!(NSNumber), new] };
         NSNumber { obj }
     }
@@ -420,7 +420,7 @@ where
     T: Into<NSNumber>,
 {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let mut sum = NSNumber::init();
+        let mut sum = NSNumber::new();
         for item in iter {
             sum = sum + item.into();
         }

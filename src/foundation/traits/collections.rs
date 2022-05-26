@@ -1,13 +1,16 @@
 use std::ops::Range;
 
 use crate::{
-    foundation::{ns_array::iter, NSArray, NSDictionary, NSLocale, NSString, UInt},
+    foundation::{NSArray, NSDictionary, NSLocale, NSString, UInt},
     id,
     objective_c_runtime::traits::t_NSObject,
 };
 
 /// A static ordered collection of objects.
-pub trait t_NSArray<T> {
+pub trait t_NSArray<T>
+where
+    T: t_NSObject,
+{
     /* Querying an Array
      */
 
@@ -21,27 +24,19 @@ pub trait t_NSArray<T> {
     ///
     /// A Boolean value that indicates whether `object` is present in the array.
     ///
-    fn contains(&self, object: T) -> bool
-    where
-        T: t_NSObject;
+    fn contains(&self, object: T) -> bool;
 
     /// The number of objects in the array.
     fn count(&self) -> UInt;
 
     /// The first object in the array.
-    fn firstObject(&self) -> Option<T>
-    where
-        T: t_NSObject;
+    fn firstObject(&self) -> Option<T>;
 
     /// The last object in the array.
-    fn lastObject(&self) -> Option<T>
-    where
-        T: t_NSObject;
+    fn lastObject(&self) -> Option<T>;
 
     /// The object at the specified index.
-    fn objectAt(&self, index: UInt) -> T
-    where
-        T: t_NSObject;
+    fn objectAt(&self, index: UInt) -> T;
 
     /// The index of the specified object.
     fn objectAtIndexedSubscript(&self, index: UInt) -> Option<id>;
@@ -50,37 +45,25 @@ pub trait t_NSArray<T> {
      */
 
     /// Returns the lowest index whose corresponding array value is equal to a given object.
-    fn indexOf(&self, object: T) -> UInt
-    where
-        T: t_NSObject;
+    fn indexOf(&self, object: T) -> UInt;
 
     /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
-    fn indexOfObjectInRange(&self, object: T, range: Range<UInt>) -> UInt
-    where
-        T: t_NSObject;
+    fn indexOfObjectInRange(&self, object: T, range: Range<UInt>) -> UInt;
 
     /// Returns the lowest index whose corresponding array value is identical to a given object.
-    fn indexOfObjectIdenticalTo(&self, object: T) -> UInt
-    where
-        T: t_NSObject;
+    fn indexOfObjectIdenticalTo(&self, object: T) -> UInt;
 
     /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
-    fn indexOfObjectIdenticalToInRange(&self, object: T, range: Range<UInt>) -> UInt
-    where
-        T: t_NSObject;
+    fn indexOfObjectIdenticalToInRange(&self, object: T, range: Range<UInt>) -> UInt;
 
     /* Comparing Arrays
      */
 
     /// Returns the first object contained in the receiving array that’s equal to an object in another given array.
-    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T>
-    where
-        T: t_NSObject;
+    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T>;
 
     /// Compares the receiving array to another array.
-    fn isEqualTo(&self, other: &NSArray<T>) -> bool
-    where
-        T: t_NSObject;
+    fn isEqualTo(&self, other: &NSArray<T>) -> bool;
 
     /* Deriving New Arrays
      */
@@ -90,9 +73,7 @@ pub trait t_NSArray<T> {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn adding(&self, object: T) -> NSArray<T>
-    where
-        T: t_NSObject;
+    unsafe fn adding(&self, object: T) -> NSArray<T>;
 
     /// Returns a new array that is a copy of the receiving array with the objects contained in another array added to the end.
     ///
@@ -101,17 +82,14 @@ pub trait t_NSArray<T> {
     /// This function dereferences a raw pointer
     unsafe fn arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
     where
-        A: t_NSArray<T>,
-        T: t_NSObject;
+        A: t_NSArray<T>;
 
     /// Returns a new array containing the receiving array’s elements that fall within the limits specified by a given range.
     ///
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T>
-    where
-        T: t_NSObject;
+    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T>;
     /* Creating a Description
      */
 
@@ -122,24 +100,13 @@ pub trait t_NSArray<T> {
 
     /// Returns a string that represents the contents of the array, formatted as a property list.
     fn descriptionWithLocaleIndent(&self, locale: &NSLocale, indent: UInt) -> NSString;
-
-    /* Rust Conversions
-     */
-
-    /// Returns an iterator over the objects in the array.
-    fn iter(&self) -> iter::Iter<'_, T>
-    where
-        T: t_NSObject;
 }
 
 /// A mutable, static ordered collection of objects.
-pub trait t_NSMutableArray<T>: t_NSArray<T> {
-    /// Creates a new `MutableArray`.
-    fn new() -> Self;
-
-    /// The number of objects in the array.
-    fn count(&self) -> UInt;
-
+pub trait t_NSMutableArray<T>: t_NSArray<T>
+where
+    T: t_NSObject,
+{
     /* Creating and Initializing a Mutable Array
      */
 
@@ -267,18 +234,6 @@ pub trait t_NSMutableDictionary<K, V>: t_NSDictionary<K, V> {
 
 /// A static collection of objects associated with unique keys.
 pub trait t_NSDictionary<K, V>: t_NSObject {
-    /* Creating an Empty Dictionary
-     */
-
-    /// Creates an empty dictionary.
-    fn new() -> Self;
-
-    /* Creating a Dictionary from Objects and Keys
-     */
-
-    /// Creates a dictionary containing entries constructed from the contents of an array of keys and an array of values.
-    fn dictionaryWithObjects(objects: NSArray<V>, keys: NSArray<K>) -> Self;
-
     /* Counting Entries
      */
 

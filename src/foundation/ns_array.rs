@@ -28,11 +28,23 @@ pub struct NSArray<T> {
     _marker: PhantomData<T>,
 }
 
-impl<T> t_NSArray<T> for NSArray<T> {
-    fn contains(&self, object: T) -> bool
+impl<T> NSArray<T> {
+    fn iter(&self) -> Iter<'_, T>
     where
         T: t_NSObject,
     {
+        Iter {
+            array: self,
+            index: 0,
+        }
+    }
+}
+
+impl<T> t_NSArray<T> for NSArray<T>
+where
+    T: t_NSObject,
+{
+    fn contains(&self, object: T) -> bool {
         unsafe { to_bool(msg_send![&*self.obj, containsObject: object]) }
     }
 
@@ -40,10 +52,7 @@ impl<T> t_NSArray<T> for NSArray<T> {
         unsafe { msg_send![self.obj, count] }
     }
 
-    fn firstObject(&self) -> Option<T>
-    where
-        T: t_NSObject,
-    {
+    fn firstObject(&self) -> Option<T> {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, firstObject];
             if ptr.is_null() {
@@ -54,10 +63,7 @@ impl<T> t_NSArray<T> for NSArray<T> {
         }
     }
 
-    fn lastObject(&self) -> Option<T>
-    where
-        T: t_NSObject,
-    {
+    fn lastObject(&self) -> Option<T> {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, lastObject];
             if ptr.is_null() {
@@ -68,10 +74,7 @@ impl<T> t_NSArray<T> for NSArray<T> {
         }
     }
 
-    fn objectAt(&self, index: UInt) -> T
-    where
-        T: t_NSObject,
-    {
+    fn objectAt(&self, index: UInt) -> T {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, objectAtIndex: index];
             T::fromId(ptr)
@@ -85,38 +88,23 @@ impl<T> t_NSArray<T> for NSArray<T> {
         }
     }
 
-    fn indexOf(&self, object: T) -> UInt
-    where
-        T: t_NSObject,
-    {
+    fn indexOf(&self, object: T) -> UInt {
         unsafe { msg_send![&*self.obj, indexOfObject: object] }
     }
 
-    fn indexOfObjectInRange(&self, object: T, range: Range<UInt>) -> UInt
-    where
-        T: t_NSObject,
-    {
+    fn indexOfObjectInRange(&self, object: T, range: Range<UInt>) -> UInt {
         unsafe { msg_send![self.obj, indexOfObject: object inRange: range] }
     }
 
-    fn indexOfObjectIdenticalTo(&self, object: T) -> UInt
-    where
-        T: t_NSObject,
-    {
+    fn indexOfObjectIdenticalTo(&self, object: T) -> UInt {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object] }
     }
 
-    fn indexOfObjectIdenticalToInRange(&self, object: T, range: Range<UInt>) -> UInt
-    where
-        T: t_NSObject,
-    {
+    fn indexOfObjectIdenticalToInRange(&self, object: T, range: Range<UInt>) -> UInt {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object inRange: range] }
     }
 
-    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T>
-    where
-        T: t_NSObject,
-    {
+    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T> {
         unsafe {
             let ptr: *mut Object =
                 msg_send![&*self.obj, firstObjectCommonWithArray: other.clone().obj];
@@ -128,17 +116,11 @@ impl<T> t_NSArray<T> for NSArray<T> {
         }
     }
 
-    fn isEqualTo(&self, other: &NSArray<T>) -> bool
-    where
-        T: t_NSObject,
-    {
+    fn isEqualTo(&self, other: &NSArray<T>) -> bool {
         unsafe { to_bool(msg_send![&*self.obj, isEqualToArray: other.clone().obj]) }
     }
 
-    unsafe fn adding(&self, object: T) -> NSArray<T>
-    where
-        T: t_NSObject,
-    {
+    unsafe fn adding(&self, object: T) -> NSArray<T> {
         let cls: id = msg_send![&*self.obj, arrayByAddingObject: object];
         NSArray::from(cls)
     }
@@ -146,16 +128,12 @@ impl<T> t_NSArray<T> for NSArray<T> {
     unsafe fn arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
     where
         A: t_NSArray<T>,
-        T: t_NSObject,
     {
         let cls: id = msg_send![&*self.obj, arrayByAddingObjectsFromArray: objects];
         NSArray::from(cls)
     }
 
-    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T>
-    where
-        T: t_NSObject,
-    {
+    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T> {
         let cls: id = msg_send![&*self.obj, subarrayWithRange: range];
         NSArray::from(cls)
     }
@@ -167,20 +145,10 @@ impl<T> t_NSArray<T> for NSArray<T> {
     fn descriptionWithLocaleIndent(&self, locale: &NSLocale, indent: UInt) -> NSString {
         unsafe { msg_send![&*self.obj, descriptionWithLocale: locale.clone().obj indent: indent] }
     }
-
-    fn iter(&self) -> Iter<'_, T>
-    where
-        T: t_NSObject,
-    {
-        Iter {
-            array: self,
-            index: 0,
-        }
-    }
 }
 
 impl<T> t_NSObject for NSArray<T> {
-    fn init() -> Self {
+    fn new() -> Self {
         let obj: id = unsafe { msg_send![class!(NSArray), init] };
 
         Self {

@@ -120,7 +120,7 @@ pub struct NSDecimalNumber {
 }
 
 impl t_NSObject for NSDecimalNumber {
-    fn init() -> Self {
+    fn new() -> Self {
         unsafe {
             let class: id = msg_send![class!(NSDecimalNumber), alloc];
             let obj = msg_send![class, init];

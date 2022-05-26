@@ -18,7 +18,7 @@ pub struct NLTokenizer {
 }
 
 impl t_NSObject for NLTokenizer {
-    fn init() -> Self {
+    fn new() -> Self {
         unsafe {
             let cls = class!(NLTokenizer);
             let obj: *mut Object = msg_send![cls, new];

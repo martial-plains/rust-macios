@@ -9,7 +9,7 @@ use objc_id::Id;
 
 use crate::{id, objective_c_runtime::traits::t_NSObject};
 
-use super::{traits::t_NSDictionary, NSArray, NSString, UInt};
+use super::{traits::t_NSDictionary, NSString, UInt};
 
 /// A static collection of objects associated with unique keys.
 pub struct NSDictionary<K, V> {
@@ -20,7 +20,7 @@ pub struct NSDictionary<K, V> {
 }
 
 impl<K, V> t_NSObject for NSDictionary<K, V> {
-    fn init() -> Self {
+    fn new() -> Self {
         unsafe {
             let cls = class!(NSDictionary);
             let obj: *mut Object = msg_send![cls, new];
@@ -63,32 +63,6 @@ impl<K, V> t_NSObject for NSDictionary<K, V> {
 }
 
 impl<K, V> t_NSDictionary<K, V> for NSDictionary<K, V> {
-    fn new() -> Self {
-        unsafe {
-            let cls = class!(NSDictionary);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj = msg_send![obj, init];
-            Self {
-                obj: Id::from_ptr(obj),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
-    }
-
-    fn dictionaryWithObjects(objects: NSArray<V>, keys: NSArray<K>) -> Self {
-        unsafe {
-            let cls = class!(NSDictionary);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj = msg_send![obj, dictionaryWithObjects: objects forKeys: keys];
-            Self {
-                obj: Id::from_ptr(obj),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
-    }
-
     fn count(&self) -> UInt {
         unsafe { msg_send![self.obj, count] }
     }

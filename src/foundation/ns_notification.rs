@@ -18,7 +18,7 @@ pub struct NSNotification {
 }
 
 impl t_NSObject for NSNotification {
-    fn init() -> Self {
+    fn new() -> Self {
         let obj = unsafe { msg_send![class!(NSNotification), new] };
         Self { obj }
     }

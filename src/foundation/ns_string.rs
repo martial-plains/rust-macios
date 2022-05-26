@@ -52,7 +52,7 @@ impl NSString {
 }
 
 impl t_NSObject for NSString {
-    fn init() -> Self {
+    fn new() -> Self {
         unsafe { msg_send![class!(NSString), new] }
     }
 

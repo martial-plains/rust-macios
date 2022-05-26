@@ -23,7 +23,7 @@ pub struct NLLanguageRecognizer {
 }
 
 impl t_NSObject for NLLanguageRecognizer {
-    fn init() -> Self {
+    fn new() -> Self {
         unsafe {
             let cls = class!(NLLanguageRecognizer);
             let obj = msg_send![cls, new];

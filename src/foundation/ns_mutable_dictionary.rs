@@ -157,7 +157,7 @@ impl<K, V> Default for NSMutableDictionary<K, V> {
 }
 
 impl<K, V> t_NSObject for NSMutableDictionary<K, V> {
-    fn init() -> Self {
+    fn new() -> Self {
         todo!()
     }
 
