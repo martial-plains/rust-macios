@@ -1,7 +1,5 @@
 use std::ops::Range;
 
-use objc::runtime::Object;
-
 use crate::{
     foundation::{ns_array::iter, NSArray, NSDictionary, NSLocale, NSString, UInt},
     id,
@@ -10,46 +8,6 @@ use crate::{
 
 /// A static ordered collection of objects.
 pub trait t_NSArray<T> {
-    /// Creates a new `Array` from a raw pointer.
-    ///
-    /// # Safety
-    ///
-    /// The caller must ensure that the pointer is valid.
-    unsafe fn new(ptr: *mut Object) -> Self;
-
-    /// Creates a new array with the specified capacity.
-    ///
-    /// # Arguments
-    ///
-    /// * `objects` - Collection of objects to make into an `Array`.
-    ///
-    /// # Returns
-    ///
-    /// A new array with the specified capacity.
-    ///
-    /// # Safety
-    ///
-    /// This function dereferences a raw pointer
-    unsafe fn fromObjects(objects: &[T]) -> Self
-    where
-        T: t_NSObject;
-
-    /// In some cases, we're vended an `NSArray` by the system, and it's ideal to not retain that.
-    /// This handles that edge case.
-    ///
-    /// # Arguments
-    ///
-    /// * `array` - The `NSArray` to dereference.
-    ///
-    /// # Returns
-    ///
-    /// The dereferenced `NSArray`.
-    ///
-    /// # Safety
-    ///
-    /// This function is unsafe because it might dereference a raw pointer.
-    unsafe fn fromRetained(array: id) -> Self;
-
     /* Querying an Array
      */
 
@@ -141,8 +99,9 @@ pub trait t_NSArray<T> {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn addingObjects(&self, objects: &NSArray<T>) -> NSArray<T>
+    unsafe fn arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
     where
+        A: t_NSArray<T>,
         T: t_NSObject;
 
     /// Returns a new array containing the receiving array’s elements that fall within the limits specified by a given range.

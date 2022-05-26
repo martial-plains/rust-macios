@@ -249,3 +249,29 @@ impl<T> Clone for NSMutableArray<T> {
         self.retain()
     }
 }
+
+impl<T> From<id> for NSMutableArray<T> {
+    fn from(obj: id) -> Self {
+        unsafe {
+            Self {
+                obj: Id::from_ptr(obj),
+                _marker: PhantomData,
+            }
+        }
+    }
+}
+
+impl<T> From<&[T]> for NSMutableArray<T>
+where
+    T: t_NSObject,
+{
+    fn from(array: &[T]) -> Self {
+        unsafe {
+            let cls: *mut Object = msg_send![class!(NSArray),
+                arrayWithObjects:array.as_ptr()
+                count:array.len()
+            ];
+            NSMutableArray::from(cls)
+        }
+    }
+}
