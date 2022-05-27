@@ -37,8 +37,3 @@ pub(crate) mod utils;
 
 /// An ID for an Objective-C object.
 pub type id = *mut Object;
-
-// TODO: Create better dictionary implementation
-// TODO: Create better array implementation
-// TODO: Create macro for creating a dictionary
-// TODO: Create macro for creating an array

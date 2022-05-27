@@ -9,7 +9,7 @@ use objc_id::Id;
 
 use crate::{id, objective_c_runtime::traits::t_NSObject};
 
-use super::{traits::t_NSDictionary, NSString, UInt};
+use super::{traits::t_NSDictionary, NSMutableDictionary, NSString, UInt};
 
 /// A static collection of objects associated with unique keys.
 pub struct NSDictionary<K, V> {
@@ -37,8 +37,12 @@ impl<K, V> t_NSObject for NSDictionary<K, V> {
         todo!()
     }
 
-    unsafe fn fromId(_obj: id) -> Self {
-        todo!()
+    unsafe fn fromId(obj: id) -> Self {
+        NSDictionary {
+            obj: Id::from_ptr(obj),
+            _key: PhantomData,
+            _value: PhantomData,
+        }
     }
 
     fn description(&self) -> NSString {
@@ -105,5 +109,27 @@ impl<K, V> DerefMut for NSDictionary<K, V> {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
         &mut *self.obj
+    }
+}
+
+impl<K, V> From<id> for NSDictionary<K, V> {
+    fn from(obj: id) -> Self {
+        Self {
+            obj: unsafe { Id::from_ptr(obj) },
+            _key: PhantomData,
+            _value: PhantomData,
+        }
+    }
+}
+
+impl<K, V> From<NSMutableDictionary<K, V>> for NSDictionary<K, V>
+where
+    K: t_NSObject,
+    V: t_NSObject,
+{
+    fn from(dict: NSMutableDictionary<K, V>) -> Self {
+        let cls: id =
+            unsafe { msg_send![class!(NSDictionary), dictionaryWithDictionary: dict.retain()] };
+        NSDictionary::from(cls)
     }
 }

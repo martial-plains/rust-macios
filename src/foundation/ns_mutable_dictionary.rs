@@ -11,7 +11,7 @@ use objc_id::Id;
 
 use crate::{id, objective_c_runtime::traits::t_NSObject};
 
-use super::{NSArray, NSDictionary, NSString};
+use super::{NSArray, NSDictionary, NSString, UInt};
 
 /// A dynamic collection of objects associated with unique keys.
 pub struct NSMutableDictionary<K, V> {
@@ -230,12 +230,32 @@ impl<K, V> DerefMut for NSMutableDictionary<K, V> {
 
 impl<K, V> From<NSDictionary<K, V>> for NSMutableDictionary<K, V>
 where
-    K: Into<id>,
-    V: Into<id>,
+    K: t_NSObject,
+    V: t_NSObject,
 {
     fn from(dictionary: NSDictionary<K, V>) -> Self {
         Self {
             obj: dictionary.obj,
+
+            _key: PhantomData,
+            _value: PhantomData,
+        }
+    }
+}
+
+impl<K, V> From<UInt> for NSMutableDictionary<K, V>
+where
+    K: t_NSObject,
+    V: t_NSObject,
+{
+    fn from(capacity: UInt) -> Self {
+        Self {
+            obj: unsafe {
+                msg_send![
+                    class!(NSMutableDictionary),
+                    dictionaryWithCapacity: capacity
+                ]
+            },
 
             _key: PhantomData,
             _value: PhantomData,
