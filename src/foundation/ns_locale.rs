@@ -9,7 +9,7 @@ use objc_id::Id;
 use crate::{
     foundation::{traits::t_NSLocale, NSArray, NSString},
     id,
-    objective_c_runtime::traits::t_NSObject,
+    objective_c_runtime::traits::PNSObject,
 };
 
 use super::NSLocaleKey;
@@ -195,7 +195,7 @@ impl t_NSLocale for NSLocale {
     }
 }
 
-impl t_NSObject for NSLocale {
+impl PNSObject for NSLocale {
     fn new() -> Self {
         todo!()
     }

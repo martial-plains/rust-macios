@@ -9,7 +9,7 @@ use objc_id::Id;
 use crate::{
     foundation::{traits::t_NSNotification, NSString},
     id,
-    objective_c_runtime::traits::t_NSObject,
+    objective_c_runtime::traits::PNSObject,
 };
 
 /// A container for information broadcast through a notification center to all registered observers.
@@ -17,7 +17,7 @@ pub struct NSNotification {
     obj: Id<Object>,
 }
 
-impl t_NSObject for NSNotification {
+impl PNSObject for NSNotification {
     fn new() -> Self {
         let obj = unsafe { msg_send![class!(NSNotification), new] };
         Self { obj }

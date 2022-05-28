@@ -7,9 +7,9 @@ use std::{
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{id, objective_c_runtime::traits::t_NSObject};
+use crate::{id, objective_c_runtime::traits::PNSObject};
 
-use super::{traits::t_NSDictionary, NSMutableDictionary, NSString, UInt};
+use super::{traits::INSDictionary, NSMutableDictionary, NSString, UInt};
 
 /// A static collection of objects associated with unique keys.
 pub struct NSDictionary<K, V> {
@@ -19,7 +19,7 @@ pub struct NSDictionary<K, V> {
     _value: PhantomData<V>,
 }
 
-impl<K, V> t_NSObject for NSDictionary<K, V> {
+impl<K, V> PNSObject for NSDictionary<K, V> {
     fn new() -> Self {
         unsafe {
             let cls = class!(NSDictionary);
@@ -66,7 +66,7 @@ impl<K, V> t_NSObject for NSDictionary<K, V> {
     }
 }
 
-impl<K, V> t_NSDictionary<K, V> for NSDictionary<K, V> {
+impl<K, V> INSDictionary<K, V> for NSDictionary<K, V> {
     fn count(&self) -> UInt {
         unsafe { msg_send![self.obj, count] }
     }
@@ -124,8 +124,8 @@ impl<K, V> From<id> for NSDictionary<K, V> {
 
 impl<K, V> From<NSMutableDictionary<K, V>> for NSDictionary<K, V>
 where
-    K: t_NSObject,
-    V: t_NSObject,
+    K: PNSObject,
+    V: PNSObject,
 {
     fn from(dict: NSMutableDictionary<K, V>) -> Self {
         let cls: id =

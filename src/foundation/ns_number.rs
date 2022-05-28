@@ -12,7 +12,7 @@ use objc_id::Id;
 
 use crate::{
     foundation::{traits::t_NSNumber, ComparisonResult, Int, NSLocale, NSString, UInt},
-    objective_c_runtime::traits::{t_NSObject, t_NSValue},
+    objective_c_runtime::traits::{t_NSValue, PNSObject},
 };
 
 /// An object wrapper for primitive scalar numeric values.
@@ -21,7 +21,7 @@ pub struct NSNumber {
     pub obj: Id<Object>,
 }
 
-impl t_NSObject for NSNumber {
+impl PNSObject for NSNumber {
     fn new() -> Self {
         let obj = unsafe { msg_send![class!(NSNumber), new] };
         NSNumber { obj }

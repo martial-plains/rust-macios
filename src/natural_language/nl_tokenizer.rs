@@ -6,7 +6,7 @@ use objc_id::Id;
 use crate::{
     foundation::{NSString, UInt},
     id,
-    objective_c_runtime::traits::t_NSObject,
+    objective_c_runtime::traits::PNSObject,
 };
 
 use super::{traits::t_NLTokenizer, NLTokenUnit};
@@ -17,7 +17,7 @@ pub struct NLTokenizer {
     pub obj: Id<Object>,
 }
 
-impl t_NSObject for NLTokenizer {
+impl PNSObject for NLTokenizer {
     fn new() -> Self {
         unsafe {
             let cls = class!(NLTokenizer);

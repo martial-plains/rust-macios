@@ -9,7 +9,7 @@ use std::{
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{id, objective_c_runtime::traits::t_NSObject};
+use crate::{id, objective_c_runtime::traits::PNSObject};
 
 use super::{NSArray, NSDictionary, NSString, UInt};
 
@@ -62,8 +62,8 @@ impl<K, V> NSMutableDictionary<K, V> {
     /// Adds a given key-value pair to the dictionary.
     pub fn set_object(&mut self, key: K, value: V)
     where
-        K: t_NSObject,
-        V: t_NSObject,
+        K: PNSObject,
+        V: PNSObject,
     {
         unsafe {
             let _: id = msg_send![self.obj, setObject: value.toId() forKey: &*key.toId()];
@@ -140,7 +140,7 @@ impl<K, V> NSMutableDictionary<K, V> {
     /// Removes from the dictionary entries specified by elements in a given array.
     pub fn remove_objects_for_keys(&mut self, keys: NSArray<K>)
     where
-        K: t_NSObject,
+        K: PNSObject,
     {
         unsafe {
             let keys: id = keys.toId();
@@ -156,7 +156,7 @@ impl<K, V> Default for NSMutableDictionary<K, V> {
     }
 }
 
-impl<K, V> t_NSObject for NSMutableDictionary<K, V> {
+impl<K, V> PNSObject for NSMutableDictionary<K, V> {
     fn new() -> Self {
         todo!()
     }
@@ -230,8 +230,8 @@ impl<K, V> DerefMut for NSMutableDictionary<K, V> {
 
 impl<K, V> From<NSDictionary<K, V>> for NSMutableDictionary<K, V>
 where
-    K: t_NSObject,
-    V: t_NSObject,
+    K: PNSObject,
+    V: PNSObject,
 {
     fn from(dictionary: NSDictionary<K, V>) -> Self {
         Self {
@@ -245,8 +245,8 @@ where
 
 impl<K, V> From<UInt> for NSMutableDictionary<K, V>
 where
-    K: t_NSObject,
-    V: t_NSObject,
+    K: PNSObject,
+    V: PNSObject,
 {
     fn from(capacity: UInt) -> Self {
         Self {

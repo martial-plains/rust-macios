@@ -2,21 +2,23 @@ use std::{
     fmt,
     marker::PhantomData,
     ops::{Deref, DerefMut, Range},
+    slice,
 };
 
+use libc::c_char;
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::t_NSArray, NSLocale, NSString, UInt},
+    foundation::{traits::INSArray, NSLocale, NSString, UInt},
     id,
-    objective_c_runtime::traits::t_NSObject,
+    objective_c_runtime::traits::PNSObject,
     utils::to_bool,
 };
 
 use self::iter::Iter;
 
-use super::{ns_mutable_array::NSMutableArray, NSNumber};
+use super::{ns_mutable_array::NSMutableArray, NSNumber, UInt8};
 
 /// Iterator for Array
 pub mod iter;
@@ -31,7 +33,7 @@ pub struct NSArray<T> {
 impl<T> NSArray<T> {
     fn iter(&self) -> Iter<'_, T>
     where
-        T: t_NSObject,
+        T: PNSObject,
     {
         Iter {
             array: self,
@@ -40,10 +42,7 @@ impl<T> NSArray<T> {
     }
 }
 
-impl<T> t_NSArray<T> for NSArray<T>
-where
-    T: t_NSObject,
-{
+impl<T> INSArray<T> for NSArray<T> {
     fn contains(&self, object: T) -> bool {
         unsafe { to_bool(msg_send![&*self.obj, containsObject: object]) }
     }
@@ -52,7 +51,10 @@ where
         unsafe { msg_send![self.obj, count] }
     }
 
-    fn firstObject(&self) -> Option<T> {
+    fn firstObject(&self) -> Option<T>
+    where
+        T: PNSObject,
+    {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, firstObject];
             if ptr.is_null() {
@@ -63,7 +65,10 @@ where
         }
     }
 
-    fn lastObject(&self) -> Option<T> {
+    fn lastObject(&self) -> Option<T>
+    where
+        T: PNSObject,
+    {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, lastObject];
             if ptr.is_null() {
@@ -74,7 +79,10 @@ where
         }
     }
 
-    fn objectAt(&self, index: UInt) -> T {
+    fn objectAt(&self, index: UInt) -> T
+    where
+        T: PNSObject,
+    {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, objectAtIndex: index];
             T::fromId(ptr)
@@ -104,7 +112,10 @@ where
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object inRange: range] }
     }
 
-    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T> {
+    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T>
+    where
+        T: PNSObject,
+    {
         unsafe {
             let ptr: *mut Object =
                 msg_send![&*self.obj, firstObjectCommonWithArray: other.clone().obj];
@@ -127,7 +138,7 @@ where
 
     unsafe fn arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
     where
-        A: t_NSArray<T>,
+        A: INSArray<T>,
     {
         let cls: id = msg_send![&*self.obj, arrayByAddingObjectsFromArray: objects];
         NSArray::from(cls)
@@ -147,7 +158,7 @@ where
     }
 }
 
-impl<T> t_NSObject for NSArray<T> {
+impl<T> PNSObject for NSArray<T> {
     fn new() -> Self {
         let obj: id = unsafe { msg_send![class!(NSArray), init] };
 
@@ -186,7 +197,7 @@ impl<T> t_NSObject for NSArray<T> {
 
 impl<T> fmt::Debug for NSArray<T>
 where
-    T: fmt::Debug + t_NSObject,
+    T: fmt::Debug + PNSObject,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.debugDescription())
@@ -195,7 +206,7 @@ where
 
 impl<T> fmt::Display for NSArray<T>
 where
-    T: fmt::Display + t_NSObject,
+    T: fmt::Display + PNSObject,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.description())
@@ -211,13 +222,20 @@ impl<T> Clone for NSArray<T> {
 
 impl<'a, T> IntoIterator for &'a NSArray<T>
 where
-    T: t_NSObject,
+    T: PNSObject,
 {
     type Item = T;
     type IntoIter = Iter<'a, T>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
+    }
+}
+
+impl From<(*const c_char, usize)> for NSArray<UInt8> {
+    fn from((s, i): (*const c_char, usize)) -> Self {
+        let v = unsafe { slice::from_raw_parts(s as *const u8, i) };
+        NSArray::from(v)
     }
 }
 
@@ -234,7 +252,7 @@ impl<T> From<id> for NSArray<T> {
 
 impl<T> From<&[T]> for NSArray<T>
 where
-    T: t_NSObject,
+    T: PNSObject,
 {
     fn from(array: &[T]) -> Self {
         unsafe {
@@ -249,7 +267,7 @@ where
 
 impl<T> From<Vec<T>> for NSArray<T>
 where
-    T: t_NSObject,
+    T: PNSObject,
 {
     /// Given a set of `Object`s, creates an `Array` that holds them.
     fn from(objects: Vec<T>) -> Self {
@@ -375,6 +393,19 @@ impl From<Vec<u64>> for NSArray<NSNumber> {
     }
 }
 
+impl From<&[u8]> for NSArray<u8> {
+    /// Given a set of `Object`s, creates an `Array` that holds them.
+    fn from(objects: &[u8]) -> Self {
+        unsafe {
+            let cls: id = msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ];
+            NSArray::from(cls)
+        }
+    }
+}
+
 impl From<Vec<&str>> for NSArray<NSString> {
     fn from(objects: Vec<&str>) -> Self {
         let objects: Vec<NSString> = objects.iter().map(|s| NSString::from(*s)).collect();
@@ -403,7 +434,7 @@ impl From<Vec<String>> for NSArray<NSString> {
 
 impl<T> From<NSMutableArray<T>> for NSArray<T>
 where
-    T: t_NSObject,
+    T: PNSObject,
 {
     /// Given an `Array` of `Object`s, creates a new `Array` that holds them.
     fn from(array: NSMutableArray<T>) -> Self {

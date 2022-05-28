@@ -10,10 +10,10 @@ use objc_id::Id;
 use crate::{
     foundation::{NSArray, NSString, UInt},
     id,
-    objective_c_runtime::traits::t_NSObject,
+    objective_c_runtime::traits::PNSObject,
 };
 
-use super::traits::{t_NSArray, t_NSMutableArray};
+use super::traits::{INSArray, INSMutableArray};
 
 /// A dynamic ordered collection of objects.
 pub struct NSMutableArray<T> {
@@ -22,9 +22,9 @@ pub struct NSMutableArray<T> {
     _marker: PhantomData<T>,
 }
 
-impl<T> t_NSArray<T> for NSMutableArray<T>
+impl<T> INSArray<T> for NSMutableArray<T>
 where
-    T: t_NSObject,
+    T: PNSObject,
 {
     fn contains(&self, object: T) -> bool {
         unsafe { msg_send![self.obj, containsObject: object] }
@@ -108,7 +108,7 @@ where
 
     unsafe fn arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
     where
-        A: t_NSArray<T>,
+        A: INSArray<T>,
     {
         NSArray::fromId(msg_send![self.obj, arrayByAddingObjectsFromArray: objects])
     }
@@ -126,9 +126,9 @@ where
     }
 }
 
-impl<T> t_NSMutableArray<T> for NSMutableArray<T>
+impl<T> INSMutableArray<T> for NSMutableArray<T>
 where
-    T: t_NSObject,
+    T: PNSObject,
 {
     /* Creating and Initializing a Mutable Array
      */
@@ -259,14 +259,14 @@ where
 
 impl<T> Default for NSMutableArray<T>
 where
-    T: t_NSObject,
+    T: PNSObject,
 {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> t_NSObject for NSMutableArray<T> {
+impl<T> PNSObject for NSMutableArray<T> {
     fn new() -> Self {
         let obj: id = unsafe { msg_send![class!(NSMutableArray), init] };
 
@@ -350,7 +350,7 @@ impl<T> From<id> for NSMutableArray<T> {
 
 impl<T> From<&[T]> for NSMutableArray<T>
 where
-    T: t_NSObject,
+    T: PNSObject,
 {
     fn from(array: &[T]) -> Self {
         unsafe {
@@ -365,7 +365,7 @@ where
 
 impl<T> From<UInt> for NSMutableArray<T>
 where
-    T: t_NSObject,
+    T: PNSObject,
 {
     fn from(capacity: UInt) -> Self {
         unsafe {

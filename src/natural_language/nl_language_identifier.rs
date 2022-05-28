@@ -11,7 +11,7 @@ use objc_id::Id;
 use crate::{
     foundation::{NSDictionary, NSNumber, NSString, UInt},
     id,
-    objective_c_runtime::traits::t_NSObject,
+    objective_c_runtime::traits::PNSObject,
 };
 
 use super::{traits::t_NLLanguageRecognizer, NLLanguage};
@@ -22,7 +22,7 @@ pub struct NLLanguageRecognizer {
     pub obj: Id<Object>,
 }
 
-impl t_NSObject for NLLanguageRecognizer {
+impl PNSObject for NLLanguageRecognizer {
     fn new() -> Self {
         unsafe {
             let cls = class!(NLLanguageRecognizer);

@@ -4,14 +4,14 @@ use libc::c_char;
 
 use crate::{
     foundation::{
-        string::Encoding, unichar, CompareOptions, ComparisonResult, Int, NSLocale, NSString,
-        NSStringTransform, UInt,
+        string::Encoding, unichar, CompareOptions, ComparisonResult, Int, NSData, NSLocale,
+        NSString, NSStringTransform, UInt,
     },
-    objective_c_runtime::traits::t_NSObject,
+    objective_c_runtime::traits::PNSObject,
 };
 
 /// A static, plain-text Unicode string object.
-pub trait t_NSString: t_NSObject {
+pub trait INSString: PNSObject {
     /* Creating and Initializing Strings
      */
 
@@ -118,6 +118,12 @@ pub trait t_NSString: t_NSObject {
     ///
     /// The character at the array position given by index.
     fn characterAtIndex(&self, index: Int) -> char;
+
+    /* Getting C Strings
+     */
+
+    /// A null-terminated UTF8 representation of the string.
+    fn UTF8String(&self) -> *const c_char;
 
     /* Identifying and Comparing Strings
      */
@@ -390,4 +396,19 @@ pub trait t_NSString: t_NSObject {
         transform: NSStringTransform,
         reverse: bool,
     ) -> Option<NSString>;
+
+    /* Working with Encodings
+     */
+
+    /// Returns a zero-terminated list of the encodings string objects support in the application’s environment.
+    fn availableStringEncodings() -> *const Encoding;
+
+    /// Returns the C-string encoding assumed for any method accepting a C string as an argument.
+    fn defaultCStringEncoding() -> Encoding;
+
+    /// Returns a Boolean value that indicates whether the receiver can be converted to a given encoding without loss of information.
+    fn canBeConvertedToEncoding(&self, encoding: Encoding) -> bool;
+
+    /// Returns an NSData object containing a representation of the receiver encoded using a given encoding.
+    fn dataUsingEncoding(&self, encoding: Encoding) -> NSData;
 }

@@ -3,14 +3,11 @@ use std::ops::Range;
 use crate::{
     foundation::{NSArray, NSDictionary, NSLocale, NSString, UInt},
     id,
-    objective_c_runtime::traits::t_NSObject,
+    objective_c_runtime::traits::PNSObject,
 };
 
 /// A static ordered collection of objects.
-pub trait t_NSArray<T>
-where
-    T: t_NSObject,
-{
+pub trait INSArray<T> {
     /* Querying an Array
      */
 
@@ -30,13 +27,19 @@ where
     fn count(&self) -> UInt;
 
     /// The first object in the array.
-    fn firstObject(&self) -> Option<T>;
+    fn firstObject(&self) -> Option<T>
+    where
+        T: PNSObject;
 
     /// The last object in the array.
-    fn lastObject(&self) -> Option<T>;
+    fn lastObject(&self) -> Option<T>
+    where
+        T: PNSObject;
 
     /// The object at the specified index.
-    fn objectAt(&self, index: UInt) -> T;
+    fn objectAt(&self, index: UInt) -> T
+    where
+        T: PNSObject;
 
     /// The index of the specified object.
     fn objectAtIndexedSubscript(&self, index: UInt) -> Option<id>;
@@ -60,7 +63,9 @@ where
      */
 
     /// Returns the first object contained in the receiving array that’s equal to an object in another given array.
-    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T>;
+    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T>
+    where
+        T: PNSObject;
 
     /// Compares the receiving array to another array.
     fn isEqualTo(&self, other: &NSArray<T>) -> bool;
@@ -82,7 +87,7 @@ where
     /// This function dereferences a raw pointer
     unsafe fn arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
     where
-        A: t_NSArray<T>;
+        A: INSArray<T>;
 
     /// Returns a new array containing the receiving array’s elements that fall within the limits specified by a given range.
     ///
@@ -103,9 +108,9 @@ where
 }
 
 /// A mutable, static ordered collection of objects.
-pub trait t_NSMutableArray<T>: t_NSArray<T>
+pub trait INSMutableArray<T>: INSArray<T>
 where
-    T: t_NSObject,
+    T: PNSObject,
 {
     /* Creating and Initializing a Mutable Array
      */
@@ -184,7 +189,7 @@ where
 }
 
 /// A dynamic collection of objects associated with unique keys.
-pub trait t_NSMutableDictionary<K, V>: t_NSDictionary<K, V> {
+pub trait INSMutableDictionary<K, V>: INSDictionary<K, V> {
     /// Creates and initialize a dictionary
     fn initWithDictionary(&mut self, dictionary: NSDictionary<K, V>);
 
@@ -194,8 +199,8 @@ pub trait t_NSMutableDictionary<K, V>: t_NSDictionary<K, V> {
     /// Adds a given key-value pair to the dictionary.
     fn setObject(&mut self, key: K, value: V)
     where
-        K: t_NSObject,
-        V: t_NSObject;
+        K: PNSObject,
+        V: PNSObject;
 
     /// Adds a given key-value pair to the dictionary.
     fn setObjectForKeyedSuperscript(&mut self, key: K, value: V)
@@ -229,11 +234,11 @@ pub trait t_NSMutableDictionary<K, V>: t_NSDictionary<K, V> {
     /// Removes from the dictionary entries specified by elements in a given array.
     fn removeObjectsForKeys(&mut self, keys: NSArray<K>)
     where
-        K: t_NSObject;
+        K: PNSObject;
 }
 
 /// A static collection of objects associated with unique keys.
-pub trait t_NSDictionary<K, V>: t_NSObject {
+pub trait INSDictionary<K, V>: PNSObject {
     /* Counting Entries
      */
 
