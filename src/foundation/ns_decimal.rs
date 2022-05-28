@@ -15,7 +15,7 @@ use crate::{
         ComparisonResult, NSLocale, NSString,
     },
     id,
-    objective_c_runtime::traits::{t_NSObject, t_NSValue},
+    objective_c_runtime::traits::{t_NSValue, PNSObject},
 };
 
 use super::{NSCalculationError, NSRoundingMode};
@@ -119,7 +119,7 @@ pub struct NSDecimalNumber {
     pub obj: Id<Object>,
 }
 
-impl t_NSObject for NSDecimalNumber {
+impl PNSObject for NSDecimalNumber {
     fn new() -> Self {
         unsafe {
             let class: id = msg_send![class!(NSDecimalNumber), alloc];

@@ -15,13 +15,13 @@ use objc::{
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::t_NSString, ComparisonResult, Int, NSLocale, UInt},
+    foundation::{traits::INSString, ComparisonResult, Int, NSLocale, UInt},
     id,
-    objective_c_runtime::traits::t_NSObject,
+    objective_c_runtime::traits::PNSObject,
     utils::to_bool,
 };
 
-use super::{string::Encoding, unichar, CompareOptions, NSStringTransform, UTF8_ENCODING};
+use super::{string::Encoding, unichar, CompareOptions, NSData, NSStringTransform, UTF8_ENCODING};
 
 /// This is a mapping to the Objective-C NSString class.
 #[repr(C)]
@@ -51,7 +51,7 @@ impl NSString {
     }
 }
 
-impl t_NSObject for NSString {
+impl PNSObject for NSString {
     fn new() -> Self {
         unsafe { msg_send![class!(NSString), new] }
     }
@@ -86,7 +86,7 @@ impl t_NSObject for NSString {
     }
 }
 
-impl t_NSString for NSString {
+impl INSString for NSString {
     fn string() -> Self {
         unsafe { msg_send![class!(NSString), string] }
     }
@@ -172,6 +172,10 @@ impl t_NSString for NSString {
 
     fn characterAtIndex(&self, index: Int) -> char {
         unsafe { msg_send![&*self.objc, characterAtIndex: index] }
+    }
+
+    fn UTF8String(&self) -> *const c_char {
+        unsafe { msg_send![&*self.objc, UTF8String] }
     }
 
     fn caseInsensitiveCompare<S>(&self, string: S) -> ComparisonResult
@@ -340,6 +344,25 @@ impl t_NSString for NSString {
         } else {
             Some(unsafe { NSString::fromId(result) })
         }
+    }
+
+    fn availableStringEncodings() -> *const Encoding {
+        unsafe { msg_send![class!(NSString), availableStringEncodings] }
+    }
+
+    fn defaultCStringEncoding() -> Encoding {
+        unsafe { msg_send![class!(NSString), defaultCStringEncoding] }
+    }
+
+    fn canBeConvertedToEncoding(&self, encoding: Encoding) -> bool {
+        unsafe {
+            let result: BOOL = msg_send![&*self.objc, canBeConvertedToEncoding: encoding];
+            to_bool(result)
+        }
+    }
+
+    fn dataUsingEncoding(&self, encoding: Encoding) -> NSData {
+        unsafe { msg_send![&*self.objc, dataUsingEncoding: encoding] }
     }
 }
 

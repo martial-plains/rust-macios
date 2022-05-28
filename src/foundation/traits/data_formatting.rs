@@ -2,11 +2,11 @@ use objc::runtime::Object;
 
 use crate::{
     foundation::{LanguageDirection, NSArray, NSLocale, NSLocaleKey, NSString},
-    objective_c_runtime::traits::t_NSObject,
+    objective_c_runtime::traits::PNSObject,
 };
 
 /// The `Locale` class provides information about the user’s locale and formatting preferences.
-pub trait t_NSLocale: t_NSObject {
+pub trait t_NSLocale: PNSObject {
     /* Initializing a Locale
      */
 

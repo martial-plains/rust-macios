@@ -2,14 +2,14 @@ use std::sync::Arc;
 
 use libc::{
     c_char, c_double, c_float, c_int, c_long, c_longlong, c_schar, c_short, c_uchar, c_uint,
-    c_ulong, c_ulonglong, c_ushort,
+    c_ulong, c_ulonglong, c_ushort, c_void,
 };
 
 use crate::{
     foundation::{
-        ComparisonResult, Int, NSDecimalNumber, NSLocale, NSRoundingMode, NSString, UInt,
+        ComparisonResult, Int, NSData, NSDecimalNumber, NSLocale, NSRoundingMode, NSString, UInt,
     },
-    objective_c_runtime::traits::t_NSValue,
+    objective_c_runtime::traits::{t_NSValue, PNSObject},
 };
 
 use super::t_NSLocale;
@@ -611,4 +611,34 @@ pub trait t_NSDecimalNumberBehaviors {
 
     /// Returns the number of digits allowed after the decimal separator.
     fn scale(&self) -> c_short;
+}
+
+/// A static byte buffer in memory.
+pub trait INSData: PNSObject {
+    /* Creating Data
+     */
+
+    /// Creates an empty data object.
+    fn data() -> Self;
+
+    /// Creates a data object containing a given number of bytes copied from a given buffer.
+    fn dataWithBytesLength(bytes: *const c_void, length: UInt) -> Self;
+
+    /// Creates a data object that holds a given number of bytes from a given buffer.
+    fn dataWithBytesNoCopyLength(bytes: *const c_void, length: UInt) -> Self;
+
+    /// Creates a data object that holds a given number of bytes from a given buffer.
+    fn dataWithBytesNoCopyLengthFreeWhenDone(bytes: *const c_void, length: UInt, b: bool) -> Self;
+
+    /// Creates a data object containing the contents of another data object.
+    fn dataWithData(data: NSData) -> Self;
+
+    /*Reading Data from a File
+     */
+
+    /// Creates a data object by reading every byte from the file at a given path.
+    fn dataWithContentsOfFile(path: NSString) -> Self;
+
+    /// A pointer to the data object's contents.
+    fn bytes(&self) -> *const c_void;
 }
