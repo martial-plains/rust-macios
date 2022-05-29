@@ -1,3 +1,8 @@
+/* Basic Types
+*/
+
+use libc::c_double;
+
 /// Describes an integer.
 #[cfg(target_pointer_width = "32")]
 pub type Int = libc::c_int;
@@ -39,10 +44,13 @@ pub type Int64 = libc::c_longlong;
 pub type UInt64 = libc::c_ulonglong;
 
 /// A double-precision, floating-point value type.
-pub type Double = libc::c_double;
+pub type Double = c_double;
 
 /// Type for UTF-16 code units.
 pub type unichar = u16;
+
+/* Strings and Text
+*/
 
 /// Constants representing an ICU string transform.
 pub type NSStringTransform = *const super::NSString;
@@ -54,3 +62,9 @@ pub type NSPropertyListWriteOptions = super::NSPropertyListMutabilityOptions;
 
 /// The only read options supported are described in NSPropertyListMutabilityOptions.
 pub type NSPropertyListReadOptions = super::NSPropertyListMutabilityOptions;
+
+/* Dates and Times
+*/
+
+/// A number of seconds.
+pub type NSTimeInterval = c_double;

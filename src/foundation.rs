@@ -20,6 +20,8 @@ Fundamentals
 
 mod ns_array;
 mod ns_data;
+mod ns_date;
+mod ns_date_interval;
 mod ns_decimal;
 mod ns_dictionary;
 mod ns_locale;
@@ -32,6 +34,8 @@ mod string_transform;
 
 pub use ns_array::*;
 pub use ns_data::*;
+pub use ns_date::*;
+pub use ns_date_interval::*;
 pub use ns_decimal::*;
 pub use ns_dictionary::*;
 pub use ns_locale::*;
