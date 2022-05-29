@@ -40,5 +40,23 @@ pub trait IBGProcessingTaskRequest: IBGTaskRequest {
 pub trait BGAppRefreshTaskRequest {
     /// Return a new refresh task request for the specified identifier.
     fn initWithIdentifier(identifier: NSString) -> Self;
-
 }
+
+/// An abstract class representing a task that’s run while the app is in the background.
+pub trait IBGTask {
+    /// The identifier of the task.
+    fn identifier() -> NSString;
+
+    /// A handler called shortly before the task’s background time expires.
+    fn expirationHandler();
+
+    /// Informs the background task scheduler that the task is complete.
+    fn setTaskCompletedWithSuccess(&self, success: bool);
+}
+
+/// A task that runs while the app is in the background.
+pub trait IBGProcessingTask: IBGTask {}
+
+/// An object representing a short task typically used to refresh content 
+/// that’s run while the app is in the background.
+pub trait IBGAppRefreshTask: IBGTask {}
