@@ -29,6 +29,7 @@
 
 use objc::runtime::Object;
 
+pub mod background_tasks;
 pub mod compression;
 pub mod foundation;
 pub mod natural_language;
