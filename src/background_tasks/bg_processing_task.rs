@@ -1,3 +1,5 @@
+use std::fmt;
+
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
@@ -56,3 +58,15 @@ impl IBGTask for BGProcessingTask {
 }
 
 impl IBGProcessingTask for BGProcessingTask {}
+
+impl fmt::Debug for BGProcessingTask {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.debugDescription())
+    }
+}
+
+impl fmt::Display for BGProcessingTask {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.description())
+    }
+}
