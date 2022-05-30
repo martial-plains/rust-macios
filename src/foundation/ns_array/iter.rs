@@ -3,7 +3,7 @@ use crate::{
         traits::{INSArray, INSMutableArray},
         NSMutableArray, NSNumber, NSString, UInt,
     },
-    objective_c_runtime::traits::PNSObject,
+    objective_c_runtime::traits::{FromId, PNSObject},
 };
 
 use super::NSArray;
@@ -20,7 +20,7 @@ where
 
 impl<'a, T> Iterator for Iter<'a, T>
 where
-    T: PNSObject,
+    T: PNSObject + FromId,
 {
     type Item = T;
 
@@ -37,13 +37,13 @@ where
 
 impl<'a, T> FromIterator<&'a T> for NSArray<T>
 where
-    T: PNSObject + 'a,
+    T: PNSObject + FromId + 'a,
 {
     fn from_iter<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = &'a T>,
     {
-        let mut mut_arr = NSMutableArray::new();
+        let mut mut_arr = NSMutableArray::arrayWithCapacity(0);
         for item in iter {
             mut_arr.add(item);
         }
@@ -57,7 +57,7 @@ impl FromIterator<NSString> for NSArray<NSString> {
     where
         I: IntoIterator<Item = NSString>,
     {
-        let mut mut_arr = NSMutableArray::new();
+        let mut mut_arr = NSMutableArray::arrayWithCapacity(0);
         for item in iter {
             mut_arr.add(&item);
         }
@@ -71,7 +71,7 @@ impl FromIterator<NSNumber> for NSArray<NSNumber> {
     where
         I: IntoIterator<Item = NSNumber>,
     {
-        let mut mut_arr = NSMutableArray::new();
+        let mut mut_arr = NSMutableArray::arrayWithCapacity(0);
         for item in iter {
             mut_arr.add(&item);
         }

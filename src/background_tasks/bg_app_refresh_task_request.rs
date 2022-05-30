@@ -3,7 +3,11 @@ use std::fmt;
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{foundation::NSString, id, objective_c_runtime::traits::PNSObject};
+use crate::{
+    foundation::NSString,
+    id,
+    objective_c_runtime::traits::{FromId, INSObject},
+};
 
 /// A request to launch your app in the background to execute a short refresh task.
 pub struct BGAppRefreshTaskRequest {
@@ -11,7 +15,7 @@ pub struct BGAppRefreshTaskRequest {
     pub ptr: Id<Object>,
 }
 
-impl PNSObject for BGAppRefreshTaskRequest {
+impl INSObject for BGAppRefreshTaskRequest {
     fn new() -> Self {
         Self {
             ptr: unsafe { msg_send![class!(BGAppRefreshTaskRequest), new] },
@@ -29,11 +33,11 @@ impl PNSObject for BGAppRefreshTaskRequest {
     }
 
     fn description(&self) -> NSString {
-        unsafe { NSString::fromId(msg_send![self.ptr, description]) }
+        unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
     fn debugDescription(&self) -> NSString {
-        unsafe { NSString::fromId(msg_send![self.ptr, debugDescription]) }
+        unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
     fn retain(&self) -> Self {

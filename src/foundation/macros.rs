@@ -18,10 +18,11 @@ macro_rules! NSDictionary {
     ($($key:expr => $value:expr,)+) => { NSDictionary!($($key => $value),+) };
     ($($key:expr => $value:expr),*) => {
         {
+            use $crate::foundation::traits::INSMutableDictionary;
             let capacity = NSDictionary!(@count $($key),*);
             let mut map = $crate::foundation::NSMutableDictionary::from(capacity as $crate::foundation::UInt);
             $(
-                let _ = map.set_object($key, $value);
+                let _ = map.setObject($key, $value);
             )*
             $crate::foundation::NSDictionary::from(map)
         }

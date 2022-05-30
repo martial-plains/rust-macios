@@ -6,13 +6,17 @@ use std::{
 };
 
 use libc::c_char;
-use objc::{class, msg_send, runtime::Object, sel, sel_impl};
+use objc::{
+    class, msg_send,
+    runtime::{Class, Object},
+    sel, sel_impl,
+};
 use objc_id::Id;
 
 use crate::{
     foundation::{traits::INSArray, NSLocale, NSString, UInt},
     id,
-    objective_c_runtime::traits::PNSObject,
+    objective_c_runtime::traits::{FromId, PNSObject, ToId},
     utils::to_bool,
 };
 
@@ -42,7 +46,67 @@ impl<T> NSArray<T> {
     }
 }
 
-impl<T> INSArray<T> for NSArray<T> {
+impl<T> PNSObject for NSArray<T>
+where
+    T: PNSObject,
+{
+    fn class<'a>() -> &'a Class {
+        class!(NSArray)
+    }
+
+    fn superclass<'a>() -> &'a Class {
+        class!(NSObject)
+    }
+
+    fn isEqual(&self, object: &Self) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isEqual: object]) }
+    }
+
+    fn hash(&self) -> UInt {
+        unsafe { msg_send![self.obj, hash] }
+    }
+
+    fn isKindOfClass(&self, aClass: Class) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isKindOfClass: aClass]) }
+    }
+
+    fn isMemberOfClass(&self, aClass: Class) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isMemberOfClass: aClass]) }
+    }
+
+    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+        unsafe { to_bool(msg_send![self.obj, respondsToSelector: aSelector]) }
+    }
+
+    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+        unsafe { to_bool(msg_send![self.obj, conformsToProtocol: aProtocol]) }
+    }
+
+    fn description(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.obj, description]) }
+    }
+
+    fn debugDescription(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
+    }
+
+    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    }
+
+    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    }
+
+    fn isProxy(&self) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isProxy]) }
+    }
+}
+
+impl<T> INSArray<T> for NSArray<T>
+where
+    T: PNSObject,
+{
     fn contains(&self, object: T) -> bool {
         unsafe { to_bool(msg_send![&*self.obj, containsObject: object]) }
     }
@@ -53,39 +117,39 @@ impl<T> INSArray<T> for NSArray<T> {
 
     fn firstObject(&self) -> Option<T>
     where
-        T: PNSObject,
+        T: PNSObject + FromId,
     {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, firstObject];
             if ptr.is_null() {
                 None
             } else {
-                Some(T::fromId(ptr))
+                Some(T::from_id(ptr))
             }
         }
     }
 
     fn lastObject(&self) -> Option<T>
     where
-        T: PNSObject,
+        T: PNSObject + FromId,
     {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, lastObject];
             if ptr.is_null() {
                 None
             } else {
-                Some(T::fromId(ptr))
+                Some(T::from_id(ptr))
             }
         }
     }
 
     fn objectAt(&self, index: UInt) -> T
     where
-        T: PNSObject,
+        T: PNSObject + FromId,
     {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, objectAtIndex: index];
-            T::fromId(ptr)
+            T::from_id(ptr)
         }
     }
 
@@ -114,7 +178,7 @@ impl<T> INSArray<T> for NSArray<T> {
 
     fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T>
     where
-        T: PNSObject,
+        T: PNSObject + FromId,
     {
         unsafe {
             let ptr: *mut Object =
@@ -122,7 +186,7 @@ impl<T> INSArray<T> for NSArray<T> {
             if ptr.is_null() {
                 None
             } else {
-                Some(T::fromId(ptr))
+                Some(T::from_id(ptr))
             }
         }
     }
@@ -158,43 +222,6 @@ impl<T> INSArray<T> for NSArray<T> {
     }
 }
 
-impl<T> PNSObject for NSArray<T> {
-    fn new() -> Self {
-        let obj: id = unsafe { msg_send![class!(NSArray), init] };
-
-        Self {
-            obj: unsafe { Id::from_ptr(obj) },
-            _marker: PhantomData,
-        }
-    }
-
-    fn toId(mut self) -> id {
-        &mut *self.obj
-    }
-
-    unsafe fn fromId(_obj: id) -> Self {
-        todo!()
-    }
-
-    fn description(&self) -> NSString {
-        let obj: id = unsafe { msg_send![&*self.obj, description] };
-        unsafe { NSString::fromId(obj) }
-    }
-
-    fn debugDescription(&self) -> NSString {
-        let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        unsafe { NSString::fromId(obj) }
-    }
-
-    fn retain(&self) -> Self {
-        let obj: id = unsafe { msg_send![&*self.obj, retain] };
-        Self {
-            obj: unsafe { Id::from_ptr(obj) },
-            _marker: PhantomData,
-        }
-    }
-}
-
 impl<T> fmt::Debug for NSArray<T>
 where
     T: fmt::Debug + PNSObject,
@@ -222,7 +249,7 @@ impl<T> Clone for NSArray<T> {
 
 impl<'a, T> IntoIterator for &'a NSArray<T>
 where
-    T: PNSObject,
+    T: PNSObject + FromId,
 {
     type Item = T;
     type IntoIter = Iter<'a, T>;
@@ -241,12 +268,24 @@ impl From<(*const c_char, usize)> for NSArray<UInt8> {
 
 impl<T> From<id> for NSArray<T> {
     fn from(obj: id) -> Self {
+        NSArray::from_id(obj)
+    }
+}
+
+impl<T> FromId for NSArray<T> {
+    fn from_id(obj: id) -> Self {
         unsafe {
             Self {
                 obj: Id::from_ptr(obj),
                 _marker: PhantomData,
             }
         }
+    }
+}
+
+impl<T> ToId for NSArray<T> {
+    fn to_id(mut self) -> id {
+        &mut *self.obj
     }
 }
 

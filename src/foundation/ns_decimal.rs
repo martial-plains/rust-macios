@@ -6,7 +6,11 @@ use std::{
 };
 
 use libc::{c_double, c_int, c_long, c_longlong, c_short, c_uint, c_ulong, c_ushort};
-use objc::{class, msg_send, runtime::Object, sel, sel_impl};
+use objc::{
+    class, msg_send,
+    runtime::{Class, Object},
+    sel, sel_impl,
+};
 use objc_id::Id;
 
 use crate::{
@@ -15,7 +19,7 @@ use crate::{
         ComparisonResult, NSLocale, NSString,
     },
     id,
-    objective_c_runtime::traits::{t_NSValue, PNSObject},
+    objective_c_runtime::traits::{FromId, INSValue, PNSObject},
 };
 
 use super::{NSCalculationError, NSRoundingMode};
@@ -120,47 +124,60 @@ pub struct NSDecimalNumber {
 }
 
 impl PNSObject for NSDecimalNumber {
-    fn new() -> Self {
-        unsafe {
-            let class: id = msg_send![class!(NSDecimalNumber), alloc];
-            let obj = msg_send![class, init];
-            NSDecimalNumber { obj }
-        }
+    fn class<'a>() -> &'a Class {
+        class!(NSDecimalNumber)
     }
 
-    fn toId(mut self) -> id {
-        &mut *self.obj
+    fn superclass<'a>() -> &'a Class {
+        unsafe { msg_send![class!(NSDecimalNumber), superclass] }
     }
 
-    unsafe fn fromId(obj: id) -> Self {
-        Self {
-            obj: Id::from_ptr(obj),
-        }
+    fn isEqual(&self, object: &Self) -> bool {
+        unsafe { msg_send![self.obj, isEqual: object] }
+    }
+
+    fn hash(&self) -> super::UInt {
+        unsafe { msg_send![self.obj, hash] }
+    }
+
+    fn isKindOfClass(&self, aClass: Class) -> bool {
+        unsafe { msg_send![self.obj, isKindOfClass: aClass] }
+    }
+
+    fn isMemberOfClass(&self, aClass: Class) -> bool {
+        unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
+    }
+
+    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+        unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
+    }
+
+    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+        unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
     }
 
     fn description(&self) -> NSString {
-        unsafe {
-            let obj = msg_send![&*self.obj, description];
-            NSString::fromId(obj)
-        }
+        unsafe { msg_send![self.obj, description] }
     }
 
     fn debugDescription(&self) -> NSString {
-        unsafe {
-            let obj = msg_send![&*self.obj, debugDescription];
-            NSString::fromId(obj)
-        }
+        unsafe { msg_send![self.obj, debugDescription] }
     }
 
-    fn retain(&self) -> Self {
-        unsafe {
-            let obj = msg_send![&*self.obj, retain];
-            Self::fromId(obj)
-        }
+    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    }
+
+    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    }
+
+    fn isProxy(&self) -> bool {
+        unsafe { msg_send![self.obj, isProxy] }
     }
 }
 
-impl t_NSValue for NSDecimalNumber {}
+impl INSValue for NSDecimalNumber {}
 
 impl t_NSNumber for NSDecimalNumber {
     fn numberWithBool(value: bool) -> Self {
@@ -346,14 +363,14 @@ impl t_NSNumber for NSDecimalNumber {
     fn descriptionWithLocale(&self, locale: NSLocale) -> NSString {
         unsafe {
             let id: id = msg_send![self.obj, descriptionWithLocale: locale.obj];
-            NSString::fromId(id)
+            NSString::from_id(id)
         }
     }
 
     fn stringValue(&self) -> NSString {
         unsafe {
             let id: id = msg_send![self.obj, stringValue];
-            NSString::fromId(id)
+            NSString::from_id(id)
         }
     }
 
@@ -401,7 +418,7 @@ impl t_NSDecimalNumber for NSDecimalNumber {
     fn decimalNumberWithStringLocale<S, L>(string: S, locale: L) -> Self
     where
         S: Into<NSString>,
-        L: crate::foundation::traits::t_NSLocale,
+        L: crate::foundation::traits::INSLocale,
     {
         unsafe {
             msg_send![
@@ -456,7 +473,7 @@ impl t_NSDecimalNumber for NSDecimalNumber {
     fn initWithStringLocale<S, L>(&mut self, string: S, locale: L)
     where
         S: Into<NSString>,
-        L: crate::foundation::traits::t_NSLocale,
+        L: crate::foundation::traits::INSLocale,
     {
         unsafe { msg_send![self.obj, initWithString: string.into() locale: locale] }
     }
@@ -597,7 +614,7 @@ impl t_NSDecimalNumber for NSDecimalNumber {
 
     fn descriptionWithLocale<L>(&self, locale: L) -> NSString
     where
-        L: crate::foundation::traits::t_NSLocale,
+        L: crate::foundation::traits::INSLocale,
     {
         unsafe {
             let class: NSString = msg_send![self.obj, descriptionWithLocale: locale];
@@ -639,7 +656,7 @@ impl fmt::Display for NSDecimalNumber {
 
 impl Clone for NSDecimalNumber {
     fn clone(&self) -> Self {
-        self.retain()
+        unsafe { msg_send![self.obj, retain] }
     }
 }
 

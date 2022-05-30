@@ -8,7 +8,7 @@ use crate::{
 use super::{NLLanguage, NLTokenUnit};
 
 /// A tokenizer that segments natural language text into semantic units.
-pub trait t_NLTokenizer: PNSObject {
+pub trait INLTokenizer: PNSObject {
     /* Creating a Tokenizer
      */
 
@@ -44,7 +44,7 @@ pub trait t_NLTokenizer: PNSObject {
 
 /// The language of a body of text.
 
-pub trait t_NLLanguageRecognizer: PNSObject {
+pub trait INLLanguageRecognizer: PNSObject {
     /// The most likely language for the processed text.
     fn dominantLanguage(&self) -> NSString;
 

@@ -3,7 +3,10 @@ use std::fmt;
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{foundation::NSString, objective_c_runtime::traits::PNSObject};
+use crate::{
+    foundation::NSString,
+    objective_c_runtime::traits::{FromId, INSObject},
+};
 
 use super::traits::{IBGProcessingTaskRequest, IBGTaskRequest};
 
@@ -13,7 +16,7 @@ pub struct BGProcessingTaskRequest {
     pub ptr: Id<Object>,
 }
 
-impl PNSObject for BGProcessingTaskRequest {
+impl INSObject for BGProcessingTaskRequest {
     fn new() -> Self {
         Self {
             ptr: unsafe { msg_send![class!(BGProcessingTaskRequest), new] },
@@ -31,11 +34,11 @@ impl PNSObject for BGProcessingTaskRequest {
     }
 
     fn description(&self) -> NSString {
-        unsafe { NSString::fromId(msg_send![self.ptr, description]) }
+        unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
     fn debugDescription(&self) -> NSString {
-        unsafe { NSString::fromId(msg_send![self.ptr, debugDescription]) }
+        unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
     fn retain(&self) -> Self {
@@ -46,7 +49,7 @@ impl PNSObject for BGProcessingTaskRequest {
 impl IBGTaskRequest for BGProcessingTaskRequest {
     fn earliestBeginDate() -> crate::foundation::NSDate {
         unsafe {
-            crate::foundation::NSDate::fromId(msg_send![
+            crate::foundation::NSDate::from_id(msg_send![
                 class!(BGProcessingTaskRequest),
                 earliestBeginDate
             ])

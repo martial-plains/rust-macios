@@ -3,11 +3,11 @@ use std::ops::Range;
 use crate::{
     foundation::{NSArray, NSDictionary, NSLocale, NSString, UInt},
     id,
-    objective_c_runtime::traits::PNSObject,
+    objective_c_runtime::traits::{FromId, PNSObject},
 };
 
 /// A static ordered collection of objects.
-pub trait INSArray<T> {
+pub trait INSArray<T>: PNSObject {
     /* Querying an Array
      */
 
@@ -29,17 +29,17 @@ pub trait INSArray<T> {
     /// The first object in the array.
     fn firstObject(&self) -> Option<T>
     where
-        T: PNSObject;
+        T: PNSObject + FromId;
 
     /// The last object in the array.
     fn lastObject(&self) -> Option<T>
     where
-        T: PNSObject;
+        T: PNSObject + FromId;
 
     /// The object at the specified index.
     fn objectAt(&self, index: UInt) -> T
     where
-        T: PNSObject;
+        T: PNSObject + FromId;
 
     /// The index of the specified object.
     fn objectAtIndexedSubscript(&self, index: UInt) -> Option<id>;
@@ -65,7 +65,7 @@ pub trait INSArray<T> {
     /// Returns the first object contained in the receiving array that’s equal to an object in another given array.
     fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T>
     where
-        T: PNSObject;
+        T: PNSObject + FromId;
 
     /// Compares the receiving array to another array.
     fn isEqualTo(&self, other: &NSArray<T>) -> bool;
@@ -190,6 +190,12 @@ where
 
 /// A dynamic collection of objects associated with unique keys.
 pub trait INSMutableDictionary<K, V>: INSDictionary<K, V> {
+    /* Creating and Initializing a Mutable Dictionary
+     */
+
+    /// Creates and returns a mutable dictionary, initially giving it enough allocated memory to hold a given number of entries.
+    fn dictionaryWithCapacity(capacity: UInt) -> Self;
+
     /// Creates and initialize a dictionary
     fn initWithDictionary(&mut self, dictionary: NSDictionary<K, V>);
 

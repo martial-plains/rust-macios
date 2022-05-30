@@ -7,9 +7,9 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::t_NSLocale, NSArray, NSString},
+    foundation::{traits::INSLocale, NSArray, NSString},
     id,
-    objective_c_runtime::traits::PNSObject,
+    objective_c_runtime::traits::{FromId, PNSObject},
 };
 
 use super::NSLocaleKey;
@@ -36,7 +36,61 @@ pub struct NSLocale {
     pub obj: Id<Object>,
 }
 
-impl t_NSLocale for NSLocale {
+impl PNSObject for NSLocale {
+    fn class<'a>() -> &'a objc::runtime::Class {
+        class!(NSLocale)
+    }
+
+    fn superclass<'a>() -> &'a objc::runtime::Class {
+        unsafe { msg_send![Self::class(), superclass] }
+    }
+
+    fn isEqual(&self, object: &Self) -> bool {
+        unsafe { msg_send![self.obj, isEqual: object] }
+    }
+
+    fn hash(&self) -> super::UInt {
+        unsafe { msg_send![self.obj, hash] }
+    }
+
+    fn isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { msg_send![self.obj, isKindOfClass: aClass] }
+    }
+
+    fn isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
+    }
+
+    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+        unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
+    }
+
+    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+        unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
+    }
+
+    fn description(&self) -> NSString {
+        unsafe { msg_send![self.obj, description] }
+    }
+
+    fn debugDescription(&self) -> NSString {
+        unsafe { msg_send![self.obj, debugDescription] }
+    }
+
+    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    }
+
+    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    }
+
+    fn isProxy(&self) -> bool {
+        unsafe { msg_send![self.obj, isProxy] }
+    }
+}
+
+impl INSLocale for NSLocale {
     fn initWithLocaleIdentifier<S>(locale_identifier: S) -> Self
     where
         S: Into<NSString>,
@@ -169,7 +223,7 @@ impl t_NSLocale for NSLocale {
         if result.is_null() {
             None
         } else {
-            Some(unsafe { NSString::fromId(result) })
+            Some(NSString::from_id(result))
         }
     }
 
@@ -192,38 +246,6 @@ impl t_NSLocale for NSLocale {
     {
         let class = class!(NSLocale);
         unsafe { msg_send![class, lineDirectionForLanguage: iso_language_code.into()] }
-    }
-}
-
-impl PNSObject for NSLocale {
-    fn new() -> Self {
-        todo!()
-    }
-
-    fn toId(mut self) -> id {
-        &mut *self.obj
-    }
-
-    unsafe fn fromId(_obj: id) -> Self {
-        todo!()
-    }
-
-    fn description(&self) -> NSString {
-        unsafe {
-            let description: id = msg_send![self.obj, description];
-            NSString::fromId(description)
-        }
-    }
-
-    fn debugDescription(&self) -> NSString {
-        unsafe {
-            let description: id = msg_send![self.obj, debugDescription];
-            NSString::fromId(description)
-        }
-    }
-
-    fn retain(&self) -> Self {
-        unsafe { msg_send![self.obj, retain] }
     }
 }
 

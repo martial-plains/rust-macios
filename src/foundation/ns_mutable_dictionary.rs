@@ -3,15 +3,20 @@ use std::{
     fmt,
     marker::PhantomData,
     ops::{Deref, DerefMut},
-    time::Duration,
 };
 
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{id, objective_c_runtime::traits::PNSObject};
+use crate::{
+    id,
+    objective_c_runtime::traits::{FromId, PNSObject},
+};
 
-use super::{NSArray, NSDictionary, NSString, UInt};
+use super::{
+    traits::{INSDictionary, INSMutableDictionary},
+    NSArray, NSDictionary, NSString, UInt,
+};
 
 /// A dynamic collection of objects associated with unique keys.
 pub struct NSMutableDictionary<K, V> {
@@ -21,172 +26,146 @@ pub struct NSMutableDictionary<K, V> {
     _value: PhantomData<V>,
 }
 
-impl<K, V> NSMutableDictionary<K, V> {
-    /// Creates an empty dictionary.
-    pub fn new() -> Self {
-        unsafe {
-            let cls = class!(NSMutableDictionary);
-            Self {
-                obj: Id::from_ptr(msg_send![cls, new]),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
+impl<K, V> PNSObject for NSMutableDictionary<K, V> {
+    fn class<'a>() -> &'a objc::runtime::Class {
+        class!(NSMutableDictionary)
     }
 
-    /// Creates and ini
-    pub fn init(&self) -> Self {
-        unsafe {
-            let cls = class!(NSMutableDictionary);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj = msg_send![obj, init];
-            Self {
-                obj: Id::from_ptr(obj),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
+    fn superclass<'a>() -> &'a objc::runtime::Class {
+        unsafe { msg_send![Self::class(), superclass] }
     }
 
-    /// Creates and initialize a dictionary
-    pub fn init_with_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
-        unsafe {
-            let obj: *mut Object = msg_send![self.obj, setDictionary: dictionary.obj];
-            self.obj = Id::from_ptr(obj);
-        }
+    fn isEqual(&self, object: &Self) -> bool {
+        unsafe { msg_send![self.obj, isEqual: object] }
     }
 
-    /* Adding Entries to a Mutable Dictionary
-     */
+    fn hash(&self) -> UInt {
+        unsafe { msg_send![self.obj, hash] }
+    }
 
-    /// Adds a given key-value pair to the dictionary.
-    pub fn set_object(&mut self, key: K, value: V)
+    fn isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { msg_send![self.obj, isKindOfClass: aClass] }
+    }
+
+    fn isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
+    }
+
+    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+        unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
+    }
+
+    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+        unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
+    }
+
+    fn description(&self) -> NSString {
+        unsafe { msg_send![self.obj, description] }
+    }
+
+    fn debugDescription(&self) -> NSString {
+        unsafe { msg_send![self.obj, debugDescription] }
+    }
+
+    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    }
+
+    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    }
+
+    fn isProxy(&self) -> bool {
+        unsafe { msg_send![self.obj, isProxy] }
+    }
+}
+
+impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {
+    fn count(&self) -> UInt {
+        unsafe { msg_send![self.obj, count] }
+    }
+}
+
+impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {
+    fn initWithDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+        unsafe { msg_send![self.obj, initWithDictionary: dictionary] }
+    }
+
+    fn setObject(&mut self, key: K, value: V)
     where
         K: PNSObject,
         V: PNSObject,
     {
-        unsafe {
-            let _: id = msg_send![self.obj, setObject: value.toId() forKey: &*key.toId()];
-
-            // TODO: Fix this function where the key value can be set without having the need for the thread to sleep after the call.
-            std::thread::sleep(Duration::from_micros(10));
-        }
+        unsafe { msg_send![self.obj, setObject: value forKey: key] }
     }
 
-    /// Adds a given key-value pair to the dictionary.
-    pub fn set_object_for_keyed_superscript(&mut self, key: K, value: V)
+    fn setObjectForKeyedSuperscript(&mut self, key: K, value: V)
     where
         K: Into<id>,
         V: Into<id>,
     {
-        unsafe {
-            let key: id = key.into();
-            let value: id = value.into();
-            let obj: *mut Object = msg_send![self.obj, setObject: value forKeyedSubscript: key];
-            self.obj = Id::from_ptr(obj);
-        }
+        unsafe { msg_send![self.obj, setObject: value forKeyedSubscript: key] }
     }
 
-    /// Adds a given key-value pair to the dictionary.
-    pub fn set_value(&mut self, key: K, value: V)
+    fn setValue(&mut self, key: K, value: V)
     where
         K: Into<NSString>,
         V: Into<id>,
     {
-        unsafe {
-            let _: id = msg_send![self.obj, setValue: value.into() forKey: &*key.into()];
-        }
+        unsafe { msg_send![self.obj, setValue: value forKey: key] }
     }
 
-    /// Adds to the receiving dictionary the entries from another dictionary.
-    pub fn add_entries_from_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
-        unsafe {
-            let obj: *mut Object = msg_send![self.obj, addEntriesFromDictionary: dictionary.obj];
-            self.obj = Id::from_ptr(obj);
-        }
+    fn addEntriesFromDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+        unsafe { msg_send![self.obj, addEntriesFromDictionary: dictionary] }
     }
 
-    /// Sets the contents of the receiving dictionary to entries in a given dictionary.
-    pub fn set_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
-        unsafe {
-            let obj: *mut Object = msg_send![self.obj, setDictionary: dictionary.obj];
-            self.obj = Id::from_ptr(obj);
-        }
+    fn setDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+        unsafe { msg_send![self.obj, setDictionary: dictionary] }
     }
 
-    /* Removing Entries From a Mutable Dictionary
-     */
-
-    /// Removes a given key and its associated value from the dictionary.
-    pub fn remove_object_for_key(&mut self, key: K)
+    fn removeObjectForKey(&mut self, key: K)
     where
         K: Into<id>,
     {
-        unsafe {
-            let key: id = key.into();
-            let obj: *mut Object = msg_send![self.obj, removeObjectForKey: key];
-            self.obj = Id::from_ptr(obj);
-        }
+        unsafe { msg_send![self.obj, removeObjectForKey: key] }
     }
 
-    /// Empties the dictionary of its entries.
-    pub fn remove_all_objects(&mut self) {
-        unsafe {
-            let obj: *mut Object = msg_send![self.obj, removeAllObjects];
-            self.obj = Id::from_ptr(obj);
-        }
+    fn removeAllObjects(&mut self) {
+        unsafe { msg_send![self.obj, removeAllObjects] }
     }
 
-    /// Removes from the dictionary entries specified by elements in a given array.
-    pub fn remove_objects_for_keys(&mut self, keys: NSArray<K>)
+    fn removeObjectsForKeys(&mut self, keys: NSArray<K>)
     where
         K: PNSObject,
     {
-        unsafe {
-            let keys: id = keys.toId();
-            let obj: *mut Object = msg_send![self.obj, removeObjectsForKeys: keys];
-            self.obj = Id::from_ptr(obj);
+        unsafe { msg_send![self.obj, removeObjectsForKeys: keys] }
+    }
+
+    fn dictionaryWithCapacity(capacity: UInt) -> Self
+where {
+        Self {
+            obj: unsafe {
+                Id::from_ptr(msg_send![Self::class(), dictionaryWithCapacity: capacity])
+            },
+            _key: PhantomData,
+            _value: PhantomData,
+        }
+    }
+}
+
+impl FromId for NSMutableDictionary<NSString, NSString> {
+    fn from_id(obj: id) -> Self {
+        Self {
+            obj: unsafe { Id::from_ptr(obj) },
+            _key: PhantomData,
+            _value: PhantomData,
         }
     }
 }
 
 impl<K, V> Default for NSMutableDictionary<K, V> {
     fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<K, V> PNSObject for NSMutableDictionary<K, V> {
-    fn new() -> Self {
-        todo!()
-    }
-
-    fn toId(mut self) -> id {
-        &mut *self.obj
-    }
-
-    unsafe fn fromId(_obj: id) -> Self {
-        todo!()
-    }
-
-    fn description(&self) -> NSString {
-        let obj: id = unsafe { msg_send![self.obj, description] };
-        unsafe { NSString::fromId(obj) }
-    }
-
-    fn debugDescription(&self) -> NSString {
-        let obj: id = unsafe { msg_send![self.obj, debugDescription] };
-        unsafe { NSString::fromId(obj) }
-    }
-
-    fn retain(&self) -> Self {
-        let obj: id = unsafe { msg_send![&*self.obj, retain] };
-        Self {
-            obj: unsafe { Id::from_ptr(obj) },
-
-            _key: PhantomData,
-            _value: PhantomData,
-        }
+        Self::dictionaryWithCapacity(0)
     }
 }
 
@@ -256,6 +235,17 @@ where
                     dictionaryWithCapacity: capacity
                 ]
             },
+
+            _key: PhantomData,
+            _value: PhantomData,
+        }
+    }
+}
+
+impl<K, V> Clone for NSMutableDictionary<K, V> {
+    fn clone(&self) -> Self {
+        Self {
+            obj: unsafe { msg_send![self.obj, retain] },
 
             _key: PhantomData,
             _value: PhantomData,

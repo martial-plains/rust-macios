@@ -7,7 +7,10 @@ use std::{
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{id, objective_c_runtime::traits::PNSObject};
+use crate::{
+    id,
+    objective_c_runtime::traits::{FromId, PNSObject},
+};
 
 use super::{traits::INSDictionary, NSMutableDictionary, NSString, UInt};
 
@@ -20,49 +23,56 @@ pub struct NSDictionary<K, V> {
 }
 
 impl<K, V> PNSObject for NSDictionary<K, V> {
-    fn new() -> Self {
-        unsafe {
-            let cls = class!(NSDictionary);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj = msg_send![obj, init];
-            Self {
-                obj: Id::from_ptr(obj),
-                _key: PhantomData,
-                _value: PhantomData,
-            }
-        }
+    fn class<'a>() -> &'a objc::runtime::Class {
+        class!(NSDictionary)
     }
 
-    fn toId(self) -> id {
-        todo!()
+    fn superclass<'a>() -> &'a objc::runtime::Class {
+        unsafe { msg_send![class!(NSDictionary), superclass] }
     }
 
-    unsafe fn fromId(obj: id) -> Self {
-        NSDictionary {
-            obj: Id::from_ptr(obj),
-            _key: PhantomData,
-            _value: PhantomData,
-        }
+    fn isEqual(&self, object: &Self) -> bool {
+        unsafe { msg_send![self.obj, isEqual: object] }
+    }
+
+    fn hash(&self) -> UInt {
+        unsafe { msg_send![self.obj, hash] }
+    }
+
+    fn isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { msg_send![self.obj, isKindOfClass: aClass] }
+    }
+
+    fn isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
+    }
+
+    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+        unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
+    }
+
+    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+        unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
     }
 
     fn description(&self) -> NSString {
-        let obj: id = unsafe { msg_send![self.obj, description] };
-        unsafe { NSString::fromId(obj) }
+        unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
     fn debugDescription(&self) -> NSString {
-        let obj: id = unsafe { msg_send![self.obj, debugDescription] };
-        unsafe { NSString::fromId(obj) }
+        unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn retain(&self) -> Self {
-        let obj: id = unsafe { msg_send![&*self.obj, retain] };
-        Self {
-            obj: unsafe { Id::from_ptr(obj) },
+    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    }
 
-            _key: PhantomData,
-            _value: PhantomData,
-        }
+    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    }
+
+    fn isProxy(&self) -> bool {
+        unsafe { msg_send![self.obj, isProxy] }
     }
 }
 
@@ -84,9 +94,28 @@ impl<K, V> fmt::Display for NSDictionary<K, V> {
     }
 }
 
+impl<K, V> FromId for NSDictionary<K, V> {
+    fn from_id(id: id) -> Self {
+        NSDictionary {
+            obj: unsafe { Id::from_ptr(id) },
+            _key: PhantomData,
+            _value: PhantomData,
+        }
+    }
+}
+
+impl<K, V> Clone for NSDictionary<K, V> {
+    fn clone(&self) -> Self {
+        unsafe {
+            let obj = msg_send![self.obj, retain];
+            Self::from_id(obj)
+        }
+    }
+}
+
 impl<K, V> Default for NSDictionary<K, V> {
     fn default() -> Self {
-        Self::new()
+        unsafe { Self::from_id(msg_send![class!(NSDictionary), dictionary]) }
     }
 }
 
@@ -129,7 +158,7 @@ where
 {
     fn from(dict: NSMutableDictionary<K, V>) -> Self {
         let cls: id =
-            unsafe { msg_send![class!(NSDictionary), dictionaryWithDictionary: dict.retain()] };
+            unsafe { msg_send![class!(NSDictionary), dictionaryWithDictionary: dict.clone()] };
         NSDictionary::from(cls)
     }
 }

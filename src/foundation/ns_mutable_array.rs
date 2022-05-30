@@ -10,7 +10,8 @@ use objc_id::Id;
 use crate::{
     foundation::{NSArray, NSString, UInt},
     id,
-    objective_c_runtime::traits::PNSObject,
+    objective_c_runtime::traits::{FromId, PNSObject},
+    utils::to_bool,
 };
 
 use super::traits::{INSArray, INSMutableArray};
@@ -22,9 +23,63 @@ pub struct NSMutableArray<T> {
     _marker: PhantomData<T>,
 }
 
+impl<T> PNSObject for NSMutableArray<T> {
+    fn class<'a>() -> &'a objc::runtime::Class {
+        class!(NSMutableArray)
+    }
+
+    fn superclass<'a>() -> &'a objc::runtime::Class {
+        class!(NSArray)
+    }
+
+    fn isEqual(&self, object: &Self) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isEqual: object]) }
+    }
+
+    fn hash(&self) -> UInt {
+        unsafe { msg_send![self.obj, hash] }
+    }
+
+    fn isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isKindOfClass: aClass]) }
+    }
+
+    fn isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isMemberOfClass: aClass]) }
+    }
+
+    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+        unsafe { to_bool(msg_send![self.obj, respondsToSelector: aSelector]) }
+    }
+
+    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+        unsafe { to_bool(msg_send![self.obj, conformsToProtocol: aProtocol]) }
+    }
+
+    fn description(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.obj, description]) }
+    }
+
+    fn debugDescription(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
+    }
+
+    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    }
+
+    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    }
+
+    fn isProxy(&self) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isProxy]) }
+    }
+}
+
 impl<T> INSArray<T> for NSMutableArray<T>
 where
-    T: PNSObject,
+    T: PNSObject + FromId,
 {
     fn contains(&self, object: T) -> bool {
         unsafe { msg_send![self.obj, containsObject: object] }
@@ -40,7 +95,7 @@ where
             if obj.is_null() {
                 None
             } else {
-                Some(T::fromId(obj))
+                Some(T::from_id(obj))
             }
         }
     }
@@ -51,13 +106,13 @@ where
             if obj.is_null() {
                 None
             } else {
-                Some(T::fromId(obj))
+                Some(T::from_id(obj))
             }
         }
     }
 
     fn objectAt(&self, index: UInt) -> T {
-        unsafe { T::fromId(msg_send![self.obj, objectAtIndex: index]) }
+        unsafe { T::from_id(msg_send![self.obj, objectAtIndex: index]) }
     }
 
     fn objectAtIndexedSubscript(&self, index: UInt) -> Option<id> {
@@ -93,7 +148,7 @@ where
             if obj.is_null() {
                 None
             } else {
-                Some(T::fromId(obj))
+                Some(T::from_id(obj))
             }
         }
     }
@@ -103,18 +158,18 @@ where
     }
 
     unsafe fn adding(&self, object: T) -> NSArray<T> {
-        NSArray::fromId(msg_send![self.obj, addingObject: object])
+        NSArray::from_id(msg_send![self.obj, addingObject: object])
     }
 
     unsafe fn arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
     where
         A: INSArray<T>,
     {
-        NSArray::fromId(msg_send![self.obj, arrayByAddingObjectsFromArray: objects])
+        NSArray::from_id(msg_send![self.obj, arrayByAddingObjectsFromArray: objects])
     }
 
     unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T> {
-        NSArray::fromId(msg_send![self.obj, subarrayWithRange: range])
+        NSArray::from_id(msg_send![self.obj, subarrayWithRange: range])
     }
 
     fn descriptionWithLocale(&self, locale: &super::NSLocale) -> NSString {
@@ -128,7 +183,7 @@ where
 
 impl<T> INSMutableArray<T> for NSMutableArray<T>
 where
-    T: PNSObject,
+    T: PNSObject + FromId,
 {
     /* Creating and Initializing a Mutable Array
      */
@@ -262,44 +317,7 @@ where
     T: PNSObject,
 {
     fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<T> PNSObject for NSMutableArray<T> {
-    fn new() -> Self {
-        let obj: id = unsafe { msg_send![class!(NSMutableArray), init] };
-
-        Self {
-            obj: unsafe { Id::from_ptr(obj) },
-            _marker: PhantomData,
-        }
-    }
-
-    fn toId(mut self) -> id {
-        &mut *self.obj
-    }
-
-    unsafe fn fromId(_obj: id) -> Self {
-        todo!()
-    }
-
-    fn description(&self) -> NSString {
-        let obj: id = unsafe { msg_send![&*self.obj, description] };
-        unsafe { NSString::fromId(obj) }
-    }
-
-    fn debugDescription(&self) -> NSString {
-        let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        unsafe { NSString::fromId(obj) }
-    }
-
-    fn retain(&self) -> Self {
-        let obj: id = unsafe { msg_send![&*self.obj, retain] };
-        Self {
-            obj: unsafe { Id::from_ptr(obj) },
-            _marker: PhantomData,
-        }
+        unsafe { Self::from_id(msg_send![class!(NSMutableArray), init]) }
     }
 }
 
@@ -331,9 +349,24 @@ impl<T> DerefMut for NSMutableArray<T> {
     }
 }
 
-impl<T> Clone for NSMutableArray<T> {
+impl<T> Clone for NSMutableArray<T>
+where
+    T: PNSObject,
+{
     fn clone(&self) -> Self {
-        self.retain()
+        unsafe { Self::from_id(msg_send![self.obj, retain]) }
+    }
+}
+
+impl<T> FromId for NSMutableArray<T>
+where
+    T: PNSObject,
+{
+    fn from_id(id: id) -> Self {
+        NSMutableArray {
+            obj: unsafe { Id::from_ptr(id) },
+            _marker: PhantomData,
+        }
     }
 }
 

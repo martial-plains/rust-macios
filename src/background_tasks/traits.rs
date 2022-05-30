@@ -1,10 +1,10 @@
 use crate::{
     foundation::{NSDate, NSString},
-    objective_c_runtime::traits::PNSObject,
+    objective_c_runtime::traits::INSObject,
 };
 
 /// A class for scheduling task requests that launch your app in the background.
-pub trait IBGTaskScheduler: PNSObject {
+pub trait IBGTaskScheduler: INSObject {
     /* Getting the Shared Task Scheduler
      */
 
@@ -13,7 +13,7 @@ pub trait IBGTaskScheduler: PNSObject {
 }
 
 /// An abstract class for representing task requests.
-pub trait IBGTaskRequest: PNSObject {
+pub trait IBGTaskRequest: INSObject {
     /// The earliest date and time at which to run the task.
     fn earliestBeginDate() -> NSDate;
 }
@@ -57,6 +57,6 @@ pub trait IBGTask {
 /// A task that runs while the app is in the background.
 pub trait IBGProcessingTask: IBGTask {}
 
-/// An object representing a short task typically used to refresh content 
+/// An object representing a short task typically used to refresh content
 /// that’s run while the app is in the background.
 pub trait IBGAppRefreshTask: IBGTask {}

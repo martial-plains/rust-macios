@@ -3,7 +3,10 @@ use std::fmt;
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{id, objective_c_runtime::traits::PNSObject};
+use crate::{
+    id,
+    objective_c_runtime::traits::{FromId, INSObject},
+};
 
 use super::traits::IBGTaskScheduler;
 
@@ -13,7 +16,7 @@ pub struct BGTaskScheduler {
     pub ptr: Id<Object>,
 }
 
-impl PNSObject for BGTaskScheduler {
+impl INSObject for BGTaskScheduler {
     fn new() -> Self {
         Self {
             ptr: unsafe { msg_send![class!(BGTaskScheduler), new] },
@@ -31,11 +34,11 @@ impl PNSObject for BGTaskScheduler {
     }
 
     fn description(&self) -> crate::foundation::NSString {
-        unsafe { crate::foundation::NSString::fromId(msg_send![self.ptr, description]) }
+        unsafe { crate::foundation::NSString::from_id(msg_send![self.ptr, description]) }
     }
 
     fn debugDescription(&self) -> crate::foundation::NSString {
-        unsafe { crate::foundation::NSString::fromId(msg_send![self.ptr, debugDescription]) }
+        unsafe { crate::foundation::NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
     fn retain(&self) -> Self {

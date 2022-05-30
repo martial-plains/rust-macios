@@ -9,13 +9,13 @@ use crate::{
     foundation::{
         ComparisonResult, Int, NSData, NSDecimalNumber, NSLocale, NSRoundingMode, NSString, UInt,
     },
-    objective_c_runtime::traits::{t_NSValue, PNSObject},
+    objective_c_runtime::traits::{INSValue, PNSObject},
 };
 
-use super::t_NSLocale;
+use super::INSLocale;
 
 /// The group of methods that are used with `NSNumber` objects.
-pub trait t_NSNumber: t_NSValue {
+pub trait t_NSNumber: INSValue {
     /* Creating an NSNumber Object
      */
 
@@ -458,7 +458,7 @@ pub trait t_NSDecimalNumber: t_NSNumber {
     fn decimalNumberWithStringLocale<S, L>(string: S, locale: L) -> Self
     where
         S: Into<NSString>,
-        L: t_NSLocale;
+        L: INSLocale;
 
     /// A decimal number equivalent to the number 1.0.
     fn one() -> Self;
@@ -492,7 +492,7 @@ pub trait t_NSDecimalNumber: t_NSNumber {
     fn initWithStringLocale<S, L>(&mut self, string: S, locale: L)
     where
         S: Into<NSString>,
-        L: t_NSLocale;
+        L: INSLocale;
 
     /* Performing Arithmetic
      */
@@ -580,7 +580,7 @@ pub trait t_NSDecimalNumber: t_NSNumber {
     /// Returns a string representation of the decimal number appropriate for the specified locale.
     fn descriptionWithLocale<L>(&self, locale: L) -> NSString
     where
-        L: t_NSLocale;
+        L: INSLocale;
 
     /// A C string containing the Objective-C type for the data contained in the decimal number object.
     fn objcType(&self) -> *const c_char;

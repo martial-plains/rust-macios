@@ -14,41 +14,56 @@ pub struct NSData {
 }
 
 impl PNSObject for NSData {
-    fn new() -> Self {
-        Self {
-            ptr: unsafe { msg_send![class!(NSData), new] },
-        }
+    fn class<'a>() -> &'a objc::runtime::Class {
+        class!(NSData)
     }
 
-    fn toId(mut self) -> id {
-        &mut *self.ptr
+    fn superclass<'a>() -> &'a objc::runtime::Class {
+        unsafe { msg_send![Self::class(), superclass] }
     }
 
-    unsafe fn fromId(obj: id) -> Self {
-        Self {
-            ptr: Id::from_ptr(obj),
-        }
+    fn isEqual(&self, object: &Self) -> bool {
+        unsafe { msg_send![self.ptr, isEqual: object] }
+    }
+
+    fn hash(&self) -> super::UInt {
+        unsafe { msg_send![self.ptr, hash] }
+    }
+
+    fn isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { msg_send![self.ptr, isKindOfClass: aClass] }
+    }
+
+    fn isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { msg_send![self.ptr, isMemberOfClass: aClass] }
+    }
+
+    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+        unsafe { msg_send![self.ptr, respondsToSelector: aSelector] }
+    }
+
+    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+        unsafe { msg_send![self.ptr, conformsToProtocol: aProtocol] }
     }
 
     fn description(&self) -> NSString {
-        unsafe {
-            let ptr = msg_send![self.ptr, description];
-            NSString::fromId(ptr)
-        }
+        unsafe { msg_send![self.ptr, description] }
     }
 
     fn debugDescription(&self) -> NSString {
-        unsafe {
-            let ptr = msg_send![self.ptr, debugDescription];
-            NSString::fromId(ptr)
-        }
+        unsafe { msg_send![self.ptr, debugDescription] }
     }
 
-    fn retain(&self) -> Self {
-        unsafe {
-            let ptr = msg_send![self.ptr, retain];
-            Self::fromId(ptr)
-        }
+    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+        unsafe { msg_send![self.ptr, performSelector: aSelector] }
+    }
+
+    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+        unsafe { msg_send![self.ptr, performSelector: aSelector withObject: withObject] }
+    }
+
+    fn isProxy(&self) -> bool {
+        unsafe { msg_send![self.ptr, isProxy] }
     }
 }
 

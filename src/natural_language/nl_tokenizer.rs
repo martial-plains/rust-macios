@@ -9,7 +9,7 @@ use crate::{
     objective_c_runtime::traits::PNSObject,
 };
 
-use super::{traits::t_NLTokenizer, NLTokenUnit};
+use super::{traits::INLTokenizer, NLTokenUnit};
 
 /// A tokenizer that segments natural language text into semantic units.
 pub struct NLTokenizer {
@@ -18,58 +18,60 @@ pub struct NLTokenizer {
 }
 
 impl PNSObject for NLTokenizer {
-    fn new() -> Self {
-        unsafe {
-            let cls = class!(NLTokenizer);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj = msg_send![obj, init];
-            Self { obj }
-        }
+    fn class<'a>() -> &'a objc::runtime::Class {
+        class!(NLTokenizer)
     }
 
-    fn toId(mut self) -> id {
-        &mut *self.obj
+    fn superclass<'a>() -> &'a objc::runtime::Class {
+        unsafe { msg_send![Self::class(), superclass] }
     }
 
-    unsafe fn fromId(obj: id) -> Self {
-        Self {
-            obj: Id::from_ptr(obj),
-        }
+    fn isEqual(&self, object: &Self) -> bool {
+        unsafe { msg_send![self.obj, isEqual: object] }
+    }
+
+    fn hash(&self) -> UInt {
+        unsafe { msg_send![self.obj, hash] }
+    }
+
+    fn isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { msg_send![self.obj, isKindOfClass: aClass] }
+    }
+
+    fn isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
+    }
+
+    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+        unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
+    }
+
+    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+        unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
     }
 
     fn description(&self) -> NSString {
-        let obj: id = unsafe { msg_send![&*self.obj, description] };
-        unsafe { NSString::fromId(obj) }
+        unsafe { msg_send![self.obj, description] }
     }
 
     fn debugDescription(&self) -> NSString {
-        let obj: id = unsafe { msg_send![&*self.obj, debugDescription] };
-        unsafe { NSString::fromId(obj) }
+        unsafe { msg_send![self.obj, debugDescription] }
     }
 
-    fn retain(&self) -> Self {
-        unsafe {
-            let obj: *mut Object = msg_send![&*self.obj, retain];
-            Self {
-                obj: Id::from_ptr(obj),
-            }
-        }
+    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector] }
     }
-}
 
-impl fmt::Debug for NLTokenizer {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<{}>", self.debugDescription())
+    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    }
+
+    fn isProxy(&self) -> bool {
+        unsafe { msg_send![self.obj, isProxy] }
     }
 }
 
-impl fmt::Display for NLTokenizer {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.description())
-    }
-}
-
-impl t_NLTokenizer for NLTokenizer {
+impl INLTokenizer for NLTokenizer {
     /* Creating a Tokenizer
      */
 
@@ -107,5 +109,17 @@ impl t_NLTokenizer for NLTokenizer {
 
     fn tokenRangeForRange(&self, range: Range<UInt>) -> Range<UInt> {
         unsafe { msg_send![self.obj, tokenRangeForRange: range] }
+    }
+}
+
+impl fmt::Debug for NLTokenizer {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<{}>", self.debugDescription())
+    }
+}
+
+impl fmt::Display for NLTokenizer {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.description())
     }
 }

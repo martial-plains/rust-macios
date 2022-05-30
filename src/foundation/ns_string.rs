@@ -17,7 +17,7 @@ use objc_id::Id;
 use crate::{
     foundation::{traits::INSString, ComparisonResult, Int, NSLocale, UInt},
     id,
-    objective_c_runtime::traits::PNSObject,
+    objective_c_runtime::traits::{FromId, PNSObject},
     utils::to_bool,
 };
 
@@ -52,37 +52,56 @@ impl NSString {
 }
 
 impl PNSObject for NSString {
-    fn new() -> Self {
-        unsafe { msg_send![class!(NSString), new] }
+    fn class<'a>() -> &'a objc::runtime::Class {
+        class!(NSString)
     }
 
-    fn toId(mut self) -> id {
-        &mut *self.objc
+    fn superclass<'a>() -> &'a objc::runtime::Class {
+        unsafe { msg_send![Self::class(), superclass] }
     }
 
-    unsafe fn fromId(obj: id) -> Self {
-        NSString {
-            objc: Id::from_ptr(obj),
-            marker: PhantomData,
-        }
+    fn isEqual(&self, object: &Self) -> bool {
+        unsafe { to_bool(msg_send![&*self.objc, isEqual: &*object.objc]) }
+    }
+
+    fn hash(&self) -> UInt {
+        unsafe { msg_send![&*self.objc, hash] }
+    }
+
+    fn isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { to_bool(msg_send![&*self.objc, isKindOfClass: aClass]) }
+    }
+
+    fn isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+        unsafe { to_bool(msg_send![&*self.objc, isMemberOfClass: aClass]) }
+    }
+
+    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+        unsafe { to_bool(msg_send![&*self.objc, respondsToSelector: aSelector]) }
+    }
+
+    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+        unsafe { to_bool(msg_send![&*self.objc, conformsToProtocol: aProtocol]) }
     }
 
     fn description(&self) -> NSString {
-        unsafe {
-            let description: id = msg_send![&*self.objc, description];
-            NSString::fromId(description)
-        }
+        unsafe { msg_send![&*self.objc, description] }
     }
 
     fn debugDescription(&self) -> NSString {
-        unsafe {
-            let description: id = msg_send![&*self.objc, debugDescription];
-            NSString::fromId(description)
-        }
+        unsafe { msg_send![&*self.objc, debugDescription] }
     }
 
-    fn retain(&self) -> Self {
-        unsafe { msg_send![&*self.objc, retain] }
+    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+        unsafe { msg_send![&*self.objc, performSelector: aSelector] }
+    }
+
+    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+        unsafe { msg_send![&*self.objc, performSelector: aSelector withObject: withObject] }
+    }
+
+    fn isProxy(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.objc, isProxy]) }
     }
 }
 
@@ -342,7 +361,7 @@ impl INSString for NSString {
         if result.is_null() {
             None
         } else {
-            Some(unsafe { NSString::fromId(result) })
+            Some(NSString::from_id(result))
         }
     }
 
@@ -403,6 +422,15 @@ impl DerefMut for NSString {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
         &mut *self.objc
+    }
+}
+
+impl FromId for NSString {
+    fn from_id(id: id) -> Self {
+        NSString {
+            objc: unsafe { Id::from_ptr(id) },
+            marker: PhantomData,
+        }
     }
 }
 

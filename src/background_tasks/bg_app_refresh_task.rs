@@ -1,8 +1,8 @@
-use crate::background_tasks::traits::IBGTask;
+use crate::{background_tasks::traits::IBGTask, objective_c_runtime::traits::FromId};
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{foundation::NSString, objective_c_runtime::traits::PNSObject};
+use crate::{foundation::NSString, objective_c_runtime::traits::INSObject};
 
 /// An object representing a short task typically used to refresh content
 /// that’s run while the app is in the background.
@@ -11,7 +11,7 @@ pub struct BGAppRefreshTask {
     pub ptr: Id<Object>,
 }
 
-impl PNSObject for BGAppRefreshTask {
+impl INSObject for BGAppRefreshTask {
     fn new() -> Self {
         Self {
             ptr: unsafe { msg_send![class!(BGAppRefreshTask), new] },
@@ -29,11 +29,11 @@ impl PNSObject for BGAppRefreshTask {
     }
 
     fn description(&self) -> NSString {
-        unsafe { NSString::fromId(msg_send![self.ptr, description]) }
+        unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
     fn debugDescription(&self) -> NSString {
-        unsafe { NSString::fromId(msg_send![self.ptr, debugDescription]) }
+        unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
     fn retain(&self) -> Self {
@@ -43,7 +43,7 @@ impl PNSObject for BGAppRefreshTask {
 
 impl IBGTask for BGAppRefreshTask {
     fn identifier() -> NSString {
-        unsafe { NSString::fromId(msg_send![class!(BGAppRefreshTask), identifier]) }
+        unsafe { NSString::from_id(msg_send![class!(BGAppRefreshTask), identifier]) }
     }
 
     fn expirationHandler() {

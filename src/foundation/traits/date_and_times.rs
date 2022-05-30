@@ -1,7 +1,4 @@
-use crate::{
-    foundation::{ns_date::NSDate, ComparisonResult, NSTimeInterval},
-    objective_c_runtime::traits::PNSObject,
-};
+use crate::{foundation::{ns_date::NSDate, ComparisonResult, NSTimeInterval}, objective_c_runtime::traits::PNSObject};
 
 /// A representation of a specific point in time, independent of any calendar or time zone.
 pub trait INSDate: PNSObject {

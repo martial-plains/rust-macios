@@ -3,7 +3,10 @@ use std::fmt;
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{foundation::NSString, objective_c_runtime::traits::PNSObject};
+use crate::{
+    foundation::NSString,
+    objective_c_runtime::traits::{FromId, INSObject},
+};
 
 use super::traits::{IBGProcessingTask, IBGTask};
 
@@ -13,7 +16,7 @@ pub struct BGProcessingTask {
     pub ptr: Id<Object>,
 }
 
-impl PNSObject for BGProcessingTask {
+impl INSObject for BGProcessingTask {
     fn new() -> Self {
         Self {
             ptr: unsafe { msg_send![class!(BGProcessingTask), new] },
@@ -31,11 +34,11 @@ impl PNSObject for BGProcessingTask {
     }
 
     fn description(&self) -> NSString {
-        unsafe { NSString::fromId(msg_send![self.ptr, description]) }
+        unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
     fn debugDescription(&self) -> NSString {
-        unsafe { NSString::fromId(msg_send![self.ptr, debugDescription]) }
+        unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
     fn retain(&self) -> Self {
@@ -45,7 +48,7 @@ impl PNSObject for BGProcessingTask {
 
 impl IBGTask for BGProcessingTask {
     fn identifier() -> NSString {
-        unsafe { NSString::fromId(msg_send![class!(BGProcessingTask), identifier]) }
+        unsafe { NSString::from_id(msg_send![class!(BGProcessingTask), identifier]) }
     }
 
     fn expirationHandler() {

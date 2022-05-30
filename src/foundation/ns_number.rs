@@ -7,12 +7,18 @@ use libc::{
     c_double, c_float, c_int, c_long, c_longlong, c_schar, c_short, c_uchar, c_uint, c_ulong,
     c_ulonglong, c_ushort,
 };
-use objc::{class, msg_send, runtime::Object, sel, sel_impl};
+use objc::{
+    class, msg_send,
+    runtime::{Class, Object, Protocol, Sel},
+    sel, sel_impl,
+};
 use objc_id::Id;
 
 use crate::{
     foundation::{traits::t_NSNumber, ComparisonResult, Int, NSLocale, NSString, UInt},
-    objective_c_runtime::traits::{t_NSValue, PNSObject},
+    id,
+    objective_c_runtime::traits::{FromId, INSValue, PNSObject},
+    utils::to_bool,
 };
 
 /// An object wrapper for primitive scalar numeric values.
@@ -22,44 +28,84 @@ pub struct NSNumber {
 }
 
 impl PNSObject for NSNumber {
-    fn new() -> Self {
-        let obj = unsafe { msg_send![class!(NSNumber), new] };
-        NSNumber { obj }
+    fn class<'a>() -> &'a Class {
+        class!(NSNumber)
     }
 
-    fn toId(mut self) -> crate::id {
-        &mut *self.obj
+    fn superclass<'a>() -> &'a Class {
+        unsafe { msg_send![class!(NSNumber), superclass] }
     }
 
-    unsafe fn fromId(obj: crate::id) -> Self {
-        Self {
-            obj: Id::from_ptr(obj),
+    fn isEqual(&self, object: &Self) -> bool {
+        unsafe {
+            let isEqual = msg_send![self.obj, isEqual: object];
+            to_bool(isEqual)
+        }
+    }
+
+    fn hash(&self) -> UInt {
+        unsafe { msg_send![self.obj, hash] }
+    }
+
+    fn isKindOfClass(&self, aClass: Class) -> bool {
+        unsafe {
+            let isKindOfClass = msg_send![self.obj, isKindOfClass: aClass];
+            to_bool(isKindOfClass)
+        }
+    }
+
+    fn isMemberOfClass(&self, aClass: Class) -> bool {
+        unsafe {
+            let isMemberOfClass = msg_send![self.obj, isMemberOfClass: aClass];
+            to_bool(isMemberOfClass)
+        }
+    }
+
+    fn respondsToSelector(&self, aSelector: Sel) -> bool {
+        unsafe {
+            let respondsToSelector = msg_send![self.obj, respondsToSelector: aSelector];
+            to_bool(respondsToSelector)
+        }
+    }
+
+    fn conformsToProtocol(&self, aProtocol: Protocol) -> bool {
+        unsafe {
+            let conformsToProtocol = msg_send![self.obj, conformsToProtocol: aProtocol];
+            to_bool(conformsToProtocol)
         }
     }
 
     fn description(&self) -> NSString {
         unsafe {
             let description = msg_send![self.obj, description];
-            NSString::fromId(description)
+            NSString::from_id(description)
         }
     }
 
     fn debugDescription(&self) -> NSString {
         unsafe {
-            let description = msg_send![self.obj, debugDescription];
-            NSString::fromId(description)
+            let debugDescription = msg_send![self.obj, debugDescription];
+            NSString::from_id(debugDescription)
         }
     }
 
-    fn retain(&self) -> Self {
+    fn performSelector(&self, aSelector: Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    }
+
+    fn performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    }
+
+    fn isProxy(&self) -> bool {
         unsafe {
-            let obj = msg_send![self.obj, retain];
-            Self { obj }
+            let isProxy = msg_send![self.obj, isProxy];
+            to_bool(isProxy)
         }
     }
 }
 
-impl t_NSValue for NSNumber {}
+impl INSValue for NSNumber {}
 
 impl t_NSNumber for NSNumber {
     fn numberWithBool(value: bool) -> Self {
@@ -350,14 +396,14 @@ impl t_NSNumber for NSNumber {
     fn descriptionWithLocale(&self, locale: NSLocale) -> NSString {
         unsafe {
             let description = msg_send![self.obj, descriptionWithLocale: locale.obj];
-            NSString::fromId(description)
+            NSString::from_id(description)
         }
     }
 
     fn stringValue(&self) -> NSString {
         unsafe {
             let description = msg_send![self.obj, stringValue];
-            NSString::fromId(description)
+            NSString::from_id(description)
         }
     }
 
@@ -420,11 +466,19 @@ where
     T: Into<NSNumber>,
 {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let mut sum = NSNumber::new();
+        let mut sum = NSNumber::from(0);
         for item in iter {
             sum = sum + item.into();
         }
         sum
+    }
+}
+
+impl FromId for NSNumber {
+    fn from_id(obj: id) -> Self {
+        NSNumber {
+            obj: unsafe { Id::from_ptr(obj) },
+        }
     }
 }
 

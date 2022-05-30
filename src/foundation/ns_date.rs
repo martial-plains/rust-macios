@@ -1,9 +1,17 @@
 use std::fmt;
 
-use objc::{class, msg_send, runtime::Object, sel, sel_impl};
+use objc::{
+    class, msg_send,
+    runtime::{Class, Object, Protocol, Sel},
+    sel, sel_impl,
+};
 use objc_id::Id;
 
-use crate::{id, objective_c_runtime::traits::PNSObject, foundation::NSString};
+use crate::{
+    foundation::NSString,
+    id,
+    objective_c_runtime::traits::{FromId, PNSObject},
+};
 
 /// A representation of a specific point in time, independent of any calendar or time zone.
 pub struct NSDate {
@@ -12,32 +20,64 @@ pub struct NSDate {
 }
 
 impl PNSObject for NSDate {
-    fn new() -> Self {
-        Self {
-            ptr: unsafe { msg_send![class!(NSDate), new] },
-        }
+    fn class<'a>() -> &'a Class {
+        class!(NSDate)
     }
 
-    fn toId(mut self) -> id {
-        &mut *self.ptr
+    fn superclass<'a>() -> &'a Class {
+        unsafe { msg_send![class!(NSDate), superclass] }
     }
 
-    unsafe fn fromId(obj: id) -> Self {
-        Self {
-            ptr: Id::from_ptr(obj),
-        }
+    fn isEqual(&self, object: &Self) -> bool {
+        unsafe { msg_send![self.ptr, isEqual: object] }
+    }
+
+    fn hash(&self) -> super::UInt {
+        unsafe { msg_send![self.ptr, hash] }
+    }
+
+    fn isKindOfClass(&self, aClass: Class) -> bool {
+        unsafe { msg_send![self.ptr, isKindOfClass: aClass] }
+    }
+
+    fn isMemberOfClass(&self, aClass: Class) -> bool {
+        unsafe { msg_send![self.ptr, isMemberOfClass: aClass] }
+    }
+
+    fn respondsToSelector(&self, aSelector: Sel) -> bool {
+        unsafe { msg_send![self.ptr, respondsToSelector: aSelector] }
+    }
+
+    fn conformsToProtocol(&self, aProtocol: Protocol) -> bool {
+        unsafe { msg_send![self.ptr, conformsToProtocol: aProtocol] }
     }
 
     fn description(&self) -> NSString {
-        unsafe { NSString::fromId(msg_send![self.ptr, description]) }
+        unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
     fn debugDescription(&self) -> NSString {
-        unsafe { NSString::fromId(msg_send![self.ptr, debugDescription]) }
+        unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
-    fn retain(&self) -> Self {
-        unsafe { Self::fromId(msg_send![self.ptr, retain]) }
+    fn performSelector(&self, aSelector: Sel) -> id {
+        unsafe { msg_send![self.ptr, performSelector: aSelector] }
+    }
+
+    fn performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
+        unsafe { msg_send![self.ptr, performSelector: aSelector withObject: withObject] }
+    }
+
+    fn isProxy(&self) -> bool {
+        unsafe { msg_send![self.ptr, isProxy] }
+    }
+}
+
+impl FromId for NSDate {
+    fn from_id(ptr: id) -> Self {
+        Self {
+            ptr: unsafe { Id::from_ptr(ptr) },
+        }
     }
 }
 
@@ -55,6 +95,6 @@ impl fmt::Display for NSDate {
 
 impl Clone for NSDate {
     fn clone(&self) -> Self {
-        self.retain()
+        unsafe { Self::from_id(msg_send![self.ptr, copy]) }
     }
 }
