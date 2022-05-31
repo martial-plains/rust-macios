@@ -10,7 +10,7 @@ use objc_id::Id;
 
 use crate::{
     id,
-    objective_c_runtime::traits::{FromId, PNSObject},
+    objective_c_runtime::traits::{FromId, PNSObject, ToId},
 };
 
 use super::{
@@ -153,10 +153,16 @@ where {
     }
 }
 
-impl FromId for NSMutableDictionary<NSString, NSString> {
-    fn from_id(obj: id) -> Self {
+impl<K, V> ToId for NSMutableDictionary<K, V> {
+    fn to_id(mut self) -> id {
+        &mut *self.obj
+    }
+}
+
+impl<K, V> FromId for NSMutableDictionary<K, V> {
+    unsafe fn from_id(obj: id) -> Self {
         Self {
-            obj: unsafe { Id::from_ptr(obj) },
+            obj: Id::from_ptr(obj),
             _key: PhantomData,
             _value: PhantomData,
         }

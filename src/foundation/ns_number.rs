@@ -17,7 +17,7 @@ use objc_id::Id;
 use crate::{
     foundation::{traits::t_NSNumber, ComparisonResult, Int, NSLocale, NSString, UInt},
     id,
-    objective_c_runtime::traits::{FromId, INSValue, PNSObject},
+    objective_c_runtime::traits::{FromId, INSValue, PNSObject, ToId},
     utils::to_bool,
 };
 
@@ -474,10 +474,16 @@ where
     }
 }
 
+impl ToId for NSNumber {
+    fn to_id(mut self) -> id {
+        &mut *self.obj
+    }
+}
+
 impl FromId for NSNumber {
-    fn from_id(obj: id) -> Self {
+    unsafe fn from_id(obj: id) -> Self {
         NSNumber {
-            obj: unsafe { Id::from_ptr(obj) },
+            obj: Id::from_ptr(obj),
         }
     }
 }

@@ -223,7 +223,7 @@ impl INSLocale for NSLocale {
         if result.is_null() {
             None
         } else {
-            Some(NSString::from_id(result))
+            Some(unsafe { NSString::from_id(result) })
         }
     }
 

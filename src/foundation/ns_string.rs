@@ -17,7 +17,7 @@ use objc_id::Id;
 use crate::{
     foundation::{traits::INSString, ComparisonResult, Int, NSLocale, UInt},
     id,
-    objective_c_runtime::traits::{FromId, PNSObject},
+    objective_c_runtime::traits::{FromId, PNSObject, ToId},
     utils::to_bool,
 };
 
@@ -361,7 +361,7 @@ impl INSString for NSString {
         if result.is_null() {
             None
         } else {
-            Some(NSString::from_id(result))
+            Some(unsafe { NSString::from_id(result) })
         }
     }
 
@@ -425,10 +425,16 @@ impl DerefMut for NSString {
     }
 }
 
+impl ToId for NSString {
+    fn to_id(mut self) -> id {
+        &mut *self.objc
+    }
+}
+
 impl FromId for NSString {
-    fn from_id(id: id) -> Self {
+    unsafe fn from_id(id: id) -> Self {
         NSString {
-            objc: unsafe { Id::from_ptr(id) },
+            objc: Id::from_ptr(id),
             marker: PhantomData,
         }
     }

@@ -10,7 +10,7 @@ use objc_id::Id;
 use crate::{
     foundation::NSString,
     id,
-    objective_c_runtime::traits::{FromId, PNSObject},
+    objective_c_runtime::traits::{FromId, PNSObject, ToId},
 };
 
 /// A representation of a specific point in time, independent of any calendar or time zone.
@@ -73,10 +73,16 @@ impl PNSObject for NSDate {
     }
 }
 
+impl ToId for NSDate {
+    fn to_id(mut self) -> id {
+        &mut *self.ptr
+    }
+}
+
 impl FromId for NSDate {
-    fn from_id(ptr: id) -> Self {
+    unsafe fn from_id(ptr: id) -> Self {
         Self {
-            ptr: unsafe { Id::from_ptr(ptr) },
+            ptr: Id::from_ptr(ptr),
         }
     }
 }

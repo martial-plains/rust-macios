@@ -10,7 +10,7 @@ use objc_id::Id;
 use crate::{
     foundation::{NSArray, NSString, UInt},
     id,
-    objective_c_runtime::traits::{FromId, PNSObject},
+    objective_c_runtime::traits::{FromId, PNSObject, ToId},
     utils::to_bool,
 };
 
@@ -358,13 +358,20 @@ where
     }
 }
 
+impl<T> ToId for NSMutableArray<T> {
+    /// Converts the NSMutableArray to an id.
+    fn to_id(mut self) -> id {
+        &mut *self.obj
+    }
+}
+
 impl<T> FromId for NSMutableArray<T>
 where
     T: PNSObject,
 {
-    fn from_id(id: id) -> Self {
+    unsafe fn from_id(id: id) -> Self {
         NSMutableArray {
-            obj: unsafe { Id::from_ptr(id) },
+            obj: Id::from_ptr(id),
             _marker: PhantomData,
         }
     }

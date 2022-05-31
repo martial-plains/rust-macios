@@ -268,17 +268,15 @@ impl From<(*const c_char, usize)> for NSArray<UInt8> {
 
 impl<T> From<id> for NSArray<T> {
     fn from(obj: id) -> Self {
-        NSArray::from_id(obj)
+        unsafe { NSArray::from_id(obj) }
     }
 }
 
 impl<T> FromId for NSArray<T> {
-    fn from_id(obj: id) -> Self {
-        unsafe {
-            Self {
-                obj: Id::from_ptr(obj),
-                _marker: PhantomData,
-            }
+    unsafe fn from_id(obj: id) -> Self {
+        Self {
+            obj: Id::from_ptr(obj),
+            _marker: PhantomData,
         }
     }
 }

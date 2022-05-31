@@ -11,7 +11,7 @@ use objc_id::Id;
 use crate::{
     foundation::{NSDictionary, NSNumber, NSString, UInt},
     id,
-    objective_c_runtime::traits::{FromId, PNSObject},
+    objective_c_runtime::traits::{FromId, PNSObject, ToId},
 };
 
 use super::{traits::INLLanguageRecognizer, NLLanguage};
@@ -132,10 +132,16 @@ impl INLLanguageRecognizer for NLLanguageRecognizer {
     }
 }
 
+impl ToId for NLLanguageRecognizer {
+    fn to_id(mut self) -> id {
+        &mut *self.obj
+    }
+}
+
 impl FromId for NLLanguageRecognizer {
-    fn from_id(obj: id) -> Self {
+    unsafe fn from_id(obj: id) -> Self {
         Self {
-            obj: unsafe { Id::from_ptr(obj) },
+            obj: Id::from_ptr(obj),
         }
     }
 }

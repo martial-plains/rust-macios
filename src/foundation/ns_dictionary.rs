@@ -9,7 +9,7 @@ use objc_id::Id;
 
 use crate::{
     id,
-    objective_c_runtime::traits::{FromId, PNSObject},
+    objective_c_runtime::traits::{FromId, PNSObject, ToId},
 };
 
 use super::{traits::INSDictionary, NSMutableDictionary, NSString, UInt};
@@ -94,10 +94,16 @@ impl<K, V> fmt::Display for NSDictionary<K, V> {
     }
 }
 
+impl<K, V> ToId for NSDictionary<K, V> {
+    fn to_id(mut self) -> id {
+        &mut *self.obj
+    }
+}
+
 impl<K, V> FromId for NSDictionary<K, V> {
-    fn from_id(id: id) -> Self {
+    unsafe fn from_id(id: id) -> Self {
         NSDictionary {
-            obj: unsafe { Id::from_ptr(id) },
+            obj: Id::from_ptr(id),
             _key: PhantomData,
             _value: PhantomData,
         }
