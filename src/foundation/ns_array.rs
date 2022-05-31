@@ -267,6 +267,7 @@ impl From<(*const c_char, usize)> for NSArray<UInt8> {
 }
 
 impl<T> From<id> for NSArray<T> {
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn from(obj: id) -> Self {
         unsafe { NSArray::from_id(obj) }
     }

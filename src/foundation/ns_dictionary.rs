@@ -148,6 +148,7 @@ impl<K, V> DerefMut for NSDictionary<K, V> {
 }
 
 impl<K, V> From<id> for NSDictionary<K, V> {
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn from(obj: id) -> Self {
         Self {
             obj: unsafe { Id::from_ptr(obj) },
@@ -164,7 +165,7 @@ where
 {
     fn from(dict: NSMutableDictionary<K, V>) -> Self {
         let cls: id =
-            unsafe { msg_send![class!(NSDictionary), dictionaryWithDictionary: dict.clone()] };
+            unsafe { msg_send![class!(NSDictionary), dictionaryWithDictionary: dict] };
         NSDictionary::from(cls)
     }
 }
