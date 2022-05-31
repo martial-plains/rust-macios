@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::{background_tasks::traits::IBGTask, objective_c_runtime::traits::FromId};
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
@@ -52,5 +54,17 @@ impl IBGTask for BGAppRefreshTask {
 
     fn setTaskCompletedWithSuccess(&self, success: bool) {
         unsafe { msg_send![self.ptr, setTaskCompletedWithSuccess: success] }
+    }
+}
+
+impl fmt::Debug for BGAppRefreshTask {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.debugDescription())
+    }
+}
+
+impl fmt::Display for BGAppRefreshTask {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.description())
     }
 }
