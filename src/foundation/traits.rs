@@ -1,6 +1,7 @@
 /* Fundamentals
 */
 
+mod archives_and_serialization;
 mod collections;
 mod data_formatting;
 mod date_and_times;
