@@ -159,11 +159,12 @@ pub trait INSString: PNSObject {
     ///
     /// * `key` - The key to use when looking up the string in the app’s Localizable.strings file.
     /// * `arguments` - An array of values to substitute for escaped characters in the string.
-    fn tm_localizedUserNotificationStringForKey_arguments<T>(
-        key: NSString,
+    fn tm_localizedUserNotificationStringForKey_arguments<K, T>(
+        key: K,
         arguments: NSArray<T>,
     ) -> NSString
     where
+        K: Into<NSString>,
         T: PNSObject;
 
     /// Returns a string containing a given number of characters taken from a
@@ -188,7 +189,9 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object initialized by copying the characters from s.
-    fn tm_stringWithString(s: NSString) -> Self;
+    fn tm_stringWithString<S>(s: S) -> Self
+    where
+        S: Into<NSString>;
 
     /// Returns a string containing the bytes in a given C array, interpreted
     /// according to a given encoding.
@@ -219,7 +222,7 @@ pub trait INSString: PNSObject {
      */
 
     /// The number of Unicode characters in this string.
-    fn ip_length(&self) -> Int;
+    fn ip_length(&self) -> UInt;
 
     /// Returns the number of bytes required to store the receiver in a given encoding.
     ///
@@ -234,7 +237,7 @@ pub trait INSString: PNSObject {
     /// NULL character. Returns 0 if the specified encoding cannot be used to convert
     /// the receiver or if the amount of memory required for storing the results of the
     /// encoding conversion would exceed NSIntegerMax.
-    fn im_lengthOfBytesUsingEncoding(&self, enc: Encoding) -> Int;
+    fn im_lengthOfBytesUsingEncoding(&self, enc: Encoding) -> UInt;
 
     /// Returns the maximum number of bytes needed to store the receiver in a given encoding.
     ///
@@ -262,7 +265,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// The character at the array position given by index.
-    fn im_characterAtIndex(&self, index: Int) -> char;
+    fn im_characterAtIndex(&self, index: UInt) -> char;
 
     /// Copies characters from a given range in the receiver into a given buffer.
     ///

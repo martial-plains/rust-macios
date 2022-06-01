@@ -1,21 +1,19 @@
-#[macro_export]
 /// A macro to create new `NSArray`s.
-macro_rules! NSArray {
+pub macro NSArray {
     () => {
         $crate::foundation::NSArray::new()
-    };
+    },
     ($($x:expr),*) => {
         $crate::foundation::NSArray::from(vec![$($x),*])
-    };
+    },
 }
 
-#[macro_export]
 /// A macro to create new `NSDictionary`s.
-macro_rules! NSDictionary {
-    (@single $($x:tt)*) => (());
-    (@count $($rest:expr),*) => (<[()]>::len(&[$(NSDictionary!(@single $rest)),*]));
+pub macro NSDictionary {
+    (@single $($x:tt)*) => (()),
+    (@count $($rest:expr),*) => (<[()]>::len(&[$(NSDictionary!(@single $rest)),*])),
 
-    ($($key:expr => $value:expr,)+) => { NSDictionary!($($key => $value),+) };
+    ($($key:expr => $value:expr,)+) => { NSDictionary!($($key => $value),+) },
     ($($key:expr => $value:expr),*) => {
         {
             use $crate::foundation::traits::INSMutableDictionary;
@@ -26,5 +24,5 @@ macro_rules! NSDictionary {
             )*
             $crate::foundation::NSDictionary::from(map)
         }
-    };
+    },
 }

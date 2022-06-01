@@ -70,11 +70,11 @@ impl PNSObject for NSLocale {
     }
 
     fn description(&self) -> NSString {
-        unsafe { msg_send![self.obj, description] }
+        unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
     fn debugDescription(&self) -> NSString {
-        unsafe { msg_send![self.obj, debugDescription] }
+        unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
     fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {

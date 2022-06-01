@@ -108,9 +108,9 @@ pub trait INSValue: PNSObject {}
 /// Converting an Objective-C pointer to Object
 pub trait FromId: ToId {
     /// Returns `Self` representation of the object.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// This function dereferences a raw pointer
     unsafe fn from_id(ptr: id) -> Self;
 }

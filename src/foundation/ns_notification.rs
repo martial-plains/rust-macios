@@ -9,7 +9,7 @@ use objc_id::Id;
 use crate::{
     foundation::{traits::INSNotification, NSString},
     id,
-    objective_c_runtime::traits::PNSObject,
+    objective_c_runtime::traits::{PNSObject, FromId},
 };
 
 /// A container for information broadcast through a notification center to all registered observers.
@@ -51,11 +51,11 @@ impl PNSObject for NSNotification {
     }
 
     fn description(&self) -> NSString {
-        unsafe { msg_send![self.obj, description] }
+        unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
     fn debugDescription(&self) -> NSString {
-        unsafe { msg_send![self.obj, debugDescription] }
+        unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
     fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {

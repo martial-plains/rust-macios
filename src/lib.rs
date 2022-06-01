@@ -26,6 +26,7 @@
 )]
 #![warn(clippy::all, missing_debug_implementations)]
 #![allow(nonstandard_style, improper_ctypes)]
+#![feature(decl_macro)]
 
 use objc::runtime::Object;
 

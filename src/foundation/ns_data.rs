@@ -3,7 +3,10 @@ use std::fmt::{Debug, Display};
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{id, objective_c_runtime::traits::PNSObject};
+use crate::{
+    id,
+    objective_c_runtime::traits::{FromId, PNSObject, ToId},
+};
 
 use super::{traits::INSData, NSString};
 
@@ -47,11 +50,11 @@ impl PNSObject for NSData {
     }
 
     fn description(&self) -> NSString {
-        unsafe { msg_send![self.ptr, description] }
+        unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
     fn debugDescription(&self) -> NSString {
-        unsafe { msg_send![self.ptr, debugDescription] }
+        unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
     fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
@@ -123,6 +126,20 @@ impl INSData for NSData {
 
     fn bytes(&self) -> *const libc::c_void {
         unsafe { msg_send![self.ptr, bytes] }
+    }
+}
+
+impl ToId for NSData {
+    fn to_id(mut self) -> id {
+        &mut *self.ptr
+    }
+}
+
+impl FromId for NSData {
+    unsafe fn from_id(id: id) -> Self {
+        Self {
+            ptr: Id::from_ptr(id),
+        }
     }
 }
 
