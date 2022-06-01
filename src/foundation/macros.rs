@@ -1,5 +1,5 @@
 /// A macro to create new `NSArray`s.
-pub macro NSArray {
+pub macro ns_array {
     () => {
         $crate::foundation::NSArray::new()
     },
