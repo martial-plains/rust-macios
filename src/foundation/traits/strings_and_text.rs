@@ -4,9 +4,9 @@ use libc::{c_char, c_void};
 
 use crate::{
     foundation::{
-        string::Encoding, unichar, Int, NSArray, NSComparisonResult, NSData, NSLocale,
-        NSMutableString, NSString, NSStringCompareOptions, NSStringEncodingConversionOptions,
-        NSStringTransform, UInt,
+        string::Encoding, unichar, Int, NSArray, NSCharacterSet, NSComparisonResult, NSData,
+        NSLocale, NSMutableString, NSString, NSStringCompareOptions,
+        NSStringEncodingConversionOptions, NSStringTransform, UInt, UInt8, ns_coder::NSCoder,
     },
     objective_c_runtime::traits::PNSObject,
 };
@@ -753,4 +753,119 @@ pub trait INSMutableString: INSString {
     fn im_setString<S>(&mut self, string: S)
     where
         S: Into<NSString>;
+}
+
+/// An object representing a fixed set of Unicode character values for use in
+/// search operations.
+pub trait INSCharacterSet: PNSObject {
+    /* Getting Standard Character Sets
+     */
+
+    /// A character set containing the characters in Unicode General Categories L*, M*, and N*.
+    fn tp_alphanumericCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing the characters in Unicode General Category Lt.
+    fn tp_capitalizedLetterCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing the characters in Unicode General Category Cc and Cf.
+    fn tp_controlCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing the characters in the category of Decimal Numbers.
+    fn tp_decimalDigitCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing individual Unicode characters that can also be represented as composed character sequences (such as for letters with accents), by the definition of “standard decomposition” in version 3.2 of the Unicode character encoding standard.
+    fn tp_decomposableCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing values in the category of Non-Characters or that have not yet been defined in version 3.2 of the Unicode standard.
+    fn tp_illegalCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing the characters in Unicode General Category L* & M*.
+    fn tp_letterCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing the characters in Unicode General Category Ll.
+    fn tp_lowercaseLetterCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing the newline characters (U+000A ~ U+000D, U+0085, U+2028, and U+2029).
+    fn tp_newlineCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing the characters in Unicode General Category M*.
+    fn tp_nonBaseCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing the characters in Unicode General Category P*.
+    fn tp_punctuationCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing the characters in Unicode General Category S*.
+    fn tp_symbolCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing the characters in Unicode General Category Lu and Lt.
+    fn tp_uppercaseLetterCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing characters in Unicode General Category Z*, U+000A ~ U+000D, and U+0085.
+    fn tp_whitespaceAndNewlineCharacterSet() -> NSCharacterSet;
+
+    /// A character set containing the characters in Unicode General Category Zs and CHARACTER TABULATION (U+0009).
+    fn tp_whitespaceCharacterSet() -> NSCharacterSet;
+
+    /* Getting Character Sets for URL Encoding
+     */
+
+    /// Returns the character set for characters allowed in a fragment URL component.
+    fn tp_URLFragmentAllowedCharacterSet() -> NSCharacterSet;
+
+    /// Returns the character set for characters allowed in a host URL subcomponent.
+    fn tp_URLHostAllowedCharacterSet() -> NSCharacterSet;
+
+    /// Returns the character set for characters allowed in a password URL subcomponent.
+    fn tp_URLPasswordAllowedCharacterSet() -> NSCharacterSet;
+
+    /// Returns the character set for characters allowed in a path URL component.
+    fn tp_URLPathAllowedCharacterSet() -> NSCharacterSet;
+
+    /// Returns the character set for characters allowed in a query URL component.
+    fn tp_URLQueryAllowedCharacterSet() -> NSCharacterSet;
+
+    /// Returns the character set for characters allowed in a user URL subcomponent.
+    fn tp_URLUserAllowedCharacterSet() -> NSCharacterSet;
+
+    /* Creating a Custom Character Set
+     */
+
+    /// Initializing with coder
+    fn im_initWithCoder(self, coder: NSCoder) -> Self;
+
+    /// Returns a character set containing the characters in a given string.
+    fn tm_characterSetWithCharactersInString(string: NSString) -> NSCharacterSet;
+
+    /// Returns a character set containing characters with Unicode values in a given range.
+    fn tm_characterSetWithRange(range: Range<UInt>) -> NSCharacterSet;
+
+    /* Creating and Managing Character Sets as Bitmap Representations
+     */
+
+    /// Returns a character set containing characters determined by a given bitmap representation.
+    fn tm_characterSetWithBitmapRepresentation(data: NSData) -> NSCharacterSet;
+
+    /// Returns a character set read from the bitmap representation stored in the file a given path.
+    fn tm_characterSetWithContentsOfFile(path: NSString) -> NSCharacterSet;
+
+    /// An NSData object encoding the receiver in binary format.
+    fn ip_bitmapRepresentation(&self) -> NSData;
+
+    /// A character set containing only characters that don’t exist in the receiver.
+    fn ip_invertedSet(&self) -> NSCharacterSet;
+
+    /* Testing Set Membership
+     */
+
+    /// Returns a Boolean value that indicates whether a given character is in the receiver.
+    fn im_characterIsMember(&self, character: unichar) -> bool;
+
+    /// Returns a Boolean value that indicates whether the receiver has at least one member in a given character plane.
+    fn im_hasMemberInPlane(&self, plane: UInt8) -> bool;
+
+    /// Returns a Boolean value that indicates whether the receiver is a superset of another given character set.
+    fn im_isSupersetOfSet(&self, theOther: NSCharacterSet) -> bool;
+
+    /// Returns a Boolean value that indicates whether a given long character is a member of the receiver.
+    fn im_longCharacterIsMember(&self, theLongChar: u32) -> bool;
 }

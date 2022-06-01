@@ -19,6 +19,8 @@ Fundamentals
 */
 
 mod ns_array;
+mod ns_character_set;
+mod ns_coder;
 mod ns_data;
 mod ns_date;
 mod ns_date_interval;
@@ -34,6 +36,7 @@ mod ns_string;
 mod string_transform;
 
 pub use ns_array::*;
+pub use ns_character_set::*;
 pub use ns_data::*;
 pub use ns_date::*;
 pub use ns_date_interval::*;
