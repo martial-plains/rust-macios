@@ -26,3 +26,19 @@ pub macro NSDictionary {
         }
     },
 }
+
+/// Respond to problem situations in your interactions with APIs, and fine-tune your app for better debugging.
+pub macro ns_log {
+    ($format:expr) => {
+        use $crate::foundation::NSLog;
+        unsafe {
+            NSLog($format.into());
+        }
+    },
+    ($format:expr, $($arg:expr),+) => {
+        use $crate::foundation::NSLog;
+        unsafe {
+            NSLog($format.into(), $($arg),+);
+        }
+    },
+}

@@ -50,3 +50,13 @@ pub use ns_notification::*;
 pub use ns_number::*;
 pub use ns_string::*;
 pub use string_transform::*;
+
+/* Errors and Exceptions
+*/
+
+#[allow(improper_ctypes)]
+extern "C" {
+    /// Respond to problem situations in your interactions with APIs, and fine-tune your app for better debugging.
+    pub fn NSLog(format: NSString, ...);
+
+}
