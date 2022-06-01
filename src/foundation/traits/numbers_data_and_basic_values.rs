@@ -7,7 +7,7 @@ use libc::{
 
 use crate::{
     foundation::{
-        ComparisonResult, Int, NSData, NSDecimalNumber, NSLocale, NSRoundingMode, NSString, UInt,
+        Int, NSComparisonResult, NSData, NSDecimalNumber, NSLocale, NSRoundingMode, NSString, UInt,
     },
     objective_c_runtime::traits::{INSValue, PNSObject},
 };
@@ -424,7 +424,7 @@ pub trait t_NSNumber: INSValue {
     /// # Arguments
     ///
     /// * `other` - The number to compare to the number object’s value.
-    fn compare(&self, other: &Self) -> ComparisonResult;
+    fn compare(&self, other: &Self) -> NSComparisonResult;
 
     /// Returns a Boolean value that indicates whether the number object’s value and a given number are equal.
     ///
@@ -589,7 +589,7 @@ pub trait t_NSDecimalNumber: t_NSNumber {
      */
 
     /// Compares this decimal number and another.
-    fn compare(&self, decimal_number: &Self) -> ComparisonResult;
+    fn compare(&self, decimal_number: &Self) -> NSComparisonResult;
 
     /* Getting Maximum and Minimum Possible Values
      */

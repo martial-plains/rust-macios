@@ -16,7 +16,7 @@ use objc_id::Id;
 use crate::{
     foundation::{
         traits::{t_NSDecimalNumber, t_NSNumber},
-        ComparisonResult, NSLocale, NSString,
+        NSComparisonResult, NSLocale, NSString,
     },
     id,
     objective_c_runtime::traits::{FromId, INSValue, PNSObject},
@@ -114,7 +114,7 @@ extern "C" {
     pub fn NSDecimalCompare(
         leftOperand: *const NSDecimal,
         rightOperand: *const NSDecimal,
-    ) -> ComparisonResult;
+    ) -> NSComparisonResult;
 }
 
 /// An object for representing and performing arithmetic on base-10 numbers.
@@ -374,7 +374,7 @@ impl t_NSNumber for NSDecimalNumber {
         }
     }
 
-    fn compare(&self, other: &Self) -> ComparisonResult {
+    fn compare(&self, other: &Self) -> NSComparisonResult {
         unsafe { msg_send![self.obj, compare: other] }
     }
 
@@ -626,9 +626,9 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         unsafe { msg_send![self.obj, objCType] }
     }
 
-    fn compare(&self, decimal_number: &Self) -> ComparisonResult {
+    fn compare(&self, decimal_number: &Self) -> NSComparisonResult {
         unsafe {
-            let class: ComparisonResult = msg_send![self.obj, compare: decimal_number];
+            let class: NSComparisonResult = msg_send![self.obj, compare: decimal_number];
             class
         }
     }

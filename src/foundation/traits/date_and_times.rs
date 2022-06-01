@@ -1,4 +1,7 @@
-use crate::{foundation::{ns_date::NSDate, ComparisonResult, NSTimeInterval}, objective_c_runtime::traits::PNSObject};
+use crate::{
+    foundation::{ns_date::NSDate, NSComparisonResult, NSTimeInterval},
+    objective_c_runtime::traits::PNSObject,
+};
 
 /// A representation of a specific point in time, independent of any calendar or time zone.
 pub trait INSDate: PNSObject {
@@ -48,7 +51,7 @@ pub trait INSDate: PNSObject {
     fn laterDate(date: NSDate) -> Self;
 
     /// Indicates the temporal ordering of the receiver and another given date.
-    fn compare(date: NSDate) -> ComparisonResult;
+    fn compare(date: NSDate) -> NSComparisonResult;
 
     /* Getting Time Intervals
      */

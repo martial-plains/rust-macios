@@ -15,7 +15,7 @@ use objc::{
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::t_NSNumber, ComparisonResult, Int, NSLocale, NSString, UInt},
+    foundation::{traits::t_NSNumber, Int, NSComparisonResult, NSLocale, NSString, UInt},
     id,
     objective_c_runtime::traits::{FromId, INSValue, PNSObject, ToId},
     utils::to_bool,
@@ -407,7 +407,7 @@ impl t_NSNumber for NSNumber {
         }
     }
 
-    fn compare(&self, other: &Self) -> ComparisonResult {
+    fn compare(&self, other: &Self) -> NSComparisonResult {
         unsafe { msg_send![self.obj, compare: other] }
     }
 
