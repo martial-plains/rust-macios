@@ -66,7 +66,7 @@ pub mod string {
 /// These values represent the options available to many of the string classes’ search and comparison methods.
 #[derive(Debug, PartialEq, Eq)]
 #[repr(u64)]
-pub enum CompareOptions {
+pub enum NSStringCompareOptions {
     /// A case-insensitive search.
     CaseInsensitive = 1,
     /// Exact character-by-character equivalence.
@@ -87,19 +87,19 @@ pub enum CompareOptions {
     RegularExpression = 1024,
 }
 
-impl CompareOptions {
+impl NSStringCompareOptions {
     /// Creates a new `CompareOptions` with the given flags.
     pub fn new(raw_value: usize) -> Self {
         match raw_value {
-            1 => CompareOptions::CaseInsensitive,
-            2 => CompareOptions::Literal,
-            4 => CompareOptions::Backwards,
-            8 => CompareOptions::Anchored,
-            64 => CompareOptions::Numeric,
-            128 => CompareOptions::DiacriticInsensitive,
-            256 => CompareOptions::WidthInsensitive,
-            512 => CompareOptions::ForcedOrdering,
-            1024 => CompareOptions::RegularExpression,
+            1 => NSStringCompareOptions::CaseInsensitive,
+            2 => NSStringCompareOptions::Literal,
+            4 => NSStringCompareOptions::Backwards,
+            8 => NSStringCompareOptions::Anchored,
+            64 => NSStringCompareOptions::Numeric,
+            128 => NSStringCompareOptions::DiacriticInsensitive,
+            256 => NSStringCompareOptions::WidthInsensitive,
+            512 => NSStringCompareOptions::ForcedOrdering,
+            1024 => NSStringCompareOptions::RegularExpression,
             _ => panic!("Unknown CompareOptions value: {}", raw_value),
         }
     }
@@ -108,7 +108,7 @@ impl CompareOptions {
 /// Constants that indicate sort order.
 #[derive(Debug, PartialEq, Eq)]
 #[repr(C)]
-pub enum ComparisonResult {
+pub enum NSComparisonResult {
     /// The left operand is smaller than the right operand.
     OrderedAscending = -1,
     /// The two operands are equal.
@@ -1136,19 +1136,18 @@ pub enum NSMatchingFlags {
 #[derive(Debug)]
 #[repr(u64)]
 pub enum NSPersonNameComponentsFormatterOptions {
-    Phonetic = (1 << 1)
+    Phonetic = (1 << 1),
 }
 
 #[cfg(any(target_os = "ios", target_os = "macos"))]
 #[derive(Debug)]
 #[repr(i64)]
-pub enum NSPersonNameComponentsFormatterStyle
-{
+pub enum NSPersonNameComponentsFormatterStyle {
     Default = 0,
     Short,
     Medium,
     Long,
-    Abbreviated
+    Abbreviated,
 }
 
 #[cfg(any(target_os = "ios", target_os = "macos"))]
@@ -1156,7 +1155,7 @@ pub enum NSPersonNameComponentsFormatterStyle
 #[repr(i64)]
 pub enum NSDecodingFailurePolicy {
     RaiseException,
-    SetErrorAndReturn
+    SetErrorAndReturn,
 }
 
 #[derive(Debug)]
@@ -1173,7 +1172,6 @@ pub enum NSIso8601DateFormatOptions {
     ColonSeparatorInTime = 1 << 9,
     ColonSeparatorInTimeZone = 1 << 10,
     FractionalSeconds = 1 << 11,
-
     // TODO: BitOR for `NSIso8601DateFormatOptions`
 
     // FullDate = Year | Month | Day | DashSeparatorInDate,
@@ -1183,19 +1181,19 @@ pub enum NSIso8601DateFormatOptions {
 
 #[derive(Debug)]
 #[repr(i64)]
-pub enum NSUrlSessionTaskMetricsResourceFetchType  {
+pub enum NSUrlSessionTaskMetricsResourceFetchType {
     Unknown,
     NetworkLoad,
     ServerPush,
-    LocalCache
+    LocalCache,
 }
 
 #[derive(Debug)]
 #[repr(u64)]
-pub enum NSMeasurementFormatterUnitOptions  {
+pub enum NSMeasurementFormatterUnitOptions {
     ProvidedUnit = (1 << 0),
     NaturalScale = (1 << 1),
-    TemperatureWithoutUnit = (1 << 2)
+    TemperatureWithoutUnit = (1 << 2),
 }
 
 #[derive(Debug)]
@@ -1234,4 +1232,11 @@ pub enum NSUrlSessionDelayedRequestDisposition {
 #[repr(u64)]
 pub enum NSXpcConnectionOptions {
     Privileged = (1 << 12),
+}
+
+#[derive(Debug)]
+#[repr(u64)]
+pub enum NSStringEncodingConversionOptions {
+    AllowLossy = 1,
+    ExternalRepresentation = 2,
 }
