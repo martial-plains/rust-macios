@@ -77,6 +77,13 @@ impl PNSObject for NLLanguageRecognizer {
 }
 
 impl INLLanguageRecognizer for NLLanguageRecognizer {
+    fn im_init() -> Self {
+        unsafe {
+            let obj: id = msg_send![Self::class(), init];
+            Self::from_id(obj)
+        }
+    }
+
     /// The most likely language for the processed text.
     fn dominantLanguage(&self) -> NSString {
         unsafe { msg_send![self.obj, dominantLanguage] }
@@ -103,13 +110,13 @@ impl INLLanguageRecognizer for NLLanguageRecognizer {
         unsafe { msg_send![&*self.obj, languageHypothesesWithMaximum: max_hypotheses] }
     }
 
+    /* Guiding the Recognizer
+     */
+
     /// Resets the recognizer to its initial state.
     fn reset(&self) {
         unsafe { msg_send![self.obj, reset] }
     }
-
-    /* Guiding the Recognizer
-     */
 
     /// A dictionary that maps languages to their probabilities in the language identification process.
     fn languageHints(&self) -> NSDictionary<NLLanguage, NSNumber> {

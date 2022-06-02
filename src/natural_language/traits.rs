@@ -45,6 +45,15 @@ pub trait INLTokenizer: PNSObject {
 /// The language of a body of text.
 
 pub trait INLLanguageRecognizer: PNSObject {
+    /* Creating a Recognizer
+     */
+
+    /// Creates a recognizer that you can customize.
+    fn im_init() -> Self;
+
+    /* Determining the Language
+     */
+
     /// The most likely language for the processed text.
     fn dominantLanguage(&self) -> NSString;
 
