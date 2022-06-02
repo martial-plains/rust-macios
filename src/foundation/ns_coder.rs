@@ -14,6 +14,8 @@ use crate::{
     utils::to_bool,
 };
 
+use super::{traits::INSCoder, NSDecodingFailurePolicy};
+
 /// An abstract class that serves as the basis for objects that enable archiving and distribution of other objects.
 pub struct NSCoder {
     /// The underlying Objective-C object.
@@ -71,6 +73,150 @@ impl PNSObject for NSCoder {
 
     fn isProxy(&self) -> bool {
         to_bool(unsafe { msg_send![self.ptr, isProxy] })
+    }
+}
+
+impl INSCoder for NSCoder {
+    fn ip_allowsKeyedCoding(&self) -> bool {
+        to_bool(unsafe { msg_send![self.ptr, allowsKeyedCoding] })
+    }
+
+    fn im_containsValueForKey<K>(&self, key: K) -> bool
+    where
+        K: Into<NSString>,
+    {
+        to_bool(unsafe { msg_send![self.ptr, containsValueForKey: key.into()] })
+    }
+
+    fn ip_decodingFailurePolicy(&self) -> NSDecodingFailurePolicy {
+        unsafe { msg_send![self.ptr, decodingFailurePolicy] }
+    }
+
+    fn im_encodeArrayOfObjCType_count_at(
+        &self,
+        type_: *const libc::c_char,
+        count: usize,
+        array: *const libc::c_void,
+    ) {
+        unsafe {
+            msg_send![
+                self.ptr,
+                encodeArrayOfObjCType: type_
+                count: count
+                at: array
+            ]
+        }
+    }
+
+    fn im_encodeBool_forKey<K>(&self, value: bool, key: K)
+    where
+        K: Into<NSString>,
+    {
+        unsafe { msg_send![self.ptr, encodeBool: value forKey: key.into()] }
+    }
+
+    fn im_encodeBycopyObject<T>(&self, object: T)
+    where
+        T: PNSObject + ToId,
+    {
+        unsafe { msg_send![self.ptr, encodeBycopyObject: object.to_id()] }
+    }
+
+    fn im_encodeByrefObject<T>(&self, object: T)
+    where
+        T: PNSObject,
+    {
+        unsafe { msg_send![self.ptr, encodeByrefObject: object] }
+    }
+
+    fn im_encodeBytes_length(&self, bytes: *const libc::c_void, length: UInt) {
+        unsafe { msg_send![self.ptr, encodeBytes: bytes length: length] }
+    }
+
+    fn im_encodeBytes_length_forKey<K>(&self, bytes: *const super::UInt8, length: UInt, key: K)
+    where
+        K: Into<NSString>,
+    {
+        unsafe { msg_send![self.ptr, encodeBytes: bytes length: length forKey: key.into()] }
+    }
+
+    fn im_encodeConditionalObject<T>(&self, object: T)
+    where
+        T: PNSObject,
+    {
+        unsafe { msg_send![self.ptr, encodeConditionalObject: object] }
+    }
+
+    fn im_encodeConditionalObject_forKey<T, K>(&self, object: T, key: K)
+    where
+        T: PNSObject,
+        K: Into<NSString>,
+    {
+        unsafe { msg_send![self.ptr, encodeConditionalObject: object forKey: key.into()] }
+    }
+
+    fn im_encodeDataObject<T>(&self, object: T)
+    where
+        T: PNSObject,
+    {
+        unsafe { msg_send![self.ptr, encodeDataObject: object] }
+    }
+
+    fn im_encodeDouble_forKey<K>(&self, value: libc::c_double, key: K)
+    where
+        K: Into<NSString>,
+    {
+        unsafe { msg_send![self.ptr, encodeDouble: value forKey: key.into()] }
+    }
+
+    fn im_encodeFloat_forKey<K>(&self, value: libc::c_float, key: K)
+    where
+        K: Into<NSString>,
+    {
+        unsafe { msg_send![self.ptr, encodeFloat: value forKey: key.into()] }
+    }
+
+    fn im_encodeInt_forKey<K>(&self, value: super::Int, key: K)
+    where
+        K: Into<NSString>,
+    {
+        unsafe { msg_send![self.ptr, encodeInt: value forKey: key.into()] }
+    }
+
+    fn im_encodeInteger_forKey<K>(&self, value: super::Int, key: K)
+    where
+        K: Into<NSString>,
+    {
+        unsafe { msg_send![self.ptr, encodeInteger: value forKey: key.into()] }
+    }
+
+    fn im_encodeInt32_forKey<K>(&self, value: super::Int32, key: K)
+    where
+        K: Into<NSString>,
+    {
+        unsafe { msg_send![self.ptr, encodeInt32: value forKey: key.into()] }
+    }
+
+    fn im_encodeInt64_forKey<K>(&self, value: super::Int64, key: K)
+    where
+        K: Into<NSString>,
+    {
+        unsafe { msg_send![self.ptr, encodeInt64: value forKey: key.into()] }
+    }
+
+    fn im_encodeObject<T>(&self, object: T)
+    where
+        T: PNSObject,
+    {
+        unsafe { msg_send![self.ptr, encodeObject: object] }
+    }
+
+    fn im_encodeObject_forKey<T, K>(&self, object: T, key: K)
+    where
+        T: PNSObject,
+        K: Into<NSString>,
+    {
+        unsafe { msg_send![self.ptr, encodeObject: object forKey: key.into()] }
     }
 }
 

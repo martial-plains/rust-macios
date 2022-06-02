@@ -2,9 +2,10 @@ use libc::{c_char, c_double, c_float, c_void};
 
 use crate::{
     foundation::{Int, Int32, Int64, NSDecodingFailurePolicy, NSString, UInt, UInt8},
-    objective_c_runtime::traits::PNSObject,
+    objective_c_runtime::traits::{PNSObject, ToId},
 };
 
+/// An abstract class that serves as the basis for objects that enable archiving and distribution of other objects.
 pub trait INSCoder: PNSObject {
     /* Inspecting a Coder
      */
@@ -39,7 +40,7 @@ pub trait INSCoder: PNSObject {
     /// An encoding method for subclasses to override such that it creates a copy, rather than a proxy, when decoded.
     fn im_encodeBycopyObject<T>(&self, object: T)
     where
-        T: PNSObject;
+        T: PNSObject + ToId;
 
     /// An encoding method for subclasses to override such that it creates a proxy, rather than a copy, when decoded.
     fn im_encodeByrefObject<T>(&self, object: T)

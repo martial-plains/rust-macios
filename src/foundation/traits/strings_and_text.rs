@@ -4,9 +4,9 @@ use libc::{c_char, c_void};
 
 use crate::{
     foundation::{
-        string::Encoding, unichar, Int, NSArray, NSCharacterSet, NSComparisonResult, NSData,
-        NSLocale, NSMutableString, NSString, NSStringCompareOptions,
-        NSStringEncodingConversionOptions, NSStringTransform, UInt, UInt8, ns_coder::NSCoder,
+        ns_coder::NSCoder, string::Encoding, unichar, Int, NSArray, NSCharacterSet,
+        NSComparisonResult, NSData, NSLocale, NSMutableString, NSString, NSStringCompareOptions,
+        NSStringEncodingConversionOptions, NSStringTransform, UInt, UInt8,
     },
     objective_c_runtime::traits::PNSObject,
 };
@@ -613,7 +613,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// Returns `true` if `string` is contained in the receiver, otherwise `false`.
-    fn contains<S>(&self, other: S) -> bool
+    fn im_containsString<S>(&self, other: S) -> bool
     where
         S: Into<NSString>;
 
@@ -626,7 +626,7 @@ pub trait INSString: PNSObject {
     ///
     /// * `transform` - The `StringTransform` to apply.
     /// * `reverse` - If `true`, the transformation is applied in reverse.
-    fn stringByApplyingTransform(
+    fn im_stringByApplyingTransform_reverse(
         &mut self,
         transform: NSStringTransform,
         reverse: bool,
@@ -636,16 +636,16 @@ pub trait INSString: PNSObject {
      */
 
     /// Returns a zero-terminated list of the encodings string objects support in the application’s environment.
-    fn availableStringEncodings() -> *const Encoding;
+    fn tp_availableStringEncodings() -> *const Encoding;
 
     /// Returns the C-string encoding assumed for any method accepting a C string as an argument.
-    fn defaultCStringEncoding() -> Encoding;
+    fn tp_defaultCStringEncoding() -> Encoding;
 
     /// Returns a Boolean value that indicates whether the receiver can be converted to a given encoding without loss of information.
-    fn canBeConvertedToEncoding(&self, encoding: Encoding) -> bool;
+    fn im_canBeConvertedToEncoding(&self, encoding: Encoding) -> bool;
 
     /// Returns an NSData object containing a representation of the receiver encoded using a given encoding.
-    fn dataUsingEncoding(&self, encoding: Encoding) -> NSData;
+    fn im_dataUsingEncoding(&self, encoding: Encoding) -> NSData;
 }
 
 /// A dynamic plain-text Unicode string object.
