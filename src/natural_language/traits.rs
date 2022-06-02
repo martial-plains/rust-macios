@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use crate::{
-    foundation::{NSDictionary, NSNumber, NSString, UInt},
+    foundation::{NSDictionary, NSNumber, NSString, UInt, NSArray},
     objective_c_runtime::traits::PNSObject,
 };
 
@@ -86,8 +86,8 @@ pub trait INLLanguageRecognizer: PNSObject {
     fn ip_setLanguageHints(&self, language_hints: NSDictionary<NLLanguage, NSNumber>);
 
     /// Limits the set of possible languages that the recognizer will return.
-    fn ip_languageConstraints(&self) -> NSDictionary<NLLanguage, NSNumber>;
+    fn ip_languageConstraints(&self) -> NSArray<NLLanguage>;
 
     /// Sets the limits  of the set of possible languages that the recognizer will return.
-    fn ip_setLanguageConstraints(&self, language_constraints: NSDictionary<NLLanguage, NSNumber>);
+    fn ip_setLanguageConstraints(&self, language_constraints: NSArray<NLLanguage>);
 }

@@ -13,7 +13,7 @@ use objc::{
 use objc_id::Id;
 
 use crate::{
-    foundation::{NSDictionary, NSNumber, NSString, UInt},
+    foundation::{NSArray, NSDictionary, NSNumber, NSString, UInt},
     id,
     objective_c_runtime::traits::{FromId, PNSObject, ToId},
 };
@@ -74,12 +74,12 @@ impl NLLanguageRecognizer {
     }
 
     /// Limits the set of possible languages that the recognizer will return.
-    pub fn lang_constraints(&self) -> NSDictionary<NLLanguage, NSNumber> {
+    pub fn lang_constraints(&self) -> NSArray<NLLanguage> {
         Self::ip_languageConstraints(self)
     }
 
     /// Sets the limits  of the set of possible languages that the recognizer will return.
-    pub fn set_lang_constraints(&self, language_constraints: NSDictionary<NLLanguage, NSNumber>) {
+    pub fn set_lang_constraints(&self, language_constraints: NSArray<NLLanguage>) {
         Self::ip_setLanguageConstraints(self, language_constraints)
     }
 }
@@ -192,11 +192,11 @@ impl INLLanguageRecognizer for NLLanguageRecognizer {
         unsafe { msg_send![self.obj, setLanguageHints: language_hints] }
     }
 
-    fn ip_languageConstraints(&self) -> NSDictionary<NLLanguage, NSNumber> {
+    fn ip_languageConstraints(&self) -> NSArray<NLLanguage> {
         unsafe { msg_send![&*self.obj, languageConstraints] }
     }
 
-    fn ip_setLanguageConstraints(&self, language_constraints: NSDictionary<NLLanguage, NSNumber>) {
+    fn ip_setLanguageConstraints(&self, language_constraints: NSArray<NLLanguage>) {
         unsafe { msg_send![self.obj, setLanguageConstraints: language_constraints] }
     }
 }
