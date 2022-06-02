@@ -459,14 +459,14 @@ impl INSString for NSString {
         unsafe { msg_send![self.ptr, componentsSeparatedByString: separator.into()] }
     }
 
-    fn contains<S>(&self, other: S) -> bool
+    fn im_containsString<S>(&self, other: S) -> bool
     where
         S: Into<NSString>,
     {
         unsafe { to_bool(msg_send![self.ptr, containsString: other.into()]) }
     }
 
-    fn stringByApplyingTransform(
+    fn im_stringByApplyingTransform_reverse(
         &mut self,
         transform: NSStringTransform,
         reverse: bool,
@@ -482,19 +482,19 @@ impl INSString for NSString {
         }
     }
 
-    fn availableStringEncodings() -> *const Encoding {
+    fn tp_availableStringEncodings() -> *const Encoding {
         unsafe { msg_send![NSString::class(), availableStringEncodings] }
     }
 
-    fn defaultCStringEncoding() -> Encoding {
+    fn tp_defaultCStringEncoding() -> Encoding {
         unsafe { msg_send![NSString::class(), defaultCStringEncoding] }
     }
 
-    fn canBeConvertedToEncoding(&self, encoding: Encoding) -> bool {
+    fn im_canBeConvertedToEncoding(&self, encoding: Encoding) -> bool {
         unsafe { msg_send![self.ptr, canBeConvertedToEncoding: encoding] }
     }
 
-    fn dataUsingEncoding(&self, encoding: Encoding) -> NSData {
+    fn im_dataUsingEncoding(&self, encoding: Encoding) -> NSData {
         unsafe { NSData::from_id(msg_send![self.ptr, dataUsingEncoding: encoding]) }
     }
 }
@@ -714,8 +714,8 @@ mod tests {
     #[test]
     fn test_contains() {
         let s = NSString::from("Hello, World!");
-        assert!(s.contains("Hello"));
-        assert!(!s.contains("Goodbye"));
+        assert!(s.im_containsString("Hello"));
+        assert!(!s.im_containsString("Goodbye"));
     }
 
     #[test]
@@ -826,7 +826,8 @@ mod tests {
         let mut s = NSString::from("Katakana!");
         let transform = unsafe { LatinToKatakana };
         assert_eq!(
-            s.stringByApplyingTransform(transform, false).unwrap(),
+            s.im_stringByApplyingTransform_reverse(transform, false)
+                .unwrap(),
             "カタカナ!"
         );
     }

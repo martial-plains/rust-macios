@@ -17,7 +17,7 @@ use crate::{
 use super::{
     string,
     traits::{INSMutableString, INSString},
-    unichar, Int, NSArray, NSComparisonResult, NSString, UInt, NSData,
+    unichar, Int, NSArray, NSComparisonResult, NSData, NSString, UInt,
 };
 
 /// A mutable string.
@@ -440,14 +440,14 @@ impl INSString for NSMutableString {
         unsafe { msg_send![self.ptr, componentsSeparatedByString: separator.into()] }
     }
 
-    fn contains<S>(&self, other: S) -> bool
+    fn im_containsString<S>(&self, other: S) -> bool
     where
         S: Into<NSString>,
     {
         unsafe { to_bool(msg_send![self.ptr, containsString: other.into()]) }
     }
 
-    fn stringByApplyingTransform(
+    fn im_stringByApplyingTransform_reverse(
         &mut self,
         transform: super::NSStringTransform,
         reverse: bool,
@@ -463,19 +463,19 @@ impl INSString for NSMutableString {
         }
     }
 
-    fn availableStringEncodings() -> *const string::Encoding {
+    fn tp_availableStringEncodings() -> *const string::Encoding {
         unsafe { msg_send![NSString::class(), availableStringEncodings] }
     }
 
-    fn defaultCStringEncoding() -> string::Encoding {
+    fn tp_defaultCStringEncoding() -> string::Encoding {
         unsafe { msg_send![NSString::class(), defaultCStringEncoding] }
     }
 
-    fn canBeConvertedToEncoding(&self, encoding: string::Encoding) -> bool {
+    fn im_canBeConvertedToEncoding(&self, encoding: string::Encoding) -> bool {
         unsafe { msg_send![self.ptr, canBeConvertedToEncoding: encoding] }
     }
 
-    fn dataUsingEncoding(&self, encoding: string::Encoding) -> NSData {
+    fn im_dataUsingEncoding(&self, encoding: string::Encoding) -> NSData {
         unsafe { NSData::from_id(msg_send![self.ptr, dataUsingEncoding: encoding]) }
     }
 }
