@@ -54,37 +54,40 @@ pub trait INLLanguageRecognizer: PNSObject {
     /* Determining the Language
      */
 
-    /// The most likely language for the processed text.
-    fn dominantLanguage(&self) -> NSString;
-
     /// Finds the most likely language of a piece of text.
-    fn dominantLanguageFor<T>(&self, string: T) -> NLLanguage
+    fn tm_dominantLanguageForString<T>(&self, string: T) -> NLLanguage
     where
         T: Into<NSString>;
 
     /// Analyzes the piece of text to determine its dominant language.
-    fn processString<T>(&self, string: T)
+    fn im_processString<T>(&mut self, string: T)
     where
         T: Into<NSString>;
 
+    /// The most likely language for the processed text.
+    fn ip_dominantLanguage(&self) -> NSString;
+
     /// Generates the probabilities of possible languages for the processed text.
-    fn languageHypotheses(&self, max_hypotheses: UInt) -> NSDictionary<NLLanguage, NSNumber>;
+    fn im_languageHypothesesWithMaximum(
+        &self,
+        max_hypotheses: UInt,
+    ) -> NSDictionary<NLLanguage, NSNumber>;
 
     /// Resets the recognizer to its initial state.
-    fn reset(&self);
+    fn im_reset(&self);
 
     /* Guiding the Recognizer
      */
 
     /// A dictionary that maps languages to their probabilities in the language identification process.
-    fn languageHints(&self) -> NSDictionary<NLLanguage, NSNumber>;
+    fn ip_languageHints(&self) -> NSDictionary<NLLanguage, NSNumber>;
 
     /// Sets a dictionary that maps languages to their probabilities in the language identification process.
-    fn setLanguageHints(&self, language_hints: NSDictionary<NLLanguage, NSNumber>);
+    fn ip_setLanguageHints(&self, language_hints: NSDictionary<NLLanguage, NSNumber>);
 
     /// Limits the set of possible languages that the recognizer will return.
-    fn languageConstraints(&self) -> NSDictionary<NLLanguage, NSNumber>;
+    fn ip_languageConstraints(&self) -> NSDictionary<NLLanguage, NSNumber>;
 
     /// Sets the limits  of the set of possible languages that the recognizer will return.
-    fn setLanguageConstraints(&self, language_constraints: NSDictionary<NLLanguage, NSNumber>);
+    fn ip_setLanguageConstraints(&self, language_constraints: NSDictionary<NLLanguage, NSNumber>);
 }
