@@ -9,18 +9,17 @@ pub macro ns_array {
 }
 
 /// A macro to create new `NSDictionary`s.
-pub macro NSDictionary {
+pub macro ns_dictionary {
     (@single $($x:tt)*) => (()),
-    (@count $($rest:expr),*) => (<[()]>::len(&[$(NSDictionary!(@single $rest)),*])),
+    (@count $($rest:expr),*) => (<[()]>::len(&[$(ns_dictionary!(@single $rest)),*])),
 
-    ($($key:expr => $value:expr,)+) => { NSDictionary!($($key => $value),+) },
+    ($($key:expr => $value:expr,)+) => { ns_dictionary!($($key => $value),+) },
     ($($key:expr => $value:expr),*) => {
         {
-            use $crate::foundation::traits::INSMutableDictionary;
-            let capacity = NSDictionary!(@count $($key),*);
-            let mut map = $crate::foundation::NSMutableDictionary::from(capacity as $crate::foundation::UInt);
+            let capacity = ns_dictionary!(@count $($key),*);
+            let mut map = std::collections::HashMap::with_capacity(capacity);
             $(
-                let _ = map.setObject($key, $value);
+                let _ = map.insert($key, $value);
             )*
             $crate::foundation::NSDictionary::from(map)
         }
