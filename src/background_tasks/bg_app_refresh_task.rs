@@ -16,7 +16,7 @@ pub struct BGAppRefreshTask {
 impl INSObject for BGAppRefreshTask {
     fn new() -> Self {
         Self {
-            ptr: unsafe { msg_send![class!(BGAppRefreshTask), new] },
+            ptr: unsafe { Id::from_ptr(msg_send![class!(BGAppRefreshTask), new]) },
         }
     }
 
