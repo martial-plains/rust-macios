@@ -3,7 +3,10 @@ use std::fmt::{Debug, Display};
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::objective_c_runtime::traits::PNSObject;
+use crate::{
+    id,
+    objective_c_runtime::traits::{PNSObject, ToId},
+};
 
 use super::traits::INSAutoreleasePool;
 
@@ -20,6 +23,19 @@ impl NSAutoreleasePool {
         Self {
             ptr: unsafe { Id::from_retained_ptr(ptr) },
         }
+    }
+
+    /// In a reference-counted environment, releases and pops the receiver; in a garbage-collected environment, triggers garbage collection if the memory allocated since the last collection is greater than the current threshold.
+    pub fn drain(&mut self) {
+        self.im_drain();
+    }
+
+    /// Adds a given object to the active autorelease pool in the current thread.
+    pub fn add_object<T>(&mut self, object: &T)
+    where
+        T: ToId + Clone,
+    {
+        self.im_addObject(object.clone().to_id());
     }
 }
 
@@ -66,15 +82,11 @@ impl PNSObject for NSAutoreleasePool {
         unsafe { msg_send![self.ptr, debugDescription] }
     }
 
-    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> crate::id {
+    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
         unsafe { msg_send![self.ptr, performSelector: aSelector] }
     }
 
-    fn im_performSelector_withObject(
-        &self,
-        aSelector: objc::runtime::Sel,
-        withObject: crate::id,
-    ) -> crate::id {
+    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
         unsafe { msg_send![self.ptr, performSelector: aSelector withObject: withObject] }
     }
 
@@ -88,7 +100,7 @@ impl INSAutoreleasePool for NSAutoreleasePool {
         unsafe { msg_send![self.ptr, drain] }
     }
 
-    fn im_addObject(&mut self, object: crate::id) {
+    fn im_addObject(&mut self, object: id) {
         unsafe { msg_send![self.ptr, addObject: object] }
     }
 }
