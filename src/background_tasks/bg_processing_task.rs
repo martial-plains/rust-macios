@@ -47,15 +47,15 @@ impl INSObject for BGProcessingTask {
 }
 
 impl IBGTask for BGProcessingTask {
-    fn identifier() -> NSString {
+    fn ip_identifier() -> NSString {
         unsafe { NSString::from_id(msg_send![class!(BGProcessingTask), identifier]) }
     }
 
-    fn expirationHandler() {
+    fn ip_expirationHandler() {
         unsafe { msg_send![class!(BGProcessingTask), expirationHandler] }
     }
 
-    fn setTaskCompletedWithSuccess(&self, success: bool) {
+    fn im_setTaskCompletedWithSuccess(&self, success: bool) {
         unsafe { msg_send![self.ptr, setTaskCompletedWithSuccess: success] }
     }
 }

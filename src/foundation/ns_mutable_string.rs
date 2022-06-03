@@ -28,55 +28,51 @@ pub struct NSMutableString {
 }
 
 impl PNSObject for NSMutableString {
-    fn class<'a>() -> &'a Class {
+    fn im_class<'a>() -> &'a Class {
         class!(NSMutableString)
     }
 
-    fn superclass<'a>() -> &'a Class {
-        unsafe { msg_send![Self::class(), superclass] }
-    }
-
-    fn isEqual(&self, object: &Self) -> bool {
+    fn im_isEqual(&self, object: &Self) -> bool {
         unsafe { msg_send![self.ptr, isEqual: object] }
     }
 
-    fn hash(&self) -> UInt {
+    fn ip_hash(&self) -> UInt {
         unsafe { msg_send![self.ptr, hash] }
     }
 
-    fn isKindOfClass(&self, aClass: Class) -> bool {
+    fn im_isKindOfClass(&self, aClass: Class) -> bool {
         unsafe { msg_send![self.ptr, isKindOfClass: aClass] }
     }
 
-    fn isMemberOfClass(&self, aClass: Class) -> bool {
+    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
         unsafe { msg_send![self.ptr, isMemberOfClass: aClass] }
     }
 
-    fn respondsToSelector(&self, aSelector: Sel) -> bool {
+    fn im_respondsToSelector(&self, aSelector: Sel) -> bool {
         unsafe { msg_send![self.ptr, respondsToSelector: aSelector] }
     }
 
-    fn conformsToProtocol(&self, aProtocol: Protocol) -> bool {
+    fn im_conformsToProtocol(&self, aProtocol: Protocol) -> bool {
         unsafe { msg_send![self.ptr, conformsToProtocol: aProtocol] }
     }
 
-    fn description(&self) -> NSString {
+    fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
-    fn debugDescription(&self) -> NSString {
+    fn ip_debugDescription(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
-    fn performSelector(&self, aSelector: Sel) -> id {
+    fn im_performSelector(&self, aSelector: Sel) -> id {
         unsafe { msg_send![self.ptr, performSelector: aSelector] }
     }
 
-    fn performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
+    fn im_performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
         unsafe { msg_send![self.ptr, performSelector: aSelector withObject: withObject] }
     }
 
-    fn isProxy(&self) -> bool {
+    fn im_isProxy(&self) -> bool {
         unsafe { msg_send![self.ptr, isProxy] }
     }
 }
@@ -464,11 +460,11 @@ impl INSString for NSMutableString {
     }
 
     fn tp_availableStringEncodings() -> *const string::Encoding {
-        unsafe { msg_send![NSString::class(), availableStringEncodings] }
+        unsafe { msg_send![NSString::im_class(), availableStringEncodings] }
     }
 
     fn tp_defaultCStringEncoding() -> string::Encoding {
-        unsafe { msg_send![NSString::class(), defaultCStringEncoding] }
+        unsafe { msg_send![NSString::im_class(), defaultCStringEncoding] }
     }
 
     fn im_canBeConvertedToEncoding(&self, encoding: string::Encoding) -> bool {
@@ -484,7 +480,7 @@ impl INSMutableString for NSMutableString {
     fn tm_stringWithCapacity(capacity: UInt) -> NSMutableString {
         unsafe {
             Self::from_id(msg_send![
-                NSMutableString::class(),
+                NSMutableString::im_class(),
                 stringWithCapacity: capacity
             ])
         }
@@ -574,13 +570,13 @@ impl Default for NSMutableString {
 
 impl fmt::Debug for NSMutableString {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.description().as_str().unwrap())
+        write!(f, "{}", self.ip_description().as_str().unwrap())
     }
 }
 
 impl fmt::Display for NSMutableString {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.description().as_str().unwrap())
+        write!(f, "{}", self.ip_description().as_str().unwrap())
     }
 }
 
@@ -619,7 +615,7 @@ impl FromId for NSMutableString {
 impl From<NSString> for NSMutableString {
     fn from(string: NSString) -> Self {
         unsafe {
-            let ptr: id = msg_send![NSString::class(), alloc];
+            let ptr: id = msg_send![NSString::im_class(), alloc];
             let ptr: id = msg_send![ptr, initWithString: string];
             NSMutableString::from_id(ptr)
         }

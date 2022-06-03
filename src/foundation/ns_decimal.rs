@@ -15,7 +15,7 @@ use objc_id::Id;
 
 use crate::{
     foundation::{
-        traits::{t_NSDecimalNumber, t_NSNumber},
+        traits::{INSDecimalNumber, INSNumber},
         NSComparisonResult, NSLocale, NSString,
     },
     id,
@@ -124,271 +124,271 @@ pub struct NSDecimalNumber {
 }
 
 impl PNSObject for NSDecimalNumber {
-    fn class<'a>() -> &'a Class {
+    fn im_class<'a>() -> &'a Class {
         class!(NSDecimalNumber)
     }
 
-    fn superclass<'a>() -> &'a Class {
-        unsafe { msg_send![class!(NSDecimalNumber), superclass] }
-    }
-
-    fn isEqual(&self, object: &Self) -> bool {
+    fn im_isEqual(&self, object: &Self) -> bool {
         unsafe { msg_send![self.obj, isEqual: object] }
     }
 
-    fn hash(&self) -> super::UInt {
+    fn ip_hash(&self) -> super::UInt {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn isKindOfClass(&self, aClass: Class) -> bool {
+    fn im_isKindOfClass(&self, aClass: Class) -> bool {
         unsafe { msg_send![self.obj, isKindOfClass: aClass] }
     }
 
-    fn isMemberOfClass(&self, aClass: Class) -> bool {
+    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
         unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
     }
 
-    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
         unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
     }
 
-    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
         unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
     }
 
-    fn description(&self) -> NSString {
+    fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
-    fn debugDescription(&self) -> NSString {
+    fn ip_debugDescription(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
         unsafe { msg_send![self.obj, performSelector: aSelector] }
     }
 
-    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
         unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
     }
 
-    fn isProxy(&self) -> bool {
+    fn im_isProxy(&self) -> bool {
         unsafe { msg_send![self.obj, isProxy] }
     }
 }
 
 impl INSValue for NSDecimalNumber {}
 
-impl t_NSNumber for NSDecimalNumber {
-    fn numberWithBool(value: bool) -> Self {
+impl INSNumber for NSDecimalNumber {
+    fn tm_numberWithBool(value: bool) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithBool: value] }
     }
 
-    fn numberWithChar(value: libc::c_schar) -> Self {
+    fn tm_numberWithChar(value: libc::c_schar) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithChar: value] }
     }
 
-    fn numberWithDouble(value: c_double) -> Self {
+    fn tm_numberWithDouble(value: c_double) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithDouble: value] }
     }
 
-    fn numberWithFloat(value: libc::c_float) -> Self {
+    fn tm_numberWithFloat(value: libc::c_float) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithFloat: value] }
     }
 
-    fn numberWithInt(value: c_int) -> Self {
+    fn tm_numberWithInt(value: c_int) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithInt: value] }
     }
 
-    fn numberWithInteger(value: super::Int) -> Self {
+    fn tm_numberWithInteger(value: super::Int) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithInteger: value] }
     }
 
-    fn numberWithLong(value: c_long) -> Self {
+    fn tm_numberWithLong(value: c_long) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithLong: value] }
     }
 
-    fn numberWithLongLong(value: c_longlong) -> Self {
+    fn tm_numberWithLongLong(value: c_longlong) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithLongLong: value] }
     }
 
-    fn numberWithShort(value: c_short) -> Self {
+    fn tm_numberWithShort(value: c_short) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithShort: value] }
     }
 
-    fn numberWithUnsignedChar(value: libc::c_uchar) -> Self {
+    fn tm_numberWithUnsignedChar(value: libc::c_uchar) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithUnsignedChar: value] }
     }
 
-    fn numberWithUnsignedInt(value: c_uint) -> Self {
+    fn tm_numberWithUnsignedInt(value: c_uint) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithUnsignedInt: value] }
     }
 
-    fn numberWithUnsignedInteger(value: super::UInt) -> Self {
+    fn tm_numberWithUnsignedInteger(value: super::UInt) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithUnsignedInteger: value] }
     }
 
-    fn numberWithUnsignedLong(value: c_ulong) -> Self {
+    fn tm_numberWithUnsignedLong(value: c_ulong) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithUnsignedLong: value] }
     }
 
-    fn numberWithUnsignedLongLong(value: libc::c_ulonglong) -> Self {
+    fn tm_numberWithUnsignedLongLong(value: libc::c_ulonglong) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithUnsignedLongLong: value] }
     }
 
-    fn numberWithUnsignedShort(value: c_ushort) -> Self {
+    fn tm_numberWithUnsignedShort(value: c_ushort) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), numberWithUnsignedShort: value] }
     }
 
-    fn initWithBool(&self, _value: bool) -> Self {
+    fn im_initWithBool(&self, _value: bool) -> Self {
         todo!()
     }
 
-    fn initWithChar(&self, _value: libc::c_schar) -> Self {
+    fn im_initWithChar(&self, _value: libc::c_schar) -> Self {
         todo!()
     }
 
-    fn initWithDouble(&self, _value: c_double) -> Self {
+    fn im_initWithDouble(&self, _value: c_double) -> Self {
         todo!()
     }
 
-    fn initWithFloat(&self, _value: libc::c_float) -> Self {
+    fn im_initWithFloat(&self, _value: libc::c_float) -> Self {
         todo!()
     }
 
-    fn initWithInt(&self, _value: c_int) -> Self {
+    fn im_initWithInt(&self, _value: c_int) -> Self {
         todo!()
     }
 
-    fn initWithInteger(&self, _value: super::Int) -> Self {
+    fn im_initWithInteger(&self, _value: super::Int) -> Self {
         todo!()
     }
 
-    fn initWithLong(&self, _value: c_long) -> Self {
+    fn im_initWithLong(&self, _value: c_long) -> Self {
         todo!()
     }
 
-    fn initWithLongLong(&self, _value: c_longlong) -> Self {
+    fn im_initWithLongLong(&self, _value: c_longlong) -> Self {
         todo!()
     }
 
-    fn initWithShort(&self, _value: c_short) -> Self {
+    fn im_initWithShort(&self, _value: c_short) -> Self {
         todo!()
     }
 
-    fn initWithUnsignedChar(&self, _value: libc::c_uchar) -> Self {
+    fn im_initWithUnsignedChar(&self, _value: libc::c_uchar) -> Self {
         todo!()
     }
 
-    fn initWithUnsignedInt(&self, _value: c_uint) -> Self {
+    fn im_initWithUnsignedInt(&self, _value: c_uint) -> Self {
         todo!()
     }
 
-    fn initWithUnsignedInteger(&self, _value: c_uint) -> Self {
+    fn im_initWithUnsignedInteger(&self, _value: c_uint) -> Self {
         todo!()
     }
 
-    fn initWithUnsignedLong(&self, _value: c_ulong) -> Self {
+    fn im_initWithUnsignedLong(&self, _value: c_ulong) -> Self {
         todo!()
     }
 
-    fn initWithUnsignedLongLong(&self, _value: libc::c_ulonglong) -> Self {
+    fn im_initWithUnsignedLongLong(&self, _value: libc::c_ulonglong) -> Self {
         todo!()
     }
 
-    fn initWithUnsignedShort(&self, _value: c_ushort) -> Self {
+    fn im_initWithUnsignedShort(&self, _value: c_ushort) -> Self {
         todo!()
     }
 
-    fn boolValue(&self) -> bool {
+    fn ip_boolValue(&self) -> bool {
         unsafe { msg_send![self.obj, boolValue] }
     }
 
-    fn charValue(&self) -> libc::c_schar {
+    fn ip_charValue(&self) -> libc::c_schar {
         unsafe { msg_send![self.obj, charValue] }
     }
 
-    fn doubleValue(&self) -> c_double {
+    fn ip_doubleValue(&self) -> c_double {
         unsafe { msg_send![self.obj, doubleValue] }
     }
 
-    fn floatValue(&self) -> libc::c_float {
+    fn ip_floatValue(&self) -> libc::c_float {
         unsafe { msg_send![self.obj, floatValue] }
     }
 
-    fn intValue(&self) -> c_int {
+    fn ip_intValue(&self) -> c_int {
         unsafe { msg_send![self.obj, intValue] }
     }
 
-    fn integerValue(&self) -> super::Int {
+    fn ip_integerValue(&self) -> super::Int {
         unsafe { msg_send![self.obj, integerValue] }
     }
 
-    fn longLongValue(&self) -> c_longlong {
+    fn ip_longLongValue(&self) -> c_longlong {
         unsafe { msg_send![self.obj, longLongValue] }
     }
 
-    fn longValue(&self) -> c_long {
+    fn ip_longValue(&self) -> c_long {
         unsafe { msg_send![self.obj, longValue] }
     }
 
-    fn shortValue(&self) -> c_short {
+    fn ip_shortValue(&self) -> c_short {
         unsafe { msg_send![self.obj, shortValue] }
     }
 
-    fn unsignedCharValue(&self) -> libc::c_uchar {
+    fn ip_unsignedCharValue(&self) -> libc::c_uchar {
         unsafe { msg_send![self.obj, unsignedCharValue] }
     }
 
-    fn unsignedIntegerValue(&self) -> super::UInt {
+    fn ip_unsignedIntegerValue(&self) -> super::UInt {
         unsafe { msg_send![self.obj, unsignedIntegerValue] }
     }
 
-    fn unsignedIntValue(&self) -> c_uint {
+    fn ip_unsignedIntValue(&self) -> c_uint {
         unsafe { msg_send![self.obj, unsignedIntValue] }
     }
 
-    fn unsignedLongLongValue(&self) -> libc::c_ulonglong {
+    fn ip_unsignedLongLongValue(&self) -> libc::c_ulonglong {
         unsafe { msg_send![self.obj, unsignedLongLongValue] }
     }
 
-    fn unsignedLongValue(&self) -> c_ulong {
+    fn ip_unsignedLongValue(&self) -> c_ulong {
         unsafe { msg_send![self.obj, unsignedLongValue] }
     }
 
-    fn unsignedShortValue(&self) -> c_ushort {
+    fn ip_unsignedShortValue(&self) -> c_ushort {
         unsafe { msg_send![self.obj, unsignedShortValue] }
     }
 
-    fn descriptionWithLocale(&self, locale: NSLocale) -> NSString {
+    fn im_descriptionWithLocale(&self, locale: NSLocale) -> NSString {
         unsafe {
             let id: id = msg_send![self.obj, descriptionWithLocale: locale.obj];
             NSString::from_id(id)
         }
     }
 
-    fn stringValue(&self) -> NSString {
+    fn ip_stringValue(&self) -> NSString {
         unsafe {
             let id: id = msg_send![self.obj, stringValue];
             NSString::from_id(id)
         }
     }
 
-    fn compare(&self, other: &Self) -> NSComparisonResult {
+    fn im_compare(&self, other: &Self) -> NSComparisonResult {
         unsafe { msg_send![self.obj, compare: other] }
     }
 
-    fn isEqualToNumber(&self, other: &Self) -> bool {
+    fn im_isEqualToNumber(&self, other: &Self) -> bool {
         unsafe { msg_send![self.obj, isEqualToNumber: other] }
+    }
+
+    fn ip_decimalValue(&self) -> NSDecimal {
+        unsafe { msg_send![self.obj, decimalValue] }
     }
 }
 
-impl t_NSDecimalNumber for NSDecimalNumber {
-    fn decimalNumberWithDecimal(decimal: NSDecimalNumber) -> Self {
+impl INSDecimalNumber for NSDecimalNumber {
+    fn tm_decimalNumberWithDecimal(decimal: NSDecimalNumber) -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), decimalNumberWithDecimal: decimal.obj] }
     }
 
-    fn decimalNumberWithMantissa(
+    fn tm_decimalNumberWithMantissa(
         mantissa: libc::c_ulonglong,
         exponent: c_short,
         is_negative: bool,
@@ -403,7 +403,7 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn decimalNumberWithString<S>(string: S) -> Self
+    fn tm_decimalNumberWithString<S>(string: S) -> Self
     where
         S: Into<NSString>,
     {
@@ -415,7 +415,7 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn decimalNumberWithStringLocale<S, L>(string: S, locale: L) -> Self
+    fn tm_decimalNumberWithStringLocale<S, L>(string: S, locale: L) -> Self
     where
         S: Into<NSString>,
         L: crate::foundation::traits::INSLocale,
@@ -429,25 +429,25 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn one() -> Self {
+    fn tp_one() -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), one] }
     }
 
-    fn zero() -> Self {
+    fn tp_zero() -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), zero] }
     }
 
-    fn notANumber() -> Self {
+    fn tp_notANumber() -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), notANumber] }
     }
 
-    fn initWithDecimal(&mut self, decimal: NSDecimalNumber) {
+    fn im_initWithDecimal(&mut self, decimal: NSDecimalNumber) {
         unsafe {
             let _: id = msg_send![self.obj, initWithDecimal: decimal.obj];
         }
     }
 
-    fn initWithMantissaExponentIsNegative(
+    fn im_initWithMantissa_exponent_isNegative(
         &mut self,
         mantissa: libc::c_ulonglong,
         exponent: c_short,
@@ -463,14 +463,14 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn initWithString<S>(&mut self, string: S)
+    fn im_initWithString<S>(&mut self, string: S)
     where
         S: Into<NSString>,
     {
         unsafe { msg_send![self.obj, initWithString: string.into()] }
     }
 
-    fn initWithStringLocale<S, L>(&mut self, string: S, locale: L)
+    fn im_initWithString_locale<S, L>(&mut self, string: S, locale: L)
     where
         S: Into<NSString>,
         L: crate::foundation::traits::INSLocale,
@@ -478,34 +478,34 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         unsafe { msg_send![self.obj, initWithString: string.into() locale: locale] }
     }
 
-    fn decimalNumberByAdding(&self, decimal_number: Self) -> Self {
+    fn im_decimalNumberByAdding(&self, decimal_number: Self) -> Self {
         unsafe { msg_send![self.obj, decimalNumberByAdding: decimal_number] }
     }
 
-    fn decimalNumberBySubtracting(&self, decimal_number: Self) -> Self {
+    fn im_decimalNumberBySubtracting(&self, decimal_number: Self) -> Self {
         unsafe { msg_send![self.obj, decimalNumberBySubtracting: decimal_number] }
     }
 
-    fn decimalNumberByMultiplyingBy(&self, decimal_number: Self) -> Self {
+    fn im_decimalNumberByMultiplyingBy(&self, decimal_number: Self) -> Self {
         unsafe { msg_send![self.obj, decimalNumberByMultiplyingBy: decimal_number] }
     }
 
-    fn decimalNumberByDividingBy(&self, decimal_number: Self) -> Self {
+    fn im_decimalNumberByDividingBy(&self, decimal_number: Self) -> Self {
         unsafe { msg_send![self.obj, decimalNumberByDividingBy: decimal_number] }
     }
 
-    fn decimalNumberByRaisingToPower(&self, power: c_uint) -> Self {
+    fn im_decimalNumberByRaisingToPower(&self, power: c_uint) -> Self {
         unsafe { msg_send![self.obj, decimalNumberByRaisingToPower: power] }
     }
 
-    fn decimalNumberByMultiplyingByPowerOf10(&self, power: c_short) -> Self {
+    fn im_decimalNumberByMultiplyingByPowerOf10(&self, power: c_short) -> Self {
         unsafe { msg_send![self.obj, decimalNumberByMultiplyingByPowerOf10: power] }
     }
 
-    fn decimalNumberByAddingWithBehavior(
+    fn im_decimalNumberByAdding_withBehavior(
         &self,
         decimal_number: &Self,
-        with_behavior: Arc<dyn crate::foundation::traits::t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn crate::foundation::traits::PNSDecimalNumberBehaviors>,
     ) -> Self {
         unsafe {
             msg_send![
@@ -516,10 +516,10 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn decimalNumberBySubtractingWithBehavior(
+    fn im_decimalNumberBySubtracting_withBehavior(
         &self,
         decimal_number: &Self,
-        with_behavior: Arc<dyn crate::foundation::traits::t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn crate::foundation::traits::PNSDecimalNumberBehaviors>,
     ) -> Self {
         unsafe {
             msg_send![
@@ -530,10 +530,10 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn decimalNumberByMultiplyingByWithBehavior(
+    fn im_decimalNumberByMultiplyingBy_withBehavior(
         &self,
         decimal_number: &Self,
-        with_behavior: Arc<dyn crate::foundation::traits::t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn crate::foundation::traits::PNSDecimalNumberBehaviors>,
     ) -> Self {
         unsafe {
             msg_send![
@@ -544,10 +544,10 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn decimalNumberByDividingByWithBehavior(
+    fn im_decimalNumberByDividingBy_withBehavior(
         &self,
         decimal_number: &Self,
-        with_behavior: Arc<dyn crate::foundation::traits::t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn crate::foundation::traits::PNSDecimalNumberBehaviors>,
     ) -> Self {
         unsafe {
             msg_send![
@@ -558,10 +558,10 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn decimalNumberByRaisingToPowerWithBehavior(
+    fn im_decimalNumberByRaisingToPower_withBehavior(
         &self,
         power: c_uint,
-        with_behavior: Arc<dyn crate::foundation::traits::t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn crate::foundation::traits::PNSDecimalNumberBehaviors>,
     ) -> Self {
         unsafe {
             msg_send![
@@ -572,10 +572,10 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn decimalNumberByMultiplyingByPowerOf10WithBehavior(
+    fn im_decimalNumberByMultiplyingByPowerOf10_withBehavior(
         &self,
         power: c_short,
-        with_behavior: Arc<dyn crate::foundation::traits::t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn crate::foundation::traits::PNSDecimalNumberBehaviors>,
     ) -> Self {
         unsafe {
             msg_send![
@@ -586,9 +586,9 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn decimalNumberByRoundingAccordingToBehavior(
+    fn im_decimalNumberByRoundingAccordingToBehavior(
         &self,
-        behavior: Arc<dyn crate::foundation::traits::t_NSDecimalNumberBehaviors>,
+        behavior: Arc<dyn crate::foundation::traits::PNSDecimalNumberBehaviors>,
     ) -> Self {
         unsafe {
             msg_send![
@@ -598,21 +598,25 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn defaultBehavior() -> Arc<dyn crate::foundation::traits::t_NSDecimalNumberBehaviors> {
+    fn tp_defaultBehavior() -> Arc<dyn crate::foundation::traits::PNSDecimalNumberBehaviors> {
         todo!()
     }
 
-    fn setDefaultBehavior(
-        behavior: Arc<dyn crate::foundation::traits::t_NSDecimalNumberBehaviors>,
+    fn tp_setDefaultBehavior(
+        behavior: Arc<dyn crate::foundation::traits::PNSDecimalNumberBehaviors>,
     ) {
         unsafe { msg_send![class!(NSDecimalNumber), setDefaultBehavior: behavior] }
     }
 
-    fn doubleValue(&self) -> f64 {
+    fn tp_decimalValue(&self) -> NSDecimal {
+        unsafe { msg_send![self.obj, decimalValue] }
+    }
+
+    fn ip_doubleValue(&self) -> f64 {
         unsafe { msg_send![self.obj, doubleValue] }
     }
 
-    fn descriptionWithLocale<L>(&self, locale: L) -> NSString
+    fn im_descriptionWithLocale<L>(&self, locale: L) -> NSString
     where
         L: crate::foundation::traits::INSLocale,
     {
@@ -622,35 +626,35 @@ impl t_NSDecimalNumber for NSDecimalNumber {
         }
     }
 
-    fn objcType(&self) -> *const libc::c_char {
+    fn ip_objcType(&self) -> *const libc::c_char {
         unsafe { msg_send![self.obj, objCType] }
     }
 
-    fn compare(&self, decimal_number: &Self) -> NSComparisonResult {
+    fn im_compare(&self, decimal_number: &Self) -> NSComparisonResult {
         unsafe {
             let class: NSComparisonResult = msg_send![self.obj, compare: decimal_number];
             class
         }
     }
 
-    fn maximumDecimalNumber() -> Self {
+    fn tp_maximumDecimalNumber() -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), maximumDecimalNumber] }
     }
 
-    fn minimumDecimalNumber() -> Self {
+    fn tp_minimumDecimalNumber() -> Self {
         unsafe { msg_send![class!(NSDecimalNumber), minimumDecimalNumber] }
     }
 }
 
 impl fmt::Debug for NSDecimalNumber {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.debugDescription())
+        write!(f, "{}", self.ip_debugDescription())
     }
 }
 
 impl fmt::Display for NSDecimalNumber {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.description())
+        write!(f, "{}", self.ip_description())
     }
 }
 
@@ -678,49 +682,49 @@ impl DerefMut for NSDecimalNumber {
 
 impl From<c_uint> for NSDecimalNumber {
     fn from(value: c_uint) -> Self {
-        NSDecimalNumber::numberWithUnsignedInt(value)
+        NSDecimalNumber::tm_numberWithUnsignedInt(value)
     }
 }
 
 impl From<c_int> for NSDecimalNumber {
     fn from(value: c_int) -> Self {
-        NSDecimalNumber::numberWithInt(value)
+        NSDecimalNumber::tm_numberWithInt(value)
     }
 }
 
 impl From<c_short> for NSDecimalNumber {
     fn from(value: c_short) -> Self {
-        NSDecimalNumber::numberWithShort(value)
+        NSDecimalNumber::tm_numberWithShort(value)
     }
 }
 
 impl From<c_ushort> for NSDecimalNumber {
     fn from(value: c_ushort) -> Self {
-        NSDecimalNumber::numberWithUnsignedShort(value)
+        NSDecimalNumber::tm_numberWithUnsignedShort(value)
     }
 }
 
 impl From<c_long> for NSDecimalNumber {
     fn from(value: c_long) -> Self {
-        NSDecimalNumber::numberWithLong(value)
+        NSDecimalNumber::tm_numberWithLong(value)
     }
 }
 
 impl From<c_ulong> for NSDecimalNumber {
     fn from(value: c_ulong) -> Self {
-        NSDecimalNumber::numberWithUnsignedLong(value)
+        NSDecimalNumber::tm_numberWithUnsignedLong(value)
     }
 }
 
 impl From<c_float> for NSDecimalNumber {
     fn from(value: c_float) -> Self {
-        NSDecimalNumber::numberWithFloat(value)
+        NSDecimalNumber::tm_numberWithFloat(value)
     }
 }
 
 impl From<c_double> for NSDecimalNumber {
     fn from(value: c_double) -> Self {
-        NSDecimalNumber::numberWithDouble(value)
+        NSDecimalNumber::tm_numberWithDouble(value)
     }
 }
 
@@ -729,7 +733,7 @@ where
     S: Into<NSString>,
 {
     fn from(value: S) -> Self {
-        NSDecimalNumber::decimalNumberWithString(value)
+        NSDecimalNumber::tm_decimalNumberWithString(value)
     }
 }
 
@@ -740,7 +744,7 @@ where
     type Output = NSDecimalNumber;
 
     fn add(self, other: T) -> Self::Output {
-        self.decimalNumberByAdding(other.into())
+        self.im_decimalNumberByAdding(other.into())
     }
 }
 
@@ -760,7 +764,7 @@ where
     type Output = NSDecimalNumber;
 
     fn sub(self, other: T) -> Self::Output {
-        self.decimalNumberBySubtracting(other.into())
+        self.im_decimalNumberBySubtracting(other.into())
     }
 }
 
@@ -780,7 +784,7 @@ where
     type Output = NSDecimalNumber;
 
     fn mul(self, other: T) -> Self::Output {
-        self.decimalNumberByMultiplyingBy(other.into())
+        self.im_decimalNumberByMultiplyingBy(other.into())
     }
 }
 
@@ -800,7 +804,7 @@ where
     type Output = NSDecimalNumber;
 
     fn div(self, other: T) -> Self::Output {
-        self.decimalNumberByDividingBy(other.into())
+        self.im_decimalNumberByDividingBy(other.into())
     }
 }
 

@@ -13,12 +13,12 @@ pub mod traits;
 
 mod enums;
 mod nl_language;
-mod nl_language_identifier;
+mod nl_language_recognizer;
 mod nl_tag_scheme;
 mod nl_tokenizer;
 
 pub use enums::*;
 pub use nl_language::*;
-pub use nl_language_identifier::*;
+pub use nl_language_recognizer::*;
 pub use nl_tag_scheme::*;
 pub use nl_tokenizer::*;

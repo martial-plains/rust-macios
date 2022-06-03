@@ -23,74 +23,74 @@ pub struct NSDictionary<K, V> {
 }
 
 impl<K, V> PNSObject for NSDictionary<K, V> {
-    fn class<'a>() -> &'a objc::runtime::Class {
+    fn im_class<'a>() -> &'a objc::runtime::Class {
         class!(NSDictionary)
     }
 
-    fn superclass<'a>() -> &'a objc::runtime::Class {
-        unsafe { msg_send![class!(NSDictionary), superclass] }
-    }
-
-    fn isEqual(&self, object: &Self) -> bool {
+    fn im_isEqual(&self, object: &Self) -> bool {
         unsafe { msg_send![self.obj, isEqual: object] }
     }
 
-    fn hash(&self) -> UInt {
+    fn ip_hash(&self) -> UInt {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+    fn im_isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
         unsafe { msg_send![self.obj, isKindOfClass: aClass] }
     }
 
-    fn isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+    fn im_isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
         unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
     }
 
-    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
         unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
     }
 
-    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
         unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
     }
 
-    fn description(&self) -> NSString {
+    fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
-    fn debugDescription(&self) -> NSString {
+    fn ip_debugDescription(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
         unsafe { msg_send![self.obj, performSelector: aSelector] }
     }
 
-    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
         unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
     }
 
-    fn isProxy(&self) -> bool {
+    fn im_isProxy(&self) -> bool {
         unsafe { msg_send![self.obj, isProxy] }
     }
 }
 
 impl<K, V> INSDictionary<K, V> for NSDictionary<K, V> {
-    fn count(&self) -> UInt {
+    fn ip_count(&self) -> UInt {
         unsafe { msg_send![self.obj, count] }
+    }
+
+    fn initWithDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+        unsafe { msg_send![self.obj, initWithDictionary: dictionary] }
     }
 }
 
 impl<K, V> fmt::Debug for NSDictionary<K, V> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.debugDescription())
+        write!(f, "{}", self.ip_debugDescription())
     }
 }
 
 impl<K, V> fmt::Display for NSDictionary<K, V> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.description())
+        write!(f, "{}", self.ip_description())
     }
 }
 
@@ -164,8 +164,7 @@ where
     V: PNSObject,
 {
     fn from(dict: NSMutableDictionary<K, V>) -> Self {
-        let cls: id =
-            unsafe { msg_send![class!(NSDictionary), dictionaryWithDictionary: dict] };
+        let cls: id = unsafe { msg_send![class!(NSDictionary), dictionaryWithDictionary: dict] };
         NSDictionary::from(cls)
     }
 }

@@ -17,61 +17,57 @@ pub struct NSData {
 }
 
 impl PNSObject for NSData {
-    fn class<'a>() -> &'a objc::runtime::Class {
+    fn im_class<'a>() -> &'a objc::runtime::Class {
         class!(NSData)
     }
 
-    fn superclass<'a>() -> &'a objc::runtime::Class {
-        unsafe { msg_send![Self::class(), superclass] }
-    }
-
-    fn isEqual(&self, object: &Self) -> bool {
+    fn im_isEqual(&self, object: &Self) -> bool {
         unsafe { msg_send![self.ptr, isEqual: object] }
     }
 
-    fn hash(&self) -> super::UInt {
+    fn ip_hash(&self) -> super::UInt {
         unsafe { msg_send![self.ptr, hash] }
     }
 
-    fn isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+    fn im_isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
         unsafe { msg_send![self.ptr, isKindOfClass: aClass] }
     }
 
-    fn isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+    fn im_isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
         unsafe { msg_send![self.ptr, isMemberOfClass: aClass] }
     }
 
-    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
         unsafe { msg_send![self.ptr, respondsToSelector: aSelector] }
     }
 
-    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
         unsafe { msg_send![self.ptr, conformsToProtocol: aProtocol] }
     }
 
-    fn description(&self) -> NSString {
+    fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
-    fn debugDescription(&self) -> NSString {
+    fn ip_debugDescription(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
-    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
         unsafe { msg_send![self.ptr, performSelector: aSelector] }
     }
 
-    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
         unsafe { msg_send![self.ptr, performSelector: aSelector withObject: withObject] }
     }
 
-    fn isProxy(&self) -> bool {
+    fn im_isProxy(&self) -> bool {
         unsafe { msg_send![self.ptr, isProxy] }
     }
 }
 
 impl INSData for NSData {
-    fn data() -> Self {
+    fn tm_data() -> Self {
         let ptr = unsafe {
             let ptr = msg_send![class!(NSData), data];
             Id::from_ptr(ptr)
@@ -79,7 +75,7 @@ impl INSData for NSData {
         Self { ptr }
     }
 
-    fn dataWithBytesLength(bytes: *const libc::c_void, length: super::UInt) -> Self {
+    fn tm_dataWithBytes_length(bytes: *const libc::c_void, length: super::UInt) -> Self {
         let ptr = unsafe {
             let ptr = msg_send![class!(NSData), dataWithBytes:bytes length:length];
             Id::from_ptr(ptr)
@@ -87,7 +83,7 @@ impl INSData for NSData {
         Self { ptr }
     }
 
-    fn dataWithBytesNoCopyLength(bytes: *const libc::c_void, length: super::UInt) -> Self {
+    fn tm_dataWithBytesNoCopy_length(bytes: *const libc::c_void, length: super::UInt) -> Self {
         let ptr = unsafe {
             let ptr = msg_send![class!(NSData), dataWithBytesNoCopy:bytes length:length];
             Id::from_ptr(ptr)
@@ -95,7 +91,7 @@ impl INSData for NSData {
         Self { ptr }
     }
 
-    fn dataWithBytesNoCopyLengthFreeWhenDone(
+    fn tm_dataWithBytesNoCopy_length_freeWhenDone(
         bytes: *const libc::c_void,
         length: super::UInt,
         b: bool,
@@ -108,7 +104,7 @@ impl INSData for NSData {
         Self { ptr }
     }
 
-    fn dataWithData(data: NSData) -> Self {
+    fn tm_dataWithData(data: NSData) -> Self {
         let ptr = unsafe {
             let ptr = msg_send![class!(NSData), dataWithData:data.ptr];
             Id::from_ptr(ptr)
@@ -116,7 +112,7 @@ impl INSData for NSData {
         Self { ptr }
     }
 
-    fn dataWithContentsOfFile(path: NSString) -> Self {
+    fn tm_dataWithContentsOfFile(path: NSString) -> Self {
         let ptr = unsafe {
             let ptr = msg_send![class!(NSData), dataWithContentsOfFile: path];
             Id::from_ptr(ptr)
@@ -124,7 +120,7 @@ impl INSData for NSData {
         Self { ptr }
     }
 
-    fn bytes(&self) -> *const libc::c_void {
+    fn ip_bytes(&self) -> *const libc::c_void {
         unsafe { msg_send![self.ptr, bytes] }
     }
 }
@@ -145,12 +141,12 @@ impl FromId for NSData {
 
 impl Debug for NSData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.debugDescription())
+        write!(f, "{}", self.ip_debugDescription())
     }
 }
 
 impl Display for NSData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.description())
+        write!(f, "{}", self.ip_description())
     }
 }

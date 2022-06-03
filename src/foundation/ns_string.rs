@@ -51,55 +51,51 @@ impl NSString {
 }
 
 impl PNSObject for NSString {
-    fn class<'a>() -> &'a objc::runtime::Class {
+    fn im_class<'a>() -> &'a objc::runtime::Class {
         class!(NSString)
     }
 
-    fn superclass<'a>() -> &'a objc::runtime::Class {
-        unsafe { msg_send![Self::class(), superclass] }
-    }
-
-    fn isEqual(&self, object: &Self) -> bool {
+    fn im_isEqual(&self, object: &Self) -> bool {
         unsafe { to_bool(msg_send![&*self.ptr, isEqual: &*object.ptr]) }
     }
 
-    fn hash(&self) -> UInt {
+    fn ip_hash(&self) -> UInt {
         unsafe { msg_send![&*self.ptr, hash] }
     }
 
-    fn isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+    fn im_isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
         unsafe { to_bool(msg_send![&*self.ptr, isKindOfClass: aClass]) }
     }
 
-    fn isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+    fn im_isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
         unsafe { to_bool(msg_send![&*self.ptr, isMemberOfClass: aClass]) }
     }
 
-    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
         unsafe { to_bool(msg_send![&*self.ptr, respondsToSelector: aSelector]) }
     }
 
-    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
         unsafe { to_bool(msg_send![&*self.ptr, conformsToProtocol: aProtocol]) }
     }
 
-    fn description(&self) -> NSString {
+    fn ip_description(&self) -> NSString {
         unsafe { msg_send![&*self.ptr, description] }
     }
 
-    fn debugDescription(&self) -> NSString {
+    fn ip_debugDescription(&self) -> NSString {
         unsafe { msg_send![&*self.ptr, debugDescription] }
     }
 
-    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
         unsafe { msg_send![&*self.ptr, performSelector: aSelector] }
     }
 
-    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
         unsafe { msg_send![&*self.ptr, performSelector: aSelector withObject: withObject] }
     }
 
-    fn isProxy(&self) -> bool {
+    fn im_isProxy(&self) -> bool {
         unsafe { to_bool(msg_send![&*self.ptr, isProxy]) }
     }
 }
@@ -483,11 +479,11 @@ impl INSString for NSString {
     }
 
     fn tp_availableStringEncodings() -> *const Encoding {
-        unsafe { msg_send![NSString::class(), availableStringEncodings] }
+        unsafe { msg_send![NSString::im_class(), availableStringEncodings] }
     }
 
     fn tp_defaultCStringEncoding() -> Encoding {
-        unsafe { msg_send![NSString::class(), defaultCStringEncoding] }
+        unsafe { msg_send![NSString::im_class(), defaultCStringEncoding] }
     }
 
     fn im_canBeConvertedToEncoding(&self, encoding: Encoding) -> bool {
@@ -507,13 +503,13 @@ impl Default for NSString {
 
 impl fmt::Debug for NSString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.description().as_str().unwrap())
+        write!(f, "{}", self.ip_description().as_str().unwrap())
     }
 }
 
 impl fmt::Display for NSString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.description().as_str().unwrap())
+        write!(f, "{}", self.ip_description().as_str().unwrap())
     }
 }
 
@@ -557,7 +553,7 @@ impl FromId for NSString {
 impl From<NSMutableString> for NSString {
     fn from(string: NSMutableString) -> Self {
         unsafe {
-            let ptr: id = msg_send![NSString::class(), alloc];
+            let ptr: id = msg_send![NSString::im_class(), alloc];
             let ptr = msg_send![ptr, initWithString: string];
             NSString::from_id(ptr)
         }

@@ -47,7 +47,7 @@ impl INSObject for BGTaskScheduler {
 }
 
 impl IBGTaskScheduler for BGTaskScheduler {
-    fn sharedScheduler() -> Self {
+    fn tp_sharedScheduler() -> Self {
         unsafe { Self::fromId(msg_send![class!(BGTaskScheduler), sharedScheduler]) }
     }
 }

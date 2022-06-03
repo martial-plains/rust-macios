@@ -50,55 +50,51 @@ impl<T> PNSObject for NSArray<T>
 where
     T: PNSObject,
 {
-    fn class<'a>() -> &'a Class {
+    fn im_class<'a>() -> &'a Class {
         class!(NSArray)
     }
 
-    fn superclass<'a>() -> &'a Class {
-        class!(NSObject)
-    }
-
-    fn isEqual(&self, object: &Self) -> bool {
+    fn im_isEqual(&self, object: &Self) -> bool {
         unsafe { to_bool(msg_send![self.obj, isEqual: object]) }
     }
 
-    fn hash(&self) -> UInt {
+    fn ip_hash(&self) -> UInt {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn isKindOfClass(&self, aClass: Class) -> bool {
+    fn im_isKindOfClass(&self, aClass: Class) -> bool {
         unsafe { to_bool(msg_send![self.obj, isKindOfClass: aClass]) }
     }
 
-    fn isMemberOfClass(&self, aClass: Class) -> bool {
+    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
         unsafe { to_bool(msg_send![self.obj, isMemberOfClass: aClass]) }
     }
 
-    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
         unsafe { to_bool(msg_send![self.obj, respondsToSelector: aSelector]) }
     }
 
-    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
         unsafe { to_bool(msg_send![self.obj, conformsToProtocol: aProtocol]) }
     }
 
-    fn description(&self) -> NSString {
+    fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
-    fn debugDescription(&self) -> NSString {
+    fn ip_debugDescription(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
         unsafe { msg_send![self.obj, performSelector: aSelector] }
     }
 
-    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
         unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
     }
 
-    fn isProxy(&self) -> bool {
+    fn im_isProxy(&self) -> bool {
         unsafe { to_bool(msg_send![self.obj, isProxy]) }
     }
 }
@@ -107,15 +103,15 @@ impl<T> INSArray<T> for NSArray<T>
 where
     T: PNSObject,
 {
-    fn contains(&self, object: T) -> bool {
+    fn im_containsObject(&self, object: T) -> bool {
         unsafe { to_bool(msg_send![&*self.obj, containsObject: object]) }
     }
 
-    fn count(&self) -> UInt {
+    fn ip_count(&self) -> UInt {
         unsafe { msg_send![self.obj, count] }
     }
 
-    fn firstObject(&self) -> Option<T>
+    fn ip_firstObject(&self) -> Option<T>
     where
         T: PNSObject + FromId,
     {
@@ -129,7 +125,7 @@ where
         }
     }
 
-    fn lastObject(&self) -> Option<T>
+    fn ip_lastObject(&self) -> Option<T>
     where
         T: PNSObject + FromId,
     {
@@ -143,7 +139,7 @@ where
         }
     }
 
-    fn objectAt(&self, index: UInt) -> T
+    fn im_objectAtIndex(&self, index: UInt) -> T
     where
         T: PNSObject + FromId,
     {
@@ -153,30 +149,30 @@ where
         }
     }
 
-    fn objectAtIndexedSubscript(&self, index: UInt) -> Option<id> {
+    fn im_objectAtIndexedSubscript(&self, index: UInt) -> Option<id> {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, objectAtIndexedSubscript: index];
             ptr.into()
         }
     }
 
-    fn indexOf(&self, object: T) -> UInt {
+    fn im_indexOfObject(&self, object: T) -> UInt {
         unsafe { msg_send![&*self.obj, indexOfObject: object] }
     }
 
-    fn indexOfObjectInRange(&self, object: T, range: Range<UInt>) -> UInt {
+    fn im_indexOfObject_inRange(&self, object: T, range: Range<UInt>) -> UInt {
         unsafe { msg_send![self.obj, indexOfObject: object inRange: range] }
     }
 
-    fn indexOfObjectIdenticalTo(&self, object: T) -> UInt {
+    fn im_indexOfObjectIdenticalTo(&self, object: T) -> UInt {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object] }
     }
 
-    fn indexOfObjectIdenticalToInRange(&self, object: T, range: Range<UInt>) -> UInt {
+    fn im_indexOfObjectIdenticalTo_inRange(&self, object: T, range: Range<UInt>) -> UInt {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object inRange: range] }
     }
 
-    fn firstObjectCommonWith(&self, other: &NSArray<T>) -> Option<T>
+    fn im_firstObjectCommonWithArray(&self, other: &NSArray<T>) -> Option<T>
     where
         T: PNSObject + FromId,
     {
@@ -191,16 +187,16 @@ where
         }
     }
 
-    fn isEqualTo(&self, other: &NSArray<T>) -> bool {
+    fn im_isEqualToArray(&self, other: &NSArray<T>) -> bool {
         unsafe { to_bool(msg_send![&*self.obj, isEqualToArray: other.clone().obj]) }
     }
 
-    unsafe fn adding(&self, object: T) -> NSArray<T> {
+    unsafe fn im_arrayByAddingObject(&self, object: T) -> NSArray<T> {
         let cls: id = msg_send![&*self.obj, arrayByAddingObject: object];
         NSArray::from(cls)
     }
 
-    unsafe fn arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
+    unsafe fn im_arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
     where
         A: INSArray<T>,
     {
@@ -208,16 +204,16 @@ where
         NSArray::from(cls)
     }
 
-    unsafe fn subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T> {
+    unsafe fn im_subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T> {
         let cls: id = msg_send![&*self.obj, subarrayWithRange: range];
         NSArray::from(cls)
     }
 
-    fn descriptionWithLocale(&self, locale: &NSLocale) -> NSString {
+    fn im_descriptionWithLocale(&self, locale: &NSLocale) -> NSString {
         unsafe { msg_send![&*self.obj, descriptionWithLocale: locale.clone().obj] }
     }
 
-    fn descriptionWithLocaleIndent(&self, locale: &NSLocale, indent: UInt) -> NSString {
+    fn im_descriptionWithLocaleIndent(&self, locale: &NSLocale, indent: UInt) -> NSString {
         unsafe { msg_send![&*self.obj, descriptionWithLocale: locale.clone().obj indent: indent] }
     }
 }
@@ -227,7 +223,7 @@ where
     T: fmt::Debug + PNSObject,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.debugDescription())
+        write!(f, "{}", self.ip_debugDescription())
     }
 }
 
@@ -236,7 +232,7 @@ where
     T: fmt::Display + PNSObject,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.description())
+        write!(f, "{}", self.ip_description())
     }
 }
 

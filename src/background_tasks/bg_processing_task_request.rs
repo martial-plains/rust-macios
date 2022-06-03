@@ -47,7 +47,7 @@ impl INSObject for BGProcessingTaskRequest {
 }
 
 impl IBGTaskRequest for BGProcessingTaskRequest {
-    fn earliestBeginDate() -> crate::foundation::NSDate {
+    fn ip_earliestBeginDate() -> crate::foundation::NSDate {
         unsafe {
             crate::foundation::NSDate::from_id(msg_send![
                 class!(BGProcessingTaskRequest),
@@ -58,7 +58,7 @@ impl IBGTaskRequest for BGProcessingTaskRequest {
 }
 
 impl IBGProcessingTaskRequest for BGProcessingTaskRequest {
-    fn initWithIdentifier(identifier: NSString) -> Self {
+    fn im_initWithIdentifier(identifier: NSString) -> Self {
         unsafe {
             Self::fromId(msg_send![
                 class!(BGProcessingTaskRequest),
@@ -67,11 +67,11 @@ impl IBGProcessingTaskRequest for BGProcessingTaskRequest {
         }
     }
 
-    fn requiresExternalPower() -> bool {
+    fn ip_requiresExternalPower() -> bool {
         unsafe { msg_send![class!(BGProcessingTaskRequest), requiresExternalPower] }
     }
 
-    fn requiresNetworkConnectivity() -> bool {
+    fn ip_requiresNetworkConnectivity() -> bool {
         unsafe { msg_send![class!(BGProcessingTaskRequest), requiresNetworkConnectivity] }
     }
 }

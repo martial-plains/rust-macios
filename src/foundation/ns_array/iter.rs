@@ -25,10 +25,10 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.index >= self.array.count() {
+        if self.index >= self.array.ip_count() {
             None
         } else {
-            let item = self.array.objectAt(self.index);
+            let item = self.array.im_objectAtIndex(self.index);
             self.index += 1;
             Some(item)
         }
@@ -43,9 +43,9 @@ where
     where
         I: IntoIterator<Item = &'a T>,
     {
-        let mut mut_arr = NSMutableArray::arrayWithCapacity(0);
+        let mut mut_arr = NSMutableArray::tm_arrayWithCapacity(0);
         for item in iter {
-            mut_arr.add(item);
+            mut_arr.im_addObject(item);
         }
 
         NSArray::from(mut_arr)
@@ -57,9 +57,9 @@ impl FromIterator<NSString> for NSArray<NSString> {
     where
         I: IntoIterator<Item = NSString>,
     {
-        let mut mut_arr = NSMutableArray::arrayWithCapacity(0);
+        let mut mut_arr = NSMutableArray::tm_arrayWithCapacity(0);
         for item in iter {
-            mut_arr.add(&item);
+            mut_arr.im_addObject(&item);
         }
 
         NSArray::from(mut_arr)
@@ -71,9 +71,9 @@ impl FromIterator<NSNumber> for NSArray<NSNumber> {
     where
         I: IntoIterator<Item = NSNumber>,
     {
-        let mut mut_arr = NSMutableArray::arrayWithCapacity(0);
+        let mut mut_arr = NSMutableArray::tm_arrayWithCapacity(0);
         for item in iter {
-            mut_arr.add(&item);
+            mut_arr.im_addObject(&item);
         }
 
         NSArray::from(mut_arr)

@@ -27,71 +27,67 @@ pub struct NSMutableDictionary<K, V> {
 }
 
 impl<K, V> PNSObject for NSMutableDictionary<K, V> {
-    fn class<'a>() -> &'a objc::runtime::Class {
+    fn im_class<'a>() -> &'a objc::runtime::Class {
         class!(NSMutableDictionary)
     }
 
-    fn superclass<'a>() -> &'a objc::runtime::Class {
-        unsafe { msg_send![Self::class(), superclass] }
-    }
-
-    fn isEqual(&self, object: &Self) -> bool {
+    fn im_isEqual(&self, object: &Self) -> bool {
         unsafe { msg_send![self.obj, isEqual: object] }
     }
 
-    fn hash(&self) -> UInt {
+    fn ip_hash(&self) -> UInt {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+    fn im_isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
         unsafe { msg_send![self.obj, isKindOfClass: aClass] }
     }
 
-    fn isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+    fn im_isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
         unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
     }
 
-    fn respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
         unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
     }
 
-    fn conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
         unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
     }
 
-    fn description(&self) -> NSString {
+    fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
-    fn debugDescription(&self) -> NSString {
+    fn ip_debugDescription(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
         unsafe { msg_send![self.obj, performSelector: aSelector] }
     }
 
-    fn performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
         unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
     }
 
-    fn isProxy(&self) -> bool {
+    fn im_isProxy(&self) -> bool {
         unsafe { msg_send![self.obj, isProxy] }
     }
 }
 
 impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {
-    fn count(&self) -> UInt {
+    fn ip_count(&self) -> UInt {
         unsafe { msg_send![self.obj, count] }
+    }
+
+    fn initWithDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+        unsafe { msg_send![self.obj, initWithDictionary: dictionary] }
     }
 }
 
 impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {
-    fn initWithDictionary(&mut self, dictionary: NSDictionary<K, V>) {
-        unsafe { msg_send![self.obj, initWithDictionary: dictionary] }
-    }
-
-    fn setObject(&mut self, key: K, value: V)
+    fn im_setObject_forKey(&mut self, key: K, value: V)
     where
         K: PNSObject,
         V: PNSObject,
@@ -99,7 +95,7 @@ impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {
         unsafe { msg_send![self.obj, setObject: value forKey: key] }
     }
 
-    fn setObjectForKeyedSuperscript(&mut self, key: K, value: V)
+    fn im_setObject_forkeyedSuperscript(&mut self, key: K, value: V)
     where
         K: Into<id>,
         V: Into<id>,
@@ -107,7 +103,7 @@ impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {
         unsafe { msg_send![self.obj, setObject: value forKeyedSubscript: key] }
     }
 
-    fn setValue(&mut self, key: K, value: V)
+    fn im_setValue_forKey(&mut self, key: K, value: V)
     where
         K: Into<NSString>,
         V: Into<id>,
@@ -115,37 +111,40 @@ impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {
         unsafe { msg_send![self.obj, setValue: value forKey: key] }
     }
 
-    fn addEntriesFromDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+    fn im_addEntriesFromDictionary(&mut self, dictionary: NSDictionary<K, V>) {
         unsafe { msg_send![self.obj, addEntriesFromDictionary: dictionary] }
     }
 
-    fn setDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+    fn im_setDictionary(&mut self, dictionary: NSDictionary<K, V>) {
         unsafe { msg_send![self.obj, setDictionary: dictionary] }
     }
 
-    fn removeObjectForKey(&mut self, key: K)
+    fn im_removeObjectForKey(&mut self, key: K)
     where
         K: Into<id>,
     {
         unsafe { msg_send![self.obj, removeObjectForKey: key] }
     }
 
-    fn removeAllObjects(&mut self) {
+    fn im_removeAllObjects(&mut self) {
         unsafe { msg_send![self.obj, removeAllObjects] }
     }
 
-    fn removeObjectsForKeys(&mut self, keys: NSArray<K>)
+    fn im_removeObjectsForKeys(&mut self, keys: NSArray<K>)
     where
         K: PNSObject,
     {
         unsafe { msg_send![self.obj, removeObjectsForKeys: keys] }
     }
 
-    fn dictionaryWithCapacity(capacity: UInt) -> Self
+    fn tm_dictionaryWithCapacity(capacity: UInt) -> Self
 where {
         Self {
             obj: unsafe {
-                Id::from_ptr(msg_send![Self::class(), dictionaryWithCapacity: capacity])
+                Id::from_ptr(msg_send![
+                    Self::im_class(),
+                    dictionaryWithCapacity: capacity
+                ])
             },
             _key: PhantomData,
             _value: PhantomData,
@@ -171,7 +170,7 @@ impl<K, V> FromId for NSMutableDictionary<K, V> {
 
 impl<K, V> Default for NSMutableDictionary<K, V> {
     fn default() -> Self {
-        Self::dictionaryWithCapacity(0)
+        Self::tm_dictionaryWithCapacity(0)
     }
 }
 
@@ -181,13 +180,13 @@ where
     V: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.debugDescription())
+        write!(f, "{}", self.ip_debugDescription())
     }
 }
 
 impl fmt::Display for NSMutableDictionary<NSString, NSString> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.description())
+        write!(f, "{}", self.ip_description())
     }
 }
 

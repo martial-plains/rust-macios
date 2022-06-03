@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use crate::{
-    foundation::{NSDictionary, NSNumber, NSString, UInt, NSArray},
+    foundation::{NSArray, NSDictionary, NSNumber, NSString, UInt},
     objective_c_runtime::traits::PNSObject,
 };
 
@@ -13,33 +13,33 @@ pub trait INLTokenizer: PNSObject {
      */
 
     /// Creates a tokenizer with the specified unit.
-    fn initWithUnit(unit: NLTokenUnit) -> Self;
+    fn im_initWithUnit(unit: NLTokenUnit) -> Self;
 
     /* Configuring a Tokenizer
      */
 
     /// The text to be tokenized.
-    fn string(&self) -> NSString;
+    fn ip_string(&self) -> NSString;
 
     /// Sets the text to be tokenized.
-    fn setString<S>(&self, string: S)
+    fn ip_setString<S>(&self, string: S)
     where
         S: Into<NSString>;
 
     /// Sets the language of the text to be tokenized.
-    fn setLanguage(&self, language: NSString);
+    fn im_setLanguage(&self, language: NSString);
 
     /// The linguistic unit that this tokenizer uses.
-    fn unit(&self) -> NLTokenUnit;
+    fn ip_unit(&self) -> NLTokenUnit;
 
     /* Enumerating the Tokens
      */
 
     /// Finds the range of the token at the given index.
-    fn tokenRangeAtIndex(&self, character_index: UInt) -> Range<UInt>;
+    fn im_tokenRangeAtIndex(&self, character_index: UInt) -> Range<UInt>;
 
     /// Finds the entire range of all tokens contained completely or partially within the specified range.
-    fn tokenRangeForRange(&self, range: Range<UInt>) -> Range<UInt>;
+    fn im_tokenRangeForRange(&self, range: Range<UInt>) -> Range<UInt>;
 }
 
 /// The language of a body of text.

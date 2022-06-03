@@ -20,55 +20,51 @@ pub struct NSDate {
 }
 
 impl PNSObject for NSDate {
-    fn class<'a>() -> &'a Class {
+    fn im_class<'a>() -> &'a Class {
         class!(NSDate)
     }
 
-    fn superclass<'a>() -> &'a Class {
-        unsafe { msg_send![class!(NSDate), superclass] }
-    }
-
-    fn isEqual(&self, object: &Self) -> bool {
+    fn im_isEqual(&self, object: &Self) -> bool {
         unsafe { msg_send![self.ptr, isEqual: object] }
     }
 
-    fn hash(&self) -> super::UInt {
+    fn ip_hash(&self) -> super::UInt {
         unsafe { msg_send![self.ptr, hash] }
     }
 
-    fn isKindOfClass(&self, aClass: Class) -> bool {
+    fn im_isKindOfClass(&self, aClass: Class) -> bool {
         unsafe { msg_send![self.ptr, isKindOfClass: aClass] }
     }
 
-    fn isMemberOfClass(&self, aClass: Class) -> bool {
+    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
         unsafe { msg_send![self.ptr, isMemberOfClass: aClass] }
     }
 
-    fn respondsToSelector(&self, aSelector: Sel) -> bool {
+    fn im_respondsToSelector(&self, aSelector: Sel) -> bool {
         unsafe { msg_send![self.ptr, respondsToSelector: aSelector] }
     }
 
-    fn conformsToProtocol(&self, aProtocol: Protocol) -> bool {
+    fn im_conformsToProtocol(&self, aProtocol: Protocol) -> bool {
         unsafe { msg_send![self.ptr, conformsToProtocol: aProtocol] }
     }
 
-    fn description(&self) -> NSString {
+    fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
-    fn debugDescription(&self) -> NSString {
+    fn ip_debugDescription(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
-    fn performSelector(&self, aSelector: Sel) -> id {
+    fn im_performSelector(&self, aSelector: Sel) -> id {
         unsafe { msg_send![self.ptr, performSelector: aSelector] }
     }
 
-    fn performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
+    fn im_performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
         unsafe { msg_send![self.ptr, performSelector: aSelector withObject: withObject] }
     }
 
-    fn isProxy(&self) -> bool {
+    fn im_isProxy(&self) -> bool {
         unsafe { msg_send![self.ptr, isProxy] }
     }
 }
@@ -89,13 +85,13 @@ impl FromId for NSDate {
 
 impl fmt::Debug for NSDate {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.debugDescription())
+        write!(f, "{}", self.ip_debugDescription())
     }
 }
 
 impl fmt::Display for NSDate {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.description())
+        write!(f, "{}", self.ip_description())
     }
 }
 

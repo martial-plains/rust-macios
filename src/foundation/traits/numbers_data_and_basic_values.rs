@@ -7,7 +7,8 @@ use libc::{
 
 use crate::{
     foundation::{
-        Int, NSComparisonResult, NSData, NSDecimalNumber, NSLocale, NSRoundingMode, NSString, UInt,
+        Int, NSComparisonResult, NSData, NSDecimal, NSDecimalNumber, NSLocale, NSRoundingMode,
+        NSString, UInt,
     },
     objective_c_runtime::traits::{INSValue, PNSObject},
 };
@@ -15,7 +16,7 @@ use crate::{
 use super::INSLocale;
 
 /// The group of methods that are used with `NSNumber` objects.
-pub trait t_NSNumber: INSValue {
+pub trait INSNumber: INSValue {
     /* Creating an NSNumber Object
      */
 
@@ -28,7 +29,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithBool(value: bool) -> Self;
+    fn tm_numberWithBool(value: bool) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a signed char.
     ///
@@ -39,7 +40,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithChar(value: c_schar) -> Self;
+    fn tm_numberWithChar(value: c_schar) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a double.
     ///
@@ -50,7 +51,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithDouble(value: c_double) -> Self;
+    fn tm_numberWithDouble(value: c_double) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a float.
     ///
@@ -61,7 +62,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithFloat(value: c_float) -> Self;
+    fn tm_numberWithFloat(value: c_float) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a signed int.
     ///
@@ -72,7 +73,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithInt(value: c_int) -> Self;
+    fn tm_numberWithInt(value: c_int) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an NSInteger.
     ///
@@ -83,7 +84,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithInteger(value: Int) -> Self;
+    fn tm_numberWithInteger(value: Int) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a signed long.
     ///
@@ -94,7 +95,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithLong(value: c_long) -> Self;
+    fn tm_numberWithLong(value: c_long) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a signed long long.
     ///
@@ -105,7 +106,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithLongLong(value: c_longlong) -> Self;
+    fn tm_numberWithLongLong(value: c_longlong) -> Self;
 
     /// Creates and returns an NSNumber object containing value, treating it as a signed short.
     ///
@@ -116,7 +117,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithShort(value: c_short) -> Self;
+    fn tm_numberWithShort(value: c_short) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned char.
     ///
@@ -127,7 +128,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithUnsignedChar(value: c_uchar) -> Self;
+    fn tm_numberWithUnsignedChar(value: c_uchar) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned int.
     ///
@@ -138,7 +139,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithUnsignedInt(value: c_uint) -> Self;
+    fn tm_numberWithUnsignedInt(value: c_uint) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an NSUInteger.
     ///
@@ -149,7 +150,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithUnsignedInteger(value: UInt) -> Self;
+    fn tm_numberWithUnsignedInteger(value: UInt) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned long.
     ///
@@ -160,7 +161,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithUnsignedLong(value: c_ulong) -> Self;
+    fn tm_numberWithUnsignedLong(value: c_ulong) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned long long.
     ///
@@ -171,7 +172,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithUnsignedLongLong(value: c_ulonglong) -> Self;
+    fn tm_numberWithUnsignedLongLong(value: c_ulonglong) -> Self;
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned short.
     ///
@@ -182,7 +183,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn numberWithUnsignedShort(value: c_ushort) -> Self;
+    fn tm_numberWithUnsignedShort(value: c_ushort) -> Self;
 
     /* Initializing an NSNumber Object
      */
@@ -192,7 +193,7 @@ pub trait t_NSNumber: INSValue {
     /// # Arguments
     ///
     /// * `value` - The value to store in the NSNumber object.
-    fn initWithBool(&self, value: bool) -> Self;
+    fn im_initWithBool(&self, value: bool) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as a signed char.
     ///
@@ -203,7 +204,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithChar(&self, value: c_schar) -> Self;
+    fn im_initWithChar(&self, value: c_schar) -> Self;
 
     /// Returns an NSNumber object initialized to contain value, treated as a double.
     ///
@@ -214,7 +215,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithDouble(&self, value: c_double) -> Self;
+    fn im_initWithDouble(&self, value: c_double) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as a float.
     ///
@@ -225,7 +226,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithFloat(&self, value: c_float) -> Self;
+    fn im_initWithFloat(&self, value: c_float) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as a signed int.
     ///
@@ -236,7 +237,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithInt(&self, value: c_int) -> Self;
+    fn im_initWithInt(&self, value: c_int) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an NSInteger.
     ///
@@ -247,7 +248,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithInteger(&self, value: Int) -> Self;
+    fn im_initWithInteger(&self, value: Int) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as a signed long.
     ///
@@ -258,7 +259,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithLong(&self, value: c_long) -> Self;
+    fn im_initWithLong(&self, value: c_long) -> Self;
 
     /// Returns an NSNumber object initialized to contain value, treated as a signed long long.
     ///
@@ -269,7 +270,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithLongLong(&self, value: c_longlong) -> Self;
+    fn im_initWithLongLong(&self, value: c_longlong) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as a signed short.
     ///
@@ -280,7 +281,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithShort(&self, value: c_short) -> Self;
+    fn im_initWithShort(&self, value: c_short) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned char.
     ///
@@ -291,7 +292,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithUnsignedChar(&self, value: c_uchar) -> Self;
+    fn im_initWithUnsignedChar(&self, value: c_uchar) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned int.
     ///
@@ -302,7 +303,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithUnsignedInt(&self, value: c_uint) -> Self;
+    fn im_initWithUnsignedInt(&self, value: c_uint) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an NSUInteger.
     ///
@@ -313,7 +314,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithUnsignedInteger(&self, value: c_uint) -> Self;
+    fn im_initWithUnsignedInteger(&self, value: c_uint) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned long.
     ///
@@ -324,7 +325,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithUnsignedLong(&self, value: c_ulong) -> Self;
+    fn im_initWithUnsignedLong(&self, value: c_ulong) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned long long.
     ///
@@ -335,7 +336,7 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithUnsignedLongLong(&self, value: c_ulonglong) -> Self;
+    fn im_initWithUnsignedLongLong(&self, value: c_ulonglong) -> Self;
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned short.
     ///
@@ -346,58 +347,58 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn initWithUnsignedShort(&self, value: c_ushort) -> Self;
+    fn im_initWithUnsignedShort(&self, value: c_ushort) -> Self;
 
     /* Accessing Numeric Values
      */
 
     /// The number object's value expressed as a Boolean value.
-    fn boolValue(&self) -> bool;
+    fn ip_boolValue(&self) -> bool;
 
     /// The number object's value expressed as a char.
-    fn charValue(&self) -> c_schar;
+    fn ip_charValue(&self) -> c_schar;
 
     /// The number object's value expressed as an NSDecimal structure.
-    //// fn decimalValue(&self) -> NSDecimal;
+    fn ip_decimalValue(&self) -> NSDecimal;
 
     /// The number object's value expressed as a double, converted as necessary.
-    fn doubleValue(&self) -> c_double;
+    fn ip_doubleValue(&self) -> c_double;
 
     /// The number object's value expressed as a float, converted as necessary.
-    fn floatValue(&self) -> c_float;
+    fn ip_floatValue(&self) -> c_float;
 
     /// The number object's value expressed as an int, converted as necessary.
-    fn intValue(&self) -> c_int;
+    fn ip_intValue(&self) -> c_int;
 
     /// The number object's value expressed as an NSInteger object, converted as necessary.
-    fn integerValue(&self) -> Int;
+    fn ip_integerValue(&self) -> Int;
 
     /// The number object’s value expressed as a long long, converted as necessary.
-    fn longLongValue(&self) -> c_longlong;
+    fn ip_longLongValue(&self) -> c_longlong;
 
     /// The number object’s value expressed as a long, converted as necessary.
-    fn longValue(&self) -> c_long;
+    fn ip_longValue(&self) -> c_long;
 
     /// The number object's value expressed as a short, converted as necessary.
-    fn shortValue(&self) -> c_short;
+    fn ip_shortValue(&self) -> c_short;
 
     /// The number object's value expressed as an unsigned char, converted as necessary.
-    fn unsignedCharValue(&self) -> c_uchar;
+    fn ip_unsignedCharValue(&self) -> c_uchar;
 
     /// The number object's value expressed as an NSUInteger object, converted as necessary.
-    fn unsignedIntegerValue(&self) -> UInt;
+    fn ip_unsignedIntegerValue(&self) -> UInt;
 
     /// The number object's value expressed as an unsigned int, converted as necessary.
-    fn unsignedIntValue(&self) -> c_uint;
+    fn ip_unsignedIntValue(&self) -> c_uint;
 
     /// The number object’s value expressed as an unsigned long long, converted as necessary.
-    fn unsignedLongLongValue(&self) -> c_ulonglong;
+    fn ip_unsignedLongLongValue(&self) -> c_ulonglong;
 
     /// The number object's value expressed as an unsigned long, converted as necessary.
-    fn unsignedLongValue(&self) -> c_ulong;
+    fn ip_unsignedLongValue(&self) -> c_ulong;
 
     /// The number object's value expressed as an unsigned short, converted as necessary.
-    fn unsignedShortValue(&self) -> c_ushort;
+    fn ip_unsignedShortValue(&self) -> c_ushort;
 
     /* Retrieving String Representations
      */
@@ -411,10 +412,10 @@ pub trait t_NSNumber: INSValue {
     /// # Returns
     ///
     /// A string that represents the contents of the number object formatted using the locale information in `locale`.
-    fn descriptionWithLocale(&self, locale: NSLocale) -> NSString;
+    fn im_descriptionWithLocale(&self, locale: NSLocale) -> NSString;
 
     /// The number object's value expressed as a human-readable string.
-    fn stringValue(&self) -> NSString;
+    fn ip_stringValue(&self) -> NSString;
 
     /* Comparing NSNumber Objects
      */
@@ -424,59 +425,59 @@ pub trait t_NSNumber: INSValue {
     /// # Arguments
     ///
     /// * `other` - The number to compare to the number object’s value.
-    fn compare(&self, other: &Self) -> NSComparisonResult;
+    fn im_compare(&self, other: &Self) -> NSComparisonResult;
 
     /// Returns a Boolean value that indicates whether the number object’s value and a given number are equal.
     ///
     /// # Arguments
     ///
     /// * `other` - The number to compare to the number object’s value.
-    fn isEqualToNumber(&self, other: &Self) -> bool;
+    fn im_isEqualToNumber(&self, other: &Self) -> bool;
 }
 
 /// An object for representing and performing arithmetic on base-10 numbers.
-pub trait t_NSDecimalNumber: t_NSNumber {
+pub trait INSDecimalNumber: INSNumber {
     /* Creating a Decimal Number
      */
 
     /// Creates and returns a decimal number equivalent to a given decimal structure.
-    fn decimalNumberWithDecimal(decimal: NSDecimalNumber) -> Self;
+    fn tm_decimalNumberWithDecimal(decimal: NSDecimalNumber) -> Self;
 
     /// Creates and returns a decimal number equivalent to the number specified by the arguments.
-    fn decimalNumberWithMantissa(
+    fn tm_decimalNumberWithMantissa(
         mantissa: c_ulonglong,
         exponent: c_short,
         is_negative: bool,
     ) -> Self;
 
     /// Creates a decimal number whose value is equivalent to that in a given numeric string.
-    fn decimalNumberWithString<S>(string: S) -> Self
+    fn tm_decimalNumberWithString<S>(string: S) -> Self
     where
         S: Into<NSString>;
 
     /// Creates a decimal number whose value is equivalent to that in a given numeric string, interpreted using a given locale.
-    fn decimalNumberWithStringLocale<S, L>(string: S, locale: L) -> Self
+    fn tm_decimalNumberWithStringLocale<S, L>(string: S, locale: L) -> Self
     where
         S: Into<NSString>,
         L: INSLocale;
 
     /// A decimal number equivalent to the number 1.0.
-    fn one() -> Self;
+    fn tp_one() -> Self;
 
     /// A decimal number equivalent to the number 0.0.
-    fn zero() -> Self;
+    fn tp_zero() -> Self;
 
     /// A decimal number that specifies no number.
-    fn notANumber() -> Self;
+    fn tp_notANumber() -> Self;
 
     /* Initializing a Decimal Number
      */
 
     /// Initializes a decimal number to represent a given decimal.
-    fn initWithDecimal(&mut self, decimal: NSDecimalNumber);
+    fn im_initWithDecimal(&mut self, decimal: NSDecimalNumber);
 
     /// Initializes a decimal number using the given mantissa, exponent, and sign.
-    fn initWithMantissaExponentIsNegative(
+    fn im_initWithMantissa_exponent_isNegative(
         &mut self,
         mantissa: c_ulonglong,
         exponent: c_short,
@@ -484,12 +485,12 @@ pub trait t_NSDecimalNumber: t_NSNumber {
     );
 
     /// Initializes a decimal number so that its value is equivalent to that in a given numeric string.
-    fn initWithString<S>(&mut self, string: S)
+    fn im_initWithString<S>(&mut self, string: S)
     where
         S: Into<NSString>;
 
     /// Initializes a decimal number so that its value is equivalent to that in a given numeric string, interpreted using a given locale.
-    fn initWithStringLocale<S, L>(&mut self, string: S, locale: L)
+    fn im_initWithString_locale<S, L>(&mut self, string: S, locale: L)
     where
         S: Into<NSString>,
         L: INSLocale;
@@ -498,119 +499,122 @@ pub trait t_NSDecimalNumber: t_NSNumber {
      */
 
     /// Adds this number to another given number.
-    fn decimalNumberByAdding(&self, decimal_number: Self) -> Self;
+    fn im_decimalNumberByAdding(&self, decimal_number: Self) -> Self;
 
     /// Subtracts another given number from this one.
-    fn decimalNumberBySubtracting(&self, decimal_number: Self) -> Self;
+    fn im_decimalNumberBySubtracting(&self, decimal_number: Self) -> Self;
 
     /// Multiplies the number by another given number.
-    fn decimalNumberByMultiplyingBy(&self, decimal_number: Self) -> Self;
+    fn im_decimalNumberByMultiplyingBy(&self, decimal_number: Self) -> Self;
 
     /// Divides the number by another given number.
-    fn decimalNumberByDividingBy(&self, decimal_number: Self) -> Self;
+    fn im_decimalNumberByDividingBy(&self, decimal_number: Self) -> Self;
 
     /// Raises the number to a given power.
-    fn decimalNumberByRaisingToPower(&self, power: c_uint) -> Self;
+    fn im_decimalNumberByRaisingToPower(&self, power: c_uint) -> Self;
 
     /// Multiplies the number by 10 raised to the given power.
-    fn decimalNumberByMultiplyingByPowerOf10(&self, power: c_short) -> Self;
+    fn im_decimalNumberByMultiplyingByPowerOf10(&self, power: c_short) -> Self;
 
     /// Adds this number to another given number using the specified behavior.
-    fn decimalNumberByAddingWithBehavior(
+    fn im_decimalNumberByAdding_withBehavior(
         &self,
         decimal_number: &Self,
-        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
     ) -> Self;
 
     /// Subtracts this a given number from this one using the specified behavior.
-    fn decimalNumberBySubtractingWithBehavior(
+    fn im_decimalNumberBySubtracting_withBehavior(
         &self,
         decimal_number: &Self,
-        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
     ) -> Self;
 
     /// Multiplies this number by another given number using the specified behavior.
-    fn decimalNumberByMultiplyingByWithBehavior(
+    fn im_decimalNumberByMultiplyingBy_withBehavior(
         &self,
         decimal_number: &Self,
-        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
     ) -> Self;
 
     /// Divides this number by another given number using the specified behavior.
-    fn decimalNumberByDividingByWithBehavior(
+    fn im_decimalNumberByDividingBy_withBehavior(
         &self,
         decimal_number: &Self,
-        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
     ) -> Self;
 
     /// Raises the number to a given power using the specified behavior.
-    fn decimalNumberByRaisingToPowerWithBehavior(
+    fn im_decimalNumberByRaisingToPower_withBehavior(
         &self,
         power: c_uint,
-        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
     ) -> Self;
 
     /// Multiplies the number by 10 raised to the given power using the specified behavior.
-    fn decimalNumberByMultiplyingByPowerOf10WithBehavior(
+    fn im_decimalNumberByMultiplyingByPowerOf10_withBehavior(
         &self,
         power: c_short,
-        with_behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+        with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
     ) -> Self;
 
     /* Rounding Off
      */
     /// Returns a rounded version of the decimal number using the specified rounding behavior.
-    fn decimalNumberByRoundingAccordingToBehavior(
+    fn im_decimalNumberByRoundingAccordingToBehavior(
         &self,
-        behavior: Arc<dyn t_NSDecimalNumberBehaviors>,
+        behavior: Arc<dyn PNSDecimalNumberBehaviors>,
     ) -> Self;
 
     /* Managing Behavior
      */
 
     /// The way arithmetic methods round off and handle error conditions.
-    fn defaultBehavior() -> Arc<dyn t_NSDecimalNumberBehaviors>;
+    fn tp_defaultBehavior() -> Arc<dyn PNSDecimalNumberBehaviors>;
 
     /// Sets the way arithmetic methods round off and handle error conditions.
-    fn setDefaultBehavior(behavior: Arc<dyn t_NSDecimalNumberBehaviors>);
+    fn tp_setDefaultBehavior(behavior: Arc<dyn PNSDecimalNumberBehaviors>);
+
+    /// The decimal number’s value, expressed as an NSDecimal structure.
+    fn tp_decimalValue(&self) -> NSDecimal;
 
     /// The decimal number’s closest approximate double value.
-    fn doubleValue(&self) -> f64;
+    fn ip_doubleValue(&self) -> f64;
 
     /// Returns a string representation of the decimal number appropriate for the specified locale.
-    fn descriptionWithLocale<L>(&self, locale: L) -> NSString
+    fn im_descriptionWithLocale<L>(&self, locale: L) -> NSString
     where
         L: INSLocale;
 
     /// A C string containing the Objective-C type for the data contained in the decimal number object.
-    fn objcType(&self) -> *const c_char;
+    fn ip_objcType(&self) -> *const c_char;
 
     /* Comparing Decimal Numbers
      */
 
     /// Compares this decimal number and another.
-    fn compare(&self, decimal_number: &Self) -> NSComparisonResult;
+    fn im_compare(&self, decimal_number: &Self) -> NSComparisonResult;
 
     /* Getting Maximum and Minimum Possible Values
      */
 
     /// Returns the largest possible value of a decimal number.
-    fn maximumDecimalNumber() -> Self;
+    fn tp_maximumDecimalNumber() -> Self;
 
     /// Returns the smallest possible value of a decimal number.
-    fn minimumDecimalNumber() -> Self;
+    fn tp_minimumDecimalNumber() -> Self;
 }
 
 /// A protocol that declares three methods that control the discretionary aspects of working with decimal numbers.
-pub trait t_NSDecimalNumberBehaviors {
+pub trait PNSDecimalNumberBehaviors {
     /* Rounding Behavior
      */
 
     /// Returns the way that NSDecimalNumber's decimalNumberBy... methods round their return values.
-    fn roundingMode(&self) -> NSRoundingMode;
+    fn im_roundingMode(&self) -> NSRoundingMode;
 
     /// Returns the number of digits allowed after the decimal separator.
-    fn scale(&self) -> c_short;
+    fn im_scale(&self) -> c_short;
 }
 
 /// A static byte buffer in memory.
@@ -619,26 +623,34 @@ pub trait INSData: PNSObject {
      */
 
     /// Creates an empty data object.
-    fn data() -> Self;
+    fn tm_data() -> Self;
 
     /// Creates a data object containing a given number of bytes copied from a given buffer.
-    fn dataWithBytesLength(bytes: *const c_void, length: UInt) -> Self;
+    fn tm_dataWithBytes_length(bytes: *const c_void, length: UInt) -> Self;
 
     /// Creates a data object that holds a given number of bytes from a given buffer.
-    fn dataWithBytesNoCopyLength(bytes: *const c_void, length: UInt) -> Self;
+    fn tm_dataWithBytesNoCopy_length(bytes: *const c_void, length: UInt) -> Self;
 
     /// Creates a data object that holds a given number of bytes from a given buffer.
-    fn dataWithBytesNoCopyLengthFreeWhenDone(bytes: *const c_void, length: UInt, b: bool) -> Self;
+    fn tm_dataWithBytesNoCopy_length_freeWhenDone(
+        bytes: *const c_void,
+        length: UInt,
+        b: bool,
+    ) -> Self;
 
     /// Creates a data object containing the contents of another data object.
-    fn dataWithData(data: NSData) -> Self;
+    fn tm_dataWithData(data: NSData) -> Self;
 
     /*Reading Data from a File
      */
 
     /// Creates a data object by reading every byte from the file at a given path.
-    fn dataWithContentsOfFile(path: NSString) -> Self;
+    fn tm_dataWithContentsOfFile(path: NSString) -> Self;
+
+    /* Accessing Underlying Bytes
+
+    */
 
     /// A pointer to the data object's contents.
-    fn bytes(&self) -> *const c_void;
+    fn ip_bytes(&self) -> *const c_void;
 }
