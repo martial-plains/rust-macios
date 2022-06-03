@@ -51,7 +51,7 @@ pub use ns_number::*;
 pub use ns_string::*;
 pub use string_transform::*;
 
-/* Errors and Exceptions
+/* App Support
 */
 
 #[allow(improper_ctypes)]
@@ -60,3 +60,10 @@ extern "C" {
     pub fn NSLog(format: NSString, ...);
 
 }
+
+/*Low-Level Utilities
+*/
+
+mod ns_autoreleasepool;
+
+pub use ns_autoreleasepool::*;
