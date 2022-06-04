@@ -195,7 +195,7 @@ impl INLTokenizer for NLTokenizer {
 
 impl fmt::Debug for NLTokenizer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<{}>", self.ip_debugDescription())
+        write!(f, "{}", self.ip_debugDescription())
     }
 }
 
