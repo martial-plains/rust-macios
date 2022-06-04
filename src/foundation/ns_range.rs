@@ -46,3 +46,9 @@ impl From<Range<usize>> for NSRange {
         }
     }
 }
+
+impl From<NSRange> for Range<usize> {
+    fn from(range: NSRange) -> Self {
+        range.location as usize..(range.location + range.length) as usize
+    }
+}
