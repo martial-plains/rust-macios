@@ -32,6 +32,7 @@ mod ns_mutable_dictionary;
 mod ns_mutable_string;
 mod ns_notification;
 mod ns_number;
+mod ns_range;
 mod ns_string;
 mod string_transform;
 
@@ -48,6 +49,7 @@ pub use ns_mutable_dictionary::*;
 pub use ns_mutable_string::*;
 pub use ns_notification::*;
 pub use ns_number::*;
+pub use ns_range::*;
 pub use ns_string::*;
 pub use string_transform::*;
 
