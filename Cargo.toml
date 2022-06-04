@@ -12,6 +12,7 @@ license = "MIT"
 objc = { version = "0.2.7", features = ["exception"] }
 objc_id = "0.1.1"
 libc = "0.2.126"
+block = "0.1.6"
 
 [dev-dependencies]
 test-case = "2.0.2"

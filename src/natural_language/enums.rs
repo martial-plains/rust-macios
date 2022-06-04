@@ -27,7 +27,7 @@ pub enum NLModelType {
 }
 
 /// Constants representing linguistic units.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 #[repr(i64)]
 pub enum NLTokenUnit {
     /// An individual word.
@@ -41,9 +41,11 @@ pub enum NLTokenUnit {
 }
 
 /// Hints about the contents of the string for the tokenizer.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 #[repr(u64)]
 pub enum NLTokenizerAttributes {
+    /// Doesn't contain any special attributes.
+    None = 0,
     /// The string contains numbers.
     Numeric = 1 << 0,
     /// The string contains symbols.

@@ -1,11 +1,11 @@
-use std::ops::Range;
+use block::RcBlock;
 
 use crate::{
-    foundation::{NSArray, NSDictionary, NSNumber, NSString, UInt},
-    objective_c_runtime::traits::PNSObject,
+    foundation::{NSArray, NSDictionary, NSNumber, NSRange, NSString, UInt},
+    objective_c_runtime::traits::{INSValue, PNSObject},
 };
 
-use super::{NLLanguage, NLTokenUnit};
+use super::{NLLanguage, NLTokenUnit, NLTokenizerAttributes};
 
 /// A tokenizer that segments natural language text into semantic units.
 pub trait INLTokenizer: PNSObject {
@@ -22,12 +22,10 @@ pub trait INLTokenizer: PNSObject {
     fn ip_string(&self) -> NSString;
 
     /// Sets the text to be tokenized.
-    fn ip_setString<S>(&self, string: S)
-    where
-        S: Into<NSString>;
+    fn ip_setString(&self, string: NSString);
 
     /// Sets the language of the text to be tokenized.
-    fn im_setLanguage(&self, language: NSString);
+    fn im_setLanguage(&self, language: NLLanguage);
 
     /// The linguistic unit that this tokenizer uses.
     fn ip_unit(&self) -> NLTokenUnit;
@@ -35,11 +33,23 @@ pub trait INLTokenizer: PNSObject {
     /* Enumerating the Tokens
      */
 
+    /// Enumerates over a given range of the string and calls the specified block for each token.
+    fn im_enumerateTokensInRange_usingBlock(
+        &self,
+        range: NSRange,
+        block: RcBlock<(NSRange, NLTokenizerAttributes, bool), ()>,
+    );
+
+    /// Tokenizes the string within the provided range.
+    fn im_tokensForRange<T>(&self, range: NSRange) -> NSArray<T>
+    where
+        T: INSValue;
+
     /// Finds the range of the token at the given index.
-    fn im_tokenRangeAtIndex(&self, character_index: UInt) -> Range<UInt>;
+    fn im_tokenRangeAtIndex(&self, character_index: UInt) -> NSRange;
 
     /// Finds the entire range of all tokens contained completely or partially within the specified range.
-    fn im_tokenRangeForRange(&self, range: Range<UInt>) -> Range<UInt>;
+    fn im_tokenRangeForRange(&self, range: NSRange) -> NSRange;
 }
 
 /// The language of a body of text.
