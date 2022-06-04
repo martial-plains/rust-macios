@@ -37,7 +37,7 @@ pub trait INLTokenizer: PNSObject {
     fn im_enumerateTokensInRange_usingBlock(
         &self,
         range: NSRange,
-        block: RcBlock<(NSRange, NLTokenizerAttributes, bool), ()>,
+        block: RcBlock<(NSRange, NLTokenizerAttributes, *mut bool), ()>,
     );
 
     /// Tokenizes the string within the provided range.

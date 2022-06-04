@@ -56,9 +56,14 @@ impl NLTokenizer {
     }
 
     /// Enumerates over a given range of the string and calls the specified block for each token.
+    ///
+    /// # Argumnets
+    ///
+    /// * `range` - The range of the string to be tokenized.
+    /// * `block` - The block to be called for each token.
     pub fn enumerate_tokens_in_range<F>(&self, range: NSRange, block: F)
     where
-        F: IntoConcreteBlock<(NSRange, NLTokenizerAttributes, bool), Ret = ()> + 'static,
+        F: IntoConcreteBlock<(NSRange, NLTokenizerAttributes, *mut bool), Ret = ()> + 'static,
     {
         let block = ConcreteBlock::new(block);
         let block = block.copy();
@@ -166,7 +171,7 @@ impl INLTokenizer for NLTokenizer {
     fn im_enumerateTokensInRange_usingBlock(
         &self,
         range: NSRange,
-        block: RcBlock<(NSRange, NLTokenizerAttributes, bool), ()>,
+        block: RcBlock<(NSRange, NLTokenizerAttributes, *mut bool), ()>,
     ) {
         unsafe {
             msg_send![
