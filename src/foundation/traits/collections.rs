@@ -190,17 +190,75 @@ where
 
 /// A static collection of objects associated with unique keys.
 pub trait INSDictionary<K, V>: PNSObject {
+    /* Creating an Empty Dictionary
+     */
+
+    /// Creates an empty dictionary.
+    fn tm_dictionary() -> Self;
+
+    /// Initializes a newly allocated dictionary.
+    fn im_init() -> Self;
+
+    /* Creating a Dictionary from Another Dictionary
+     */
+
+    /// Creates a dictionary containing the keys and values from another given dictionary.
+    fn tm_dictionaryWithDictionary<D>(dictionary: D) -> Self
+    where
+        D: INSDictionary<K, V>;
+
+    /// Creates and initialize a dictionary
+    fn im_initWithDictionary(&mut self, dictionary: NSDictionary<K, V>);
+
+    /// Initializes a newly allocated dictionary using the objects contained in another given dictionary.
+    fn im_initWithDictionary_copyItems(&mut self, dictionary: NSDictionary<K, V>, flag: bool);
+
     /* Counting Entries
      */
 
     /// The number of entries in the dictionary.
     fn ip_count(&self) -> UInt;
 
-    /* Creating a Dictionary from Another Dictionary
+    /* Comparing Dictionaries
      */
 
-    /// Creates and initialize a dictionary
-    fn initWithDictionary(&mut self, dictionary: NSDictionary<K, V>);
+    /// Returns a Boolean value that indicates whether the contents of the receiving dictionary are equal to the contents of another given dictionary.
+    fn im_isEqualToDictionary<D>(&self, other: D) -> bool
+    where
+        D: INSDictionary<K, V>;
+
+    /* Accessing Keys and Values
+     */
+
+    /// A new array containing the dictionary’s keys, or an empty array if the dictionary has no entries.
+    fn ip_allKeys(&self) -> NSArray<K>;
+
+    /// Returns a new array containing the keys corresponding to all occurrences of a given object in the dictionary.
+    fn im_allKeysForObject(&self, anObject: &V) -> NSArray<K>;
+
+    /// A new array containing the dictionary’s values, or an empty array if the dictionary has no entries.
+    fn ip_allValues(&self) -> NSArray<V>;
+
+    /// Returns the value associated with a given key.
+    fn im_valueForKey(&self, key: &K) -> V
+    where
+        V: FromId;
+
+    /// Returns by reference C arrays of the keys and values in the dictionary.
+    fn im_getObjects_andKeys_count(&self, objects: *mut V, keys: *mut K, count: UInt);
+
+    /// Returns as a static array the set of objects from the dictionary that corresponds to the specified keys.
+    fn im_objectsForKeys_notFoundMarker(&self, keys: &NSArray<K>, value: &V) -> NSArray<V>;
+
+    /// Returns the value associated with a given key.
+    fn im_objectForKey(&self, key: K) -> V
+    where
+        V: FromId;
+
+    /// Returns the value associated with a given key.
+    fn im_objectForKeyedSubscript(&self, key: &K) -> V
+    where
+        V: FromId;
 }
 
 /// A dynamic collection of objects associated with unique keys.

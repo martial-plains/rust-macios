@@ -11,11 +11,13 @@ use objc_id::Id;
 use crate::{
     id,
     objective_c_runtime::traits::{FromId, PNSObject, ToId},
+    utils::to_bool,
 };
 
 use super::{
     traits::{INSDictionary, INSMutableDictionary},
-    Int, Int16, Int32, Int8, NSMutableDictionary, NSNumber, NSString, UInt, UInt16, UInt32, UInt8,
+    Int, Int16, Int32, Int8, NSArray, NSMutableDictionary, NSNumber, NSString, UInt, UInt16,
+    UInt32, UInt8,
 };
 
 /// A static collection of objects associated with unique keys.
@@ -24,6 +26,27 @@ pub struct NSDictionary<K, V> {
     pub obj: Id<Object>,
     _key: PhantomData<K>,
     _value: PhantomData<V>,
+}
+
+impl<K, V> NSDictionary<K, V> {
+    /// Returns an empty dictionary.
+    pub fn new() -> Self {
+        Self::tm_dictionary()
+    }
+
+    /// The number of entries in the dictionary.
+    pub fn count(&self) -> UInt {
+        self.ip_count()
+    }
+
+    /// Returns the value associated with a given key.
+    pub fn object_for_key(&self, key: K) -> V
+    where
+        K: Clone,
+        V: FromId,
+    {
+        self.im_objectForKey(key.clone())
+    }
 }
 
 impl<K, V> PNSObject for NSDictionary<K, V> {
@@ -77,12 +100,84 @@ impl<K, V> PNSObject for NSDictionary<K, V> {
 }
 
 impl<K, V> INSDictionary<K, V> for NSDictionary<K, V> {
+    fn tm_dictionary() -> Self {
+        unsafe { Self::from_id(msg_send![Self::im_class(), dictionary]) }
+    }
+
+    fn im_init() -> Self {
+        unsafe { Self::from_id(msg_send![Self::im_class(), init]) }
+    }
+
+    fn tm_dictionaryWithDictionary<D>(dictionary: D) -> Self
+    where
+        D: INSDictionary<K, V>,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                Self::im_class(),
+                dictionaryWithDictionary: dictionary
+            ])
+        }
+    }
+
+    fn im_initWithDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+        unsafe { msg_send![self.obj, initWithDictionary: dictionary] }
+    }
+
+    fn im_initWithDictionary_copyItems(&mut self, dictionary: NSDictionary<K, V>, flag: bool) {
+        unsafe { msg_send![self.obj, initWithDictionary: dictionary copyItems: flag] }
+    }
+
     fn ip_count(&self) -> UInt {
         unsafe { msg_send![self.obj, count] }
     }
 
-    fn initWithDictionary(&mut self, dictionary: NSDictionary<K, V>) {
-        unsafe { msg_send![self.obj, initWithDictionary: dictionary] }
+    fn im_isEqualToDictionary<D>(&self, other: D) -> bool
+    where
+        D: INSDictionary<K, V>,
+    {
+        unsafe { to_bool(msg_send![self.obj, isEqualToDictionary: other]) }
+    }
+
+    fn ip_allKeys(&self) -> NSArray<K> {
+        unsafe { NSArray::from_id(msg_send![self.obj, allKeys]) }
+    }
+
+    fn im_allKeysForObject(&self, anObject: &V) -> NSArray<K> {
+        unsafe { NSArray::from_id(msg_send![self.obj, allKeysForObject: anObject]) }
+    }
+
+    fn ip_allValues(&self) -> NSArray<V> {
+        unsafe { NSArray::from_id(msg_send![self.obj, allValues]) }
+    }
+
+    fn im_valueForKey(&self, key: &K) -> V
+    where
+        V: FromId,
+    {
+        unsafe { V::from_id(msg_send![self.obj, valueForKey: key]) }
+    }
+
+    fn im_getObjects_andKeys_count(&self, objects: *mut V, keys: *mut K, count: UInt) {
+        unsafe { msg_send![self.obj, getObjects: objects andKeys: keys count: count] }
+    }
+
+    fn im_objectsForKeys_notFoundMarker(&self, keys: &NSArray<K>, value: &V) -> NSArray<V> {
+        unsafe { NSArray::from_id(msg_send![self.obj, objectsForKeys: keys notFoundMarker: value]) }
+    }
+
+    fn im_objectForKey(&self, key: K) -> V
+    where
+        V: FromId,
+    {
+        unsafe { V::from_id(msg_send![self.obj, objectForKey: key]) }
+    }
+
+    fn im_objectForKeyedSubscript(&self, key: &K) -> V
+    where
+        V: FromId,
+    {
+        unsafe { V::from_id(msg_send![self.obj, objectForKeyedSubscript: key]) }
     }
 }
 

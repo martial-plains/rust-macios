@@ -6,12 +6,17 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use objc::{class, msg_send, runtime::Object, sel, sel_impl};
+use objc::{
+    class, msg_send,
+    runtime::{Class, Object, Protocol, Sel},
+    sel, sel_impl,
+};
 use objc_id::Id;
 
 use crate::{
     id,
     objective_c_runtime::traits::{FromId, PNSObject, ToId},
+    utils::to_bool,
 };
 
 use super::{
@@ -28,8 +33,29 @@ pub struct NSMutableDictionary<K, V> {
     _value: PhantomData<V>,
 }
 
+impl<K, V> NSMutableDictionary<K, V> {
+    /// Creates a new empty dictionary.
+    pub fn new() -> Self {
+        Self::im_init()
+    }
+
+    /// Creates a new dictionary with the specified capacity.
+    pub fn with_capacity(capacity: UInt) -> Self {
+        Self::tm_dictionaryWithCapacity(capacity)
+    }
+
+    /// Creates a new dictionary with the specified capacity and load factor.
+    pub fn insert(&mut self, key: K, value: V)
+    where
+        K: PNSObject,
+        V: PNSObject,
+    {
+        self.im_setObject_forKey(key, value)
+    }
+}
+
 impl<K, V> PNSObject for NSMutableDictionary<K, V> {
-    fn im_class<'a>() -> &'a objc::runtime::Class {
+    fn im_class<'a>() -> &'a Class {
         class!(NSMutableDictionary)
     }
 
@@ -41,19 +67,19 @@ impl<K, V> PNSObject for NSMutableDictionary<K, V> {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
+    fn im_isKindOfClass(&self, aClass: Class) -> bool {
         unsafe { msg_send![self.obj, isKindOfClass: aClass] }
     }
 
-    fn im_isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
+    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
         unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
     }
 
-    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
+    fn im_respondsToSelector(&self, aSelector: Sel) -> bool {
         unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
+    fn im_conformsToProtocol(&self, aProtocol: Protocol) -> bool {
         unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
     }
 
@@ -65,11 +91,11 @@ impl<K, V> PNSObject for NSMutableDictionary<K, V> {
         unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
+    fn im_performSelector(&self, aSelector: Sel) -> id {
         unsafe { msg_send![self.obj, performSelector: aSelector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
+    fn im_performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
         unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
     }
 
@@ -79,12 +105,91 @@ impl<K, V> PNSObject for NSMutableDictionary<K, V> {
 }
 
 impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {
+    fn im_initWithDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+        unsafe { msg_send![self.obj, initWithDictionary: dictionary] }
+    }
+
     fn ip_count(&self) -> UInt {
         unsafe { msg_send![self.obj, count] }
     }
 
-    fn initWithDictionary(&mut self, dictionary: NSDictionary<K, V>) {
-        unsafe { msg_send![self.obj, initWithDictionary: dictionary] }
+    fn tm_dictionary() -> Self {
+        unsafe { Self::from_id(msg_send![Self::im_class(), dictionary]) }
+    }
+
+    fn im_init() -> Self {
+        unsafe { Self::from_id(msg_send![Self::im_class(), new]) }
+    }
+
+    fn tm_dictionaryWithDictionary<D>(dictionary: D) -> Self
+    where
+        D: INSDictionary<K, V>,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                Self::im_class(),
+                dictionaryWithDictionary: dictionary
+            ])
+        }
+    }
+
+    fn im_initWithDictionary_copyItems(&mut self, dictionary: NSDictionary<K, V>, flag: bool) {
+        unsafe { msg_send![self.obj, initWithDictionary: dictionary copyItems: flag] }
+    }
+
+    fn im_isEqualToDictionary<D>(&self, other: D) -> bool
+    where
+        D: INSDictionary<K, V>,
+    {
+        unsafe { to_bool(msg_send![self.obj, isEqualToDictionary: other]) }
+    }
+
+    fn ip_allKeys(&self) -> NSArray<K> {
+        unsafe { NSArray::from_id(msg_send![self.obj, allKeys]) }
+    }
+
+    fn im_allKeysForObject(&self, anObject: &V) -> NSArray<K> {
+        unsafe { NSArray::from_id(msg_send![self.obj, allKeysForObject: anObject]) }
+    }
+
+    fn ip_allValues(&self) -> NSArray<V> {
+        unsafe { NSArray::from_id(msg_send![self.obj, allValues]) }
+    }
+
+    fn im_valueForKey(&self, key: &K) -> V
+    where
+        V: FromId,
+    {
+        unsafe { V::from_id(msg_send![self.obj, valueForKey: key]) }
+    }
+
+    fn im_getObjects_andKeys_count(&self, objects: *mut V, keys: *mut K, count: UInt) {
+        unsafe {
+            msg_send![
+                self.obj,
+                getObjects: objects
+                andKeys: keys
+                count: count
+            ]
+        }
+    }
+
+    fn im_objectsForKeys_notFoundMarker(&self, keys: &NSArray<K>, value: &V) -> NSArray<V> {
+        unsafe { NSArray::from_id(msg_send![self.obj, objectsForKeys: keys notFoundMarker: value]) }
+    }
+
+    fn im_objectForKey(&self, key: K) -> V
+    where
+        V: FromId,
+    {
+        unsafe { V::from_id(msg_send![self.obj, objectForKey: key]) }
+    }
+
+    fn im_objectForKeyedSubscript(&self, key: &K) -> V
+    where
+        V: FromId,
+    {
+        unsafe { V::from_id(msg_send![self.obj, objectForKeyedSubscript: key]) }
     }
 }
 
