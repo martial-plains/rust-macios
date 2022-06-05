@@ -17,7 +17,7 @@ pub macro ns_dictionary {
     ($($key:expr => $value:expr),*) => {
         {
             let capacity = ns_dictionary!(@count $($key),*);
-            let mut map = std::collections::HashMap::with_capacity(capacity);
+            let mut map = $crate::foundation::NSMutableDictionary::with_capacity(capacity as u64);
             $(
                 let _ = map.insert($key, $value);
             )*
