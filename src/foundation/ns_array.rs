@@ -46,10 +46,22 @@ impl<T> NSArray<T> {
     }
 }
 
-impl<T> PNSObject for NSArray<T>
-where
-    T: PNSObject,
-{
+impl<T> NSArray<T> {
+    /// Returns true if the obect is an instance of NSArray.
+    pub fn contains(&self, object: T) -> bool
+    where
+        T: PNSObject,
+    {
+        self.im_containsObject(object)
+    }
+
+    /// Returns the number of objects in the array.
+    pub fn count(&self) -> u64 {
+        self.ip_count()
+    }
+}
+
+impl<T> PNSObject for NSArray<T> {
     fn im_class<'a>() -> &'a Class {
         class!(NSArray)
     }
@@ -99,10 +111,7 @@ where
     }
 }
 
-impl<T> INSArray<T> for NSArray<T>
-where
-    T: PNSObject,
-{
+impl<T> INSArray<T> for NSArray<T> {
     fn im_containsObject(&self, object: T) -> bool {
         unsafe { to_bool(msg_send![&*self.obj, containsObject: object]) }
     }
