@@ -655,6 +655,8 @@ impl PartialEq for NSString {
     }
 }
 
+impl Eq for NSString {}
+
 impl PartialEq<&str> for NSString {
     /// Checks if a `NSString` is equal to a `&str`.
     fn eq(&self, other: &&str) -> bool {
