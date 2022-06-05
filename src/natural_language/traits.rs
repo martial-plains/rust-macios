@@ -65,14 +65,10 @@ pub trait INLLanguageRecognizer: PNSObject {
      */
 
     /// Finds the most likely language of a piece of text.
-    fn tm_dominantLanguageForString<T>(&self, string: T) -> NLLanguage
-    where
-        T: Into<NSString>;
+    fn tm_dominantLanguageForString(&self, string: NSString) -> NLLanguage;
 
     /// Analyzes the piece of text to determine its dominant language.
-    fn im_processString<T>(&mut self, string: T)
-    where
-        T: Into<NSString>;
+    fn im_processString(&mut self, string: NSString);
 
     /// The most likely language for the processed text.
     fn ip_dominantLanguage(&self) -> NSString;
