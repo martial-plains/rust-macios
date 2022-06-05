@@ -53,3 +53,15 @@ pub enum NLTokenizerAttributes {
     /// The string contains emoji.
     Emoji = 1 << 2,
 }
+
+/// The response to an asset request.
+#[derive(Debug, PartialEq, Eq)]
+#[repr(i64)]
+pub enum NLTaggerAssetsResult {
+    /// The asset is now available and loaded onto the device.
+    Available,
+    /// The asset is unavailable on the device.
+    NotAvailable,
+    /// The framework couldn’t load the asset due to an error.
+    Error,
+}
