@@ -407,12 +407,18 @@ impl INSNumber for NSNumber {
         unsafe { msg_send![self.obj, compare: other] }
     }
 
-    fn im_isEqualToNumber(&self, other: &Self) -> bool {
+    fn im_isEqualToNumber(&self, other: Self) -> bool {
         unsafe { msg_send![self.obj, isEqualToNumber: other] }
     }
 
     fn ip_decimalValue(&self) -> super::NSDecimal {
         unsafe { msg_send![self.obj, decimalValue] }
+    }
+}
+
+impl PartialEq for NSNumber {
+    fn eq(&self, other: &Self) -> bool {
+        self.im_isEqualToNumber(other.clone())
     }
 }
 

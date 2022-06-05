@@ -374,7 +374,7 @@ impl INSNumber for NSDecimalNumber {
         unsafe { msg_send![self.obj, compare: other] }
     }
 
-    fn im_isEqualToNumber(&self, other: &Self) -> bool {
+    fn im_isEqualToNumber(&self, other: Self) -> bool {
         unsafe { msg_send![self.obj, isEqualToNumber: other] }
     }
 

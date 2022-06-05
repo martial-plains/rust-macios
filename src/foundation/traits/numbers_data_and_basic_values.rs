@@ -432,7 +432,7 @@ pub trait INSNumber: INSValue {
     /// # Arguments
     ///
     /// * `other` - The number to compare to the number object’s value.
-    fn im_isEqualToNumber(&self, other: &Self) -> bool;
+    fn im_isEqualToNumber(&self, other: Self) -> bool;
 }
 
 /// An object for representing and performing arithmetic on base-10 numbers.
