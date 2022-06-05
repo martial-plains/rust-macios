@@ -45,7 +45,7 @@ impl<K, V> NSDictionary<K, V> {
         K: Clone,
         V: FromId,
     {
-        self.im_objectForKey(key.clone())
+        self.im_objectForKey(key)
     }
 }
 
