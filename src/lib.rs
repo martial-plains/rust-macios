@@ -32,6 +32,8 @@ use objc::runtime::Object;
 
 pub mod background_tasks;
 pub mod compression;
+pub mod core_foundation;
+pub mod core_graphics;
 pub mod foundation;
 pub mod natural_language;
 pub mod objective_c_runtime;

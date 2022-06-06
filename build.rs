@@ -3,4 +3,5 @@ fn main() {
     println!("cargo:rustc-link-lib=dylib=Compression");
     println!("cargo:rustc-link-lib=framework=NaturalLanguage");
     println!("cargo:rustc-link-lib=framework=BackgroundTasks");
+    println!("cargo:rustc-link-lib=framework=CoreGraphics");
 }
