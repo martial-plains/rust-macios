@@ -166,3 +166,15 @@ pub enum NSEventMask {
     /// A mask that matches any type of event.
     AnyEvent = UInt::max_value(),
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(i64)]
+/// Activation policies (used by `activationPolicy`) that control whether and how an app may be activated.
+pub enum NSApplicationActivationPolicy {
+    /// The application is an ordinary app that appears in the Dock and may have a user interface.
+    Regular,
+    /// The application doesn’t appear in the Dock and doesn’t have a menu bar, but it may be activated programmatically or by clicking on one of its windows.
+    Accessory,
+    /// The application doesn’t appear in the Dock and may not create windows or be activated.
+    Prohibited,
+}
