@@ -210,3 +210,53 @@ unsafe impl Encode for NSApplicationTerminateReply {
         unsafe { objc::Encoding::from_str("q") }
     }
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u64)]
+pub enum NSWindowStyleMask {
+    /// The window displays none of the usual peripheral elements. Useful only
+    /// for display or caching purposes. A window that uses
+    /// NSWindowStyleMaskBorderless can’t become key or main, unless the
+    /// value of canBecomeKeyWindow or canBecomeMainWindow is YES. Note that
+    /// you can set a window’s or panel’s style mask to
+    /// NSWindowStyleMaskBorderless in Interface Builder by deselecting Title
+    /// Bar in the Appearance section of the Attributes inspector.
+    Borderless = 0 << 0,
+    /// The window displays a title bar.
+    Titled = 1 << 0,
+    /// The window displays a close button.
+    Closable = 1 << 1,
+    /// The window displays a minimize button.
+    Miniaturizable = 1 << 2,
+    /// The window can be resized by the user.
+    Resizable = 1 << 3,
+    /// The window is a panel or a subclass of NSPanel.
+    Utility = 1 << 4,
+    /// The window is a document-modal panel (or a subclass of NSPanel).
+    DocModal = 1 << 6,
+    /// The window is a panel or a subclass of NSPanel that does not activate
+    /// the owning app.
+    NonactivatingPanel = 1 << 7,
+    /// The window uses a textured background that darkens when the window is
+    /// key or main and lightens when it is inactive, and may have a second
+    /// gradient in the section below the window content.
+    #[deprecated]
+    TexturedBackground = 1 << 8,
+    Unscaled = 1 << 11,
+    /// This constant has no effect, because all windows that include a
+    /// toolbar use the unified style.
+    UnifiedTitleAndToolbar = 1 << 12,
+    /// The window is a HUD panel.
+    Hud = 1 << 13,
+    /// The window can appear full screen. A fullscreen window does not
+    /// draw its title bar, and may have special handling for its toolbar.
+    /// (This mask is automatically toggled when toggleFullScreen: is called.)
+    FullScreenWindow = 1 << 14,
+    /// When set, the window’s contentView consumes the full size of the
+    /// window. Although you can combine this constant with other window
+    /// style masks, it is respected only for windows with a title bar.
+    /// Note that using this mask opts in to layer-backing. Use the
+    /// contentLayoutRect or the contentLayoutGuide to lay out views
+    /// underneath the title bar–toolbar area.
+    FullSizeContentView = 1 << 15,
+}
