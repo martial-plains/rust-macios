@@ -3,6 +3,8 @@
 
 use libc::c_double;
 
+use crate::core_graphics::CGRect;
+
 /// Describes an integer.
 #[cfg(target_pointer_width = "32")]
 pub type Int = libc::c_int;
@@ -48,6 +50,9 @@ pub type Double = c_double;
 
 /// Type for UTF-16 code units.
 pub type unichar = u16;
+
+/// A rectangle.
+pub type NSRect = CGRect;
 
 /* Strings and Text
 */
