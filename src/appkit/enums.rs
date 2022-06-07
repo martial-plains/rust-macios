@@ -178,3 +178,15 @@ pub enum NSApplicationActivationPolicy {
     /// The application doesn’t appear in the Dock and may not create windows or be activated.
     Prohibited,
 }
+
+/// The following flags are for `activateWithOptions`
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u64)]
+pub enum NSApplicationActivationOptions {
+    /// By default, activation brings only the main and key windows forward.
+    /// If you specify NSApplicationActivateAllWindows, all of the
+    /// application's windows are brought forward.
+    AllWindows = 1 << 0,
+    /// The application is activated regardless of the currently active app.
+    IgnoringOtherWindows = 1 << 1,
+}
