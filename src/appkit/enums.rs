@@ -1,3 +1,5 @@
+use objc::Encode;
+
 use crate::foundation::UInt;
 
 /// Constants that indicate whether a copy or print operation was successful,
@@ -189,4 +191,22 @@ pub enum NSApplicationActivationOptions {
     AllWindows = 1 << 0,
     /// The application is activated regardless of the currently active app.
     IgnoringOtherWindows = 1 << 1,
+}
+
+/// Constants that determine whether an app should terminate.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u64)]
+pub enum NSApplicationTerminateReply {
+    /// The app should not be terminated.
+    Cancel,
+    /// It is OK to proceed with termination.
+    Now,
+    /// The app should be terminated, but the user should be asked first.
+    Later,
+}
+
+unsafe impl Encode for NSApplicationTerminateReply {
+    fn encode() -> objc::Encoding {
+        unsafe { objc::Encoding::from_str("q") }
+    }
 }

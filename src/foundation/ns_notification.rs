@@ -3,7 +3,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use objc::{class, msg_send, runtime::Object, sel, sel_impl};
+use objc::{class, msg_send, runtime::Object, sel, sel_impl, Encode};
 use objc_id::Id;
 
 use crate::{
@@ -64,6 +64,12 @@ impl PNSObject for NSNotification {
 
     fn im_isProxy(&self) -> bool {
         unsafe { msg_send![self.obj, isProxy] }
+    }
+}
+
+unsafe impl Encode for NSNotification {
+    fn encode() -> objc::Encoding {
+        unsafe { objc::Encoding::from_str("@") }
     }
 }
 
