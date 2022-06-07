@@ -2,3 +2,7 @@
 
 /// Traits for the Objective-C runtime.
 pub mod traits;
+
+mod globals;
+
+pub use globals::*;
