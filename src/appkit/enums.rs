@@ -1,3 +1,5 @@
+use crate::foundation::UInt;
+
 /// Constants that indicate whether a copy or print operation was successful,
 /// was canceled, or failed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -90,3 +92,77 @@ pub enum NSEventType {
     ChangeMode = 38,
 }
 
+/// Constants that you use to filter out specific event types from the stream
+/// of incoming events.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u64)]
+pub enum NSEventMask {
+    /// A mask for left mouse-down events.
+    LeftMouseDown = 1 << NSEventType::LeftMouseDown as u64,
+    /// A mask for left mouse-up events.
+    LeftMouseUp = 1 << NSEventType::LeftMouseUp as u64,
+    /// A mask for right mouse-down events.
+    RightMouseDown = 1 << NSEventType::RightMouseDown as u64,
+    /// A mask for right mouse-up events.
+    RightMouseUp = 1 << NSEventType::RightMouseUp as u64,
+    /// A mask for mouse-moved events.
+    MouseMoved = 1 << NSEventType::MouseMoved as u64,
+    /// A mask for left mouse-dragged events.
+    LeftMouseDragged = 1 << NSEventType::LeftMouseDragged as u64,
+    /// A mask for right mouse-dragged events.
+    RightMouseDragged = 1 << NSEventType::RightMouseDragged as u64,
+    /// A mask for mouse-entered events.
+    MouseEntered = 1 << NSEventType::MouseEntered as u64,
+    /// A mask for mouse-exited events.
+    MouseExited = 1 << NSEventType::MouseExited as u64,
+    /// A mask for key-down events.
+    KeyDown = 1 << NSEventType::KeyDown as u64,
+    /// A mask for key-up events.
+    KeyUp = 1 << NSEventType::KeyUp as u64,
+    /// A mask for flags-changed events.
+    FlagsChanged = 1 << NSEventType::FlagsChanged as u64,
+    /// A mask for AppKit–defined events.
+    AppKitDefined = 1 << NSEventType::AppKitDefined as u64,
+    /// A mask for system-defined events.
+    SystemDefined = 1 << NSEventType::SystemDefined as u64,
+    /// A mask for app-defined events.
+    ApplicationDefined = 1 << NSEventType::ApplicationDefined as u64,
+    /// A mask for periodic events.
+    Periodic = 1 << NSEventType::Periodic as u64,
+    /// A mask for cursor-update events.
+    CursorUpdate = 1 << NSEventType::CursorUpdate as u64,
+    /// A mask for scroll-wheel events.
+    ScrollWheel = 1 << NSEventType::ScrollWheel as u64,
+    /// A mask for tablet-point events.
+    TabletPoint = 1 << NSEventType::TabletPoint as u64,
+    /// A mask for tablet-proximity events.
+    TabletProximity = 1 << NSEventType::TabletProximity as u64,
+    /// A mask for tertiary mouse-down events.
+    OtherMouseDown = 1 << NSEventType::OtherMouseDown as u64,
+    /// A mask for right mouse-up events.
+    OtherMouseUp = 1 << NSEventType::OtherMouseUp as u64,
+    /// A mask for tertiary mouse-dragged events.
+    OtherMouseDragged = 1 << NSEventType::OtherMouseDragged as u64,
+    /// A mask for generic gesture events.
+    Gesture = 1 << NSEventType::Gesture as u64,
+    /// A mask for magnify-gesture events.
+    Magnify = 1 << NSEventType::Magnify as u64,
+    /// A mask for swipe-gesture events.
+    Swipe = 1 << NSEventType::Swipe as u64,
+    /// A mask for rotate-gesture events.
+    Rotate = 1 << NSEventType::Rotate as u64,
+    /// A mask for begin-gesture events.
+    BeginGesture = 1 << NSEventType::BeginGesture as u64,
+    /// A mask for end-gesture events.
+    EndGesture = 1 << NSEventType::EndGesture as u64,
+    /// A mask for smart-zoom gesture events.
+    SmartMagnify = 1 << NSEventType::SmartMagnify as u64,
+    /// A mask for pressure-change events.
+    Pressure = 1 << NSEventType::Pressure as u64, // 10.10.3, 64-bit-only
+    /// A mask for touch events.
+    DirectTouch = 1 << NSEventType::DirectTouch as u64, // 10.10
+    /// A mask for change-mode events.
+    ChangeMode = 1 << NSEventType::ChangeMode as u64,
+    /// A mask that matches any type of event.
+    AnyEvent = UInt::max_value(),
+}
