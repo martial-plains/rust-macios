@@ -260,3 +260,21 @@ pub enum NSWindowStyleMask {
     /// underneath the title bar–toolbar area.
     FullSizeContentView = 1 << 15,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(i64)]
+pub enum NSWindowToolbarStyle {
+    /// A style indicating that the system determines the toolbar’s appearance
+    /// and location.
+    Automatic,
+    /// A style indicating that the toolbar appears below the window title.
+    Expanded,
+    /// A style indicating that the toolbar appears below the window title with
+    /// toolbar items centered in the toolbar.
+    Preference,
+    /// A style indicating that the toolbar appears next to the window title.
+    Unified,
+    /// A style indicating that the toolbar appears next to the window title
+    /// and with reduced margins to allow more focus on the window’s contents.
+    UnifiedCompact,
+}
