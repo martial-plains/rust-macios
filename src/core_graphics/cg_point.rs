@@ -1,5 +1,5 @@
 /// A structure that contains a point in a two-dimensional coordinate system.
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[repr(C)]
 pub struct CGPoint {
     /// The x-coordinate of the point.

@@ -211,6 +211,8 @@ unsafe impl Encode for NSApplicationTerminateReply {
     }
 }
 
+/// Constants that specify the style of a window, and that you can combine
+/// with the C bitwise OR operator.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u64)]
 pub enum NSWindowStyleMask {
@@ -221,7 +223,7 @@ pub enum NSWindowStyleMask {
     /// you can set a window’s or panel’s style mask to
     /// NSWindowStyleMaskBorderless in Interface Builder by deselecting Title
     /// Bar in the Appearance section of the Attributes inspector.
-    Borderless = 0 << 0,
+    Borderless = 0,
     /// The window displays a title bar.
     Titled = 1 << 0,
     /// The window displays a close button.
@@ -242,6 +244,7 @@ pub enum NSWindowStyleMask {
     /// gradient in the section below the window content.
     #[deprecated]
     TexturedBackground = 1 << 8,
+    ///
     Unscaled = 1 << 11,
     /// This constant has no effect, because all windows that include a
     /// toolbar use the unified style.
@@ -261,6 +264,8 @@ pub enum NSWindowStyleMask {
     FullSizeContentView = 1 << 15,
 }
 
+/// Styles that determine the appearance and location of the toolbar in
+/// relation to the title bar.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i64)]
 pub enum NSWindowToolbarStyle {
@@ -277,4 +282,14 @@ pub enum NSWindowToolbarStyle {
     /// A style indicating that the toolbar appears next to the window title
     /// and with reduced margins to allow more focus on the window’s contents.
     UnifiedCompact,
+}
+
+/// Specifies the appearance of the window’s title bar area.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(i64)]
+pub enum NSWindowTitleVisibility {
+    /// The window has the regular window title and title bar buttons.
+    Visible = 0,
+    /// The window has no title bar buttons.
+    Hidden = 1,
 }

@@ -15,8 +15,11 @@ mod ns_menu;
 mod ns_menu_item;
 mod ns_running_application;
 mod ns_window;
+mod ns_window_controller;
 
 pub use ns_application::*;
 pub use ns_menu::*;
 pub use ns_menu_item::*;
 pub use ns_running_application::*;
+pub use ns_window::*;
+pub use ns_window_controller::*;
