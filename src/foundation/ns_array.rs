@@ -35,7 +35,7 @@ pub struct NSArray<T> {
 }
 
 impl<T> NSArray<T> {
-    fn iter(&self) -> Iter<'_, T>
+    pub fn iter(&self) -> Iter<'_, T>
     where
         T: PNSObject,
     {
