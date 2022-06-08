@@ -111,7 +111,7 @@ extern "C" fn should_handle_reopen<T: PNSApplicationDelegate>(
 /// Fires when the application delegate receives a `applicationDockMenu:` request.
 // @TODO: Make this return Vec<MenuItem>.
 extern "C" fn dock_menu<T: PNSApplicationDelegate>(this: &Object, _: Sel, _: id) -> NSMenu {
-    app::<T>(this).dock_menu().unwrap()
+    app::<T>(this).dock_menu().unwrap_or_default()
 }
 
 /// Registers an `NSObject` application delegate, and configures it for the various callbacks and

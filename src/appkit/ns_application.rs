@@ -53,7 +53,7 @@ pub struct NSApplication<T = (), M = ()> {
     /// The delegate of the underlying Objective-C object.
     pub ptr_delegate: Id<Object>,
     /// The stored delegate of the underlying Objective-C object.
-    pub delegate: Box<T>,
+    pub delegate: Option<Box<T>>,
     /// The main-thread AutoReleasePool. Drains on app exit.
     pub pool: NSAutoreleasePool,
     _message: PhantomData<M>,
@@ -115,22 +115,20 @@ impl NSApplication {
         shared_application(move |app| app.ip_setMainMenu(main_menu.clone()));
     }
 
-    /// For nib-less applications (which, if you're here, this is) need to call the activation
-    /// routines after the NSMenu has been set, otherwise it won't be interact-able without
-    /// switching away from the app and then coming back.
-    pub fn activate() {
-        shared_application(|app| {
-            app.im_setActivationPolicy(NSApplicationActivationPolicy::Regular);
-            let mut current_app = NSRunningApplication::current_application();
-            current_app.activate_with_options(NSApplicationActivationOptions::IgnoringOtherWindows);
-        });
-    }
-
     /// Terminates the application, firing the requisite cleanup delegate methods in the process.
     ///
     /// This is typically called when the user chooses to quit via the App menu.
     pub fn terminate() {
         shared_application(|app| app.im_terminate(nil));
+    }
+
+    /// For nib-less applications (which, if you're here, this is) need to call the activation
+    /// routines after the NSMenu has been set, otherwise it won't be interact-able without
+    /// switching away from the app and then coming back.
+    pub fn activate<T>(app: &NSApplication<T>) {
+        app.im_setActivationPolicy(NSApplicationActivationPolicy::Regular);
+        let mut current_app = NSRunningApplication::current_application();
+        current_app.activate_with_options(NSApplicationActivationOptions::IgnoringOtherWindows);
     }
 }
 
@@ -138,10 +136,9 @@ impl<T> NSApplication<T> {
     /// Starts the main event loop.
     pub fn run(&mut self) {
         unsafe {
-            let shared_app: id = msg_send![class!(RSTNSApplication), sharedApplication];
-            let _: () = msg_send![shared_app, run];
-            self.pool.drain();
-        }
+            let _: () = msg_send![self.ptr, run];
+        };
+        self.pool.drain();
     }
 }
 
@@ -174,14 +171,14 @@ where
         Self {
             ptr,
             ptr_delegate,
-            delegate: app_delegate,
+            delegate: Some(app_delegate),
             pool,
             _message: PhantomData,
         }
     }
 }
 
-impl PNSObject for NSApplication {
+impl<T> PNSObject for NSApplication<T, ()> {
     fn im_class<'a>() -> &'a Class {
         unsafe { &*register_app_class() }
     }
@@ -231,20 +228,15 @@ impl PNSObject for NSApplication {
     }
 }
 
-impl INSResponder for NSApplication<(), ()> {}
+impl<T> INSResponder for NSApplication<T, ()> {}
 
-impl INSApplication for NSApplication<(), ()> {
+impl<T> INSApplication for NSApplication<T, ()> {
     fn tp_sharedApplication() -> Self {
         unsafe {
-            let app: id = msg_send![register_app_class(), sharedApplication];
-            let app_delegate: id = msg_send![app, delegate];
-            let app_delegate_delete: id = msg_send![app_delegate, autorelease];
-            let app_delegate_delete_delete: id = msg_send![app_delegate_delete, retain];
-
             NSApplication {
-                ptr: Id::from_ptr(app),
-                ptr_delegate: Id::from_ptr(app_delegate_delete_delete),
-                delegate: Box::new(()),
+                ptr: Id::from_ptr(msg_send![register_app_class(), sharedApplication]),
+                ptr_delegate: Id::from_ptr(nil),
+                delegate: None,
                 pool: NSAutoreleasePool::new(),
                 _message: PhantomData,
             }
@@ -298,12 +290,11 @@ impl INSApplication for NSApplication<(), ()> {
 
 impl<T, M> fmt::Debug for NSApplication<T, M> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let delegate = format!("{:p}", self.delegate);
-
+        // let delegate = format!("{:?}", self.delegate);
         f.debug_struct("App")
             .field("objc", &self.ptr)
             .field("objc_delegate", &self.ptr_delegate)
-            .field("delegate", &delegate)
+            //.field("delegate", &delegate)
             .field("pool", &self.pool)
             .finish()
     }
