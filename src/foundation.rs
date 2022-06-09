@@ -1,6 +1,6 @@
 //! Access essential data types, collections, and operating-system services to define the base layer of functionality for your app.
 
-mod constants;
+mod globals;
 mod enums;
 mod type_defs;
 
@@ -10,7 +10,7 @@ pub mod traits;
 /// Macros for working with the Foundation framework.
 pub mod macros;
 
-pub use constants::*;
+pub use globals::*;
 pub use enums::*;
 pub use type_defs::*;
 
@@ -26,6 +26,7 @@ mod ns_date;
 mod ns_date_interval;
 mod ns_decimal;
 mod ns_dictionary;
+mod ns_edge_insets;
 mod ns_locale;
 mod ns_mutable_array;
 mod ns_mutable_dictionary;
@@ -43,6 +44,7 @@ pub use ns_date::*;
 pub use ns_date_interval::*;
 pub use ns_decimal::*;
 pub use ns_dictionary::*;
+pub use ns_edge_insets::*;
 pub use ns_locale::*;
 pub use ns_mutable_array::*;
 pub use ns_mutable_dictionary::*;
