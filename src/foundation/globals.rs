@@ -1,3 +1,5 @@
+use super::NSEdgeInsets;
+
 /// Size of UTF8 encoding
 pub const UTF8_ENCODING: usize = 4;
 
@@ -82,4 +84,9 @@ pub mod ns_localekey {
         #[link_name = "NSLocaleAlternateQuotationEndSymbol"]
         pub static AlternateQuotationEndSymbol: NSLocaleKey;
     }
+}
+
+extern "C" {
+    /// A zero initialized `NSEdgeInsets`.
+    pub static NSEdgeInsetsZero: NSEdgeInsets;
 }
