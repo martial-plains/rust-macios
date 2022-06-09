@@ -109,7 +109,7 @@ extern "C" fn should_handle_reopen<T: PNSApplicationDelegate>(
 }
 
 /// Fires when the application delegate receives a `applicationDockMenu:` request.
-// @TODO: Make this return Vec<MenuItem>.
+#[allow(improper_ctypes_definitions)]
 extern "C" fn dock_menu<T: PNSApplicationDelegate>(this: &Object, _: Sel, _: id) -> NSMenu {
     app::<T>(this).dock_menu().unwrap_or_default()
 }
@@ -121,7 +121,7 @@ pub(crate) fn register_app_delegate_class<T: PNSApplicationDelegate + PNSApplica
     static mut DELEGATE_CLASS: *const Class = 0 as *const Class;
     static INIT: Once = Once::new();
 
-    INIT.call_once(|| unsafe {
+   INIT.call_once(|| unsafe {
         let superclass = class!(NSObject);
         let mut decl = ClassDecl::new("RSTNSApplicationDelegate", superclass).unwrap();
 
