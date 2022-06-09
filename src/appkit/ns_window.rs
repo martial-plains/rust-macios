@@ -579,38 +579,38 @@ fn load<'a, T>(this: &'a Object, ptr_name: &str) -> &'a T {
 extern "C" fn should_close<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) -> bool {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
 
-    window.should_close()
+    window.im_should_close()
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowWillClose:` event.
 /// Good place to clean up memory and what not.
 extern "C" fn will_close<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.will_close();
+    window.im_will_close();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowWillMove:` event.
 extern "C" fn will_move<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.will_move();
+    window.im_will_move();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidMove:` event.
 extern "C" fn did_move<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_move();
+    window.im_did_move();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
 extern "C" fn did_change_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_change_screen();
+    window.im_did_change_screen();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
 extern "C" fn did_change_screen_profile<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_change_screen_profile();
+    window.im_did_change_screen_profile();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
@@ -621,60 +621,55 @@ extern "C" fn will_resize<T: PNSWindowDelegate>(
     size: CGSize,
 ) -> CGSize {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    let s = window.will_resize(size.width, size.height);
-
-    CGSize {
-        width: s.0,
-        height: s.1,
-    }
+    window.im_will_resize_to_size(size)
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
 extern "C" fn did_resize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_resize();
+    window.im_did_resize();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
 extern "C" fn will_start_live_resize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.will_start_live_resize();
+    window.im_will_start_live_resize();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
 extern "C" fn did_end_live_resize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_end_live_resize();
+    window.im_did_end_live_resize();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
 extern "C" fn will_miniaturize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.will_miniaturize();
+    window.im_will_miniaturize();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
 extern "C" fn did_miniaturize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_miniaturize();
+    window.im_did_miniaturize();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
 extern "C" fn did_deminiaturize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_deminiaturize();
+    window.im_did_deminiaturize();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
 extern "C" fn will_enter_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.will_enter_full_screen();
+    window.im_will_enter_full_screen();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
 extern "C" fn did_enter_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_enter_full_screen();
+    window.im_did_enter_full_screen();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
@@ -717,73 +712,73 @@ extern "C" fn content_size_for_full_screen<T: PNSWindowDelegate>(
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
 extern "C" fn will_exit_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.will_exit_full_screen();
+    window.im_will_exit_full_screen();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
 extern "C" fn did_exit_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_exit_full_screen();
+    window.im_did_exit_full_screen();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
 extern "C" fn did_fail_to_enter_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_fail_to_enter_full_screen();
+    window.im_did_fail_to_enter_full_screen();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
 extern "C" fn did_fail_to_exit_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_fail_to_exit_full_screen();
+    window.im_did_fail_to_exit_full_screen();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeBackingProperties:` event.
 extern "C" fn did_change_backing_properties<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_change_backing_properties();
+    window.im_did_change_backing_properties();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidChangeBackingProperties:` event.
 extern "C" fn did_change_occlusion_state<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_change_occlusion_state();
+    window.im_did_change_occlusion_state();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidUpdate:` event.
 extern "C" fn did_update<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_update();
+    window.im_did_update();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidExpose:` event.
 extern "C" fn did_become_main<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_become_main();
+    window.im_did_become_main();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidExpose:` event.
 extern "C" fn did_resign_main<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_resign_main();
+    window.im_did_resign_main();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidExpose:` event.
 extern "C" fn did_become_key<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_become_key();
+    window.im_did_become_key();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidExpose:` event.
 extern "C" fn did_resign_key<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_resign_key();
+    window.im_did_resign_key();
 }
 
 /// Called when an `NSWindowDelegate` receives a `windowDidExpose:` event.
 extern "C" fn did_expose<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.did_expose();
+    window.im_did_expose();
 }
 
 /// Called as part of the responder chain, when, say, the ESC key is hit. If your

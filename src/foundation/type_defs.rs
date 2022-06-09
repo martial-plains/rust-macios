@@ -3,7 +3,7 @@
 
 use libc::c_double;
 
-use crate::core_graphics::CGRect;
+use crate::core_graphics::{CGRect, CGSize};
 
 /// Describes an integer.
 #[cfg(target_pointer_width = "32")]
@@ -53,6 +53,9 @@ pub type unichar = u16;
 
 /// A rectangle.
 pub type NSRect = CGRect;
+
+/// A two-dimensional size.
+pub type NSSize = CGSize;
 
 /* Strings and Text
 */
