@@ -296,8 +296,14 @@ pub enum NSWindowTitleVisibility {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u64)]
+/// Constants that specify how the window device buffers the drawing done in a window.
 pub enum NSBackingStoreType {
+    /// The window uses a buffer, but draws directly to the screen where possible and to the buffer for obscured portions.
+    #[deprecated]
     Retained = 0,
+    /// The window draws directly to the screen without using any buffer.
+    #[deprecated]
     Nonretained = 1,
+    /// The window renders all drawing into a display buffer and then flushes it to the screen.
     Buffered = 2,
 }
