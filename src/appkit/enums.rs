@@ -293,3 +293,11 @@ pub enum NSWindowTitleVisibility {
     /// The window has no title bar buttons.
     Hidden = 1,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u64)]
+pub enum NSBackingStoreType {
+    Retained = 0,
+    Nonretained = 1,
+    Buffered = 2,
+}
