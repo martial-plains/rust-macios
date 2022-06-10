@@ -8,15 +8,17 @@ use std::{
 use libc::c_char;
 use objc::{
     class, msg_send,
-    runtime::{Class, Object},
+    runtime::{Class, Object, Protocol, Sel},
     sel, sel_impl,
 };
 use objc_id::Id;
 
 use crate::{
     foundation::{traits::INSArray, NSLocale, NSString, UInt},
-    id,
-    objective_c_runtime::traits::{FromId, PNSObject, ToId},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
     utils::to_bool,
 };
 
@@ -53,7 +55,7 @@ impl<T> NSArray<T> {
     where
         T: PNSObject,
     {
-        self.im_containsObject(object)
+        self.im_contains_object(object)
     }
 
     /// Returns the number of objects in the array.
@@ -67,7 +69,7 @@ impl<T> PNSObject for NSArray<T> {
         class!(NSArray)
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         unsafe { to_bool(msg_send![self.obj, isEqual: object]) }
     }
 
@@ -75,45 +77,45 @@ impl<T> PNSObject for NSArray<T> {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: Class) -> bool {
-        unsafe { to_bool(msg_send![self.obj, isKindOfClass: aClass]) }
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isKindOfClass: class]) }
     }
 
-    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
-        unsafe { to_bool(msg_send![self.obj, isMemberOfClass: aClass]) }
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isMemberOfClass: class]) }
     }
 
-    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
-        unsafe { to_bool(msg_send![self.obj, respondsToSelector: aSelector]) }
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { to_bool(msg_send![self.obj, respondsToSelector: selector]) }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
-        unsafe { to_bool(msg_send![self.obj, conformsToProtocol: aProtocol]) }
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        unsafe { to_bool(msg_send![self.obj, conformsToProtocol: protocol]) }
     }
 
     fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
-    fn ip_debugDescription(&self) -> NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         unsafe { to_bool(msg_send![self.obj, isProxy]) }
     }
 }
 
 impl<T> INSArray<T> for NSArray<T> {
-    fn im_containsObject(&self, object: T) -> bool {
+    fn im_contains_object(&self, object: T) -> bool {
         unsafe { to_bool(msg_send![&*self.obj, containsObject: object]) }
     }
 
@@ -121,7 +123,7 @@ impl<T> INSArray<T> for NSArray<T> {
         unsafe { msg_send![self.obj, count] }
     }
 
-    fn ip_firstObject(&self) -> Option<T>
+    fn ip_first_object(&self) -> Option<T>
     where
         T: PNSObject + FromId,
     {
@@ -135,7 +137,7 @@ impl<T> INSArray<T> for NSArray<T> {
         }
     }
 
-    fn ip_lastObject(&self) -> Option<T>
+    fn ip_last_object(&self) -> Option<T>
     where
         T: PNSObject + FromId,
     {
@@ -149,7 +151,7 @@ impl<T> INSArray<T> for NSArray<T> {
         }
     }
 
-    fn im_objectAtIndex(&self, index: UInt) -> T
+    fn im_object_at_index(&self, index: UInt) -> T
     where
         T: PNSObject + FromId,
     {
@@ -159,30 +161,30 @@ impl<T> INSArray<T> for NSArray<T> {
         }
     }
 
-    fn im_objectAtIndexedSubscript(&self, index: UInt) -> Option<id> {
+    fn im_object_at_indexed_subscript(&self, index: UInt) -> Option<id> {
         unsafe {
             let ptr: *mut Object = msg_send![&*self.obj, objectAtIndexedSubscript: index];
             ptr.into()
         }
     }
 
-    fn im_indexOfObject(&self, object: T) -> UInt {
+    fn im_index_of_object(&self, object: T) -> UInt {
         unsafe { msg_send![&*self.obj, indexOfObject: object] }
     }
 
-    fn im_indexOfObject_inRange(&self, object: T, range: Range<UInt>) -> UInt {
+    fn im_index_of_object_in_range(&self, object: T, range: Range<UInt>) -> UInt {
         unsafe { msg_send![self.obj, indexOfObject: object inRange: range] }
     }
 
-    fn im_indexOfObjectIdenticalTo(&self, object: T) -> UInt {
+    fn im_index_of_object_identical_to(&self, object: T) -> UInt {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object] }
     }
 
-    fn im_indexOfObjectIdenticalTo_inRange(&self, object: T, range: Range<UInt>) -> UInt {
+    fn im_index_of_object_identical_to_in_range(&self, object: T, range: Range<UInt>) -> UInt {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object inRange: range] }
     }
 
-    fn im_firstObjectCommonWithArray(&self, other: &NSArray<T>) -> Option<T>
+    fn im_first_object_common_with_array(&self, other: &NSArray<T>) -> Option<T>
     where
         T: PNSObject + FromId,
     {
@@ -197,16 +199,16 @@ impl<T> INSArray<T> for NSArray<T> {
         }
     }
 
-    fn im_isEqualToArray(&self, other: &NSArray<T>) -> bool {
+    fn im_is_equal_to_array(&self, other: &NSArray<T>) -> bool {
         unsafe { to_bool(msg_send![&*self.obj, isEqualToArray: other.clone().obj]) }
     }
 
-    unsafe fn im_arrayByAddingObject(&self, object: T) -> NSArray<T> {
+    unsafe fn im_array_by_adding_object(&self, object: T) -> NSArray<T> {
         let cls: id = msg_send![&*self.obj, arrayByAddingObject: object];
         NSArray::from(cls)
     }
 
-    unsafe fn im_arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
+    unsafe fn im_array_by_adding_objects_from_array<A>(&self, objects: A) -> NSArray<T>
     where
         A: INSArray<T>,
     {
@@ -214,16 +216,16 @@ impl<T> INSArray<T> for NSArray<T> {
         NSArray::from(cls)
     }
 
-    unsafe fn im_subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T> {
+    unsafe fn im_subarray_with_range(&self, range: Range<UInt>) -> NSArray<T> {
         let cls: id = msg_send![&*self.obj, subarrayWithRange: range];
         NSArray::from(cls)
     }
 
-    fn im_descriptionWithLocale(&self, locale: &NSLocale) -> NSString {
+    fn im_description_with_locale(&self, locale: &NSLocale) -> NSString {
         unsafe { msg_send![&*self.obj, descriptionWithLocale: locale.clone().obj] }
     }
 
-    fn im_descriptionWithLocaleIndent(&self, locale: &NSLocale, indent: UInt) -> NSString {
+    fn im_description_with_locale_indent(&self, locale: &NSLocale, indent: UInt) -> NSString {
         unsafe { msg_send![&*self.obj, descriptionWithLocale: locale.clone().obj indent: indent] }
     }
 }
@@ -233,7 +235,7 @@ where
     T: fmt::Debug + PNSObject,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.ip_debugDescription())
+        write!(f, "{}", self.ip_debug_description())
     }
 }
 

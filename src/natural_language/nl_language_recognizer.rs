@@ -14,8 +14,10 @@ use objc_id::Id;
 
 use crate::{
     foundation::{NSArray, NSDictionary, NSNumber, NSString, UInt},
-    id,
-    objective_c_runtime::traits::{FromId, PNSObject, ToId},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
 };
 
 use super::{traits::INLLanguageRecognizer, NLLanguage};
@@ -37,7 +39,7 @@ impl NLLanguageRecognizer {
     where
         T: Into<NSString>,
     {
-        Self::tm_dominantLanguageForString(self, string.into())
+        Self::tm_dominant_language_for_string(self, string.into())
     }
 
     /// Analyzes the piece of text to determine its dominant language.
@@ -45,17 +47,17 @@ impl NLLanguageRecognizer {
     where
         T: Into<NSString>,
     {
-        Self::im_processString(self, string.into())
+        Self::im_process_string(self, string.into())
     }
 
     /// Finds the range of the token at the given index.
     pub fn dominant_lang(&self) -> NLLanguage {
-        Self::ip_dominantLanguage(self)
+        Self::ip_dominant_language(self)
     }
 
     /// Generates the probabilities of possible languages for the processed text.
     pub fn lang_hypotheses_with_max(&self, maximum: UInt) -> NSDictionary<NLLanguage, NSNumber> {
-        Self::im_languageHypothesesWithMaximum(self, maximum)
+        Self::im_language_hypotheses_with_maximum(self, maximum)
     }
 
     /// Resets the recognizer to its initial state.
@@ -65,22 +67,22 @@ impl NLLanguageRecognizer {
 
     /// A dictionary that maps languages to their probabilities in the language identification process.
     pub fn lang_hints(&self) -> NSDictionary<NLLanguage, NSNumber> {
-        Self::ip_languageHints(self)
+        Self::ip_language_hints(self)
     }
 
     /// Sets a dictionary that maps languages to their probabilities in the language identification process.
     pub fn set_lang_hints(&self, language_hints: NSDictionary<NLLanguage, NSNumber>) {
-        Self::ip_setLanguageHints(self, language_hints)
+        Self::ip_set_language_hints(self, language_hints)
     }
 
     /// Limits the set of possible languages that the recognizer will return.
     pub fn lang_constraints(&self) -> NSArray<NLLanguage> {
-        Self::ip_languageConstraints(self)
+        Self::ip_language_constraints(self)
     }
 
     /// Sets the limits  of the set of possible languages that the recognizer will return.
     pub fn set_lang_constraints(&self, language_constraints: NSArray<NLLanguage>) {
-        Self::ip_setLanguageConstraints(self, language_constraints)
+        Self::ip_set_language_constraints(self, language_constraints)
     }
 }
 
@@ -99,7 +101,7 @@ impl PNSObject for NLLanguageRecognizer {
         unsafe { msg_send![Self::im_class(), superclass] }
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         unsafe { msg_send![self.obj, isEqual: object] }
     }
 
@@ -107,39 +109,39 @@ impl PNSObject for NLLanguageRecognizer {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: Class) -> bool {
-        unsafe { msg_send![self.obj, isKindOfClass: aClass] }
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.obj, isKindOfClass: class] }
     }
 
-    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
-        unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.obj, isMemberOfClass: class] }
     }
 
-    fn im_respondsToSelector(&self, aSelector: Sel) -> bool {
-        unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { msg_send![self.obj, respondsToSelector: selector] }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: Protocol) -> bool {
-        unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        unsafe { msg_send![self.obj, conformsToProtocol: protocol] }
     }
 
     fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
-    fn ip_debugDescription(&self) -> NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn im_performSelector(&self, aSelector: Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         unsafe { msg_send![self.obj, isProxy] }
     }
 }
@@ -153,7 +155,7 @@ impl INLLanguageRecognizer for NLLanguageRecognizer {
         }
     }
 
-    fn tm_dominantLanguageForString(&self, string: NSString) -> NLLanguage {
+    fn tm_dominant_language_for_string(&self, string: NSString) -> NLLanguage {
         unsafe {
             NLLanguage::from_id(msg_send![
                 Self::im_class(),
@@ -162,15 +164,15 @@ impl INLLanguageRecognizer for NLLanguageRecognizer {
         }
     }
 
-    fn im_processString(&mut self, string: NSString) {
+    fn im_process_string(&mut self, string: NSString) {
         unsafe { msg_send![self.obj, processString: string] }
     }
 
-    fn ip_dominantLanguage(&self) -> NSString {
+    fn ip_dominant_language(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, dominantLanguage]) }
     }
 
-    fn im_languageHypothesesWithMaximum(
+    fn im_language_hypotheses_with_maximum(
         &self,
         max_hypotheses: UInt,
     ) -> NSDictionary<NLLanguage, NSNumber> {
@@ -186,19 +188,19 @@ impl INLLanguageRecognizer for NLLanguageRecognizer {
         unsafe { msg_send![self.obj, reset] }
     }
 
-    fn ip_languageHints(&self) -> NSDictionary<NLLanguage, NSNumber> {
+    fn ip_language_hints(&self) -> NSDictionary<NLLanguage, NSNumber> {
         unsafe { NSDictionary::from_id(msg_send![self.obj, languageHints]) }
     }
 
-    fn ip_setLanguageHints(&self, language_hints: NSDictionary<NLLanguage, NSNumber>) {
+    fn ip_set_language_hints(&self, language_hints: NSDictionary<NLLanguage, NSNumber>) {
         unsafe { msg_send![self.obj, setLanguageHints: language_hints] }
     }
 
-    fn ip_languageConstraints(&self) -> NSArray<NLLanguage> {
+    fn ip_language_constraints(&self) -> NSArray<NLLanguage> {
         unsafe { NSArray::from_id(msg_send![self.obj, languageConstraints]) }
     }
 
-    fn ip_setLanguageConstraints(&self, language_constraints: NSArray<NLLanguage>) {
+    fn ip_set_language_constraints(&self, language_constraints: NSArray<NLLanguage>) {
         unsafe { msg_send![self.obj, setLanguageConstraints: language_constraints] }
     }
 }
@@ -219,7 +221,7 @@ impl FromId for NLLanguageRecognizer {
 
 impl fmt::Debug for NLLanguageRecognizer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.ip_debugDescription())
+        write!(f, "{:?}", self.ip_debug_description())
     }
 }
 
@@ -258,7 +260,7 @@ mod tests {
     fn test_dominant_language() {
         let mut lr = NLLanguageRecognizer::new();
         lr.process_str("This is a test.");
-        let lang = lr.ip_dominantLanguage();
+        let lang = lr.ip_dominant_language();
         assert_eq!(lang, "en");
     }
 
@@ -269,7 +271,7 @@ mod tests {
         lr.set_lang_hints(ns_dictionary!(
             unsafe {English.clone()} => NSNumber::from(1.0),
         ));
-        let lang_hints = lr.ip_languageHints();
+        let lang_hints = lr.ip_language_hints();
 
         assert_eq!(lang_hints.count(), 1);
         assert_eq!(
@@ -288,7 +290,7 @@ mod tests {
         let mut lr = NLLanguageRecognizer::new();
         lr.process_str("This is a test.");
         lr.set_lang_constraints(ns_array!(unsafe { English.clone() }));
-        let lang_constraints = lr.ip_languageConstraints();
+        let lang_constraints = lr.ip_language_constraints();
 
         assert_eq!(lang_constraints.count(), 1);
     }
@@ -297,11 +299,11 @@ mod tests {
     fn test_reset() {
         let mut lr = NLLanguageRecognizer::new();
         lr.process_str("This is a test.");
-        let mut lang = lr.ip_dominantLanguage();
+        let mut lang = lr.ip_dominant_language();
         assert_eq!(lang, "en");
         lr.reset();
         lr.process_str("Det här är ett test");
-        lang = lr.ip_dominantLanguage();
+        lang = lr.ip_dominant_language();
         assert_eq!(lang, "sv");
     }
 
@@ -309,7 +311,7 @@ mod tests {
     fn test_lang_hypotheses() {
         let mut lr = NLLanguageRecognizer::new();
         lr.process_str("This is a test.");
-        let lang_hypotheses = lr.im_languageHypothesesWithMaximum(1);
+        let lang_hypotheses = lr.im_language_hypotheses_with_maximum(1);
         assert_eq!(lang_hypotheses.count(), 1);
     }
 

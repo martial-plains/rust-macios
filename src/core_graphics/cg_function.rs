@@ -122,7 +122,7 @@ mod tests {
             let callbacks = CGFunctionCallbacks {
                 version: 0,
                 evaluate: None,
-                releaseInfo: None,
+                release_info: None,
             };
 
             let function = CGFunction::create(

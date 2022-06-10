@@ -3,15 +3,17 @@ use std::{fmt, ops::Range};
 use block::{ConcreteBlock, IntoConcreteBlock, RcBlock};
 use objc::{
     class, msg_send,
-    runtime::{Class, Object},
+    runtime::{Class, Object, Protocol, Sel},
     sel, sel_impl,
 };
 use objc_id::Id;
 
 use crate::{
     foundation::{NSArray, NSRange, NSString, UInt},
-    id,
-    objective_c_runtime::traits::{FromId, INSValue, PNSObject},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, INSValue, PNSObject},
+    },
 };
 
 use super::{traits::INLTokenizer, NLLanguage, NLTokenUnit, NLTokenizerAttributes};
@@ -26,7 +28,7 @@ pub struct NLTokenizer {
 impl NLTokenizer {
     /// Creates a tokenizer with the specified unit.
     pub fn with_unit(unit: NLTokenUnit) -> Self {
-        Self::im_initWithUnit(unit)
+        Self::im_init_with_unit(unit)
     }
 
     /// The text to be tokenized.
@@ -39,7 +41,7 @@ impl NLTokenizer {
     where
         S: Into<NSString>,
     {
-        self.ip_setString(string.into())
+        self.ip_set_string(string.into())
     }
 
     /// Sets the language of the text to be tokenized.
@@ -47,7 +49,7 @@ impl NLTokenizer {
     where
         L: Into<NLLanguage>,
     {
-        self.im_setLanguage(language.into())
+        self.im_set_language(language.into())
     }
 
     /// The linguistic unit that this tokenizer uses.
@@ -67,7 +69,7 @@ impl NLTokenizer {
     {
         let block = ConcreteBlock::new(block);
         let block = block.copy();
-        self.im_enumerateTokensInRange_usingBlock(range, block)
+        self.im_enumerate_tokens_in_range_using_block(range, block)
     }
 
     /// Tokenizes the string within the provided range.
@@ -75,17 +77,17 @@ impl NLTokenizer {
     where
         T: INSValue,
     {
-        self.im_tokensForRange(range)
+        self.im_tokens_for_range(range)
     }
 
     /// Finds the range of the token at the given index.
     pub fn token_range_at(&self, index: UInt) -> NSRange {
-        self.im_tokenRangeAtIndex(index)
+        self.im_token_range_at_index(index)
     }
 
     /// Finds the entire range of all tokens contained completely or partially within the specified range.
     pub fn token_range_for(&self, range: Range<usize>) -> NSRange {
-        self.im_tokenRangeForRange(range.into())
+        self.im_token_range_for_range(range.into())
     }
 }
 
@@ -94,7 +96,7 @@ impl PNSObject for NLTokenizer {
         class!(NLTokenizer)
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         unsafe { msg_send![self.obj, isEqual: object] }
     }
 
@@ -102,39 +104,39 @@ impl PNSObject for NLTokenizer {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: Class) -> bool {
-        unsafe { msg_send![self.obj, isKindOfClass: aClass] }
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.obj, isKindOfClass: class] }
     }
 
-    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
-        unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.obj, isMemberOfClass: class] }
     }
 
-    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
-        unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { msg_send![self.obj, respondsToSelector: selector] }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
-        unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        unsafe { msg_send![self.obj, conformsToProtocol: protocol] }
     }
 
     fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
-    fn ip_debugDescription(&self) -> NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         unsafe { msg_send![self.obj, isProxy] }
     }
 }
@@ -143,7 +145,7 @@ impl INLTokenizer for NLTokenizer {
     /* Creating a Tokenizer
      */
 
-    fn im_initWithUnit(unit: NLTokenUnit) -> Self {
+    fn im_init_with_unit(unit: NLTokenUnit) -> Self {
         unsafe {
             let cls = class!(NLTokenizer);
             let obj: *mut Object = msg_send![cls, new];
@@ -156,11 +158,11 @@ impl INLTokenizer for NLTokenizer {
         unsafe { msg_send![&*self.obj, string] }
     }
 
-    fn ip_setString(&self, string: NSString) {
+    fn ip_set_string(&self, string: NSString) {
         unsafe { msg_send![self.obj, setString: string] }
     }
 
-    fn im_setLanguage(&self, language: NLLanguage) {
+    fn im_set_language(&self, language: NLLanguage) {
         unsafe { msg_send![self.obj, setLanguage: language] }
     }
 
@@ -168,7 +170,7 @@ impl INLTokenizer for NLTokenizer {
         unsafe { msg_send![self.obj, unit] }
     }
 
-    fn im_enumerateTokensInRange_usingBlock(
+    fn im_enumerate_tokens_in_range_using_block(
         &self,
         range: NSRange,
         block: RcBlock<(NSRange, NLTokenizerAttributes, *mut bool), ()>,
@@ -182,25 +184,25 @@ impl INLTokenizer for NLTokenizer {
         }
     }
 
-    fn im_tokensForRange<T>(&self, range: NSRange) -> NSArray<T>
+    fn im_tokens_for_range<T>(&self, range: NSRange) -> NSArray<T>
     where
         T: INSValue,
     {
         unsafe { NSArray::from_id(msg_send![self.obj, tokensForRange: range]) }
     }
 
-    fn im_tokenRangeAtIndex(&self, character_index: UInt) -> NSRange {
+    fn im_token_range_at_index(&self, character_index: UInt) -> NSRange {
         unsafe { msg_send![self.obj, tokenRangeAtIndex: character_index] }
     }
 
-    fn im_tokenRangeForRange(&self, range: NSRange) -> NSRange {
+    fn im_token_range_for_range(&self, range: NSRange) -> NSRange {
         unsafe { msg_send![self.obj, tokenRangeForRange: range] }
     }
 }
 
 impl fmt::Debug for NLTokenizer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.ip_debugDescription())
+        write!(f, "{}", self.ip_debug_description())
     }
 }
 

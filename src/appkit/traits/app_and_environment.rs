@@ -3,8 +3,7 @@ use crate::{
         ns_menu::NSMenu, NSApplicationActivationOptions, NSApplicationActivationPolicy,
         NSApplicationDelegateReply, NSApplicationTerminateReply,
     },
-    id,
-    objective_c_runtime::traits::PNSObject,
+    objective_c_runtime::{id, traits::PNSObject},
 };
 
 use super::mouse_keyboard_and_trackpad::INSResponder;
@@ -13,7 +12,7 @@ use super::mouse_keyboard_and_trackpad::INSResponder;
 /// of that app’s objects.
 pub trait INSApplication: INSResponder {
     /// Returns the application instance, creating it if it doesn’t exist yet.
-    fn tp_sharedApplication() -> Self;
+    fn tp_shared_application() -> Self;
 
     /* Terminating the App
      */
@@ -22,64 +21,64 @@ pub trait INSApplication: INSResponder {
     fn im_terminate(self, sender: id);
 
     /// Responds to NSTerminateLater once the app knows whether it can terminate.
-    fn replyToApplicationShouldTerminate(self, shouldTerminate: bool);
+    fn reply_to_application_should_terminate(self, should_terminate: bool);
 
     /* Managing Relaunch on Login
      */
 
     /// Disables relaunching the app on login.
-    fn im_disableRelaunchOnLogin(&self);
+    fn im_disable_relaunch_on_login(&self);
 
     /// Enables relaunching the app on login.
-    fn im_enableRelaunchOnLogin(&self);
+    fn im_enable_relaunch_on_login(&self);
 
     /* Managing Remote Notifications
      */
 
     /// Register for notifications sent by Apple Push Notification service (APNs).
-    fn im_registerForRemoteNotifications(&self);
+    fn im_register_for_remote_notifications(&self);
 
     /// Unregister for notifications received from Apple Push Notification service.
-    fn im_unregisterForRemoteNotifications(&self);
+    fn im_unregister_for_remote_notifications(&self);
 
     /* Managing User Attention Requests
      */
 
     /// Handles errors that might occur when the user attempts to open or print files.
-    fn replyToOpenOrPrint(self, response: NSApplicationDelegateReply);
+    fn reply_to_open_or_print(self, response: NSApplicationDelegateReply);
 
     /* Configuring the Activation Policy
      */
 
     /// Returns the app’s activation policy.
-    fn im_activationPolicy(&self) -> NSApplicationActivationPolicy;
+    fn im_activation_policy(&self) -> NSApplicationActivationPolicy;
 
     /// Sets the app’s activation policy.
     ///
     /// # Arguments
     ///
     /// * `policy` - The activation policy to set.
-    fn im_setActivationPolicy(&self, policy: NSApplicationActivationPolicy);
+    fn im_set_activation_policy(&self, policy: NSApplicationActivationPolicy);
 
     /* Menu */
 
     /// The app’s main menu bar.
-    fn ip_mainMenu(&self) -> NSMenu;
+    fn ip_main_menu(&self) -> NSMenu;
 
     /// Sets the app’s main menu bar.
-    fn ip_setMainMenu(&self, menu: NSMenu);
+    fn ip_set_main_menu(&self, menu: NSMenu);
 }
 
 /// An object that can manipulate and provide information for a single instance of an app.
 pub trait INSRunningApplication: PNSObject {
     /// Returns the application instance, creating it if it doesn’t exist yet.
-    fn tp_currentApplication() -> Self;
+    fn tp_current_application() -> Self;
 
     /// Indicates whether the application is currently frontmost.
-    fn ip_isActive(&self) -> bool;
+    fn ip_is_active(&self) -> bool;
 
     /// Attempts to activate the application using the specified options.
-    fn im_activateWithOptions(&mut self, options: NSApplicationActivationOptions);
+    fn im_activate_with_options(&mut self, options: NSApplicationActivationOptions);
 }
 
 /// A set of methods that manage your app’s life cycle and its interaction

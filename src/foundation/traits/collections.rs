@@ -2,8 +2,10 @@ use std::ops::Range;
 
 use crate::{
     foundation::{NSArray, NSDictionary, NSLocale, NSString, UInt},
-    id,
-    objective_c_runtime::traits::{FromId, PNSObject},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject},
+    },
 };
 
 /// A static ordered collection of objects.
@@ -21,54 +23,54 @@ pub trait INSArray<T>: PNSObject {
     ///
     /// A Boolean value that indicates whether `object` is present in the array.
     ///
-    fn im_containsObject(&self, object: T) -> bool;
+    fn im_contains_object(&self, object: T) -> bool;
 
     /// The number of objects in the array.
     fn ip_count(&self) -> UInt;
 
     /// The first object in the array.
-    fn ip_firstObject(&self) -> Option<T>
+    fn ip_first_object(&self) -> Option<T>
     where
         T: PNSObject + FromId;
 
     /// The last object in the array.
-    fn ip_lastObject(&self) -> Option<T>
+    fn ip_last_object(&self) -> Option<T>
     where
         T: PNSObject + FromId;
 
     /// The object at the specified index.
-    fn im_objectAtIndex(&self, index: UInt) -> T
+    fn im_object_at_index(&self, index: UInt) -> T
     where
         T: PNSObject + FromId;
 
     /// The index of the specified object.
-    fn im_objectAtIndexedSubscript(&self, index: UInt) -> Option<id>;
+    fn im_object_at_indexed_subscript(&self, index: UInt) -> Option<id>;
 
     /* Finding Objects in an Array
      */
 
     /// Returns the lowest index whose corresponding array value is equal to a given object.
-    fn im_indexOfObject(&self, object: T) -> UInt;
+    fn im_index_of_object(&self, object: T) -> UInt;
 
     /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
-    fn im_indexOfObject_inRange(&self, object: T, range: Range<UInt>) -> UInt;
+    fn im_index_of_object_in_range(&self, object: T, range: Range<UInt>) -> UInt;
 
     /// Returns the lowest index whose corresponding array value is identical to a given object.
-    fn im_indexOfObjectIdenticalTo(&self, object: T) -> UInt;
+    fn im_index_of_object_identical_to(&self, object: T) -> UInt;
 
     /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
-    fn im_indexOfObjectIdenticalTo_inRange(&self, object: T, range: Range<UInt>) -> UInt;
+    fn im_index_of_object_identical_to_in_range(&self, object: T, range: Range<UInt>) -> UInt;
 
     /* Comparing Arrays
      */
 
     /// Returns the first object contained in the receiving array that’s equal to an object in another given array.
-    fn im_firstObjectCommonWithArray(&self, other: &NSArray<T>) -> Option<T>
+    fn im_first_object_common_with_array(&self, other: &NSArray<T>) -> Option<T>
     where
         T: PNSObject + FromId;
 
     /// Compares the receiving array to another array.
-    fn im_isEqualToArray(&self, other: &NSArray<T>) -> bool;
+    fn im_is_equal_to_array(&self, other: &NSArray<T>) -> bool;
 
     /* Deriving New Arrays
      */
@@ -78,14 +80,14 @@ pub trait INSArray<T>: PNSObject {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn im_arrayByAddingObject(&self, object: T) -> NSArray<T>;
+    unsafe fn im_array_by_adding_object(&self, object: T) -> NSArray<T>;
 
     /// Returns a new array that is a copy of the receiving array with the objects contained in another array added to the end.
     ///
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn im_arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
+    unsafe fn im_array_by_adding_objects_from_array<A>(&self, objects: A) -> NSArray<T>
     where
         A: INSArray<T>;
 
@@ -94,17 +96,17 @@ pub trait INSArray<T>: PNSObject {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn im_subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T>;
+    unsafe fn im_subarray_with_range(&self, range: Range<UInt>) -> NSArray<T>;
     /* Creating a Description
      */
 
     /// A string that represents the contents of the array, formatted as a property list.
 
     /// Returns a string that represents the contents of the array, formatted as a property list.
-    fn im_descriptionWithLocale(&self, locale: &NSLocale) -> NSString;
+    fn im_description_with_locale(&self, locale: &NSLocale) -> NSString;
 
     /// Returns a string that represents the contents of the array, formatted as a property list.
-    fn im_descriptionWithLocaleIndent(&self, locale: &NSLocale, indent: UInt) -> NSString;
+    fn im_description_with_locale_indent(&self, locale: &NSLocale, indent: UInt) -> NSString;
 }
 
 /// A mutable, static ordered collection of objects.
@@ -116,7 +118,7 @@ where
      */
 
     /// Creates and returns an NSMutableArray object with enough allocated memory to initially hold a given number of objects.
-    fn tm_arrayWithCapacity(capacity: usize) -> Self;
+    fn tm_array_with_capacity(capacity: usize) -> Self;
 
     /// Creates and returns a mutable array containing the contents of the file specified by the given path.
     fn tm_array_with_contents_of_file<S>(path: S) -> Self
@@ -124,15 +126,15 @@ where
         S: Into<NSString>;
 
     /// Creates and returns a mutable array containing the contents specified by a given URL.
-    fn tm_arrayWithContentsOfUrl<S>(url: S) -> Self
+    fn tm_array_with_contents_of_url<S>(url: S) -> Self
     where
         S: Into<NSString>;
 
     /// Returns an array, initialized with enough memory to initially hold a given number of objects.
-    fn im_initWithCapacity(capacity: UInt) -> Self;
+    fn im_init_with_capacity(capacity: UInt) -> Self;
 
     /// Initializes a newly allocated mutable array with the contents of the file specified by a given path
-    fn im_initWithContentsOfFile<S>(&mut self, path: S) -> bool
+    fn im_init_with_contents_of_file<S>(&mut self, path: S) -> bool
     where
         S: Into<NSString>;
 
@@ -140,52 +142,52 @@ where
      */
 
     /// Inserts a given object at the end of the array.
-    fn im_addObject(&mut self, object: &T);
+    fn im_add_object(&mut self, object: &T);
 
     /// Adds the objects contained in another given array to the end of the receiving array’s content.
-    fn im_addObjectsFromArray(&mut self, other_array: &NSArray<T>);
+    fn im_add_objects_from_array(&mut self, other_array: &NSArray<T>);
 
     /// Inserts a given object into the array’s contents at a given index.
-    fn im_insertObject_atIndex(&mut self, index: UInt, object: &T);
+    fn im_insert_object_at_index(&mut self, index: UInt, object: &T);
 
     /* Removing Objects
      */
 
     /// Empties the array of all its elements.
-    fn im_removeAllObjects(&mut self);
+    fn im_remove_all_objects(&mut self);
 
     /// Removes the object with the highest-valued index in the array
-    fn im_removeLastObject(&mut self);
+    fn im_remove_last_object(&mut self);
 
     /// Removes all occurrences in the array of a given object.
-    fn im_removeObject(&mut self, object: &T);
+    fn im_remove_object(&mut self, object: &T);
 
     /// Removes all occurrences within a specified range in the array of a given object.
-    fn im_removeObject_inRange(&mut self, object: &T, range: Range<UInt>);
+    fn im_remove_object_in_range(&mut self, object: &T, range: Range<UInt>);
 
     /// Removes the object at index .
-    fn im_removeObjectAtIndex(&mut self, index: UInt);
+    fn im_remove_object_at_index(&mut self, index: UInt);
 
     /// Removes all occurrences of a given object in the array.
-    fn im_removeObjectIdenticalTo(&mut self, object: &T);
+    fn im_remove_object_identical_to(&mut self, object: &T);
 
     /// Removes all occurrences of anObject within the specified range in the array.
-    fn im_removeObjectIdenticalTo_inRange(&mut self, object: &T, range: Range<UInt>);
+    fn im_remove_object_identical_to_in_range(&mut self, object: &T, range: Range<UInt>);
 
     /// Removes from the receiving array the objects in another given array.
-    fn im_removeObjectsInArray(&mut self, other_array: &NSArray<T>);
+    fn im_remove_objects_in_array(&mut self, other_array: &NSArray<T>);
 
     /// Removes from the array each of the objects within a given range.
-    fn im_removeObjectsInRange(&mut self, range: Range<UInt>);
+    fn im_remove_objects_in_range(&mut self, range: Range<UInt>);
 
     /* Replacing Objects
      */
 
     /// Replaces the object at index with anObject.
-    fn im_replaceObjectAtIndex_withObject(&mut self, index: UInt, object: &T);
+    fn im_replace_object_at_index_with_object(&mut self, index: UInt, object: &T);
 
     /// Sets the receiving array’s elements to those in another given array.
-    fn im_setArray(&mut self, other_array: &NSArray<T>);
+    fn im_set_array(&mut self, other_array: &NSArray<T>);
 }
 
 /// A static collection of objects associated with unique keys.
@@ -203,15 +205,15 @@ pub trait INSDictionary<K, V>: PNSObject {
      */
 
     /// Creates a dictionary containing the keys and values from another given dictionary.
-    fn tm_dictionaryWithDictionary<D>(dictionary: D) -> Self
+    fn tm_dictionary_with_dictionary<D>(dictionary: D) -> Self
     where
         D: INSDictionary<K, V>;
 
     /// Creates and initialize a dictionary
-    fn im_initWithDictionary(&mut self, dictionary: NSDictionary<K, V>);
+    fn im_init_with_dictionary(&mut self, dictionary: NSDictionary<K, V>);
 
     /// Initializes a newly allocated dictionary using the objects contained in another given dictionary.
-    fn im_initWithDictionary_copyItems(&mut self, dictionary: NSDictionary<K, V>, flag: bool);
+    fn im_init_with_dictionary_copy_items(&mut self, dictionary: NSDictionary<K, V>, flag: bool);
 
     /* Counting Entries
      */
@@ -223,7 +225,7 @@ pub trait INSDictionary<K, V>: PNSObject {
      */
 
     /// Returns a Boolean value that indicates whether the contents of the receiving dictionary are equal to the contents of another given dictionary.
-    fn im_isEqualToDictionary<D>(&self, other: D) -> bool
+    fn im_is_equal_to_dictionary<D>(&self, other: D) -> bool
     where
         D: INSDictionary<K, V>;
 
@@ -231,32 +233,32 @@ pub trait INSDictionary<K, V>: PNSObject {
      */
 
     /// A new array containing the dictionary’s keys, or an empty array if the dictionary has no entries.
-    fn ip_allKeys(&self) -> NSArray<K>;
+    fn ip_all_keys(&self) -> NSArray<K>;
 
     /// Returns a new array containing the keys corresponding to all occurrences of a given object in the dictionary.
-    fn im_allKeysForObject(&self, anObject: &V) -> NSArray<K>;
+    fn im_all_keys_for_object(&self, object: &V) -> NSArray<K>;
 
     /// A new array containing the dictionary’s values, or an empty array if the dictionary has no entries.
-    fn ip_allValues(&self) -> NSArray<V>;
+    fn ip_all_values(&self) -> NSArray<V>;
 
     /// Returns the value associated with a given key.
-    fn im_valueForKey(&self, key: &K) -> V
+    fn im_value_for_key(&self, key: &K) -> V
     where
         V: FromId;
 
     /// Returns by reference C arrays of the keys and values in the dictionary.
-    fn im_getObjects_andKeys_count(&self, objects: *mut V, keys: *mut K, count: UInt);
+    fn im_get_objects_and_keys_count(&self, objects: *mut V, keys: *mut K, count: UInt);
 
     /// Returns as a static array the set of objects from the dictionary that corresponds to the specified keys.
-    fn im_objectsForKeys_notFoundMarker(&self, keys: &NSArray<K>, value: &V) -> NSArray<V>;
+    fn im_objects_for_keys_not_found_marker(&self, keys: &NSArray<K>, value: &V) -> NSArray<V>;
 
     /// Returns the value associated with a given key.
-    fn im_objectForKey(&self, key: K) -> V
+    fn im_object_for_key(&self, key: K) -> V
     where
         V: FromId;
 
     /// Returns the value associated with a given key.
-    fn im_objectForKeyedSubscript(&self, key: &K) -> V
+    fn im_object_for_keyed_subscript(&self, key: &K) -> V
     where
         V: FromId;
 }
@@ -267,48 +269,48 @@ pub trait INSMutableDictionary<K, V>: INSDictionary<K, V> {
      */
 
     /// Creates and returns a mutable dictionary, initially giving it enough allocated memory to hold a given number of entries.
-    fn tm_dictionaryWithCapacity(capacity: UInt) -> Self;
+    fn tm_dictionary_with_capacity(capacity: UInt) -> Self;
 
     /* Adding Entries to a Mutable Dictionary
      */
 
     /// Adds a given key-value pair to the dictionary.
-    fn im_setObject_forKey(&mut self, key: K, value: V)
+    fn im_set_object_for_key(&mut self, key: K, value: V)
     where
         K: PNSObject,
         V: PNSObject;
 
     /// Adds a given key-value pair to the dictionary.
-    fn im_setObject_forkeyedSuperscript(&mut self, key: K, value: V)
+    fn im_set_object_forkeyed_superscript(&mut self, key: K, value: V)
     where
         K: Into<id>,
         V: Into<id>;
 
     /// Adds a given key-value pair to the dictionary.
-    fn im_setValue_forKey(&mut self, key: K, value: V)
+    fn im_set_value_for_key(&mut self, key: K, value: V)
     where
         K: Into<NSString>,
         V: Into<id>;
 
     /// Adds to the receiving dictionary the entries from another dictionary.
-    fn im_addEntriesFromDictionary(&mut self, dictionary: NSDictionary<K, V>);
+    fn im_add_entries_from_dictionary(&mut self, dictionary: NSDictionary<K, V>);
 
     /// Sets the contents of the receiving dictionary to entries in a given dictionary.
-    fn im_setDictionary(&mut self, dictionary: NSDictionary<K, V>);
+    fn im_set_dictionary(&mut self, dictionary: NSDictionary<K, V>);
 
     /* Removing Entries From a Mutable Dictionary
      */
 
     /// Removes a given key and its associated value from the dictionary.
-    fn im_removeObjectForKey(&mut self, key: K)
+    fn im_remove_object_for_key(&mut self, key: K)
     where
         K: Into<id>;
 
     /// Empties the dictionary of its entries.
-    fn im_removeAllObjects(&mut self);
+    fn im_remove_all_objects(&mut self);
 
     /// Removes from the dictionary entries specified by elements in a given array.
-    fn im_removeObjectsForKeys(&mut self, keys: NSArray<K>)
+    fn im_remove_objects_for_keys(&mut self, keys: NSArray<K>)
     where
         K: PNSObject;
 }

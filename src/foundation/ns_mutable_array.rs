@@ -4,13 +4,19 @@ use std::{
     ops::{Deref, DerefMut, Range},
 };
 
-use objc::{class, msg_send, runtime::Object, sel, sel_impl};
+use objc::{
+    class, msg_send,
+    runtime::{Class, Object, Protocol, Sel},
+    sel, sel_impl,
+};
 use objc_id::Id;
 
 use crate::{
     foundation::{NSArray, NSString, UInt},
-    id,
-    objective_c_runtime::traits::{FromId, PNSObject, ToId},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
     utils::to_bool,
 };
 
@@ -24,11 +30,11 @@ pub struct NSMutableArray<T> {
 }
 
 impl<T> PNSObject for NSMutableArray<T> {
-    fn im_class<'a>() -> &'a objc::runtime::Class {
+    fn im_class<'a>() -> &'a Class {
         class!(NSMutableArray)
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         unsafe { to_bool(msg_send![self.obj, isEqual: object]) }
     }
 
@@ -36,39 +42,39 @@ impl<T> PNSObject for NSMutableArray<T> {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
-        unsafe { to_bool(msg_send![self.obj, isKindOfClass: aClass]) }
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isKindOfClass: class]) }
     }
 
-    fn im_isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
-        unsafe { to_bool(msg_send![self.obj, isMemberOfClass: aClass]) }
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![self.obj, isMemberOfClass: class]) }
     }
 
-    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
-        unsafe { to_bool(msg_send![self.obj, respondsToSelector: aSelector]) }
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { to_bool(msg_send![self.obj, respondsToSelector: selector]) }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
-        unsafe { to_bool(msg_send![self.obj, conformsToProtocol: aProtocol]) }
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        unsafe { to_bool(msg_send![self.obj, conformsToProtocol: protocol]) }
     }
 
     fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
-    fn ip_debugDescription(&self) -> NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         unsafe { to_bool(msg_send![self.obj, isProxy]) }
     }
 }
@@ -77,7 +83,7 @@ impl<T> INSArray<T> for NSMutableArray<T>
 where
     T: PNSObject + FromId,
 {
-    fn im_containsObject(&self, object: T) -> bool {
+    fn im_contains_object(&self, object: T) -> bool {
         unsafe { msg_send![self.obj, containsObject: object] }
     }
 
@@ -85,7 +91,7 @@ where
         unsafe { msg_send![self.obj, count] }
     }
 
-    fn ip_firstObject(&self) -> Option<T> {
+    fn ip_first_object(&self) -> Option<T> {
         unsafe {
             let obj: id = msg_send![self.obj, firstObject];
             if obj.is_null() {
@@ -96,7 +102,7 @@ where
         }
     }
 
-    fn ip_lastObject(&self) -> Option<T> {
+    fn ip_last_object(&self) -> Option<T> {
         unsafe {
             let obj: id = msg_send![self.obj, lastObject];
             if obj.is_null() {
@@ -107,11 +113,11 @@ where
         }
     }
 
-    fn im_objectAtIndex(&self, index: UInt) -> T {
+    fn im_object_at_index(&self, index: UInt) -> T {
         unsafe { T::from_id(msg_send![self.obj, objectAtIndex: index]) }
     }
 
-    fn im_objectAtIndexedSubscript(&self, index: UInt) -> Option<id> {
+    fn im_object_at_indexed_subscript(&self, index: UInt) -> Option<id> {
         unsafe {
             let obj: id = msg_send![self.obj, objectAtIndexedSubscript: index];
             if obj.is_null() {
@@ -122,23 +128,23 @@ where
         }
     }
 
-    fn im_indexOfObject(&self, object: T) -> UInt {
+    fn im_index_of_object(&self, object: T) -> UInt {
         unsafe { msg_send![self.obj, indexOfObject: object] }
     }
 
-    fn im_indexOfObject_inRange(&self, object: T, range: Range<UInt>) -> UInt {
+    fn im_index_of_object_in_range(&self, object: T, range: Range<UInt>) -> UInt {
         unsafe { msg_send![self.obj, indexOfObject: object inRange: range] }
     }
 
-    fn im_indexOfObjectIdenticalTo(&self, object: T) -> UInt {
+    fn im_index_of_object_identical_to(&self, object: T) -> UInt {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object] }
     }
 
-    fn im_indexOfObjectIdenticalTo_inRange(&self, object: T, range: Range<UInt>) -> UInt {
+    fn im_index_of_object_identical_to_in_range(&self, object: T, range: Range<UInt>) -> UInt {
         unsafe { msg_send![self.obj, indexOfObjectIdenticalTo: object inRange: range] }
     }
 
-    fn im_firstObjectCommonWithArray(&self, other: &NSArray<T>) -> Option<T> {
+    fn im_first_object_common_with_array(&self, other: &NSArray<T>) -> Option<T> {
         unsafe {
             let obj: id = msg_send![self.obj, firstObjectCommonWithArray: other];
             if obj.is_null() {
@@ -149,30 +155,34 @@ where
         }
     }
 
-    fn im_isEqualToArray(&self, other: &NSArray<T>) -> bool {
+    fn im_is_equal_to_array(&self, other: &NSArray<T>) -> bool {
         unsafe { msg_send![self.obj, isEqualToArray: other] }
     }
 
-    unsafe fn im_arrayByAddingObject(&self, object: T) -> NSArray<T> {
+    unsafe fn im_array_by_adding_object(&self, object: T) -> NSArray<T> {
         NSArray::from_id(msg_send![self.obj, addingObject: object])
     }
 
-    unsafe fn im_arrayByAddingObjectsFromArray<A>(&self, objects: A) -> NSArray<T>
+    unsafe fn im_array_by_adding_objects_from_array<A>(&self, objects: A) -> NSArray<T>
     where
         A: INSArray<T>,
     {
         NSArray::from_id(msg_send![self.obj, arrayByAddingObjectsFromArray: objects])
     }
 
-    unsafe fn im_subarrayWithRange(&self, range: Range<UInt>) -> NSArray<T> {
+    unsafe fn im_subarray_with_range(&self, range: Range<UInt>) -> NSArray<T> {
         NSArray::from_id(msg_send![self.obj, subarrayWithRange: range])
     }
 
-    fn im_descriptionWithLocale(&self, locale: &super::NSLocale) -> NSString {
+    fn im_description_with_locale(&self, locale: &super::NSLocale) -> NSString {
         unsafe { msg_send![self.obj, descriptionWithLocale: locale] }
     }
 
-    fn im_descriptionWithLocaleIndent(&self, locale: &super::NSLocale, indent: UInt) -> NSString {
+    fn im_description_with_locale_indent(
+        &self,
+        locale: &super::NSLocale,
+        indent: UInt,
+    ) -> NSString {
         unsafe { msg_send![self.obj, descriptionWithLocale: locale indent: indent] }
     }
 }
@@ -185,7 +195,7 @@ where
      */
 
     /// Creates and returns an NSMutableArray object with enough allocated memory to initially hold a given number of objects.
-    fn tm_arrayWithCapacity(capacity: usize) -> Self {
+    fn tm_array_with_capacity(capacity: usize) -> Self {
         NSMutableArray {
             obj: unsafe { msg_send![class!(NSMutableArray), arrayWithCapacity: capacity] },
             _marker: PhantomData,
@@ -206,7 +216,7 @@ where
     /* Adding Objects
      */
 
-    fn tm_arrayWithContentsOfUrl<S>(url: S) -> Self
+    fn tm_array_with_contents_of_url<S>(url: S) -> Self
     where
         S: Into<NSString>,
     {
@@ -217,7 +227,7 @@ where
     }
 
     /// Returns an array, initialized with enough memory to initially hold a given number of objects.
-    fn im_initWithCapacity(capacity: UInt) -> Self {
+    fn im_init_with_capacity(capacity: UInt) -> Self {
         NSMutableArray {
             obj: unsafe { msg_send![class!(NSMutableArray), arrayWithCapacity: capacity] },
             _marker: PhantomData,
@@ -227,7 +237,7 @@ where
     /* Removing Objects
      */
 
-    fn im_initWithContentsOfFile<S>(&mut self, path: S) -> bool
+    fn im_init_with_contents_of_file<S>(&mut self, path: S) -> bool
     where
         S: Into<NSString>,
     {
@@ -235,27 +245,27 @@ where
     }
 
     /// Inserts a given object at the end of the array.
-    fn im_addObject(&mut self, object: &T) {
+    fn im_add_object(&mut self, object: &T) {
         unsafe { msg_send![&mut *self.obj, addObject: object] }
     }
 
     /// Adds the objects contained in another given array to the end of the receiving array’s content.
-    fn im_addObjectsFromArray(&mut self, other_array: &NSArray<T>) {
+    fn im_add_objects_from_array(&mut self, other_array: &NSArray<T>) {
         unsafe { msg_send![&mut *self.obj, addObjectsFromArray: other_array] }
     }
 
     /// Inserts a given object into the array’s contents at a given index.
-    fn im_insertObject_atIndex(&mut self, index: UInt, object: &T) {
+    fn im_insert_object_at_index(&mut self, index: UInt, object: &T) {
         unsafe { msg_send![&mut *self.obj, insertObject: object atIndex: index] }
     }
 
     /// Empties the array of all its elements.
-    fn im_removeAllObjects(&mut self) {
+    fn im_remove_all_objects(&mut self) {
         unsafe { msg_send![&mut *self.obj, removeAllObjects] }
     }
 
     /// Removes the object with the highest-valued index in the array
-    fn im_removeLastObject(&mut self) {
+    fn im_remove_last_object(&mut self) {
         unsafe { msg_send![&mut *self.obj, removeLastObject] }
     }
 
@@ -263,47 +273,47 @@ where
      */
 
     /// Removes all occurrences in the array of a given object.
-    fn im_removeObject(&mut self, object: &T) {
+    fn im_remove_object(&mut self, object: &T) {
         unsafe { msg_send![&mut *self.obj, removeObject: object] }
     }
 
     /// Removes all occurrences within a specified range in the array of a given object.
-    fn im_removeObject_inRange(&mut self, object: &T, range: Range<UInt>) {
+    fn im_remove_object_in_range(&mut self, object: &T, range: Range<UInt>) {
         unsafe { msg_send![&mut *self.obj, removeObject: object inRange: range] }
     }
 
     /// Removes the object at index .
-    fn im_removeObjectAtIndex(&mut self, index: UInt) {
+    fn im_remove_object_at_index(&mut self, index: UInt) {
         unsafe { msg_send![&mut *self.obj, removeObjectAtIndex: index] }
     }
 
     /// Removes all occurrences of a given object in the array.
-    fn im_removeObjectIdenticalTo(&mut self, object: &T) {
+    fn im_remove_object_identical_to(&mut self, object: &T) {
         unsafe { msg_send![&mut *self.obj, removeObjectIdenticalTo: object] }
     }
 
     /// Removes all occurrences of anObject within the specified range in the array.
-    fn im_removeObjectIdenticalTo_inRange(&mut self, object: &T, range: Range<UInt>) {
+    fn im_remove_object_identical_to_in_range(&mut self, object: &T, range: Range<UInt>) {
         unsafe { msg_send![&mut *self.obj, removeObjectIdenticalTo: object inRange: range] }
     }
 
     /// Removes from the receiving array the objects in another given array.
-    fn im_removeObjectsInArray(&mut self, other_array: &NSArray<T>) {
+    fn im_remove_objects_in_array(&mut self, other_array: &NSArray<T>) {
         unsafe { msg_send![&mut *self.obj, removeObjectsInArray: other_array] }
     }
 
     /// Removes from the array each of the objects within a given range.
-    fn im_removeObjectsInRange(&mut self, range: Range<UInt>) {
+    fn im_remove_objects_in_range(&mut self, range: Range<UInt>) {
         unsafe { msg_send![&mut *self.obj, removeObjectsInRange: range] }
     }
 
     /// Replaces the object at index with anObject.
-    fn im_replaceObjectAtIndex_withObject(&mut self, index: UInt, object: &T) {
+    fn im_replace_object_at_index_with_object(&mut self, index: UInt, object: &T) {
         unsafe { msg_send![&mut *self.obj, replaceObjectAtIndex: index withObject: object] }
     }
 
     /// Sets the receiving array’s elements to those in another given array.
-    fn im_setArray(&mut self, other_array: &NSArray<T>) {
+    fn im_set_array(&mut self, other_array: &NSArray<T>) {
         unsafe { msg_send![&mut *self.obj, setArray: other_array] }
     }
 }
@@ -319,7 +329,7 @@ where
 
 impl fmt::Debug for NSMutableArray<id> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_debugDescription())
+        write!(f, "{}", self.ip_debug_description())
     }
 }
 

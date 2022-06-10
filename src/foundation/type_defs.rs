@@ -49,6 +49,7 @@ pub type UInt64 = libc::c_ulonglong;
 pub type Double = c_double;
 
 /// Type for UTF-16 code units.
+#[allow(non_camel_case_types)]
 pub type unichar = u16;
 
 /// A rectangle.

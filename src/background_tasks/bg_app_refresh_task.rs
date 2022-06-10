@@ -1,6 +1,9 @@
 use std::fmt;
 
-use crate::{background_tasks::traits::IBGTask, objective_c_runtime::traits::FromId};
+use crate::{
+    background_tasks::traits::IBGTask,
+    objective_c_runtime::{id, traits::FromId},
+};
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
@@ -20,11 +23,11 @@ impl INSObject for BGAppRefreshTask {
         }
     }
 
-    fn toId(mut self) -> crate::id {
+    fn to_id(mut self) -> id {
         &mut *self.ptr
     }
 
-    unsafe fn fromId(obj: crate::id) -> Self {
+    unsafe fn from_id(obj: id) -> Self {
         Self {
             ptr: Id::from_ptr(obj),
         }
@@ -34,12 +37,12 @@ impl INSObject for BGAppRefreshTask {
         unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
-    fn debugDescription(&self) -> NSString {
+    fn debug_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
     fn retain(&self) -> Self {
-        unsafe { Self::fromId(msg_send![self.ptr, retain]) }
+        unsafe { Self::from_id(msg_send![self.ptr, retain]) }
     }
 }
 
@@ -48,18 +51,18 @@ impl IBGTask for BGAppRefreshTask {
         unsafe { NSString::from_id(msg_send![class!(BGAppRefreshTask), identifier]) }
     }
 
-    fn ip_expirationHandler() {
+    fn ip_expiration_handler() {
         unsafe { msg_send![class!(BGAppRefreshTask), expirationHandler] }
     }
 
-    fn im_setTaskCompletedWithSuccess(&self, success: bool) {
+    fn im_set_task_completed_with_success(&self, success: bool) {
         unsafe { msg_send![self.ptr, setTaskCompletedWithSuccess: success] }
     }
 }
 
 impl fmt::Debug for BGAppRefreshTask {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.debugDescription())
+        write!(f, "{}", self.debug_description())
     }
 }
 

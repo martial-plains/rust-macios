@@ -9,8 +9,10 @@ use objc_id::Id;
 
 use crate::{
     foundation::{NSString, UInt},
-    id,
-    objective_c_runtime::traits::{FromId, PNSObject, ToId},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
     utils::to_bool,
 };
 
@@ -30,27 +32,27 @@ impl NSMenuItem {
 
     /// A Boolean value that indicates whether the menu item is enabled.
     pub fn enabled(&self) -> bool {
-        self.ip_isEnabled()
+        self.ip_is_enabled()
     }
 
     /// Sets whether the menu item is enabled.
     pub fn set_enabled(&mut self, enabled: bool) {
-        self.ip_setEnabled(enabled);
+        self.ip_set_enabled(enabled);
     }
 
     /// A Boolean value that indicates whether the menu item is hidden.
     pub fn hidden(&self) -> bool {
-        self.ip_isHidden()
+        self.ip_is_hidden()
     }
 
     /// Sets whether the menu item is hidden.
     pub fn set_hidden(&mut self, hidden: bool) {
-        self.ip_setHidden(hidden);
+        self.ip_set_hidden(hidden);
     }
 
     /// A Boolean value that indicates whether the menu item or any of its superitems is hidden.
     pub fn hidden_or_has_hidden_ancestor(&self) -> bool {
-        self.ip_isHiddenOrHasHiddenAncestor()
+        self.ip_is_hidden_or_has_hidden_ancestor()
     }
 
     /// The menu item's target.
@@ -60,7 +62,7 @@ impl NSMenuItem {
 
     /// Sets the menu item's target.
     pub fn set_target(&mut self, target: id) {
-        self.ip_setTarget(target);
+        self.ip_set_target(target);
     }
 
     /// The menu item's action-method selector.
@@ -70,7 +72,7 @@ impl NSMenuItem {
 
     /// Sets the menu item's action-method selector.
     pub fn set_action(&mut self, action: Sel) {
-        self.ip_setAction(action);
+        self.ip_set_action(action);
     }
 
     /// The menu item's title.
@@ -83,7 +85,7 @@ impl NSMenuItem {
     where
         S: Into<NSString>,
     {
-        self.ip_setTitle(title.into());
+        self.ip_set_title(title.into());
     }
 
     /// The submenu of the menu item.
@@ -93,17 +95,17 @@ impl NSMenuItem {
 
     /// Sets the submenu of the menu item.
     pub fn set_submenu(&mut self, submenu: NSMenu) {
-        self.ip_setSubmenu(submenu);
+        self.ip_set_submenu(submenu);
     }
 
     /// A Boolean value that indicates whether the menu item has a submenu.
     pub fn has_submenu(&self) -> bool {
-        self.ip_hasSubmenu()
+        self.ip_has_submenu()
     }
 
     /// The menu item whose submenu contains the receiver.
     pub fn parent_item(&self) -> Option<NSMenuItem> {
-        self.ip_parentItem()
+        self.ip_parent_item()
     }
 }
 
@@ -118,7 +120,7 @@ impl PNSObject for NSMenuItem {
         class!(NSMenuItem)
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         unsafe { to_bool(msg_send![self.ptr, isEqual: object]) }
     }
 
@@ -126,61 +128,61 @@ impl PNSObject for NSMenuItem {
         unsafe { msg_send![self.ptr, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: Class) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, isKindOfClass: aClass]) }
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![self.ptr, isKindOfClass: class]) }
     }
 
-    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, isMemberOfClass: aClass]) }
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![self.ptr, isMemberOfClass: class]) }
     }
 
-    fn im_respondsToSelector(&self, aSelector: Sel) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, respondsToSelector: aSelector]) }
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { to_bool(msg_send![self.ptr, respondsToSelector: selector]) }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, conformsToProtocol: aProtocol]) }
+    fn im_conforms_to_protocol(&self, protocol: objc::runtime::Protocol) -> bool {
+        unsafe { to_bool(msg_send![self.ptr, conformsToProtocol: protocol]) }
     }
 
     fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
-    fn ip_debugDescription(&self) -> NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
-    fn im_performSelector(&self, aSelector: Sel) -> id {
-        unsafe { msg_send![self.ptr, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.ptr, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
-        unsafe { msg_send![self.ptr, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.ptr, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         unsafe { to_bool(msg_send![self.ptr, isProxy]) }
     }
 }
 
 impl INSMenuItem for NSMenuItem {
-    fn ip_isEnabled(&self) -> bool {
+    fn ip_is_enabled(&self) -> bool {
         unsafe { to_bool(msg_send![self.ptr, isEnabled]) }
     }
 
-    fn ip_setEnabled(&mut self, enabled: bool) {
+    fn ip_set_enabled(&mut self, enabled: bool) {
         unsafe { msg_send![self.ptr, setEnabled: enabled] }
     }
 
-    fn ip_isHidden(&self) -> bool {
+    fn ip_is_hidden(&self) -> bool {
         unsafe { to_bool(msg_send![self.ptr, isHidden]) }
     }
 
-    fn ip_setHidden(&mut self, hidden: bool) {
+    fn ip_set_hidden(&mut self, hidden: bool) {
         unsafe { msg_send![self.ptr, setHidden: hidden] }
     }
 
-    fn ip_isHiddenOrHasHiddenAncestor(&self) -> bool {
+    fn ip_is_hidden_or_has_hidden_ancestor(&self) -> bool {
         unsafe { to_bool(msg_send![self.ptr, isHiddenOrHasHiddenAncestor]) }
     }
 
@@ -188,7 +190,7 @@ impl INSMenuItem for NSMenuItem {
         unsafe { msg_send![self.ptr, target] }
     }
 
-    fn ip_setTarget(&mut self, target: id) {
+    fn ip_set_target(&mut self, target: id) {
         unsafe { msg_send![self.ptr, setTarget: target] }
     }
 
@@ -196,7 +198,7 @@ impl INSMenuItem for NSMenuItem {
         unsafe { msg_send![self.ptr, action] }
     }
 
-    fn ip_setAction(&mut self, action: Sel) {
+    fn ip_set_action(&mut self, action: Sel) {
         unsafe { msg_send![self.ptr, setAction: action] }
     }
 
@@ -204,7 +206,7 @@ impl INSMenuItem for NSMenuItem {
         unsafe { NSString::from_id(msg_send![self.ptr, title]) }
     }
 
-    fn ip_setTitle(&mut self, title: NSString) {
+    fn ip_set_title(&mut self, title: NSString) {
         unsafe { msg_send![self.ptr, setTitle: title] }
     }
 
@@ -212,15 +214,15 @@ impl INSMenuItem for NSMenuItem {
         unsafe { NSMenu::from_id(msg_send![self.ptr, submenu]) }
     }
 
-    fn ip_setSubmenu(&mut self, submenu: NSMenu) {
+    fn ip_set_submenu(&mut self, submenu: NSMenu) {
         unsafe { msg_send![self.ptr, setSubmenu: submenu] }
     }
 
-    fn ip_hasSubmenu(&self) -> bool {
+    fn ip_has_submenu(&self) -> bool {
         unsafe { to_bool(msg_send![self.ptr, hasSubmenu]) }
     }
 
-    fn ip_parentItem(&self) -> Option<NSMenuItem> {
+    fn ip_parent_item(&self) -> Option<NSMenuItem> {
         unsafe {
             let ptr: id = msg_send![self.ptr, parentItem];
             if ptr.is_null() {
@@ -248,7 +250,7 @@ impl FromId for NSMenuItem {
 
 impl fmt::Debug for NSMenuItem {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_debugDescription())
+        write!(f, "{}", self.ip_debug_description())
     }
 }
 

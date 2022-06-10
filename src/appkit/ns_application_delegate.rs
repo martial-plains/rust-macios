@@ -9,15 +9,15 @@ use objc::{
     sel, sel_impl,
 };
 
-use crate::id;
+use crate::objective_c_runtime::id;
 
-use super::{NSApplicationTerminateReply, NSApplication_PTR, NSMenu, PNSApplicationDelegate};
+use super::{NSApplicationTerminateReply, NSMenu, PNSApplicationDelegate, NSAPPLICATION_PTR};
 
 /// A handy method for grabbing our `NSApplicationDelegate` from the pointer. This is different from our
 /// standard `utils` version as this doesn't require `RefCell` backing.
 fn app<T>(this: &Object) -> &T {
     unsafe {
-        let app_ptr: usize = *this.get_ivar(NSApplication_PTR);
+        let app_ptr: usize = *this.get_ivar(NSAPPLICATION_PTR);
         let app = app_ptr as *const T;
         &*app
     }
@@ -121,11 +121,11 @@ pub(crate) fn register_app_delegate_class<T: PNSApplicationDelegate + PNSApplica
     static mut DELEGATE_CLASS: *const Class = 0 as *const Class;
     static INIT: Once = Once::new();
 
-   INIT.call_once(|| unsafe {
+    INIT.call_once(|| unsafe {
         let superclass = class!(NSObject);
         let mut decl = ClassDecl::new("RSTNSApplicationDelegate", superclass).unwrap();
 
-        decl.add_ivar::<usize>(NSApplication_PTR);
+        decl.add_ivar::<usize>(NSAPPLICATION_PTR);
 
         // Launching Applications
         decl.add_method(

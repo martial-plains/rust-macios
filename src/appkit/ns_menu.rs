@@ -10,8 +10,10 @@ use objc_id::Id;
 use crate::{
     core_graphics::CGFloat,
     foundation::{Int, NSString, UInt},
-    id,
-    objective_c_runtime::traits::{FromId, PNSObject, ToId},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
     utils::to_bool,
 };
 
@@ -34,17 +36,17 @@ impl NSMenu {
 impl NSMenu {
     /// Returns a Boolean value that indicates whether the menu bar is visible.
     pub fn menubar_visible() -> bool {
-        NSMenu::tm_menuBarVisible()
+        NSMenu::tm_menu_bar_visible()
     }
 
     /// Sets whether the menu bar is visible and selectable by the user.
     pub fn set_menubar_visible(&self, visible: bool) {
-        NSMenu::tm_setMenuBarVisible(visible);
+        NSMenu::tm_set_menu_bar_visible(visible);
     }
 
     /// The menu bar height for the main menu in pixels.
     pub fn menubar_height(&self) -> CGFloat {
-        self.ip_menuBarHeight()
+        self.ip_menu_bar_height()
     }
 
     /// Initializes and returns a menu having the specified title and with autoenabling of menu items turned on.
@@ -52,12 +54,12 @@ impl NSMenu {
     where
         S: Into<NSString>,
     {
-        Self::im_initWithTitle(title.into())
+        Self::im_init_with_title(title.into())
     }
 
     /// Inserts a menu item into the menu at a specific location.
     pub fn insert_at_index(&mut self, item: NSMenuItem, index: Int) {
-        self.im_insertItem_atIndex(item, index);
+        self.im_insert_item_at_index(item, index);
     }
 
     /// Creates and adds a menu item at a specified location in the menu.
@@ -73,7 +75,7 @@ impl NSMenu {
         Title: Into<NSString>,
         Key: Into<NSString>,
     {
-        self.im_insertItemWithTitle_action_keyEquivalent_atIndex(
+        self.im_insert_item_with_title_action_key_equivalent_at_index(
             title.into(),
             action,
             key.into(),
@@ -83,7 +85,7 @@ impl NSMenu {
 
     /// Adds a menu item to the end of the menu.
     pub fn add_item(&mut self, item: NSMenuItem) {
-        self.im_addItem(item);
+        self.im_add_item(item);
     }
 
     /// Creates a new menu item and adds it to the end of the menu.
@@ -97,22 +99,22 @@ impl NSMenu {
         Title: Into<NSString>,
         Key: Into<NSString>,
     {
-        self.im_addItemWithTitle_action_keyEquivalent(title.into(), action, key.into())
+        self.im_add_item_with_title_action_key_equivalent(title.into(), action, key.into())
     }
 
     /// Removes a menu item from the menu.
     pub fn remove_item(&mut self, item: NSMenuItem) {
-        self.im_removeItem(item);
+        self.im_remove_item(item);
     }
 
     /// Removes the menu item at a specified location in the menu.
     pub fn remove_item_at(&mut self, index: Int) {
-        self.im_removeItemAtIndex(index);
+        self.im_remove_item_at_index(index);
     }
 
     /// Removes all the menu items in the menu.
     pub fn remove_all_items(&mut self) {
-        self.im_removeAllItems();
+        self.im_remove_all_items();
     }
 }
 
@@ -121,7 +123,7 @@ impl PNSObject for NSMenu {
         class!(NSMenu)
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         unsafe { to_bool(msg_send![self.ptr, isEqual: object]) }
     }
 
@@ -129,39 +131,39 @@ impl PNSObject for NSMenu {
         unsafe { msg_send![self.ptr, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: Class) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, isKindOfClass: aClass]) }
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![self.ptr, isKindOfClass: class]) }
     }
 
-    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, isMemberOfClass: aClass]) }
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![self.ptr, isMemberOfClass: class]) }
     }
 
-    fn im_respondsToSelector(&self, aSelector: Sel) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, respondsToSelector: aSelector]) }
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { to_bool(msg_send![self.ptr, respondsToSelector: selector]) }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: Protocol) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, conformsToProtocol: aProtocol]) }
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        unsafe { to_bool(msg_send![self.ptr, conformsToProtocol: protocol]) }
     }
 
     fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
-    fn ip_debugDescription(&self) -> NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
-    fn im_performSelector(&self, aSelector: Sel) -> id {
-        unsafe { msg_send![self.ptr, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.ptr, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
-        unsafe { msg_send![self.ptr, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.ptr, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         unsafe { to_bool(msg_send![self.ptr, isProxy]) }
     }
 
@@ -171,70 +173,70 @@ impl PNSObject for NSMenu {
 }
 
 impl INSMenu for NSMenu {
-    fn tm_menuBarVisible() -> bool {
+    fn tm_menu_bar_visible() -> bool {
         unsafe { to_bool(msg_send![class!(NSMenu), menuBarVisible]) }
     }
 
-    fn tm_setMenuBarVisible(visible: bool) {
+    fn tm_set_menu_bar_visible(visible: bool) {
         unsafe { msg_send![class!(NSMenu), setMenuBarVisible: visible] }
     }
 
-    fn ip_menuBarHeight(&self) -> CGFloat {
+    fn ip_menu_bar_height(&self) -> CGFloat {
         unsafe { msg_send![self.ptr, menuBarHeight] }
     }
 
-    fn im_initWithTitle(title: NSString) -> Self {
+    fn im_init_with_title(title: NSString) -> Self {
         unsafe {
             let ptr: id = msg_send![class!(NSMenu), new];
             Self::from_id(msg_send![ptr, initWithTitle: title])
         }
     }
 
-    fn im_insertItem_atIndex(&mut self, newItem: NSMenuItem, index: Int) {
-        unsafe { msg_send![self.ptr, insertItem: newItem.ptr atIndex: index] }
+    fn im_insert_item_at_index(&mut self, new_item: NSMenuItem, index: Int) {
+        unsafe { msg_send![self.ptr, insertItem: new_item.ptr atIndex: index] }
     }
 
-    fn im_insertItemWithTitle_action_keyEquivalent_atIndex(
+    fn im_insert_item_with_title_action_key_equivalent_at_index(
         &mut self,
         string: NSString,
         sel: Sel,
-        charCode: NSString,
+        char_code: NSString,
         index: Int,
     ) -> NSMenuItem {
         unsafe {
             NSMenuItem::from_id(msg_send![self.ptr, insertItemWithTitle: string
                                                                   action: sel
-                                                           keyEquivalent: charCode
+                                                           keyEquivalent: char_code
                                                                   atIndex: index])
         }
     }
 
-    fn im_addItem(&mut self, newItem: NSMenuItem) {
-        unsafe { msg_send![self.ptr, addItem: newItem] }
+    fn im_add_item(&mut self, new_item: NSMenuItem) {
+        unsafe { msg_send![self.ptr, addItem: new_item] }
     }
 
-    fn im_addItemWithTitle_action_keyEquivalent(
+    fn im_add_item_with_title_action_key_equivalent(
         &mut self,
         title: NSString,
         sel: Sel,
-        charCode: NSString,
+        char_code: NSString,
     ) -> NSMenuItem {
         unsafe {
             NSMenuItem::from_id(msg_send![self.ptr, addItemWithTitle: title
                                                                 action: sel
-                                                         keyEquivalent: charCode])
+                                                         keyEquivalent: char_code])
         }
     }
 
-    fn im_removeItem(&mut self, item: NSMenuItem) {
+    fn im_remove_item(&mut self, item: NSMenuItem) {
         unsafe { msg_send![self.ptr, removeItem: item] }
     }
 
-    fn im_removeItemAtIndex(&mut self, index: Int) {
+    fn im_remove_item_at_index(&mut self, index: Int) {
         unsafe { msg_send![self.ptr, removeItemAtIndex: index] }
     }
 
-    fn im_removeAllItems(&mut self) {
+    fn im_remove_all_items(&mut self) {
         unsafe { msg_send![self.ptr, removeAllItems] }
     }
 }
@@ -273,7 +275,7 @@ impl Clone for NSMenu {
 
 impl fmt::Debug for NSMenu {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.ip_debugDescription())
+        write!(f, "{}", self.ip_debug_description())
     }
 }
 

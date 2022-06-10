@@ -25,10 +25,8 @@
     while_true
 )]
 #![warn(clippy::all, missing_debug_implementations)]
-#![allow(nonstandard_style, improper_ctypes)]
+#![allow(improper_ctypes)]
 #![feature(decl_macro)]
-
-use objc::runtime::Object;
 
 pub mod appkit;
 pub mod background_tasks;
@@ -40,6 +38,3 @@ pub mod natural_language;
 pub mod objective_c_runtime;
 
 pub(crate) mod utils;
-
-/// An ID for an Objective-C object.
-pub type id = *mut Object;

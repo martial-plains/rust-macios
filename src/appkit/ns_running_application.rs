@@ -9,8 +9,10 @@ use objc_id::Id;
 
 use crate::{
     foundation::{NSString, UInt},
-    id,
-    objective_c_runtime::traits::{FromId, PNSObject, ToId},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
     utils::to_bool,
 };
 
@@ -25,18 +27,18 @@ pub struct NSRunningApplication {
 impl NSRunningApplication {
     /// Returns the application instance, creating it if it doesn’t exist yet.
     pub fn current_application() -> Self {
-        Self::tp_currentApplication()
+        Self::tp_current_application()
     }
 
     /// Indicates whether the application is currently frontmost.
     pub fn active(&self) -> bool {
-        self.ip_isActive()
+        self.ip_is_active()
     }
 
     /// Attempts to activate the application using the specified options.
 
     pub fn activate_with_options(&mut self, options: NSApplicationActivationOptions) {
-        self.im_activateWithOptions(options)
+        self.im_activate_with_options(options)
     }
 }
 
@@ -45,7 +47,7 @@ impl PNSObject for NSRunningApplication {
         class!(NSRunningApplication)
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         unsafe { msg_send![self.ptr, isEqual: object] }
     }
 
@@ -53,60 +55,60 @@ impl PNSObject for NSRunningApplication {
         unsafe { msg_send![self.ptr, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: Class) -> bool {
-        unsafe { msg_send![self.ptr, isKindOfClass: aClass] }
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.ptr, isKindOfClass: class] }
     }
 
-    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
-        unsafe { msg_send![self.ptr, isMemberOfClass: aClass] }
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.ptr, isMemberOfClass: class] }
     }
 
-    fn im_respondsToSelector(&self, aSelector: Sel) -> bool {
-        unsafe { msg_send![self.ptr, respondsToSelector: aSelector] }
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { msg_send![self.ptr, respondsToSelector: selector] }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: Protocol) -> bool {
-        unsafe { msg_send![self.ptr, conformsToProtocol: aProtocol] }
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        unsafe { msg_send![self.ptr, conformsToProtocol: protocol] }
     }
 
     fn ip_description(&self) -> NSString {
         unsafe { msg_send![self.ptr, description] }
     }
 
-    fn ip_debugDescription(&self) -> NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe { msg_send![self.ptr, debugDescription] }
     }
 
-    fn im_performSelector(&self, aSelector: Sel) -> id {
-        unsafe { msg_send![self.ptr, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.ptr, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
-        unsafe { msg_send![self.ptr, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.ptr, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         unsafe { msg_send![self.ptr, isProxy] }
     }
 }
 
 impl INSRunningApplication for NSRunningApplication {
-    fn tp_currentApplication() -> Self {
+    fn tp_current_application() -> Self {
         unsafe { Self::from_id(msg_send![Self::im_class(), currentApplication]) }
     }
 
-    fn ip_isActive(&self) -> bool {
+    fn ip_is_active(&self) -> bool {
         to_bool(unsafe { msg_send![self.ptr, isActive] })
     }
 
-    fn im_activateWithOptions(&mut self, options: NSApplicationActivationOptions) {
+    fn im_activate_with_options(&mut self, options: NSApplicationActivationOptions) {
         unsafe { msg_send![self.ptr, activateWithOptions: options] }
     }
 }
 
 impl fmt::Debug for NSRunningApplication {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.ip_debugDescription())
+        write!(f, "{}", self.ip_debug_description())
     }
 }
 

@@ -3,13 +3,19 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use objc::{class, msg_send, runtime::Object, sel, sel_impl};
+use objc::{
+    class, msg_send,
+    runtime::{Class, Object, Protocol, Sel},
+    sel, sel_impl,
+};
 use objc_id::Id;
 
 use crate::{
     foundation::{traits::INSLocale, NSArray, NSString},
-    id,
-    objective_c_runtime::traits::{FromId, PNSObject},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject},
+    },
 };
 
 use super::NSLocaleKey;
@@ -37,11 +43,11 @@ pub struct NSLocale {
 }
 
 impl PNSObject for NSLocale {
-    fn im_class<'a>() -> &'a objc::runtime::Class {
+    fn im_class<'a>() -> &'a Class {
         class!(NSLocale)
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         unsafe { msg_send![self.obj, isEqual: object] }
     }
 
@@ -49,45 +55,45 @@ impl PNSObject for NSLocale {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: objc::runtime::Class) -> bool {
-        unsafe { msg_send![self.obj, isKindOfClass: aClass] }
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.obj, isKindOfClass: class] }
     }
 
-    fn im_isMemberOfClass(&self, aClass: objc::runtime::Class) -> bool {
-        unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.obj, isMemberOfClass: class] }
     }
 
-    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
-        unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { msg_send![self.obj, respondsToSelector: selector] }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
-        unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        unsafe { msg_send![self.obj, conformsToProtocol: protocol] }
     }
 
     fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
-    fn ip_debugDescription(&self) -> NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         unsafe { msg_send![self.obj, isProxy] }
     }
 }
 
 impl INSLocale for NSLocale {
-    fn im_initWithLocaleIdentifier<S>(locale_identifier: S) -> Self
+    fn im_init_with_locale_identifier<S>(locale_identifier: S) -> Self
     where
         S: Into<NSString>,
     {
@@ -98,119 +104,119 @@ impl INSLocale for NSLocale {
         }
     }
 
-    fn tp_autoupdatingCurrentLocale(&self) -> NSLocale {
+    fn tp_autoupdating_current_locale(&self) -> NSLocale {
         let class = class!(NSLocale);
         unsafe { msg_send![class, autoupdatingCurrent] }
     }
 
-    fn tp_currentLocale() -> NSLocale {
+    fn tp_current_locale() -> NSLocale {
         let class = class!(NSLocale);
         unsafe { msg_send![class, currentLocale] }
     }
 
-    fn tp_systemLocale() -> NSLocale {
+    fn tp_system_locale() -> NSLocale {
         let class = class!(NSLocale);
         unsafe { msg_send![class, systemLocale] }
     }
 
-    fn tp_availableLocaleIdentifiers() -> NSArray<NSString> {
+    fn tp_available_locale_identifiers() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, availableLocaleIdentifiers] }
     }
 
-    fn tp_isoCountryCodes() -> NSArray<NSString> {
+    fn tp_iso_country_codes() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOCountryCodes] }
     }
 
-    fn tp_isoLanguageCodes() -> NSArray<NSString> {
+    fn tp_iso_language_codes() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOLanguageCodes] }
     }
 
-    fn tp_isoCurrencyCodes() -> NSArray<NSString> {
+    fn tp_iso_currency_codes() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, ISOCurrencyCodes] }
     }
 
-    fn tp_commonIsocurrencyCodes() -> NSArray<NSString> {
+    fn tp_common_isocurrency_codes() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, commonISOCurrencyCodes] }
     }
 
-    fn ip_localeIdentifier(&self) -> NSString {
+    fn ip_locale_identifier(&self) -> NSString {
         unsafe { msg_send![self.obj, localeIdentifier] }
     }
 
-    fn ip_countryCode(&self) -> NSString {
+    fn ip_country_code(&self) -> NSString {
         unsafe { msg_send![self.obj, countryCode] }
     }
 
-    fn ip_languageCode(&self) -> NSString {
+    fn ip_language_code(&self) -> NSString {
         unsafe { msg_send![self.obj, languageCode] }
     }
 
-    fn ip_scriptCode(&self) -> NSString {
+    fn ip_script_code(&self) -> NSString {
         unsafe { msg_send![self.obj, scriptCode] }
     }
 
-    fn ip_variantCode(&self) -> NSString {
+    fn ip_variant_code(&self) -> NSString {
         unsafe { msg_send![self.obj, variantCode] }
     }
 
-    fn ip_collationIdentifier(&self) -> NSString {
+    fn ip_collation_identifier(&self) -> NSString {
         unsafe { msg_send![self.obj, collationIdentifier] }
     }
 
-    fn ip_collatorIdentifier(&self) -> NSString {
+    fn ip_collator_identifier(&self) -> NSString {
         unsafe { msg_send![self.obj, collatorIdentifier] }
     }
 
-    fn ip_usesMetricSystem(&self) -> bool {
+    fn ip_uses_metric_system(&self) -> bool {
         unsafe { msg_send![self.obj, usesMetricSystem] }
     }
 
-    fn ip_decimalSeparator(&self) -> NSString {
+    fn ip_decimal_separator(&self) -> NSString {
         unsafe { msg_send![self.obj, decimalSeparator] }
     }
 
-    fn ip_groupingSeparator(&self) -> NSString {
+    fn ip_grouping_separator(&self) -> NSString {
         unsafe { msg_send![self.obj, groupingSeparator] }
     }
 
-    fn ip_currencyCode(&self) -> NSString {
+    fn ip_currency_code(&self) -> NSString {
         unsafe { msg_send![self.obj, currencyCode] }
     }
 
-    fn ip_currencySymbol(&self) -> NSString {
+    fn ip_currency_symbol(&self) -> NSString {
         unsafe { msg_send![self.obj, currencySymbol] }
     }
 
-    fn ip_calendarIdentifier(&self) -> NSString {
+    fn ip_calendar_identifier(&self) -> NSString {
         unsafe { msg_send![self.obj, calendarIdentifier] }
     }
 
-    fn ip_quotationBeginDelimiter(&self) -> NSString {
+    fn ip_quotation_begin_delimiter(&self) -> NSString {
         unsafe { msg_send![self.obj, quotationBeginDelimiter] }
     }
 
-    fn ip_quotationEndDelimiter(&self) -> NSString {
+    fn ip_quotation_end_delimiter(&self) -> NSString {
         unsafe { msg_send![self.obj, quotationEndDelimiter] }
     }
 
-    fn ip_alternateQuotationBeginDelimiter(&self) -> NSString {
+    fn ip_alternate_quotation_begin_delimiter(&self) -> NSString {
         unsafe { msg_send![self.obj, alternateQuotationBeginDelimiter] }
     }
 
-    fn ip_alternateQuotationEndDelimiter(&self) -> NSString {
+    fn ip_alternate_quotation_end_delimiter(&self) -> NSString {
         unsafe { msg_send![self.obj, alternateQuotationEndDelimiter] }
     }
 
-    fn im_objectForKey(&self, key: NSLocaleKey) -> Option<Object> {
+    fn im_object_for_key(&self, key: NSLocaleKey) -> Option<Object> {
         unsafe { msg_send![self.obj, objectForKey: key] }
     }
 
-    fn im_displayNameForKey_value<T>(&self, key: NSLocaleKey, value: T) -> Option<NSString>
+    fn im_display_name_for_key_value<T>(&self, key: NSLocaleKey, value: T) -> Option<NSString>
     where
         T: Into<NSString>,
     {
@@ -223,12 +229,12 @@ impl INSLocale for NSLocale {
         }
     }
 
-    fn tp_preferredLanguages() -> NSArray<NSString> {
+    fn tp_preferred_languages() -> NSArray<NSString> {
         let class = class!(NSLocale);
         unsafe { msg_send![class, preferredLanguages] }
     }
 
-    fn tm_characterDirectionForLanguage<S>(&self, iso_language_code: S) -> LanguageDirection
+    fn tm_character_direction_for_language<S>(&self, iso_language_code: S) -> LanguageDirection
     where
         S: Into<NSString>,
     {
@@ -236,7 +242,7 @@ impl INSLocale for NSLocale {
         unsafe { msg_send![class, characterDirectionForLanguage: iso_language_code.into()] }
     }
 
-    fn tm_lineDirectionForLanguage<S>(&self, iso_language_code: S) -> LanguageDirection
+    fn tm_line_direction_for_language<S>(&self, iso_language_code: S) -> LanguageDirection
     where
         S: Into<NSString>,
     {
@@ -253,7 +259,7 @@ impl Display for NSLocale {
 
 impl Debug for NSLocale {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Locale: {}", self.ip_debugDescription())
+        write!(f, "Locale: {}", self.ip_debug_description())
     }
 }
 

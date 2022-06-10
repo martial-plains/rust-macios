@@ -15,8 +15,7 @@ use objc_id::ShareId;
 use crate::{
     core_graphics::{CGFloat, CGPoint, CGSize},
     foundation::{Int, NSRect, NSString, UInt},
-    id,
-    objective_c_runtime::nil,
+    objective_c_runtime::{id, nil},
     utils::to_bool,
 };
 

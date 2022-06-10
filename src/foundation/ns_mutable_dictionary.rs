@@ -14,8 +14,10 @@ use objc::{
 use objc_id::Id;
 
 use crate::{
-    id,
-    objective_c_runtime::traits::{FromId, PNSObject, ToId},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
     utils::to_bool,
 };
 
@@ -41,7 +43,7 @@ impl<K, V> NSMutableDictionary<K, V> {
 
     /// Creates a new dictionary with the specified capacity.
     pub fn with_capacity(capacity: UInt) -> Self {
-        Self::tm_dictionaryWithCapacity(capacity)
+        Self::tm_dictionary_with_capacity(capacity)
     }
 
     /// Creates a new dictionary with the specified capacity and load factor.
@@ -50,7 +52,7 @@ impl<K, V> NSMutableDictionary<K, V> {
         K: PNSObject,
         V: PNSObject,
     {
-        self.im_setObject_forKey(key, value)
+        self.im_set_object_for_key(key, value)
     }
 }
 
@@ -59,7 +61,7 @@ impl<K, V> PNSObject for NSMutableDictionary<K, V> {
         class!(NSMutableDictionary)
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         unsafe { msg_send![self.obj, isEqual: object] }
     }
 
@@ -67,45 +69,45 @@ impl<K, V> PNSObject for NSMutableDictionary<K, V> {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: Class) -> bool {
-        unsafe { msg_send![self.obj, isKindOfClass: aClass] }
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.obj, isKindOfClass: class] }
     }
 
-    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
-        unsafe { msg_send![self.obj, isMemberOfClass: aClass] }
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.obj, isMemberOfClass: class] }
     }
 
-    fn im_respondsToSelector(&self, aSelector: Sel) -> bool {
-        unsafe { msg_send![self.obj, respondsToSelector: aSelector] }
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { msg_send![self.obj, respondsToSelector: selector] }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: Protocol) -> bool {
-        unsafe { msg_send![self.obj, conformsToProtocol: aProtocol] }
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        unsafe { msg_send![self.obj, conformsToProtocol: protocol] }
     }
 
     fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, description]) }
     }
 
-    fn ip_debugDescription(&self) -> NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
     }
 
-    fn im_performSelector(&self, aSelector: Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         unsafe { msg_send![self.obj, isProxy] }
     }
 }
 
 impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {
-    fn im_initWithDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+    fn im_init_with_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
         unsafe { msg_send![self.obj, initWithDictionary: dictionary] }
     }
 
@@ -121,7 +123,7 @@ impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {
         unsafe { Self::from_id(msg_send![Self::im_class(), new]) }
     }
 
-    fn tm_dictionaryWithDictionary<D>(dictionary: D) -> Self
+    fn tm_dictionary_with_dictionary<D>(dictionary: D) -> Self
     where
         D: INSDictionary<K, V>,
     {
@@ -133,37 +135,37 @@ impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {
         }
     }
 
-    fn im_initWithDictionary_copyItems(&mut self, dictionary: NSDictionary<K, V>, flag: bool) {
+    fn im_init_with_dictionary_copy_items(&mut self, dictionary: NSDictionary<K, V>, flag: bool) {
         unsafe { msg_send![self.obj, initWithDictionary: dictionary copyItems: flag] }
     }
 
-    fn im_isEqualToDictionary<D>(&self, other: D) -> bool
+    fn im_is_equal_to_dictionary<D>(&self, other: D) -> bool
     where
         D: INSDictionary<K, V>,
     {
         unsafe { to_bool(msg_send![self.obj, isEqualToDictionary: other]) }
     }
 
-    fn ip_allKeys(&self) -> NSArray<K> {
+    fn ip_all_keys(&self) -> NSArray<K> {
         unsafe { NSArray::from_id(msg_send![self.obj, allKeys]) }
     }
 
-    fn im_allKeysForObject(&self, anObject: &V) -> NSArray<K> {
-        unsafe { NSArray::from_id(msg_send![self.obj, allKeysForObject: anObject]) }
+    fn im_all_keys_for_object(&self, object: &V) -> NSArray<K> {
+        unsafe { NSArray::from_id(msg_send![self.obj, allKeysForObject: object]) }
     }
 
-    fn ip_allValues(&self) -> NSArray<V> {
+    fn ip_all_values(&self) -> NSArray<V> {
         unsafe { NSArray::from_id(msg_send![self.obj, allValues]) }
     }
 
-    fn im_valueForKey(&self, key: &K) -> V
+    fn im_value_for_key(&self, key: &K) -> V
     where
         V: FromId,
     {
         unsafe { V::from_id(msg_send![self.obj, valueForKey: key]) }
     }
 
-    fn im_getObjects_andKeys_count(&self, objects: *mut V, keys: *mut K, count: UInt) {
+    fn im_get_objects_and_keys_count(&self, objects: *mut V, keys: *mut K, count: UInt) {
         unsafe {
             msg_send![
                 self.obj,
@@ -174,18 +176,18 @@ impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {
         }
     }
 
-    fn im_objectsForKeys_notFoundMarker(&self, keys: &NSArray<K>, value: &V) -> NSArray<V> {
+    fn im_objects_for_keys_not_found_marker(&self, keys: &NSArray<K>, value: &V) -> NSArray<V> {
         unsafe { NSArray::from_id(msg_send![self.obj, objectsForKeys: keys notFoundMarker: value]) }
     }
 
-    fn im_objectForKey(&self, key: K) -> V
+    fn im_object_for_key(&self, key: K) -> V
     where
         V: FromId,
     {
         unsafe { V::from_id(msg_send![self.obj, objectForKey: key]) }
     }
 
-    fn im_objectForKeyedSubscript(&self, key: &K) -> V
+    fn im_object_for_keyed_subscript(&self, key: &K) -> V
     where
         V: FromId,
     {
@@ -194,7 +196,7 @@ impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {
 }
 
 impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {
-    fn im_setObject_forKey(&mut self, key: K, value: V)
+    fn im_set_object_for_key(&mut self, key: K, value: V)
     where
         K: PNSObject,
         V: PNSObject,
@@ -202,7 +204,7 @@ impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {
         unsafe { msg_send![self.obj, setObject: value forKey: key] }
     }
 
-    fn im_setObject_forkeyedSuperscript(&mut self, key: K, value: V)
+    fn im_set_object_forkeyed_superscript(&mut self, key: K, value: V)
     where
         K: Into<id>,
         V: Into<id>,
@@ -210,7 +212,7 @@ impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {
         unsafe { msg_send![self.obj, setObject: value forKeyedSubscript: key] }
     }
 
-    fn im_setValue_forKey(&mut self, key: K, value: V)
+    fn im_set_value_for_key(&mut self, key: K, value: V)
     where
         K: Into<NSString>,
         V: Into<id>,
@@ -218,33 +220,33 @@ impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {
         unsafe { msg_send![self.obj, setValue: value forKey: key] }
     }
 
-    fn im_addEntriesFromDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+    fn im_add_entries_from_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
         unsafe { msg_send![self.obj, addEntriesFromDictionary: dictionary] }
     }
 
-    fn im_setDictionary(&mut self, dictionary: NSDictionary<K, V>) {
+    fn im_set_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
         unsafe { msg_send![self.obj, setDictionary: dictionary] }
     }
 
-    fn im_removeObjectForKey(&mut self, key: K)
+    fn im_remove_object_for_key(&mut self, key: K)
     where
         K: Into<id>,
     {
         unsafe { msg_send![self.obj, removeObjectForKey: key] }
     }
 
-    fn im_removeAllObjects(&mut self) {
+    fn im_remove_all_objects(&mut self) {
         unsafe { msg_send![self.obj, removeAllObjects] }
     }
 
-    fn im_removeObjectsForKeys(&mut self, keys: NSArray<K>)
+    fn im_remove_objects_for_keys(&mut self, keys: NSArray<K>)
     where
         K: PNSObject,
     {
         unsafe { msg_send![self.obj, removeObjectsForKeys: keys] }
     }
 
-    fn tm_dictionaryWithCapacity(capacity: UInt) -> Self
+    fn tm_dictionary_with_capacity(capacity: UInt) -> Self
 where {
         Self {
             obj: unsafe {
@@ -277,7 +279,7 @@ impl<K, V> FromId for NSMutableDictionary<K, V> {
 
 impl<K, V> Default for NSMutableDictionary<K, V> {
     fn default() -> Self {
-        Self::tm_dictionaryWithCapacity(0)
+        Self::tm_dictionary_with_capacity(0)
     }
 }
 
@@ -287,7 +289,7 @@ where
     V: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.ip_debugDescription())
+        write!(f, "{}", self.ip_debug_description())
     }
 }
 
@@ -374,7 +376,7 @@ where
         let mut dictionary = NSMutableDictionary::<K, V>::default();
 
         for (key, value) in map {
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -390,7 +392,7 @@ where
 
         for (key, value) in map {
             let value = NSString::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -406,7 +408,7 @@ where
 
         for (key, value) in map {
             let key = NSString::from(key);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -420,7 +422,7 @@ impl From<HashMap<&str, &str>> for NSMutableDictionary<NSString, NSString> {
         for (key, value) in map {
             let key = NSString::from(key);
             let value = NSString::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -434,7 +436,7 @@ impl From<HashMap<&str, UInt>> for NSMutableDictionary<NSString, NSNumber> {
         for (key, value) in map {
             let key = NSString::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -448,7 +450,7 @@ impl From<HashMap<&str, UInt8>> for NSMutableDictionary<NSString, NSNumber> {
         for (key, value) in map {
             let key = NSString::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -462,7 +464,7 @@ impl From<HashMap<&str, UInt16>> for NSMutableDictionary<NSString, NSNumber> {
         for (key, value) in map {
             let key = NSString::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -476,7 +478,7 @@ impl From<HashMap<&str, UInt32>> for NSMutableDictionary<NSString, NSNumber> {
         for (key, value) in map {
             let key = NSString::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -490,7 +492,7 @@ impl From<HashMap<&str, Int>> for NSMutableDictionary<NSString, NSNumber> {
         for (key, value) in map {
             let key = NSString::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -504,7 +506,7 @@ impl From<HashMap<&str, Int8>> for NSMutableDictionary<NSString, NSNumber> {
         for (key, value) in map {
             let key = NSString::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -518,7 +520,7 @@ impl From<HashMap<&str, Int16>> for NSMutableDictionary<NSString, NSNumber> {
         for (key, value) in map {
             let key = NSString::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -532,7 +534,7 @@ impl From<HashMap<&str, Int32>> for NSMutableDictionary<NSString, NSNumber> {
         for (key, value) in map {
             let key = NSString::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -546,7 +548,7 @@ impl From<HashMap<UInt, &str>> for NSMutableDictionary<NSNumber, NSString> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSString::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -560,7 +562,7 @@ impl From<HashMap<UInt, UInt>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -574,7 +576,7 @@ impl From<HashMap<UInt, UInt8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -588,7 +590,7 @@ impl From<HashMap<UInt, UInt16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -602,7 +604,7 @@ impl From<HashMap<UInt, UInt32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -616,7 +618,7 @@ impl From<HashMap<UInt, Int>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -630,7 +632,7 @@ impl From<HashMap<UInt, Int8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -644,7 +646,7 @@ impl From<HashMap<UInt, Int16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -658,7 +660,7 @@ impl From<HashMap<UInt, Int32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -672,7 +674,7 @@ impl From<HashMap<UInt8, &str>> for NSMutableDictionary<NSNumber, NSString> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSString::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -686,7 +688,7 @@ impl From<HashMap<UInt8, UInt>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -700,7 +702,7 @@ impl From<HashMap<UInt8, UInt8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -714,7 +716,7 @@ impl From<HashMap<UInt8, UInt16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -728,7 +730,7 @@ impl From<HashMap<UInt8, UInt32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -742,7 +744,7 @@ impl From<HashMap<UInt8, Int>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -756,7 +758,7 @@ impl From<HashMap<UInt8, Int8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -770,7 +772,7 @@ impl From<HashMap<UInt8, Int16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -784,7 +786,7 @@ impl From<HashMap<UInt8, Int32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -798,7 +800,7 @@ impl From<HashMap<UInt16, &str>> for NSMutableDictionary<NSNumber, NSString> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSString::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -812,7 +814,7 @@ impl From<HashMap<UInt16, UInt>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -826,7 +828,7 @@ impl From<HashMap<UInt16, UInt8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -840,7 +842,7 @@ impl From<HashMap<UInt16, UInt16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -854,7 +856,7 @@ impl From<HashMap<UInt16, UInt32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -868,7 +870,7 @@ impl From<HashMap<UInt16, Int>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -882,7 +884,7 @@ impl From<HashMap<UInt16, Int8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -896,7 +898,7 @@ impl From<HashMap<UInt16, Int16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -910,7 +912,7 @@ impl From<HashMap<UInt16, Int32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -924,7 +926,7 @@ impl From<HashMap<UInt32, &str>> for NSMutableDictionary<NSNumber, NSString> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSString::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -938,7 +940,7 @@ impl From<HashMap<UInt32, UInt>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -952,7 +954,7 @@ impl From<HashMap<UInt32, UInt8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -966,7 +968,7 @@ impl From<HashMap<UInt32, UInt16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -980,7 +982,7 @@ impl From<HashMap<UInt32, UInt32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -994,7 +996,7 @@ impl From<HashMap<UInt32, Int>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1008,7 +1010,7 @@ impl From<HashMap<UInt32, Int8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1022,7 +1024,7 @@ impl From<HashMap<UInt32, Int16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1036,7 +1038,7 @@ impl From<HashMap<UInt32, Int32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1050,7 +1052,7 @@ impl From<HashMap<Int, &str>> for NSMutableDictionary<NSNumber, NSString> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSString::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1064,7 +1066,7 @@ impl From<HashMap<Int, UInt>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1078,7 +1080,7 @@ impl From<HashMap<Int, UInt8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1092,7 +1094,7 @@ impl From<HashMap<Int, UInt16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1106,7 +1108,7 @@ impl From<HashMap<Int, UInt32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1120,7 +1122,7 @@ impl From<HashMap<Int, Int>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1134,7 +1136,7 @@ impl From<HashMap<Int, Int8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1148,7 +1150,7 @@ impl From<HashMap<Int, Int16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1162,7 +1164,7 @@ impl From<HashMap<Int, Int32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1176,7 +1178,7 @@ impl From<HashMap<Int8, &str>> for NSMutableDictionary<NSNumber, NSString> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSString::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1190,7 +1192,7 @@ impl From<HashMap<Int8, UInt>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1204,7 +1206,7 @@ impl From<HashMap<Int8, UInt8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1218,7 +1220,7 @@ impl From<HashMap<Int8, UInt16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1232,7 +1234,7 @@ impl From<HashMap<Int8, UInt32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1246,7 +1248,7 @@ impl From<HashMap<Int8, Int>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1260,7 +1262,7 @@ impl From<HashMap<Int8, Int8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1274,7 +1276,7 @@ impl From<HashMap<Int8, Int16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1288,7 +1290,7 @@ impl From<HashMap<Int8, Int32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1302,7 +1304,7 @@ impl From<HashMap<Int16, &str>> for NSMutableDictionary<NSNumber, NSString> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSString::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1316,7 +1318,7 @@ impl From<HashMap<Int16, UInt>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1330,7 +1332,7 @@ impl From<HashMap<Int16, UInt8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1344,7 +1346,7 @@ impl From<HashMap<Int16, UInt16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1358,7 +1360,7 @@ impl From<HashMap<Int16, UInt32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1372,7 +1374,7 @@ impl From<HashMap<Int16, Int>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1386,7 +1388,7 @@ impl From<HashMap<Int16, Int8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1400,7 +1402,7 @@ impl From<HashMap<Int16, Int16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1414,7 +1416,7 @@ impl From<HashMap<Int16, Int32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1428,7 +1430,7 @@ impl From<HashMap<Int32, &str>> for NSMutableDictionary<NSNumber, NSString> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSString::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1442,7 +1444,7 @@ impl From<HashMap<Int32, UInt>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1456,7 +1458,7 @@ impl From<HashMap<Int32, UInt8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1470,7 +1472,7 @@ impl From<HashMap<Int32, UInt16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1484,7 +1486,7 @@ impl From<HashMap<Int32, UInt32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1498,7 +1500,7 @@ impl From<HashMap<Int32, Int>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1512,7 +1514,7 @@ impl From<HashMap<Int32, Int8>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1526,7 +1528,7 @@ impl From<HashMap<Int32, Int16>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary
@@ -1540,7 +1542,7 @@ impl From<HashMap<Int32, Int32>> for NSMutableDictionary<NSNumber, NSNumber> {
         for (key, value) in map {
             let key = NSNumber::from(key);
             let value = NSNumber::from(value);
-            dictionary.im_setObject_forKey(key, value);
+            dictionary.im_set_object_for_key(key, value);
         }
 
         dictionary

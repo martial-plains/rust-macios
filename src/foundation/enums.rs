@@ -137,6 +137,7 @@ pub enum NSUrlRequestCachePolicy {
 
 impl NSUrlRequestCachePolicy {
     /// Replaced by NSURLRequestReloadIgnoringLocalCacheData.
+    #[allow(non_upper_case_globals)]
     pub const ReloadIgnoringCacheData: Self = Self::ReloadIgnoringLocalCacheData;
 }
 
@@ -223,8 +224,10 @@ pub enum NSDateFormatterBehavior {
     Default = 0,
     /// Specifies formatting behavior equivalent to that in OS X 10.0.
     #[cfg(target_os = "macos")]
+    #[allow(non_camel_case_types)]
     Mode_10_0 = 1000,
     /// Specifies formatting behavior equivalent for OS X 10.4.
+    #[allow(non_camel_case_types)]
     Mode_10_4 = 1040,
 }
 
@@ -619,7 +622,9 @@ pub enum NSNumberFormatterStyle {
 pub enum NSNumberFormatterBehavior {
     Default = 0,
     #[cfg(target_os = "macos")]
+    #[allow(non_camel_case_types)]
     Version_10_0 = 1000,
+    #[allow(non_camel_case_types)]
     Version_10_4 = 1040,
 }
 
@@ -1095,6 +1100,7 @@ pub enum NSTextCheckingType {
 #[derive(Debug)]
 #[repr(u64)]
 pub enum NSTextCheckingTypes {
+    #[allow(non_camel_case_types)]
     llSystemTypes = 0xffffffff,
     AllCustomTypes = 0xffffffff00000000,
     AllTypes = 0xffffffffffffffff,

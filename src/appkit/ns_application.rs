@@ -4,16 +4,15 @@ use objc::{
     class,
     declare::ClassDecl,
     msg_send,
-    runtime::{Class, Object},
+    runtime::{Class, Object, Protocol, Sel},
     sel, sel_impl,
 };
 use objc_id::Id;
 
 use crate::{
-    foundation::{NSArray, NSAutoreleasePool},
-    id,
+    foundation::{NSArray, NSAutoreleasePool, NSString},
     objective_c_runtime::{
-        nil,
+        id, nil,
         traits::{FromId, PNSObject},
     },
 };
@@ -25,7 +24,7 @@ use super::{
     PNSApplicationDelegate,
 };
 
-pub(crate) static NSApplication_PTR: &str = "rstNSApplicationPtr";
+pub(crate) static NSAPPLICATION_PTR: &str = "rstNSApplicationPtr";
 
 fn register_app_class() -> *const Class {
     static mut APP_CLASS: *const Class = 0 as *const Class;
@@ -62,13 +61,13 @@ pub struct NSApplication<T = (), M = ()> {
 impl NSApplication {
     /// Registers for remote notifications from APNS.
     pub fn register_for_remote_notifications() {
-        shared_application(|app| app.im_registerForRemoteNotifications());
+        shared_application(|app| app.im_register_for_remote_notifications());
     }
 
     /// Unregisters for remote notifications from APNS.
     pub fn unregister_for_remote_notifications() {
         shared_application(|app| {
-            app.im_unregisterForRemoteNotifications();
+            app.im_unregister_for_remote_notifications();
         });
     }
 
@@ -76,9 +75,9 @@ impl NSApplication {
     pub fn set_relaunch_on_login(relaunch: bool) {
         shared_application(|app| {
             if relaunch {
-                app.im_enableRelaunchOnLogin();
+                app.im_enable_relaunch_on_login();
             } else {
-                app.im_disableRelaunchOnLogin();
+                app.im_disable_relaunch_on_login();
             }
         });
     }
@@ -87,13 +86,13 @@ impl NSApplication {
     /// from your trait implementation of `should_terminate()`.
     pub fn reply_to_termination_request(should_terminate: bool) {
         shared_application(|app| {
-            app.replyToApplicationShouldTerminate(should_terminate);
+            app.reply_to_application_should_terminate(should_terminate);
         });
     }
 
     /// An optional call that you can use for certain scenarios surrounding opening/printing files.
     pub fn reply_to_open_or_print(response: NSApplicationDelegateReply) {
-        shared_application(|app| app.replyToOpenOrPrint(response));
+        shared_application(|app| app.reply_to_open_or_print(response));
     }
 
     /// Sets a set of `Menu`'s as the top level Menu for the current application. Note that behind
@@ -112,7 +111,7 @@ impl NSApplication {
             main_menu
         };
 
-        shared_application(move |app| app.ip_setMainMenu(main_menu.clone()));
+        shared_application(move |app| app.ip_set_main_menu(main_menu.clone()));
     }
 
     /// Terminates the application, firing the requisite cleanup delegate methods in the process.
@@ -126,7 +125,7 @@ impl NSApplication {
     /// routines after the NSMenu has been set, otherwise it won't be interact-able without
     /// switching away from the app and then coming back.
     pub fn activate<T>(app: &NSApplication<T>) {
-        app.im_setActivationPolicy(NSApplicationActivationPolicy::Regular);
+        app.im_set_activation_policy(NSApplicationActivationPolicy::Regular);
         let mut current_app = NSRunningApplication::current_application();
         current_app.activate_with_options(NSApplicationActivationOptions::IgnoringOtherWindows);
     }
@@ -163,7 +162,7 @@ where
             let delegate_class = register_app_delegate_class::<T>();
             let delegate: id = msg_send![delegate_class, new];
             let delegate_ptr: *const T = &*app_delegate;
-            (&mut *delegate).set_ivar(NSApplication_PTR, delegate_ptr as usize);
+            (&mut *delegate).set_ivar(NSAPPLICATION_PTR, delegate_ptr as usize);
             let _: () = msg_send![&*ptr, setDelegate: delegate];
             Id::from_ptr(delegate)
         };
@@ -183,7 +182,7 @@ impl<T> PNSObject for NSApplication<T, ()> {
         unsafe { &*register_app_class() }
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         unsafe { msg_send![self.ptr, isEqual: object] }
     }
 
@@ -191,39 +190,39 @@ impl<T> PNSObject for NSApplication<T, ()> {
         unsafe { msg_send![self.ptr, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: Class) -> bool {
-        unsafe { msg_send![self.ptr, isKindOfClass: aClass] }
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.ptr, isKindOfClass: class] }
     }
 
-    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
-        unsafe { msg_send![self.ptr, isMemberOfClass: aClass] }
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { msg_send![self.ptr, isMemberOfClass: class] }
     }
 
-    fn im_respondsToSelector(&self, aSelector: objc::runtime::Sel) -> bool {
-        unsafe { msg_send![self.ptr, respondsToSelector: aSelector] }
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { msg_send![self.ptr, respondsToSelector: selector] }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: objc::runtime::Protocol) -> bool {
-        unsafe { msg_send![self.ptr, conformsToProtocol: aProtocol] }
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        unsafe { msg_send![self.ptr, conformsToProtocol: protocol] }
     }
 
-    fn ip_description(&self) -> crate::foundation::NSString {
+    fn ip_description(&self) -> NSString {
         unsafe { msg_send![self.ptr, description] }
     }
 
-    fn ip_debugDescription(&self) -> crate::foundation::NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe { msg_send![self.ptr, debugDescription] }
     }
 
-    fn im_performSelector(&self, aSelector: objc::runtime::Sel) -> id {
-        unsafe { msg_send![self.ptr, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.ptr, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: objc::runtime::Sel, withObject: id) -> id {
-        unsafe { msg_send![self.ptr, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.ptr, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         unsafe { msg_send![self.ptr, isProxy] }
     }
 }
@@ -231,7 +230,7 @@ impl<T> PNSObject for NSApplication<T, ()> {
 impl<T> INSResponder for NSApplication<T, ()> {}
 
 impl<T> INSApplication for NSApplication<T, ()> {
-    fn tp_sharedApplication() -> Self {
+    fn tp_shared_application() -> Self {
         unsafe {
             NSApplication {
                 ptr: Id::from_ptr(msg_send![register_app_class(), sharedApplication]),
@@ -247,43 +246,48 @@ impl<T> INSApplication for NSApplication<T, ()> {
         unsafe { msg_send![self.ptr, terminate: sender] }
     }
 
-    fn replyToApplicationShouldTerminate(self, shouldTerminate: bool) {
-        unsafe { msg_send![self.ptr, replyToApplicationShouldTerminate: shouldTerminate] }
+    fn reply_to_application_should_terminate(self, should_terminate: bool) {
+        unsafe {
+            msg_send![
+                self.ptr,
+                replyToApplicationShouldTerminate: should_terminate
+            ]
+        }
     }
 
-    fn im_disableRelaunchOnLogin(&self) {
+    fn im_disable_relaunch_on_login(&self) {
         unsafe { msg_send![self.ptr, disableRelaunchOnLogin] }
     }
 
-    fn im_enableRelaunchOnLogin(&self) {
+    fn im_enable_relaunch_on_login(&self) {
         unsafe { msg_send![self.ptr, enableRelaunchOnLogin] }
     }
 
-    fn im_registerForRemoteNotifications(&self) {
+    fn im_register_for_remote_notifications(&self) {
         unsafe { msg_send![self.ptr, registerForRemoteNotifications] }
     }
 
-    fn im_unregisterForRemoteNotifications(&self) {
+    fn im_unregister_for_remote_notifications(&self) {
         unsafe { msg_send![self.ptr, unregisterForRemoteNotifications] }
     }
 
-    fn replyToOpenOrPrint(self, response: NSApplicationDelegateReply) {
+    fn reply_to_open_or_print(self, response: NSApplicationDelegateReply) {
         unsafe { msg_send![self.ptr, replyToOpenOrPrint: response] }
     }
 
-    fn im_activationPolicy(&self) -> NSApplicationActivationPolicy {
+    fn im_activation_policy(&self) -> NSApplicationActivationPolicy {
         unsafe { msg_send![self.ptr, activationPolicy] }
     }
 
-    fn im_setActivationPolicy(&self, policy: NSApplicationActivationPolicy) {
+    fn im_set_activation_policy(&self, policy: NSApplicationActivationPolicy) {
         unsafe { msg_send![self.ptr, setActivationPolicy: policy] }
     }
 
-    fn ip_mainMenu(&self) -> NSMenu {
+    fn ip_main_menu(&self) -> NSMenu {
         unsafe { NSMenu::from_id(msg_send![self.ptr, mainMenu]) }
     }
 
-    fn ip_setMainMenu(&self, menu: NSMenu) {
+    fn ip_set_main_menu(&self, menu: NSMenu) {
         unsafe { msg_send![self.ptr, setMainMenu: menu] }
     }
 }

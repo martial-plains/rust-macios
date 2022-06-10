@@ -1,4 +1,4 @@
-use crate::{id, objective_c_runtime::traits::PNSObject};
+use crate::objective_c_runtime::{id, traits::PNSObject};
 
 /// An object that supports Cocoa’s reference-counted memory management system.
 pub trait INSAutoreleasePool: PNSObject {
@@ -16,5 +16,5 @@ pub trait INSAutoreleasePool: PNSObject {
     /// # Arguments
     ///
     /// * `object` - The object to be added to the pool in the current thread.
-    fn im_addObject(&mut self, object: id);
+    fn im_add_object(&mut self, object: id);
 }

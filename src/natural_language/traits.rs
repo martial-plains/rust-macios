@@ -13,7 +13,7 @@ pub trait INLTokenizer: PNSObject {
      */
 
     /// Creates a tokenizer with the specified unit.
-    fn im_initWithUnit(unit: NLTokenUnit) -> Self;
+    fn im_init_with_unit(unit: NLTokenUnit) -> Self;
 
     /* Configuring a Tokenizer
      */
@@ -22,10 +22,10 @@ pub trait INLTokenizer: PNSObject {
     fn ip_string(&self) -> NSString;
 
     /// Sets the text to be tokenized.
-    fn ip_setString(&self, string: NSString);
+    fn ip_set_string(&self, string: NSString);
 
     /// Sets the language of the text to be tokenized.
-    fn im_setLanguage(&self, language: NLLanguage);
+    fn im_set_language(&self, language: NLLanguage);
 
     /// The linguistic unit that this tokenizer uses.
     fn ip_unit(&self) -> NLTokenUnit;
@@ -34,22 +34,22 @@ pub trait INLTokenizer: PNSObject {
      */
 
     /// Enumerates over a given range of the string and calls the specified block for each token.
-    fn im_enumerateTokensInRange_usingBlock(
+    fn im_enumerate_tokens_in_range_using_block(
         &self,
         range: NSRange,
         block: RcBlock<(NSRange, NLTokenizerAttributes, *mut bool), ()>,
     );
 
     /// Tokenizes the string within the provided range.
-    fn im_tokensForRange<T>(&self, range: NSRange) -> NSArray<T>
+    fn im_tokens_for_range<T>(&self, range: NSRange) -> NSArray<T>
     where
         T: INSValue;
 
     /// Finds the range of the token at the given index.
-    fn im_tokenRangeAtIndex(&self, character_index: UInt) -> NSRange;
+    fn im_token_range_at_index(&self, character_index: UInt) -> NSRange;
 
     /// Finds the entire range of all tokens contained completely or partially within the specified range.
-    fn im_tokenRangeForRange(&self, range: NSRange) -> NSRange;
+    fn im_token_range_for_range(&self, range: NSRange) -> NSRange;
 }
 
 /// The language of a body of text.
@@ -65,16 +65,16 @@ pub trait INLLanguageRecognizer: PNSObject {
      */
 
     /// Finds the most likely language of a piece of text.
-    fn tm_dominantLanguageForString(&self, string: NSString) -> NLLanguage;
+    fn tm_dominant_language_for_string(&self, string: NSString) -> NLLanguage;
 
     /// Analyzes the piece of text to determine its dominant language.
-    fn im_processString(&mut self, string: NSString);
+    fn im_process_string(&mut self, string: NSString);
 
     /// The most likely language for the processed text.
-    fn ip_dominantLanguage(&self) -> NSString;
+    fn ip_dominant_language(&self) -> NSString;
 
     /// Generates the probabilities of possible languages for the processed text.
-    fn im_languageHypothesesWithMaximum(
+    fn im_language_hypotheses_with_maximum(
         &self,
         max_hypotheses: UInt,
     ) -> NSDictionary<NLLanguage, NSNumber>;
@@ -86,14 +86,14 @@ pub trait INLLanguageRecognizer: PNSObject {
      */
 
     /// A dictionary that maps languages to their probabilities in the language identification process.
-    fn ip_languageHints(&self) -> NSDictionary<NLLanguage, NSNumber>;
+    fn ip_language_hints(&self) -> NSDictionary<NLLanguage, NSNumber>;
 
     /// Sets a dictionary that maps languages to their probabilities in the language identification process.
-    fn ip_setLanguageHints(&self, language_hints: NSDictionary<NLLanguage, NSNumber>);
+    fn ip_set_language_hints(&self, language_hints: NSDictionary<NLLanguage, NSNumber>);
 
     /// Limits the set of possible languages that the recognizer will return.
-    fn ip_languageConstraints(&self) -> NSArray<NLLanguage>;
+    fn ip_language_constraints(&self) -> NSArray<NLLanguage>;
 
     /// Sets the limits  of the set of possible languages that the recognizer will return.
-    fn ip_setLanguageConstraints(&self, language_constraints: NSArray<NLLanguage>);
+    fn ip_set_language_constraints(&self, language_constraints: NSArray<NLLanguage>);
 }

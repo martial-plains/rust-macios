@@ -5,7 +5,10 @@ use objc_id::Id;
 
 use crate::{
     foundation::NSString,
-    objective_c_runtime::traits::{FromId, INSObject},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, INSObject},
+    },
 };
 
 use super::traits::{IBGProcessingTaskRequest, IBGTaskRequest};
@@ -23,11 +26,11 @@ impl INSObject for BGProcessingTaskRequest {
         }
     }
 
-    fn toId(mut self) -> crate::id {
+    fn to_id(mut self) -> id {
         &mut *self.ptr
     }
 
-    unsafe fn fromId(obj: crate::id) -> Self {
+    unsafe fn from_id(obj: id) -> Self {
         Self {
             ptr: Id::from_ptr(obj),
         }
@@ -37,17 +40,17 @@ impl INSObject for BGProcessingTaskRequest {
         unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
-    fn debugDescription(&self) -> NSString {
+    fn debug_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
     fn retain(&self) -> Self {
-        unsafe { Self::fromId(msg_send![self.ptr, retain]) }
+        unsafe { Self::from_id(msg_send![self.ptr, retain]) }
     }
 }
 
 impl IBGTaskRequest for BGProcessingTaskRequest {
-    fn ip_earliestBeginDate() -> crate::foundation::NSDate {
+    fn ip_earliest_begin_date() -> crate::foundation::NSDate {
         unsafe {
             crate::foundation::NSDate::from_id(msg_send![
                 class!(BGProcessingTaskRequest),
@@ -58,27 +61,27 @@ impl IBGTaskRequest for BGProcessingTaskRequest {
 }
 
 impl IBGProcessingTaskRequest for BGProcessingTaskRequest {
-    fn im_initWithIdentifier(identifier: NSString) -> Self {
+    fn im_init_with_identifier(identifier: NSString) -> Self {
         unsafe {
-            Self::fromId(msg_send![
+            Self::from_id(msg_send![
                 class!(BGProcessingTaskRequest),
                 initWithIdentifier: identifier
             ])
         }
     }
 
-    fn ip_requiresExternalPower() -> bool {
+    fn ip_requires_external_power() -> bool {
         unsafe { msg_send![class!(BGProcessingTaskRequest), requiresExternalPower] }
     }
 
-    fn ip_requiresNetworkConnectivity() -> bool {
+    fn ip_requires_network_connectivity() -> bool {
         unsafe { msg_send![class!(BGProcessingTaskRequest), requiresNetworkConnectivity] }
     }
 }
 
 impl fmt::Debug for BGProcessingTaskRequest {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.debugDescription())
+        write!(f, "{}", self.debug_description())
     }
 }
 

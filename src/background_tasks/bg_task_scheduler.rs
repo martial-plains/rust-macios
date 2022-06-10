@@ -3,9 +3,9 @@ use std::fmt;
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 use objc_id::Id;
 
-use crate::{
+use crate::objective_c_runtime::{
     id,
-    objective_c_runtime::traits::{FromId, INSObject},
+    traits::{FromId, INSObject},
 };
 
 use super::traits::IBGTaskScheduler;
@@ -23,11 +23,11 @@ impl INSObject for BGTaskScheduler {
         }
     }
 
-    fn toId(mut self) -> id {
+    fn to_id(mut self) -> id {
         &mut *self.ptr
     }
 
-    unsafe fn fromId(obj: id) -> Self {
+    unsafe fn from_id(obj: id) -> Self {
         Self {
             ptr: Id::from_ptr(obj),
         }
@@ -37,24 +37,24 @@ impl INSObject for BGTaskScheduler {
         unsafe { crate::foundation::NSString::from_id(msg_send![self.ptr, description]) }
     }
 
-    fn debugDescription(&self) -> crate::foundation::NSString {
+    fn debug_description(&self) -> crate::foundation::NSString {
         unsafe { crate::foundation::NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
     fn retain(&self) -> Self {
-        unsafe { Self::fromId(msg_send![self.ptr, retain]) }
+        unsafe { Self::from_id(msg_send![self.ptr, retain]) }
     }
 }
 
 impl IBGTaskScheduler for BGTaskScheduler {
-    fn tp_sharedScheduler() -> Self {
-        unsafe { Self::fromId(msg_send![class!(BGTaskScheduler), sharedScheduler]) }
+    fn tp_shared_scheduler() -> Self {
+        unsafe { Self::from_id(msg_send![class!(BGTaskScheduler), sharedScheduler]) }
     }
 }
 
 impl fmt::Debug for BGTaskScheduler {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.debugDescription())
+        write!(f, "{}", self.debug_description())
     }
 }
 

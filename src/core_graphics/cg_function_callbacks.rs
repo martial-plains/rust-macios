@@ -10,5 +10,5 @@ pub struct CGFunctionCallbacks {
     /// The callback that evaluates the function.
     pub evaluate: Option<*mut CGFunctionEvaluateCallback>,
     /// If non-NULL,the callback used to release the info parameterpassed to CGFunctionCreate.
-    pub releaseInfo: Option<*mut CGFunctionReleaseInfoCallback>,
+    pub release_info: Option<*mut CGFunctionReleaseInfoCallback>,
 }

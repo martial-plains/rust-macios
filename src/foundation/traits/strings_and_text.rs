@@ -41,7 +41,7 @@ pub trait INSString: PNSObject {
     ///
     /// An initialized NSString object containing length bytes from bytes interpreted using the encoding
     /// encoding. The returned object may be different from the original receiver.
-    fn im_initWithBytes_length_encoding(
+    fn im_init_with_bytes_length_encoding(
         self,
         bytes: *const c_void,
         len: UInt,
@@ -55,17 +55,17 @@ pub trait INSString: PNSObject {
     /// * `bytes` - A buffer of bytes interpreted in the encoding specified by encoding.
     /// * `len` - The number of bytes to use from bytes.
     /// * `encoding` - The character encoding applied to bytes. For possible values, see NSStringEncoding.
-    /// * `freeBuffer` - If YES, bytes is freed after use.
+    /// * `free_buffer` - If YES, bytes is freed after use.
     ///
     /// # Returns
     ///
     /// An initialized NSString object containing length bytes from bytes interpreted using the encoding encoding. The returned object may be different from the original receiver.
-    fn im_initWithBytesNoCopy_length_encoding_freeWhenDone(
+    fn im_init_with_bytes_no_copy_length_encoding_free_when_done(
         self,
         bytes: *mut c_void,
         len: UInt,
         encoding: Encoding,
-        freeBuffer: bool,
+        free_buffer: bool,
     ) -> Self;
 
     /// Returns an initialized NSString object that contains a given number of characters from
@@ -79,7 +79,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An initialized NSString object containing length characters from characters.
-    fn im_initWithCharacters_length(self, characters: *const unichar, len: UInt) -> Self;
+    fn im_init_with_characters_length(self, characters: *const unichar, len: UInt) -> Self;
 
     /// Returns an initialized NSString object that contains a given number of characters
     /// from a given C array of UTF-16 code units.
@@ -88,16 +88,16 @@ pub trait INSString: PNSObject {
     ///
     /// * `characters` - A C array of UTF-16 code units; the value must not be NULL.
     /// * `length` - A C array of UTF-16 code units; the value must not be NULL.
-    /// * `freeBuffer` - If YES, characters is freed after use.
+    /// * `free_buffer` - If YES, characters is freed after use.
     ///
     /// # Returns
     ///
     /// An initialized NSString object containing length characters from characters.
-    fn im_initWithCharactersNoCopy_length_freeWhenDone(
+    fn im_init_with_characters_no_copy_length_free_when_done(
         self,
         characters: unichar,
         length: UInt,
-        freeBuffer: bool,
+        free_buffer: bool,
     ) -> Self;
 
     /// Returns an NSString object initialized by copying the characters from another given string.
@@ -109,7 +109,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object initialized by copying the characters from s.
-    fn im_initWithString<S>(self, s: S) -> Self
+    fn im_init_with_string<S>(self, s: S) -> Self
     where
         S: Into<NSString>;
 
@@ -125,7 +125,7 @@ pub trait INSString: PNSObject {
     ///
     /// An NSString object initialized using the characters in c_str,
     /// interpreted according to encoding.
-    fn im_initWithCString_encoding(self, c_str: *const c_char, encoding: Encoding) -> Self;
+    fn im_init_with_cstring_encoding(self, c_str: *const c_char, encoding: Encoding) -> Self;
 
     /// Returns an NSString object initialized using the characters in a given C array,
     /// interpreted according to a UTF8 string.
@@ -138,7 +138,7 @@ pub trait INSString: PNSObject {
     ///
     /// An NSString object initialized using the characters in c_str,
     /// interpreted as a UTF8 string.
-    fn im_initWithUTF8String(self, c_str: *const c_char) -> Self;
+    fn im_init_with_utf8_string(self, c_str: *const c_char) -> Self;
 
     /// Returns an NSString object initialized by converting given data into
     /// UTF-16 code units using a given encoding.
@@ -151,7 +151,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object initialized by converting data into UTF-16 code units using encoding.
-    fn im_initWithData_encoding(self, data: NSData, encoding: Encoding) -> Self;
+    fn im_init_with_data_encoding(self, data: NSData, encoding: Encoding) -> Self;
 
     /// Returns a localized string intended for display in a notification alert.
     ///
@@ -159,7 +159,7 @@ pub trait INSString: PNSObject {
     ///
     /// * `key` - The key to use when looking up the string in the app’s Localizable.strings file.
     /// * `arguments` - An array of values to substitute for escaped characters in the string.
-    fn tm_localizedUserNotificationStringForKey_arguments<K, T>(
+    fn tm_localized_user_notification_string_for_key_arguments<K, T>(
         key: K,
         arguments: NSArray<T>,
     ) -> NSString
@@ -178,7 +178,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object containing length characters from characters.
-    fn tm_stringWithCharacters_length(characters: *const unichar, length: UInt) -> Self;
+    fn tm_string_with_characters_length(characters: *const unichar, length: UInt) -> Self;
 
     /// Returns a string created by copying the characters from another given string.
     ///
@@ -189,7 +189,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object initialized by copying the characters from s.
-    fn tm_stringWithString<S>(s: S) -> Self
+    fn tm_string_with_string<S>(s: S) -> Self
     where
         S: Into<NSString>;
 
@@ -204,7 +204,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object containing the bytes in c_str, interpreted according to encoding.
-    fn tm_stringWithCString_encoding(c_str: *const c_char, encoding: Encoding) -> Self;
+    fn tm_string_with_cstring_encoding(c_str: *const c_char, encoding: Encoding) -> Self;
 
     /// Returns a string created by copying the data from a given C array of
     /// UTF8-encoded bytes.
@@ -216,7 +216,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object containing the bytes in c_str, interpreted as a UTF8 string.
-    fn tm_stringWithUTF8String(c_str: *const c_char) -> Self;
+    fn tm_string_with_utf8_string(c_str: *const c_char) -> Self;
 
     /* Getting a String’s Length
      */
@@ -237,7 +237,7 @@ pub trait INSString: PNSObject {
     /// NULL character. Returns 0 if the specified encoding cannot be used to convert
     /// the receiver or if the amount of memory required for storing the results of the
     /// encoding conversion would exceed NSIntegerMax.
-    fn im_lengthOfBytesUsingEncoding(&self, enc: Encoding) -> UInt;
+    fn im_length_of_bytes_using_encoding(&self, enc: Encoding) -> UInt;
 
     /// Returns the maximum number of bytes needed to store the receiver in a given encoding.
     ///
@@ -251,7 +251,7 @@ pub trait INSString: PNSObject {
     /// representation. The length does not include space for a terminating NULL character.
     /// Returns 0 if the amount of memory required for storing the results of the encoding
     /// conversion would exceed NSIntegerMax.
-    fn im_maximumLengthOfBytesUsingEncoding(&self, enc: Encoding) -> Int;
+    fn im_maximum_length_of_bytes_using_encoding(&self, enc: Encoding) -> Int;
 
     /* Getting Characters and Bytes
      */
@@ -265,7 +265,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// The character at the array position given by index.
-    fn im_characterAtIndex(&self, index: UInt) -> char;
+    fn im_character_at_index(&self, index: UInt) -> char;
 
     /// Copies characters from a given range in the receiver into a given buffer.
     ///
@@ -273,9 +273,8 @@ pub trait INSString: PNSObject {
     ///
     /// * `buffer` - Upon return, contains the characters from the receiver. buffer must be large enough to contain the characters in the range aRange (aRange.length*sizeof(unichar)).
     /// * `range` - The range of characters to copy.
-    fn im_getCharacters_range(&self, buffer: *mut unichar, range: Range<UInt>);
+    fn im_get_characters_range(&self, buffer: *mut unichar, range: Range<UInt>);
 
-    #[allow(clippy::too_many_arguments)]
     /// Gets a given range of characters as bytes in a specified encoding.
     ///
     /// # Arguments
@@ -287,15 +286,16 @@ pub trait INSString: PNSObject {
     /// * `options` - The options to use for converting the receiver into the specified encoding. For possible values, see `NSStringEncodingConversionOptions`.
     /// * `range` - The range of characters to get.
     /// * `remainingRange` - Upon return, contains a range containing the remaining characters.
-    fn im_getBytes_maxLength_usedLength_encoding_options_range_remainingRange(
+    #[allow(clippy::too_many_arguments)]
+    fn im_get_bytes_max_length_used_length_encoding_options_range_remaining_range(
         &self,
         buffer: *mut c_void,
-        maxLength: Int,
-        usedLength: *mut Int,
+        max_length: Int,
+        used_length: *mut Int,
         encoding: Encoding,
         options: NSStringEncodingConversionOptions,
         range: Range<UInt>,
-        remainingRange: Range<UInt>,
+        remaining_range: Range<UInt>,
     ) -> bool;
 
     /* Getting C Strings
@@ -310,7 +310,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// A pointer to a C string containing the receiver. The pointer is owned by the string, and must not be freed by the caller.
-    fn im_cStringUsingEncoding(&self, encoding: Encoding) -> *const c_char;
+    fn im_c_string_using_encoding(&self, encoding: Encoding) -> *const c_char;
 
     /// Returns a representation of the string as a C string.
     ///
@@ -323,15 +323,15 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// `true` if the operation was successful, otherwise `false`. Returns `false` if conversion is not possible due to encoding errors or if buffer is too small.
-    fn im_getCString_maxLength_encoding(
+    fn im_get_cstring_max_length_encoding(
         &self,
         buffer: *mut c_char,
-        maxLength: UInt,
+        max_length: UInt,
         encoding: Encoding,
     ) -> bool;
 
     /// A null-terminated UTF8 representation of the string.
-    fn ip_UTF8String(&self) -> *const c_char;
+    fn ip_utf8_string(&self) -> *const c_char;
 
     /* Identifying and Comparing Strings
      */
@@ -348,7 +348,7 @@ pub trait INSString: PNSObject {
     /// `OrderedAscending` the receiver precedes `string` in lexical ordering,
     /// `OrderedSame` the receiver and `string` are equivalent in lexical value,
     /// and `OrderedDescending` if the receiver follows `string`.
-    fn im_caseInsensitiveCompare<S>(&self, string: S) -> NSComparisonResult
+    fn im_case_insensitive_compare<S>(&self, string: S) -> NSComparisonResult
     where
         S: Into<NSString>;
 
@@ -364,7 +364,7 @@ pub trait INSString: PNSObject {
     /// `OrderedAscending` the receiver precedes `string` in lexical ordering,
     /// `OrderedSame` the receiver and `string` are equivalent in lexical value,
     /// and `OrderedDescending` if the receiver follows `string`
-    fn im_localizedCaseInsensitiveCompare<S>(&self, string: S) -> NSComparisonResult
+    fn im_localized_case_insensitive_compare<S>(&self, string: S) -> NSComparisonResult
     where
         S: Into<NSString>;
 
@@ -401,7 +401,7 @@ pub trait INSString: PNSObject {
     /// `OrderedAscending` the receiver precedes `string` in lexical ordering,
     /// `OrderedSame` the receiver and `string` are equivalent in lexical value,
     /// and `OrderedDescending` if the receiver follows `string`
-    fn im_localizedCompare<S>(&self, string: S) -> NSComparisonResult
+    fn im_localized_compare<S>(&self, string: S) -> NSComparisonResult
     where
         S: Into<NSString>;
 
@@ -479,7 +479,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// Returns `true` if the string begins with the prefix, otherwise `false`.
-    fn im_hasPrefix<S>(&self, prefix: S) -> bool
+    fn im_has_prefix<S>(&self, prefix: S) -> bool
     where
         S: Into<NSString>;
 
@@ -492,7 +492,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// Returns `true` if the string ends with the suffix, otherwise `false`.
-    fn im_hasSuffix<S>(&self, suffix: S) -> bool
+    fn im_has_suffix<S>(&self, suffix: S) -> bool
     where
         S: Into<NSString>;
 
@@ -505,7 +505,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// Returns `true` if the string is equal to the receiver, otherwise `false`.
-    fn im_isEqualToString<S>(&self, string: S) -> bool
+    fn im_is_equal_to_string<S>(&self, string: S) -> bool
     where
         S: Into<NSString>;
 
@@ -517,7 +517,7 @@ pub trait INSString: PNSObject {
     /// # Arguments
     ///
     /// * `string` - The string to append to the receiver. This value must not be nil.
-    fn im_stringByAppendingString<S>(&self, string: S) -> NSString
+    fn im_string_by_appending_string<S>(&self, string: S) -> NSString
     where
         S: Into<NSString>;
 
@@ -532,7 +532,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// A new string formed from the receiver by either removing characters from the end, or by appending as many occurrences of `pad_string` as necessary.
-    fn im_stringByPaddingToLength_withString_startingAtIndex<S>(
+    fn im_string_by_padding_to_length_with_string_starting_at_index<S>(
         &self,
         new_length: UInt,
         pad_string: S,
@@ -545,11 +545,11 @@ pub trait INSString: PNSObject {
      */
 
     /// A lowercase representation of the string.
-    fn ip_lowercaseString(&self) -> NSString;
+    fn ip_lowercase_string(&self) -> NSString;
 
     /// Returns a version of the string with all letters converted to lowercase,
     /// taking into account the current locale.
-    fn ip_localizedLowercaseString(&self) -> NSString;
+    fn ip_localized_lowercase_string(&self) -> NSString;
 
     /// Returns a version of the string with all letters converted to
     /// lowercase, taking into account the specified locale.
@@ -561,14 +561,14 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// A new string with all letters converted to lowercase.
-    fn im_lowercaseStringWithLocale(&self, locale: NSLocale) -> NSString;
+    fn im_lowercase_string_with_locale(&self, locale: NSLocale) -> NSString;
 
     /// An uppercase representation of the string.
-    fn ip_uppercaseString(&self) -> NSString;
+    fn ip_uppercase_string(&self) -> NSString;
 
     /// Returns a version of the string with all letters converted to uppercase,
     /// taking into account the current locale.
-    fn ip_localizedUppercaseString(&self) -> NSString;
+    fn ip_localized_uppercase_string(&self) -> NSString;
 
     /// Returns a version of the string with all letters converted to uppercase,
     /// taking into account the specified locale.
@@ -580,24 +580,24 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// A new string with all letters converted to uppercase.
-    fn im_uppercaseStringWithLocale(&self, locale: NSLocale) -> NSString;
+    fn im_uppercase_string_with_locale(&self, locale: NSLocale) -> NSString;
 
     /// A capitalized representation of the string.
-    fn ip_capitalizedString(&self) -> NSString;
+    fn ip_capitalized_string(&self) -> NSString;
 
     /// Returns a capitalized representation of the receiver using the current
     /// locale.
-    fn ip_localizedCapitalizedString(&self) -> NSString;
+    fn ip_localized_capitalized_string(&self) -> NSString;
 
     /// Returns a capitalized representation of the receiver using the
     /// specified locale.
-    fn im_capitalizedStringWithLocale(&self, locale: NSLocale) -> NSString;
+    fn im_capitalized_string_with_locale(&self, locale: NSLocale) -> NSString;
 
     /* Dividing Strings
      */
 
     /// Returns an array containing substrings from the receiver that have been divided by a given separator.
-    fn im_componentsSeparatedByString<S>(&self, separator: S) -> NSArray<NSString>
+    fn im_components_separated_by_string<S>(&self, separator: S) -> NSArray<NSString>
     where
         S: Into<NSString>;
 
@@ -613,7 +613,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// Returns `true` if `string` is contained in the receiver, otherwise `false`.
-    fn im_containsString<S>(&self, other: S) -> bool
+    fn im_contains_string<S>(&self, other: S) -> bool
     where
         S: Into<NSString>;
 
@@ -626,7 +626,7 @@ pub trait INSString: PNSObject {
     ///
     /// * `transform` - The `StringTransform` to apply.
     /// * `reverse` - If `true`, the transformation is applied in reverse.
-    fn im_stringByApplyingTransform_reverse(
+    fn im_string_by_applying_transform_reverse(
         &mut self,
         transform: NSStringTransform,
         reverse: bool,
@@ -636,16 +636,16 @@ pub trait INSString: PNSObject {
      */
 
     /// Returns a zero-terminated list of the encodings string objects support in the application’s environment.
-    fn tp_availableStringEncodings() -> *const Encoding;
+    fn tp_available_string_encodings() -> *const Encoding;
 
     /// Returns the C-string encoding assumed for any method accepting a C string as an argument.
-    fn tp_defaultCStringEncoding() -> Encoding;
+    fn tp_default_cstring_encoding() -> Encoding;
 
     /// Returns a Boolean value that indicates whether the receiver can be converted to a given encoding without loss of information.
-    fn im_canBeConvertedToEncoding(&self, encoding: Encoding) -> bool;
+    fn im_can_be_converted_to_encoding(&self, encoding: Encoding) -> bool;
 
     /// Returns an NSData object containing a representation of the receiver encoded using a given encoding.
-    fn im_dataUsingEncoding(&self, encoding: Encoding) -> NSData;
+    fn im_data_using_encoding(&self, encoding: Encoding) -> NSData;
 }
 
 /// A dynamic plain-text Unicode string object.
@@ -663,7 +663,7 @@ pub trait INSMutableString: INSString {
     /// # Returns
     ///
     /// An empty NSMutableString object with initial storage for a given number of characters.
-    fn tm_stringWithCapacity(capacity: UInt) -> NSMutableString;
+    fn tm_string_with_capacity(capacity: UInt) -> NSMutableString;
 
     /// Returns an NSMutableString object initialized with initial storage for
     /// a given number of characters,
@@ -671,7 +671,7 @@ pub trait INSMutableString: INSString {
     /// # Arguments
     ///
     /// * `capacity` - The number of characters to allocate space for.
-    fn im_initWithCapacity(self, capacity: UInt) -> NSMutableString;
+    fn im_init_with_capacity(self, capacity: UInt) -> NSMutableString;
 
     /* Modifying a String
      */
@@ -681,7 +681,7 @@ pub trait INSMutableString: INSString {
     /// # Arguments
     ///
     /// * `string` - The string to append to the receiver.
-    fn im_appendString<S>(&mut self, string: S)
+    fn im_append_string<S>(&mut self, string: S)
     where
         S: Into<NSString>;
 
@@ -697,7 +697,7 @@ pub trait INSMutableString: INSString {
     /// # Returns
     ///
     /// `true` if the transformation was successful, otherwise `false`.
-    fn im_applyTransform_reverse_range_updatedRange(
+    fn im_apply_transform_reverse_range_updated_range(
         &mut self,
         transform: NSStringTransform,
         reverse: bool,
@@ -710,7 +710,7 @@ pub trait INSMutableString: INSString {
     /// # Arguments
     ///
     /// * `range` - The range of characters to remove.
-    fn im_deleteCharactersInRange(&mut self, range: Range<UInt>);
+    fn im_delete_characters_in_range(&mut self, range: Range<UInt>);
 
     /// Inserts into the receiver the characters of a given string at a given
     /// location.
@@ -719,7 +719,7 @@ pub trait INSMutableString: INSString {
     ///
     /// * `string` - The string to insert into the receiver.
     /// * `loc` - The location at which to insert `string`.
-    fn im_insertString_atIndex<S>(&mut self, string: S, loc: UInt)
+    fn im_insert_string_at_index<S>(&mut self, string: S, loc: UInt)
     where
         S: Into<NSString>;
 
@@ -729,18 +729,18 @@ pub trait INSMutableString: INSString {
     ///
     /// * `range` - The range of characters to replace.
     /// * `string` - The string to replace with.
-    fn im_replaceCharactersInRange_withString<S>(&mut self, range: Range<UInt>, string: S)
+    fn im_replace_characters_in_range_with_string<S>(&mut self, range: Range<UInt>, string: S)
     where
         S: Into<NSString>;
 
     /// Replaces all occurrences of a given string in a given range with
     /// another given string, returning the number of replacements.
-    fn im_replaceOccurrencesOfString_withString_options_range<S>(
+    fn im_replace_occurrences_of_string_with_string_options_range<S>(
         &mut self,
         target: NSString,
         replacement: S,
         options: NSStringCompareOptions,
-        searchRange: Range<UInt>,
+        search_range: Range<UInt>,
     ) -> UInt
     where
         S: Into<NSString>;
@@ -750,7 +750,7 @@ pub trait INSMutableString: INSString {
     /// # Arguments
     ///
     /// * `string` - The string to replace the characters of the receiver with. string must not be `null`.
-    fn im_setString<S>(&mut self, string: S)
+    fn im_set_string<S>(&mut self, string: S)
     where
         S: Into<NSString>;
 }
@@ -762,110 +762,110 @@ pub trait INSCharacterSet: PNSObject {
      */
 
     /// A character set containing the characters in Unicode General Categories L*, M*, and N*.
-    fn tp_alphanumericCharacterSet() -> NSCharacterSet;
+    fn tp_alphanumeric_character_set() -> NSCharacterSet;
 
     /// A character set containing the characters in Unicode General Category Lt.
-    fn tp_capitalizedLetterCharacterSet() -> NSCharacterSet;
+    fn tp_capitalized_letter_character_set() -> NSCharacterSet;
 
     /// A character set containing the characters in Unicode General Category Cc and Cf.
-    fn tp_controlCharacterSet() -> NSCharacterSet;
+    fn tp_control_character_set() -> NSCharacterSet;
 
     /// A character set containing the characters in the category of Decimal Numbers.
-    fn tp_decimalDigitCharacterSet() -> NSCharacterSet;
+    fn tp_decimal_digit_character_set() -> NSCharacterSet;
 
     /// A character set containing individual Unicode characters that can also be represented as composed character sequences (such as for letters with accents), by the definition of “standard decomposition” in version 3.2 of the Unicode character encoding standard.
-    fn tp_decomposableCharacterSet() -> NSCharacterSet;
+    fn tp_decomposable_character_set() -> NSCharacterSet;
 
     /// A character set containing values in the category of Non-Characters or that have not yet been defined in version 3.2 of the Unicode standard.
-    fn tp_illegalCharacterSet() -> NSCharacterSet;
+    fn tp_illegal_character_set() -> NSCharacterSet;
 
     /// A character set containing the characters in Unicode General Category L* & M*.
-    fn tp_letterCharacterSet() -> NSCharacterSet;
+    fn tp_letter_character_set() -> NSCharacterSet;
 
     /// A character set containing the characters in Unicode General Category Ll.
-    fn tp_lowercaseLetterCharacterSet() -> NSCharacterSet;
+    fn tp_lowercase_letter_character_set() -> NSCharacterSet;
 
     /// A character set containing the newline characters (U+000A ~ U+000D, U+0085, U+2028, and U+2029).
-    fn tp_newlineCharacterSet() -> NSCharacterSet;
+    fn tp_newline_character_set() -> NSCharacterSet;
 
     /// A character set containing the characters in Unicode General Category M*.
-    fn tp_nonBaseCharacterSet() -> NSCharacterSet;
+    fn tp_non_base_character_set() -> NSCharacterSet;
 
     /// A character set containing the characters in Unicode General Category P*.
-    fn tp_punctuationCharacterSet() -> NSCharacterSet;
+    fn tp_punctuation_character_set() -> NSCharacterSet;
 
     /// A character set containing the characters in Unicode General Category S*.
-    fn tp_symbolCharacterSet() -> NSCharacterSet;
+    fn tp_symbol_character_set() -> NSCharacterSet;
 
     /// A character set containing the characters in Unicode General Category Lu and Lt.
-    fn tp_uppercaseLetterCharacterSet() -> NSCharacterSet;
+    fn tp_uppercase_letter_character_set() -> NSCharacterSet;
 
     /// A character set containing characters in Unicode General Category Z*, U+000A ~ U+000D, and U+0085.
-    fn tp_whitespaceAndNewlineCharacterSet() -> NSCharacterSet;
+    fn tp_whitespace_and_newline_character_set() -> NSCharacterSet;
 
     /// A character set containing the characters in Unicode General Category Zs and CHARACTER TABULATION (U+0009).
-    fn tp_whitespaceCharacterSet() -> NSCharacterSet;
+    fn tp_whitespace_character_set() -> NSCharacterSet;
 
     /* Getting Character Sets for URL Encoding
      */
 
     /// Returns the character set for characters allowed in a fragment URL component.
-    fn tp_URLFragmentAllowedCharacterSet() -> NSCharacterSet;
+    fn tp_urlfragment_allowed_character_set() -> NSCharacterSet;
 
     /// Returns the character set for characters allowed in a host URL subcomponent.
-    fn tp_URLHostAllowedCharacterSet() -> NSCharacterSet;
+    fn tp_urlhost_allowed_character_set() -> NSCharacterSet;
 
     /// Returns the character set for characters allowed in a password URL subcomponent.
-    fn tp_URLPasswordAllowedCharacterSet() -> NSCharacterSet;
+    fn tp_urlpassword_allowed_character_set() -> NSCharacterSet;
 
     /// Returns the character set for characters allowed in a path URL component.
-    fn tp_URLPathAllowedCharacterSet() -> NSCharacterSet;
+    fn tp_urlpath_allowed_character_set() -> NSCharacterSet;
 
     /// Returns the character set for characters allowed in a query URL component.
-    fn tp_URLQueryAllowedCharacterSet() -> NSCharacterSet;
+    fn tp_urlquery_allowed_character_set() -> NSCharacterSet;
 
     /// Returns the character set for characters allowed in a user URL subcomponent.
-    fn tp_URLUserAllowedCharacterSet() -> NSCharacterSet;
+    fn tp_urluser_allowed_character_set() -> NSCharacterSet;
 
     /* Creating a Custom Character Set
      */
 
     /// Initializing with coder
-    fn im_initWithCoder(self, coder: NSCoder) -> Self;
+    fn im_init_with_coder(self, coder: NSCoder) -> Self;
 
     /// Returns a character set containing the characters in a given string.
-    fn tm_characterSetWithCharactersInString(string: NSString) -> NSCharacterSet;
+    fn tm_character_set_with_characters_in_string(string: NSString) -> NSCharacterSet;
 
     /// Returns a character set containing characters with Unicode values in a given range.
-    fn tm_characterSetWithRange(range: Range<UInt>) -> NSCharacterSet;
+    fn tm_character_set_with_range(range: Range<UInt>) -> NSCharacterSet;
 
     /* Creating and Managing Character Sets as Bitmap Representations
      */
 
     /// Returns a character set containing characters determined by a given bitmap representation.
-    fn tm_characterSetWithBitmapRepresentation(data: NSData) -> NSCharacterSet;
+    fn tm_character_set_with_bitmap_representation(data: NSData) -> NSCharacterSet;
 
     /// Returns a character set read from the bitmap representation stored in the file a given path.
-    fn tm_characterSetWithContentsOfFile(path: NSString) -> NSCharacterSet;
+    fn tm_character_set_with_contents_of_file(path: NSString) -> NSCharacterSet;
 
     /// An NSData object encoding the receiver in binary format.
-    fn ip_bitmapRepresentation(&self) -> NSData;
+    fn ip_bitmap_representation(&self) -> NSData;
 
     /// A character set containing only characters that don’t exist in the receiver.
-    fn ip_invertedSet(&self) -> NSCharacterSet;
+    fn ip_inverted_set(&self) -> NSCharacterSet;
 
     /* Testing Set Membership
      */
 
     /// Returns a Boolean value that indicates whether a given character is in the receiver.
-    fn im_characterIsMember(&self, character: unichar) -> bool;
+    fn im_character_is_member(&self, character: unichar) -> bool;
 
     /// Returns a Boolean value that indicates whether the receiver has at least one member in a given character plane.
-    fn im_hasMemberInPlane(&self, plane: UInt8) -> bool;
+    fn im_has_member_in_plane(&self, plane: UInt8) -> bool;
 
     /// Returns a Boolean value that indicates whether the receiver is a superset of another given character set.
-    fn im_isSupersetOfSet(&self, theOther: NSCharacterSet) -> bool;
+    fn im_is_superset_of_set(&self, other: NSCharacterSet) -> bool;
 
     /// Returns a Boolean value that indicates whether a given long character is a member of the receiver.
-    fn im_longCharacterIsMember(&self, theLongChar: u32) -> bool;
+    fn im_long_character_is_member(&self, long_char: u32) -> bool;
 }

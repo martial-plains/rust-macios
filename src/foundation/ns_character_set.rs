@@ -8,8 +8,10 @@ use objc::{
 use objc_id::Id;
 
 use crate::{
-    id,
-    objective_c_runtime::traits::{FromId, PNSObject, ToId},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
     utils::to_bool,
 };
 
@@ -26,7 +28,7 @@ impl PNSObject for NSCharacterSet {
         class!(NSCharacterSet)
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         to_bool(unsafe { msg_send![self.ptr, isEqual: object] })
     }
 
@@ -34,51 +36,51 @@ impl PNSObject for NSCharacterSet {
         unsafe { msg_send![self.ptr, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: Class) -> bool {
-        to_bool(unsafe { msg_send![self.ptr, isKindOfClass: aClass] })
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        to_bool(unsafe { msg_send![self.ptr, isKindOfClass: class] })
     }
 
-    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
-        to_bool(unsafe { msg_send![self.ptr, isMemberOfClass: aClass] })
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        to_bool(unsafe { msg_send![self.ptr, isMemberOfClass: class] })
     }
 
-    fn im_respondsToSelector(&self, aSelector: Sel) -> bool {
-        to_bool(unsafe { msg_send![self.ptr, respondsToSelector: aSelector] })
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        to_bool(unsafe { msg_send![self.ptr, respondsToSelector: selector] })
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: Protocol) -> bool {
-        to_bool(unsafe { msg_send![self.ptr, conformsToProtocol: aProtocol] })
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        to_bool(unsafe { msg_send![self.ptr, conformsToProtocol: protocol] })
     }
 
     fn ip_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, description]) }
     }
 
-    fn ip_debugDescription(&self) -> NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
     }
 
-    fn im_performSelector(&self, aSelector: Sel) -> id {
-        unsafe { msg_send![self.ptr, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.ptr, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
-        unsafe { msg_send![self.ptr, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.ptr, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         to_bool(unsafe { msg_send![self.ptr, isProxy] })
     }
 }
 
 impl INSCharacterSet for NSCharacterSet {
-    fn tp_alphanumericCharacterSet() -> NSCharacterSet {
+    fn tp_alphanumeric_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![class!(NSCharacterSet), alphanumericCharacterSet])
         }
     }
 
-    fn tp_capitalizedLetterCharacterSet() -> NSCharacterSet {
+    fn tp_capitalized_letter_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -87,31 +89,31 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tp_controlCharacterSet() -> NSCharacterSet {
+    fn tp_control_character_set() -> NSCharacterSet {
         unsafe { NSCharacterSet::from_id(msg_send![class!(NSCharacterSet), controlCharacterSet]) }
     }
 
-    fn tp_decimalDigitCharacterSet() -> NSCharacterSet {
+    fn tp_decimal_digit_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![class!(NSCharacterSet), decimalDigitCharacterSet])
         }
     }
 
-    fn tp_decomposableCharacterSet() -> NSCharacterSet {
+    fn tp_decomposable_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![class!(NSCharacterSet), decomposableCharacterSet])
         }
     }
 
-    fn tp_illegalCharacterSet() -> NSCharacterSet {
+    fn tp_illegal_character_set() -> NSCharacterSet {
         unsafe { NSCharacterSet::from_id(msg_send![class!(NSCharacterSet), illegalCharacterSet]) }
     }
 
-    fn tp_letterCharacterSet() -> NSCharacterSet {
+    fn tp_letter_character_set() -> NSCharacterSet {
         unsafe { NSCharacterSet::from_id(msg_send![class!(NSCharacterSet), letterCharacterSet]) }
     }
 
-    fn tp_lowercaseLetterCharacterSet() -> NSCharacterSet {
+    fn tp_lowercase_letter_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -120,25 +122,25 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tp_newlineCharacterSet() -> NSCharacterSet {
+    fn tp_newline_character_set() -> NSCharacterSet {
         unsafe { NSCharacterSet::from_id(msg_send![class!(NSCharacterSet), newlineCharacterSet]) }
     }
 
-    fn tp_nonBaseCharacterSet() -> NSCharacterSet {
+    fn tp_non_base_character_set() -> NSCharacterSet {
         unsafe { NSCharacterSet::from_id(msg_send![class!(NSCharacterSet), nonBaseCharacterSet]) }
     }
 
-    fn tp_punctuationCharacterSet() -> NSCharacterSet {
+    fn tp_punctuation_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![class!(NSCharacterSet), punctuationCharacterSet])
         }
     }
 
-    fn tp_symbolCharacterSet() -> NSCharacterSet {
+    fn tp_symbol_character_set() -> NSCharacterSet {
         unsafe { NSCharacterSet::from_id(msg_send![class!(NSCharacterSet), symbolCharacterSet]) }
     }
 
-    fn tp_uppercaseLetterCharacterSet() -> NSCharacterSet {
+    fn tp_uppercase_letter_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -147,7 +149,7 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tp_whitespaceAndNewlineCharacterSet() -> NSCharacterSet {
+    fn tp_whitespace_and_newline_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -156,13 +158,13 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tp_whitespaceCharacterSet() -> NSCharacterSet {
+    fn tp_whitespace_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![class!(NSCharacterSet), whitespaceCharacterSet])
         }
     }
 
-    fn tp_URLFragmentAllowedCharacterSet() -> NSCharacterSet {
+    fn tp_urlfragment_allowed_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -171,7 +173,7 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tp_URLHostAllowedCharacterSet() -> NSCharacterSet {
+    fn tp_urlhost_allowed_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -180,7 +182,7 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tp_URLPasswordAllowedCharacterSet() -> NSCharacterSet {
+    fn tp_urlpassword_allowed_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -189,7 +191,7 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tp_URLPathAllowedCharacterSet() -> NSCharacterSet {
+    fn tp_urlpath_allowed_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -198,7 +200,7 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tp_URLQueryAllowedCharacterSet() -> NSCharacterSet {
+    fn tp_urlquery_allowed_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -207,7 +209,7 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tp_URLUserAllowedCharacterSet() -> NSCharacterSet {
+    fn tp_urluser_allowed_character_set() -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -216,14 +218,14 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn im_initWithCoder(self, coder: NSCoder) -> Self {
+    fn im_init_with_coder(self, coder: NSCoder) -> Self {
         unsafe {
-            let ptr = msg_send![self.ptr, initWithCoder: coder];
+            let ptr: id = msg_send![self.ptr, initWithCoder: coder];
             Self::from_id(ptr)
         }
     }
 
-    fn tm_characterSetWithCharactersInString(string: NSString) -> NSCharacterSet {
+    fn tm_character_set_with_characters_in_string(string: NSString) -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -232,7 +234,7 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tm_characterSetWithRange(range: Range<UInt>) -> NSCharacterSet {
+    fn tm_character_set_with_range(range: Range<UInt>) -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -241,7 +243,7 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tm_characterSetWithBitmapRepresentation(data: NSData) -> NSCharacterSet {
+    fn tm_character_set_with_bitmap_representation(data: NSData) -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -250,7 +252,7 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn tm_characterSetWithContentsOfFile(path: NSString) -> NSCharacterSet {
+    fn tm_character_set_with_contents_of_file(path: NSString) -> NSCharacterSet {
         unsafe {
             NSCharacterSet::from_id(msg_send![
                 class!(NSCharacterSet),
@@ -259,28 +261,28 @@ impl INSCharacterSet for NSCharacterSet {
         }
     }
 
-    fn ip_bitmapRepresentation(&self) -> NSData {
+    fn ip_bitmap_representation(&self) -> NSData {
         unsafe { NSData::from_id(msg_send![self.ptr, bitmapRepresentation]) }
     }
 
-    fn ip_invertedSet(&self) -> NSCharacterSet {
+    fn ip_inverted_set(&self) -> NSCharacterSet {
         unsafe { NSCharacterSet::from_id(msg_send![self.ptr, invertedSet]) }
     }
 
-    fn im_characterIsMember(&self, character: unichar) -> bool {
+    fn im_character_is_member(&self, character: unichar) -> bool {
         unsafe { msg_send![self.ptr, characterIsMember: character] }
     }
 
-    fn im_hasMemberInPlane(&self, plane: UInt8) -> bool {
+    fn im_has_member_in_plane(&self, plane: UInt8) -> bool {
         unsafe { msg_send![self.ptr, hasMemberInPlane: plane] }
     }
 
-    fn im_isSupersetOfSet(&self, theOther: NSCharacterSet) -> bool {
-        unsafe { msg_send![self.ptr, isSupersetOfSet: theOther] }
+    fn im_is_superset_of_set(&self, other: NSCharacterSet) -> bool {
+        unsafe { msg_send![self.ptr, isSupersetOfSet: other] }
     }
 
-    fn im_longCharacterIsMember(&self, theLongChar: u32) -> bool {
-        unsafe { msg_send![self.ptr, longCharacterIsMember: theLongChar] }
+    fn im_long_character_is_member(&self, long_char: u32) -> bool {
+        unsafe { msg_send![self.ptr, longCharacterIsMember: long_char] }
     }
 }
 
@@ -300,7 +302,7 @@ impl FromId for NSCharacterSet {
 
 impl fmt::Debug for NSCharacterSet {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_debugDescription())
+        write!(f, "{}", self.ip_debug_description())
     }
 }
 

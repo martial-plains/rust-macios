@@ -16,8 +16,10 @@ use objc_id::Id;
 
 use crate::{
     foundation::{traits::INSNumber, Int, NSComparisonResult, NSLocale, NSString, UInt},
-    id,
-    objective_c_runtime::traits::{FromId, INSValue, PNSObject, ToId},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, INSValue, PNSObject, ToId},
+    },
     utils::to_bool,
 };
 
@@ -32,10 +34,10 @@ impl PNSObject for NSNumber {
         class!(NSNumber)
     }
 
-    fn im_isEqual(&self, object: &Self) -> bool {
+    fn im_is_equal(&self, object: &Self) -> bool {
         unsafe {
-            let isEqual = msg_send![self.obj, isEqual: object];
-            to_bool(isEqual)
+            let is_equal = msg_send![self.obj, isEqual: object];
+            to_bool(is_equal)
         }
     }
 
@@ -43,31 +45,31 @@ impl PNSObject for NSNumber {
         unsafe { msg_send![self.obj, hash] }
     }
 
-    fn im_isKindOfClass(&self, aClass: Class) -> bool {
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
         unsafe {
-            let isKindOfClass = msg_send![self.obj, isKindOfClass: aClass];
-            to_bool(isKindOfClass)
+            let is_kind_of_class = msg_send![self.obj, isKindOfClass: class];
+            to_bool(is_kind_of_class)
         }
     }
 
-    fn im_isMemberOfClass(&self, aClass: Class) -> bool {
+    fn im_is_member_of_class(&self, class: Class) -> bool {
         unsafe {
-            let isMemberOfClass = msg_send![self.obj, isMemberOfClass: aClass];
-            to_bool(isMemberOfClass)
+            let is_member_of_class = msg_send![self.obj, isMemberOfClass: class];
+            to_bool(is_member_of_class)
         }
     }
 
-    fn im_respondsToSelector(&self, aSelector: Sel) -> bool {
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
         unsafe {
-            let respondsToSelector = msg_send![self.obj, respondsToSelector: aSelector];
-            to_bool(respondsToSelector)
+            let responds_to_selector = msg_send![self.obj, respondsToSelector: selector];
+            to_bool(responds_to_selector)
         }
     }
 
-    fn im_conformsToProtocol(&self, aProtocol: Protocol) -> bool {
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
         unsafe {
-            let conformsToProtocol = msg_send![self.obj, conformsToProtocol: aProtocol];
-            to_bool(conformsToProtocol)
+            let conforms_to_protocol = msg_send![self.obj, conformsToProtocol: protocol];
+            to_bool(conforms_to_protocol)
         }
     }
 
@@ -78,25 +80,25 @@ impl PNSObject for NSNumber {
         }
     }
 
-    fn ip_debugDescription(&self) -> NSString {
+    fn ip_debug_description(&self) -> NSString {
         unsafe {
-            let debugDescription = msg_send![self.obj, debugDescription];
-            NSString::from_id(debugDescription)
+            let debug_description = msg_send![self.obj, debugDescription];
+            NSString::from_id(debug_description)
         }
     }
 
-    fn im_performSelector(&self, aSelector: Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector] }
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector] }
     }
 
-    fn im_performSelector_withObject(&self, aSelector: Sel, withObject: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: aSelector withObject: withObject] }
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
     }
 
-    fn im_isProxy(&self) -> bool {
+    fn im_is_proxy(&self) -> bool {
         unsafe {
-            let isProxy = msg_send![self.obj, isProxy];
-            to_bool(isProxy)
+            let is_proxy = msg_send![self.obj, isProxy];
+            to_bool(is_proxy)
         }
     }
 }
@@ -104,112 +106,112 @@ impl PNSObject for NSNumber {
 impl INSValue for NSNumber {}
 
 impl INSNumber for NSNumber {
-    fn tm_numberWithBool(value: bool) -> Self {
+    fn tm_number_with_bool(value: bool) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithBool: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithChar(value: c_schar) -> Self {
+    fn tm_number_with_char(value: c_schar) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithChar: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithDouble(value: c_double) -> Self {
+    fn tm_number_with_double(value: c_double) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithDouble: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithFloat(value: c_float) -> Self {
+    fn tm_number_with_float(value: c_float) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithFloat: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithInt(value: c_int) -> Self {
+    fn tm_number_with_int(value: c_int) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithInt: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithInteger(value: Int) -> Self {
+    fn tm_number_with_integer(value: Int) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithInteger: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithLong(value: c_long) -> Self {
+    fn tm_number_with_long(value: c_long) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithLong: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithLongLong(value: c_longlong) -> Self {
+    fn tm_number_with_long_long(value: c_longlong) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithLongLong: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithShort(value: c_short) -> Self {
+    fn tm_number_with_short(value: c_short) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithShort: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithUnsignedChar(value: c_uchar) -> Self {
+    fn tm_number_with_unsigned_char(value: c_uchar) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithUnsignedChar: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithUnsignedInt(value: c_uint) -> Self {
+    fn tm_number_with_unsigned_int(value: c_uint) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithUnsignedInt: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithUnsignedInteger(value: UInt) -> Self {
+    fn tm_number_with_unsigned_integer(value: UInt) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithUnsignedInteger: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithUnsignedLong(value: c_ulong) -> Self {
+    fn tm_number_with_unsigned_long(value: c_ulong) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithUnsignedLong: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithUnsignedLongLong(value: c_ulonglong) -> Self {
+    fn tm_number_with_unsigned_long_long(value: c_ulonglong) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithUnsignedLongLong: value];
             NSNumber { obj }
         }
     }
 
-    fn tm_numberWithUnsignedShort(value: c_ushort) -> Self {
+    fn tm_number_with_unsigned_short(value: c_ushort) -> Self {
         unsafe {
             let obj = msg_send![class!(NSNumber), numberWithUnsignedShort: value];
             NSNumber { obj }
         }
     }
 
-    fn im_initWithBool(&self, value: bool) -> Self {
+    fn im_init_with_bool(&self, value: bool) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithBool: value];
@@ -217,7 +219,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithChar(&self, value: c_schar) -> Self {
+    fn im_init_with_char(&self, value: c_schar) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithChar: value];
@@ -225,7 +227,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithDouble(&self, value: c_double) -> Self {
+    fn im_init_with_double(&self, value: c_double) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithDouble: value];
@@ -233,7 +235,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithFloat(&self, value: c_float) -> Self {
+    fn im_init_with_float(&self, value: c_float) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithFloat: value];
@@ -241,7 +243,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithInt(&self, value: c_int) -> Self {
+    fn im_init_with_int(&self, value: c_int) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithInt: value];
@@ -249,7 +251,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithInteger(&self, value: Int) -> Self {
+    fn im_init_with_integer(&self, value: Int) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithInteger: value];
@@ -257,7 +259,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithLong(&self, value: c_long) -> Self {
+    fn im_init_with_long(&self, value: c_long) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithLong: value];
@@ -265,7 +267,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithLongLong(&self, value: c_longlong) -> Self {
+    fn im_init_with_long_long(&self, value: c_longlong) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithLongLong: value];
@@ -273,7 +275,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithShort(&self, value: c_short) -> Self {
+    fn im_init_with_short(&self, value: c_short) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithShort: value];
@@ -281,7 +283,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithUnsignedChar(&self, value: c_uchar) -> Self {
+    fn im_init_with_unsigned_char(&self, value: c_uchar) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithUnsignedChar: value];
@@ -289,7 +291,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithUnsignedInt(&self, value: c_uint) -> Self {
+    fn im_init_with_unsigned_int(&self, value: c_uint) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithUnsignedInt: value];
@@ -297,7 +299,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithUnsignedInteger(&self, value: c_uint) -> Self {
+    fn im_init_with_unsigned_integer(&self, value: c_uint) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithUnsignedInteger: value];
@@ -305,7 +307,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithUnsignedLong(&self, value: c_ulong) -> Self {
+    fn im_init_with_unsigned_long(&self, value: c_ulong) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithUnsignedLong: value];
@@ -313,7 +315,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithUnsignedLongLong(&self, value: c_ulonglong) -> Self {
+    fn im_init_with_unsigned_long_long(&self, value: c_ulonglong) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithUnsignedLongLong: value];
@@ -321,7 +323,7 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn im_initWithUnsignedShort(&self, value: c_ushort) -> Self {
+    fn im_init_with_unsigned_short(&self, value: c_ushort) -> Self {
         unsafe {
             let obj: NSNumber = msg_send![self.obj, alloc];
             let obj = msg_send![obj, initWithUnsignedShort: value];
@@ -329,74 +331,74 @@ impl INSNumber for NSNumber {
         }
     }
 
-    fn ip_boolValue(&self) -> bool {
+    fn ip_bool_value(&self) -> bool {
         unsafe { msg_send![self.obj, boolValue] }
     }
 
-    fn ip_charValue(&self) -> c_schar {
+    fn ip_char_value(&self) -> c_schar {
         unsafe { msg_send![self.obj, charValue] }
     }
 
-    fn ip_doubleValue(&self) -> c_double {
+    fn ip_double_value(&self) -> c_double {
         unsafe { msg_send![self.obj, doubleValue] }
     }
 
-    fn ip_floatValue(&self) -> c_float {
+    fn ip_float_value(&self) -> c_float {
         unsafe { msg_send![self.obj, floatValue] }
     }
 
-    fn ip_intValue(&self) -> c_int {
+    fn ip_int_value(&self) -> c_int {
         unsafe { msg_send![self.obj, intValue] }
     }
 
-    fn ip_integerValue(&self) -> Int {
+    fn ip_integer_value(&self) -> Int {
         unsafe { msg_send![self.obj, integerValue] }
     }
 
-    fn ip_longLongValue(&self) -> c_longlong {
+    fn ip_long_long_value(&self) -> c_longlong {
         unsafe { msg_send![self.obj, longLongValue] }
     }
 
-    fn ip_longValue(&self) -> c_long {
+    fn ip_long_value(&self) -> c_long {
         unsafe { msg_send![self.obj, longValue] }
     }
 
-    fn ip_shortValue(&self) -> c_short {
+    fn ip_short_value(&self) -> c_short {
         unsafe { msg_send![self.obj, shortValue] }
     }
 
-    fn ip_unsignedCharValue(&self) -> c_uchar {
+    fn ip_unsigned_char_value(&self) -> c_uchar {
         unsafe { msg_send![self.obj, unsignedCharValue] }
     }
 
-    fn ip_unsignedIntegerValue(&self) -> UInt {
+    fn ip_unsigned_integer_value(&self) -> UInt {
         unsafe { msg_send![self.obj, unsignedIntegerValue] }
     }
 
-    fn ip_unsignedIntValue(&self) -> c_uint {
+    fn ip_unsigned_int_value(&self) -> c_uint {
         unsafe { msg_send![self.obj, unsignedIntValue] }
     }
 
-    fn ip_unsignedLongLongValue(&self) -> c_ulonglong {
+    fn ip_unsigned_long_long_value(&self) -> c_ulonglong {
         unsafe { msg_send![self.obj, unsignedLongLongValue] }
     }
 
-    fn ip_unsignedLongValue(&self) -> c_ulong {
+    fn ip_unsigned_long_value(&self) -> c_ulong {
         unsafe { msg_send![self.obj, unsignedLongValue] }
     }
 
-    fn ip_unsignedShortValue(&self) -> c_ushort {
+    fn ip_unsigned_short_value(&self) -> c_ushort {
         unsafe { msg_send![self.obj, unsignedShortValue] }
     }
 
-    fn im_descriptionWithLocale(&self, locale: NSLocale) -> NSString {
+    fn im_description_with_locale(&self, locale: NSLocale) -> NSString {
         unsafe {
             let description = msg_send![self.obj, descriptionWithLocale: locale.obj];
             NSString::from_id(description)
         }
     }
 
-    fn ip_stringValue(&self) -> NSString {
+    fn ip_string_value(&self) -> NSString {
         unsafe {
             let description = msg_send![self.obj, stringValue];
             NSString::from_id(description)
@@ -407,18 +409,18 @@ impl INSNumber for NSNumber {
         unsafe { msg_send![self.obj, compare: other] }
     }
 
-    fn im_isEqualToNumber(&self, other: Self) -> bool {
+    fn im_is_equal_to_number(&self, other: Self) -> bool {
         unsafe { msg_send![self.obj, isEqualToNumber: other] }
     }
 
-    fn ip_decimalValue(&self) -> super::NSDecimal {
+    fn ip_decimal_value(&self) -> super::NSDecimal {
         unsafe { msg_send![self.obj, decimalValue] }
     }
 }
 
 impl PartialEq for NSNumber {
     fn eq(&self, other: &Self) -> bool {
-        self.im_isEqualToNumber(other.clone())
+        self.im_is_equal_to_number(other.clone())
     }
 }
 
@@ -440,7 +442,7 @@ impl DerefMut for NSNumber {
 
 impl fmt::Debug for NSNumber {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_debugDescription())
+        write!(f, "{}", self.ip_debug_description())
     }
 }
 
@@ -463,7 +465,7 @@ impl Add for NSNumber {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        (self.ip_integerValue() + other.ip_integerValue()).into()
+        (self.ip_integer_value() + other.ip_integer_value()).into()
     }
 }
 
@@ -496,60 +498,60 @@ impl FromId for NSNumber {
 
 impl From<c_float> for NSNumber {
     fn from(value: c_float) -> Self {
-        NSNumber::tm_numberWithFloat(value)
+        NSNumber::tm_number_with_float(value)
     }
 }
 
 impl From<c_double> for NSNumber {
     fn from(value: c_double) -> Self {
-        NSNumber::tm_numberWithDouble(value)
+        NSNumber::tm_number_with_double(value)
     }
 }
 
 impl From<c_schar> for NSNumber {
     fn from(value: c_schar) -> Self {
-        NSNumber::tm_numberWithChar(value)
+        NSNumber::tm_number_with_char(value)
     }
 }
 
 impl From<c_uchar> for NSNumber {
     fn from(value: c_uchar) -> Self {
-        NSNumber::tm_numberWithUnsignedChar(value)
+        NSNumber::tm_number_with_unsigned_char(value)
     }
 }
 
 impl From<c_short> for NSNumber {
     fn from(value: c_short) -> Self {
-        NSNumber::tm_numberWithShort(value)
+        NSNumber::tm_number_with_short(value)
     }
 }
 
 impl From<c_ushort> for NSNumber {
     fn from(value: c_ushort) -> Self {
-        NSNumber::tm_numberWithUnsignedShort(value)
+        NSNumber::tm_number_with_unsigned_short(value)
     }
 }
 
 impl From<c_int> for NSNumber {
     fn from(value: c_int) -> Self {
-        NSNumber::tm_numberWithInt(value)
+        NSNumber::tm_number_with_int(value)
     }
 }
 
 impl From<c_uint> for NSNumber {
     fn from(value: c_uint) -> Self {
-        NSNumber::tm_numberWithUnsignedInt(value)
+        NSNumber::tm_number_with_unsigned_int(value)
     }
 }
 
 impl From<c_long> for NSNumber {
     fn from(value: c_long) -> Self {
-        NSNumber::tm_numberWithLong(value)
+        NSNumber::tm_number_with_long(value)
     }
 }
 
 impl From<c_ulong> for NSNumber {
     fn from(value: c_ulong) -> Self {
-        NSNumber::tm_numberWithUnsignedLong(value)
+        NSNumber::tm_number_with_unsigned_long(value)
     }
 }
