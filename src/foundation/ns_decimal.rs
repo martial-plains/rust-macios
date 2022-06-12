@@ -131,47 +131,47 @@ impl PNSObject for NSDecimalNumber {
     }
 
     fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { msg_send![self.ptr, isEqual: object] }
+        unsafe { msg_send![&*self.ptr, isEqual: object] }
     }
 
     fn ip_hash(&self) -> super::UInt {
-        unsafe { msg_send![self.ptr, hash] }
+        unsafe { msg_send![&*self.ptr, hash] }
     }
 
     fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.ptr, isKindOfClass: class] }
+        unsafe { msg_send![&*self.ptr, isKindOfClass: class] }
     }
 
     fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.ptr, isMemberOfClass: class] }
+        unsafe { msg_send![&*self.ptr, isMemberOfClass: class] }
     }
 
     fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { msg_send![self.ptr, respondsToSelector: selector] }
+        unsafe { msg_send![&*self.ptr, respondsToSelector: selector] }
     }
 
     fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { msg_send![self.ptr, conformsToProtocol: protocol] }
+        unsafe { msg_send![&*self.ptr, conformsToProtocol: protocol] }
     }
 
     fn ip_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.ptr, description]) }
+        unsafe { NSString::from_id(msg_send![&*self.ptr, description]) }
     }
 
     fn ip_debug_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
+        unsafe { NSString::from_id(msg_send![&*self.ptr, debugDescription]) }
     }
 
     fn im_perform_selector(&self, selector: Sel) -> id {
-        unsafe { msg_send![self.ptr, performSelector: selector] }
+        unsafe { msg_send![&*self.ptr, performSelector: selector] }
     }
 
     fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
-        unsafe { msg_send![self.ptr, performSelector: selector withObject: with_object] }
+        unsafe { msg_send![&*self.ptr, performSelector: selector withObject: with_object] }
     }
 
     fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![self.ptr, isProxy] }
+        unsafe { msg_send![&*self.ptr, isProxy] }
     }
 }
 
@@ -239,96 +239,96 @@ impl INSNumber for NSDecimalNumber {
     }
 
     fn ip_bool_value(&self) -> bool {
-        unsafe { msg_send![self.ptr, boolValue] }
+        unsafe { msg_send![&*self.ptr, boolValue] }
     }
 
     fn ip_char_value(&self) -> libc::c_schar {
-        unsafe { msg_send![self.ptr, charValue] }
+        unsafe { msg_send![&*self.ptr, charValue] }
     }
 
     fn ip_double_value(&self) -> c_double {
-        unsafe { msg_send![self.ptr, doubleValue] }
+        unsafe { msg_send![&*self.ptr, doubleValue] }
     }
 
     fn ip_float_value(&self) -> libc::c_float {
-        unsafe { msg_send![self.ptr, floatValue] }
+        unsafe { msg_send![&*self.ptr, floatValue] }
     }
 
     fn ip_int_value(&self) -> c_int {
-        unsafe { msg_send![self.ptr, intValue] }
+        unsafe { msg_send![&*self.ptr, intValue] }
     }
 
     fn ip_integer_value(&self) -> super::Int {
-        unsafe { msg_send![self.ptr, integerValue] }
+        unsafe { msg_send![&*self.ptr, integerValue] }
     }
 
     fn ip_long_long_value(&self) -> c_longlong {
-        unsafe { msg_send![self.ptr, longLongValue] }
+        unsafe { msg_send![&*self.ptr, longLongValue] }
     }
 
     fn ip_long_value(&self) -> c_long {
-        unsafe { msg_send![self.ptr, longValue] }
+        unsafe { msg_send![&*self.ptr, longValue] }
     }
 
     fn ip_short_value(&self) -> c_short {
-        unsafe { msg_send![self.ptr, shortValue] }
+        unsafe { msg_send![&*self.ptr, shortValue] }
     }
 
     fn ip_unsigned_char_value(&self) -> libc::c_uchar {
-        unsafe { msg_send![self.ptr, unsignedCharValue] }
+        unsafe { msg_send![&*self.ptr, unsignedCharValue] }
     }
 
     fn ip_unsigned_integer_value(&self) -> super::UInt {
-        unsafe { msg_send![self.ptr, unsignedIntegerValue] }
+        unsafe { msg_send![&*self.ptr, unsignedIntegerValue] }
     }
 
     fn ip_unsigned_int_value(&self) -> c_uint {
-        unsafe { msg_send![self.ptr, unsignedIntValue] }
+        unsafe { msg_send![&*self.ptr, unsignedIntValue] }
     }
 
     fn ip_unsigned_long_long_value(&self) -> libc::c_ulonglong {
-        unsafe { msg_send![self.ptr, unsignedLongLongValue] }
+        unsafe { msg_send![&*self.ptr, unsignedLongLongValue] }
     }
 
     fn ip_unsigned_long_value(&self) -> c_ulong {
-        unsafe { msg_send![self.ptr, unsignedLongValue] }
+        unsafe { msg_send![&*self.ptr, unsignedLongValue] }
     }
 
     fn ip_unsigned_short_value(&self) -> c_ushort {
-        unsafe { msg_send![self.ptr, unsignedShortValue] }
+        unsafe { msg_send![&*self.ptr, unsignedShortValue] }
     }
 
     fn im_description_with_locale(&self, locale: NSLocale) -> NSString {
         unsafe {
-            let id: id = msg_send![self.ptr, descriptionWithLocale: locale.obj];
+            let id: id = msg_send![&*self.ptr, descriptionWithLocale: locale.obj];
             NSString::from_id(id)
         }
     }
 
     fn ip_string_value(&self) -> NSString {
         unsafe {
-            let id: id = msg_send![self.ptr, stringValue];
+            let id: id = msg_send![&*self.ptr, stringValue];
             NSString::from_id(id)
         }
     }
 
     fn im_compare(&self, other: &Self) -> NSComparisonResult {
-        unsafe { msg_send![self.ptr, compare: other] }
+        unsafe { msg_send![&*self.ptr, compare: other] }
     }
 
     fn im_is_equal_to_number(&self, other: Self) -> bool {
-        unsafe { msg_send![self.ptr, isEqualToNumber: other] }
+        unsafe { msg_send![&*self.ptr, isEqualToNumber: other] }
     }
 
     fn ip_decimal_value(&self) -> NSDecimal {
-        unsafe { msg_send![self.ptr, decimalValue] }
+        unsafe { msg_send![&*self.ptr, decimalValue] }
     }
 }
 
 impl INSDecimalNumber for NSDecimalNumber {
     fn im_init_with_decimal(&mut self, decimal: NSDecimalNumber) {
         unsafe {
-            let _: id = msg_send![self.ptr, initWithDecimal: decimal.ptr];
+            let _: id = msg_send![&*self.ptr, initWithDecimal: decimal.ptr];
         }
     }
 
@@ -352,7 +352,7 @@ impl INSDecimalNumber for NSDecimalNumber {
     where
         S: Into<NSString>,
     {
-        unsafe { msg_send![self.ptr, initWithString: string.into()] }
+        unsafe { msg_send![&*self.ptr, initWithString: string.into()] }
     }
 
     fn im_init_with_string_locale<S, L>(&mut self, string: S, locale: L)
@@ -360,31 +360,31 @@ impl INSDecimalNumber for NSDecimalNumber {
         S: Into<NSString>,
         L: crate::foundation::traits::INSLocale,
     {
-        unsafe { msg_send![self.ptr, initWithString: string.into() locale: locale] }
+        unsafe { msg_send![&*self.ptr, initWithString: string.into() locale: locale] }
     }
 
     fn im_decimal_number_by_adding(&self, decimal_number: Self) -> Self {
-        unsafe { msg_send![self.ptr, decimalNumberByAdding: decimal_number] }
+        unsafe { msg_send![&*self.ptr, decimalNumberByAdding: decimal_number] }
     }
 
     fn im_decimal_number_by_subtracting(&self, decimal_number: Self) -> Self {
-        unsafe { msg_send![self.ptr, decimalNumberBySubtracting: decimal_number] }
+        unsafe { msg_send![&*self.ptr, decimalNumberBySubtracting: decimal_number] }
     }
 
     fn im_decimal_number_by_multiplying_by(&self, decimal_number: Self) -> Self {
-        unsafe { msg_send![self.ptr, decimalNumberByMultiplyingBy: decimal_number] }
+        unsafe { msg_send![&*self.ptr, decimalNumberByMultiplyingBy: decimal_number] }
     }
 
     fn im_decimal_number_by_dividing_by(&self, decimal_number: Self) -> Self {
-        unsafe { msg_send![self.ptr, decimalNumberByDividingBy: decimal_number] }
+        unsafe { msg_send![&*self.ptr, decimalNumberByDividingBy: decimal_number] }
     }
 
     fn im_decimal_number_by_raising_to_power(&self, power: c_uint) -> Self {
-        unsafe { msg_send![self.ptr, decimalNumberByRaisingToPower: power] }
+        unsafe { msg_send![&*self.ptr, decimalNumberByRaisingToPower: power] }
     }
 
     fn im_decimal_number_by_multiplying_by_power_of_10(&self, power: c_short) -> Self {
-        unsafe { msg_send![self.ptr, decimalNumberByMultiplyingByPowerOf10: power] }
+        unsafe { msg_send![&*self.ptr, decimalNumberByMultiplyingByPowerOf10: power] }
     }
 
     fn im_decimal_number_by_adding_with_behavior(
@@ -484,11 +484,11 @@ impl INSDecimalNumber for NSDecimalNumber {
     }
 
     fn ip_decimal_value(&self) -> NSDecimal {
-        unsafe { msg_send![self.ptr, decimalValue] }
+        unsafe { msg_send![&*self.ptr, decimalValue] }
     }
 
     fn ip_double_value(&self) -> f64 {
-        unsafe { msg_send![self.ptr, doubleValue] }
+        unsafe { msg_send![&*self.ptr, doubleValue] }
     }
 
     fn im_description_with_locale<L>(&self, locale: L) -> NSString
@@ -496,18 +496,18 @@ impl INSDecimalNumber for NSDecimalNumber {
         L: crate::foundation::traits::INSLocale,
     {
         unsafe {
-            let class: NSString = msg_send![self.ptr, descriptionWithLocale: locale];
+            let class: NSString = msg_send![&*self.ptr, descriptionWithLocale: locale];
             class
         }
     }
 
     fn ip_objc_type(&self) -> *const libc::c_char {
-        unsafe { msg_send![self.ptr, objCType] }
+        unsafe { msg_send![&*self.ptr, objCType] }
     }
 
     fn im_compare(&self, decimal_number: &Self) -> NSComparisonResult {
         unsafe {
-            let class: NSComparisonResult = msg_send![self.ptr, compare: decimal_number];
+            let class: NSComparisonResult = msg_send![&*self.ptr, compare: decimal_number];
             class
         }
     }
@@ -527,7 +527,7 @@ impl fmt::Display for NSDecimalNumber {
 
 impl Clone for NSDecimalNumber {
     fn clone(&self) -> Self {
-        unsafe { msg_send![self.ptr, retain] }
+        unsafe { msg_send![&*self.ptr, retain] }
     }
 }
 

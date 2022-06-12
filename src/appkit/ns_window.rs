@@ -172,7 +172,7 @@ impl NSWindow {
     }
 
     fn autorelease(&self) -> Self {
-        unsafe { msg_send![self.ptr, autorelease] }
+        unsafe { msg_send![&*self.ptr, autorelease] }
     }
 }
 
