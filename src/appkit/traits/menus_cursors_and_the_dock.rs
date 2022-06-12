@@ -1,10 +1,11 @@
-use objc::runtime::Sel;
+use objc::{msg_send, runtime::Sel, sel, sel_impl};
 
 use crate::{
     appkit::{ns_menu::NSMenu, ns_menu_item::NSMenuItem},
     core_graphics::CGFloat,
     foundation::{Int, NSString},
     objective_c_runtime::{id, traits::PNSObject},
+    utils::to_bool,
 };
 
 /// An object that manages an app’s menus.
@@ -13,9 +14,13 @@ pub trait INSMenu: PNSObject {
      */
 
     /// Returns a Boolean value that indicates whether the menu bar is visible.
-    fn tm_menu_bar_visible() -> bool;
+    fn tm_menu_bar_visible() -> bool {
+        unsafe { to_bool(msg_send![Self::im_class(), isMenuBarVisible]) }
+    }
     /// Sets whether the menu bar is visible and selectable by the user.
-    fn tm_set_menu_bar_visible(visible: bool);
+    fn tm_set_menu_bar_visible(visible: bool) {
+        unsafe { msg_send![Self::im_class(), setMenuBarVisible: visible] }
+    }
     /// The menu bar height for the main menu in pixels.
     fn ip_menu_bar_height(&self) -> CGFloat;
 

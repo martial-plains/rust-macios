@@ -194,38 +194,6 @@ where
     /* Creating and Initializing a Mutable Array
      */
 
-    /// Creates and returns an NSMutableArray object with enough allocated memory to initially hold a given number of objects.
-    fn tm_array_with_capacity(capacity: usize) -> Self {
-        NSMutableArray {
-            obj: unsafe { msg_send![class!(NSMutableArray), arrayWithCapacity: capacity] },
-            _marker: PhantomData,
-        }
-    }
-
-    /// Creates and returns a mutable array containing the contents of the file specified by the given path.
-    fn tm_array_with_contents_of_file<S>(path: S) -> Self
-    where
-        S: Into<NSString>,
-    {
-        NSMutableArray {
-            obj: unsafe { msg_send![class!(NSMutableArray), arrayWithContentsOfFile: path.into()] },
-            _marker: PhantomData,
-        }
-    }
-
-    /* Adding Objects
-     */
-
-    fn tm_array_with_contents_of_url<S>(url: S) -> Self
-    where
-        S: Into<NSString>,
-    {
-        NSMutableArray {
-            obj: unsafe { msg_send![class!(NSMutableArray), arrayWithContentsOfURL: url.into()] },
-            _marker: PhantomData,
-        }
-    }
-
     /// Returns an array, initialized with enough memory to initially hold a given number of objects.
     fn im_init_with_capacity(capacity: UInt) -> Self {
         NSMutableArray {
@@ -237,11 +205,8 @@ where
     /* Removing Objects
      */
 
-    fn im_init_with_contents_of_file<S>(&mut self, path: S) -> bool
-    where
-        S: Into<NSString>,
-    {
-        unsafe { msg_send![self.obj, initWithContentsOfFile: path.into()] }
+    fn im_init_with_contents_of_file(&mut self, path: NSString) -> bool {
+        unsafe { msg_send![self.obj, initWithContentsOfFile: path] }
     }
 
     /// Inserts a given object at the end of the array.

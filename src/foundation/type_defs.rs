@@ -3,7 +3,7 @@
 
 use libc::c_double;
 
-use crate::core_graphics::{CGRect, CGSize};
+use crate::core_graphics::{CGPoint, CGRect, CGSize};
 
 /// Describes an integer.
 #[cfg(target_pointer_width = "32")]
@@ -77,3 +77,6 @@ pub type NSPropertyListReadOptions = super::NSPropertyListMutabilityOptions;
 
 /// A number of seconds.
 pub type NSTimeInterval = c_double;
+
+/// A point in a Cartesian coordinate system.
+pub type NSPoint = CGPoint;

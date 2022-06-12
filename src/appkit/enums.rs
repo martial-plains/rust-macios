@@ -307,3 +307,144 @@ pub enum NSBackingStoreType {
     /// The window renders all drawing into a display buffer and then flushes it to the screen.
     Buffered = 2,
 }
+
+/// Window collection behaviors related to Exposé and Spaces.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u64)]
+pub enum NSWindowCollectionBehavior {
+    /// The window appears in only one space at a time.
+    Default = 0,
+    /// The window appears in all spaces.
+    CanJoinAllSpaces = 1 << 0,
+    /// When the window becomes active, move it to the active space instead of switching spaces.
+    MoveToActiveSpace = 1 << 1,
+    /// The window participates in Spaces and Exposé.
+    Managed = 1 << 2,
+    /// The window floats in Spaces and hides in Exposé.
+    Transient = 1 << 3,
+    /// Exposé doesn’t affect the window, so it stays visible and stationary, like the desktop window.
+    Stationary = 1 << 4,
+    /// The window participates in the window cycle for use with the Cycle Through Windows menu item.
+    ParticipatesInCycle = 1 << 5,
+    /// The window isn’t part of the window cycle for use with the Cycle Through Windows menu item.
+    IgnoresCycle = 1 << 6,
+    /// The window can enter full-screen mode.
+    FullScreenPrimary = 1 << 7,
+    /// The window can display on the same space as the full-screen window.
+    FullScreenAuxiliary = 1 << 8,
+    /// The window doesn’t support full-screen mode.
+    FullScreenNone = 1 << 9,
+    /// The window can be a secondary full screen tile even if it can’t be a full screen window itself.
+    FullScreenAllowsTiling = 1 << 11,
+    /// The window doesn’t support being a full-screen tile window, but may support being a full-screen window.
+    FullScreenDisallowsTiling = 1 << 12,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(i32)]
+/// A type that represents the depth, or amount of memory, for a single pixel in a window or screen.
+pub enum NSWindowDepth {
+    /// Twenty four bit RGB depth limit.
+    TwentyfourBitRgb = 0x208,
+    /// Sixty four bit RGB depth limit.
+    SixtyfourBitRgb = 0x210,
+    /// One hundred and twenty eight bit RGB depth limit.
+    OneHundredTwentyEightBitRgb = 0x220,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(i64)]
+///
+pub enum NSDisplayGamut {
+    ///
+    Srgb = 1,
+    ///
+    P3,
+}
+
+/// Options to use when retrieving window numbers from the system.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u64)]
+pub enum NSWindowNumberListOptions {
+    ///
+    AllApplication = 1 << 0,
+    ///
+    AllSpaces = 1 << 4,
+}
+
+/// Constants that represent the access levels other processes can have to a window’s content.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u64)]
+pub enum NSWindowSharingType {
+    /// The window’s contents cannot be read by another process.
+    None,
+    ///
+    ReadOnly,
+    ///
+    ReadWrite,
+}
+
+/// Constants that let you specify how a window is ordered relative to another window.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(i64)]
+pub enum NSWindowOrderingMode {
+    /// Moves the window below the indicated window.
+    Below = -1,
+    /// Moves the window off the screen.
+    Out,
+    /// Moves the window above the indicated window.
+    Above,
+}
+
+/// Specifies whether the window is occluded.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u64)]
+pub enum NSWindowOcclusionState {
+    /// If set, at least part of the window is visible; if not set, the entire window is occluded. A window that has a nonrectangular shape can be entirely occluded onscreen, but if its bounding box falls into a visible region, the window is considered to be visible. Note that a completely transparent window may also be considered visible.
+    Visible = 1 << 1,
+}
+
+/// Constants that provide a way to access standard title bar buttons.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u64)]
+pub enum NSWindowButton {
+    /// The close button.
+    CloseButton,
+    /// The minimize button.
+    MiniaturizeButton,
+    /// The zoom button.
+    ZoomButton,
+    /// The toolbar button.
+    ToolbarButton,
+    /// The document icon button.
+    DocumentIconButton,
+    /// The document versions button.
+    DocumentVersionsButton = 6,
+    /// The fullscreen icon button.
+    #[deprecated = "The standard window button for FullScreenButton is always null; use ZoomButton instead."]
+    FullScreenButton,
+}
+
+/// Styles that determine the type of separator displayed between the title bar and content of a window.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(i64)]
+pub enum NSTitlebarSeparatorStyle {
+    /// A style indicating that the system determines the type of separator.
+    Automatic,
+    /// A style indicating that there’s no title bar separator.
+    None,
+    /// A style indicating that there’s no title bar separator.
+    Line,
+    /// A style indicating that the title bar separator is a shadow.
+    Shadow,
+}
+
+/// Specifies the directional flow of the user interface.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(i64)]
+pub enum NSUserInterfaceLayoutDirection {
+    /// Layout direction is left to right.
+    LeftToRight,
+    /// Layout direction is right to left.
+    RightToLeft,
+}

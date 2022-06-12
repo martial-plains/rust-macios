@@ -48,61 +48,57 @@ impl PNSObject for NSRunningApplication {
     }
 
     fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { msg_send![self.ptr, isEqual: object] }
+        unsafe { msg_send![&*self.ptr, isEqual: object] }
     }
 
     fn ip_hash(&self) -> UInt {
-        unsafe { msg_send![self.ptr, hash] }
+        unsafe { msg_send![&*self.ptr, hash] }
     }
 
     fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.ptr, isKindOfClass: class] }
+        unsafe { msg_send![&*self.ptr, isKindOfClass: class] }
     }
 
     fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.ptr, isMemberOfClass: class] }
+        unsafe { msg_send![&*self.ptr, isMemberOfClass: class] }
     }
 
     fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { msg_send![self.ptr, respondsToSelector: selector] }
+        unsafe { msg_send![&*self.ptr, respondsToSelector: selector] }
     }
 
     fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { msg_send![self.ptr, conformsToProtocol: protocol] }
+        unsafe { msg_send![&*self.ptr, conformsToProtocol: protocol] }
     }
 
     fn ip_description(&self) -> NSString {
-        unsafe { msg_send![self.ptr, description] }
+        unsafe { msg_send![&*self.ptr, description] }
     }
 
     fn ip_debug_description(&self) -> NSString {
-        unsafe { msg_send![self.ptr, debugDescription] }
+        unsafe { msg_send![&*self.ptr, debugDescription] }
     }
 
     fn im_perform_selector(&self, selector: Sel) -> id {
-        unsafe { msg_send![self.ptr, performSelector: selector] }
+        unsafe { msg_send![&*self.ptr, performSelector: selector] }
     }
 
     fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
-        unsafe { msg_send![self.ptr, performSelector: selector withObject: with_object] }
+        unsafe { msg_send![&*self.ptr, performSelector: selector withObject: with_object] }
     }
 
     fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![self.ptr, isProxy] }
+        unsafe { msg_send![&*self.ptr, isProxy] }
     }
 }
 
 impl INSRunningApplication for NSRunningApplication {
-    fn tp_current_application() -> Self {
-        unsafe { Self::from_id(msg_send![Self::im_class(), currentApplication]) }
-    }
-
     fn ip_is_active(&self) -> bool {
-        to_bool(unsafe { msg_send![self.ptr, isActive] })
+        to_bool(unsafe { msg_send![&*self.ptr, isActive] })
     }
 
     fn im_activate_with_options(&mut self, options: NSApplicationActivationOptions) {
-        unsafe { msg_send![self.ptr, activateWithOptions: options] }
+        unsafe { msg_send![&*self.ptr, activateWithOptions: options] }
     }
 }
 

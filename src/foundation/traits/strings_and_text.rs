@@ -1,14 +1,15 @@
 use std::ops::Range;
 
 use libc::{c_char, c_void};
+use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{
         ns_coder::NSCoder, string::Encoding, unichar, Int, NSArray, NSCharacterSet,
-        NSComparisonResult, NSData, NSLocale, NSMutableString, NSString, NSStringCompareOptions,
-        NSStringEncodingConversionOptions, NSStringTransform, UInt, UInt8,
+        NSComparisonResult, NSData, NSLocale, NSMutableString, NSRange, NSString,
+        NSStringCompareOptions, NSStringEncodingConversionOptions, NSStringTransform, UInt, UInt8,
     },
-    objective_c_runtime::traits::PNSObject,
+    objective_c_runtime::traits::{FromId, PNSObject},
 };
 
 /* ------------------------------------------------------------------------- */
@@ -21,7 +22,12 @@ pub trait INSString: PNSObject {
      */
 
     /// Returns an empty string.
-    fn tm_string() -> Self;
+    fn tm_string() -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), string]) }
+    }
 
     /// Returns an initialized NSString object that contains no characters.
     fn im_init(self) -> Self;
@@ -160,12 +166,16 @@ pub trait INSString: PNSObject {
     /// * `key` - The key to use when looking up the string in the app’s Localizable.strings file.
     /// * `arguments` - An array of values to substitute for escaped characters in the string.
     fn tm_localized_user_notification_string_for_key_arguments<K, T>(
-        key: K,
+        key: NSString,
         arguments: NSArray<T>,
     ) -> NSString
     where
-        K: Into<NSString>,
-        T: PNSObject;
+        T: PNSObject,
+    {
+        unsafe {
+            msg_send![Self::im_class(), localizedUserNotificationStringForKey:key arguments:arguments]
+        }
+    }
 
     /// Returns a string containing a given number of characters taken from a
     /// given C array of UTF-16 code units.
@@ -178,7 +188,16 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object containing length characters from characters.
-    fn tm_string_with_characters_length(characters: *const unichar, length: UInt) -> Self;
+    fn tm_string_with_characters_length(characters: *const unichar, length: UInt) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(
+                msg_send![Self::im_class(), stringWithCharacters:characters length:length],
+            )
+        }
+    }
 
     /// Returns a string created by copying the characters from another given string.
     ///
@@ -189,9 +208,12 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object initialized by copying the characters from s.
-    fn tm_string_with_string<S>(s: S) -> Self
+    fn tm_string_with_string(s: NSString) -> Self
     where
-        S: Into<NSString>;
+        Self: Sized + 'static + FromId,
+    {
+        unsafe { msg_send![Self::im_class(), stringWithString: s] }
+    }
 
     /// Returns a string containing the bytes in a given C array, interpreted
     /// according to a given encoding.
@@ -204,7 +226,14 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object containing the bytes in c_str, interpreted according to encoding.
-    fn tm_string_with_cstring_encoding(c_str: *const c_char, encoding: Encoding) -> Self;
+    fn tm_string_with_cstring_encoding(c_str: *const c_char, encoding: Encoding) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![Self::im_class(), stringWithCString:c_str encoding:encoding])
+        }
+    }
 
     /// Returns a string created by copying the data from a given C array of
     /// UTF8-encoded bytes.
@@ -216,7 +245,12 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object containing the bytes in c_str, interpreted as a UTF8 string.
-    fn tm_string_with_utf8_string(c_str: *const c_char) -> Self;
+    fn tm_string_with_utf8_string(c_str: *const c_char) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), stringWithUTF8String: c_str]) }
+    }
 
     /* Getting a String’s Length
      */
@@ -636,10 +670,14 @@ pub trait INSString: PNSObject {
      */
 
     /// Returns a zero-terminated list of the encodings string objects support in the application’s environment.
-    fn tp_available_string_encodings() -> *const Encoding;
+    fn tp_available_string_encodings() -> *const Encoding {
+        unsafe { msg_send![Self::im_class(), availableStringEncodings] }
+    }
 
     /// Returns the C-string encoding assumed for any method accepting a C string as an argument.
-    fn tp_default_cstring_encoding() -> Encoding;
+    fn tp_default_cstring_encoding() -> Encoding {
+        unsafe { msg_send![Self::im_class(), defaultCStringEncoding] }
+    }
 
     /// Returns a Boolean value that indicates whether the receiver can be converted to a given encoding without loss of information.
     fn im_can_be_converted_to_encoding(&self, encoding: Encoding) -> bool;
@@ -663,7 +701,11 @@ pub trait INSMutableString: INSString {
     /// # Returns
     ///
     /// An empty NSMutableString object with initial storage for a given number of characters.
-    fn tm_string_with_capacity(capacity: UInt) -> NSMutableString;
+    fn tm_string_with_capacity(capacity: UInt) -> NSMutableString {
+        unsafe {
+            NSMutableString::from_id(msg_send![Self::im_class(), stringWithCapacity: capacity])
+        }
+    }
 
     /// Returns an NSMutableString object initialized with initial storage for
     /// a given number of characters,
@@ -762,70 +804,112 @@ pub trait INSCharacterSet: PNSObject {
      */
 
     /// A character set containing the characters in Unicode General Categories L*, M*, and N*.
-    fn tp_alphanumeric_character_set() -> NSCharacterSet;
+    fn tp_alphanumeric_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), alphanumericCharacterSet] }
+    }
 
     /// A character set containing the characters in Unicode General Category Lt.
-    fn tp_capitalized_letter_character_set() -> NSCharacterSet;
+    fn tp_capitalized_letter_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), capitalizedLetterCharacterSet] }
+    }
 
     /// A character set containing the characters in Unicode General Category Cc and Cf.
-    fn tp_control_character_set() -> NSCharacterSet;
+    fn tp_control_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), controlCharacterSet] }
+    }
 
     /// A character set containing the characters in the category of Decimal Numbers.
-    fn tp_decimal_digit_character_set() -> NSCharacterSet;
+    fn tp_decimal_digit_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), decimalDigitCharacterSet] }
+    }
 
     /// A character set containing individual Unicode characters that can also be represented as composed character sequences (such as for letters with accents), by the definition of “standard decomposition” in version 3.2 of the Unicode character encoding standard.
-    fn tp_decomposable_character_set() -> NSCharacterSet;
+    fn tp_decomposable_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), decomposableCharacterSet] }
+    }
 
     /// A character set containing values in the category of Non-Characters or that have not yet been defined in version 3.2 of the Unicode standard.
-    fn tp_illegal_character_set() -> NSCharacterSet;
+    fn tp_illegal_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), illegalCharacterSet] }
+    }
 
     /// A character set containing the characters in Unicode General Category L* & M*.
-    fn tp_letter_character_set() -> NSCharacterSet;
+    fn tp_letter_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), letterCharacterSet] }
+    }
 
     /// A character set containing the characters in Unicode General Category Ll.
-    fn tp_lowercase_letter_character_set() -> NSCharacterSet;
+    fn tp_lowercase_letter_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), lowercaseLetterCharacterSet] }
+    }
 
     /// A character set containing the newline characters (U+000A ~ U+000D, U+0085, U+2028, and U+2029).
-    fn tp_newline_character_set() -> NSCharacterSet;
+    fn tp_newline_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), newlineCharacterSet] }
+    }
 
     /// A character set containing the characters in Unicode General Category M*.
-    fn tp_non_base_character_set() -> NSCharacterSet;
+    fn tp_non_base_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), nonBaseCharacterSet] }
+    }
 
     /// A character set containing the characters in Unicode General Category P*.
-    fn tp_punctuation_character_set() -> NSCharacterSet;
+    fn tp_punctuation_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), punctuationCharacterSet] }
+    }
 
     /// A character set containing the characters in Unicode General Category S*.
-    fn tp_symbol_character_set() -> NSCharacterSet;
+    fn tp_symbol_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), symbolCharacterSet] }
+    }
 
     /// A character set containing the characters in Unicode General Category Lu and Lt.
-    fn tp_uppercase_letter_character_set() -> NSCharacterSet;
+    fn tp_uppercase_letter_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), uppercaseLetterCharacterSet] }
+    }
 
     /// A character set containing characters in Unicode General Category Z*, U+000A ~ U+000D, and U+0085.
-    fn tp_whitespace_and_newline_character_set() -> NSCharacterSet;
+    fn tp_whitespace_and_newline_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), whitespaceAndNewlineCharacterSet] }
+    }
 
     /// A character set containing the characters in Unicode General Category Zs and CHARACTER TABULATION (U+0009).
-    fn tp_whitespace_character_set() -> NSCharacterSet;
+    fn tp_whitespace_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), whitespaceCharacterSet] }
+    }
 
     /* Getting Character Sets for URL Encoding
      */
 
     /// Returns the character set for characters allowed in a fragment URL component.
-    fn tp_urlfragment_allowed_character_set() -> NSCharacterSet;
+    fn tp_urlfragment_allowed_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), URLFragmentAllowedCharacterSet] }
+    }
 
     /// Returns the character set for characters allowed in a host URL subcomponent.
-    fn tp_urlhost_allowed_character_set() -> NSCharacterSet;
+    fn tp_urlhost_allowed_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), URLHostAllowedCharacterSet] }
+    }
 
     /// Returns the character set for characters allowed in a password URL subcomponent.
-    fn tp_urlpassword_allowed_character_set() -> NSCharacterSet;
+    fn tp_urlpassword_allowed_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), URLPasswordAllowedCharacterSet] }
+    }
 
     /// Returns the character set for characters allowed in a path URL component.
-    fn tp_urlpath_allowed_character_set() -> NSCharacterSet;
+    fn tp_urlpath_allowed_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), URLPathAllowedCharacterSet] }
+    }
 
     /// Returns the character set for characters allowed in a query URL component.
-    fn tp_urlquery_allowed_character_set() -> NSCharacterSet;
+    fn tp_urlquery_allowed_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), URLQueryAllowedCharacterSet] }
+    }
 
     /// Returns the character set for characters allowed in a user URL subcomponent.
-    fn tp_urluser_allowed_character_set() -> NSCharacterSet;
+    fn tp_urluser_allowed_character_set() -> NSCharacterSet {
+        unsafe { msg_send![Self::im_class(), URLUserAllowedCharacterSet] }
+    }
 
     /* Creating a Custom Character Set
      */
@@ -834,19 +918,44 @@ pub trait INSCharacterSet: PNSObject {
     fn im_init_with_coder(self, coder: NSCoder) -> Self;
 
     /// Returns a character set containing the characters in a given string.
-    fn tm_character_set_with_characters_in_string(string: NSString) -> NSCharacterSet;
+    fn tm_character_set_with_characters_in_string(string: NSString) -> NSCharacterSet {
+        unsafe {
+            NSCharacterSet::from_id(msg_send![
+                Self::im_class(),
+                characterSetWithCharactersInString: string
+            ])
+        }
+    }
 
     /// Returns a character set containing characters with Unicode values in a given range.
-    fn tm_character_set_with_range(range: Range<UInt>) -> NSCharacterSet;
+    fn tm_character_set_with_range(range: NSRange) -> NSCharacterSet {
+        unsafe {
+            NSCharacterSet::from_id(msg_send![Self::im_class(), characterSetWithRange: range])
+        }
+    }
 
     /* Creating and Managing Character Sets as Bitmap Representations
      */
 
     /// Returns a character set containing characters determined by a given bitmap representation.
-    fn tm_character_set_with_bitmap_representation(data: NSData) -> NSCharacterSet;
+    fn tm_character_set_with_bitmap_representation(data: NSData) -> NSCharacterSet {
+        unsafe {
+            NSCharacterSet::from_id(msg_send![
+                Self::im_class(),
+                characterSetWithBitmapRepresentation: data
+            ])
+        }
+    }
 
     /// Returns a character set read from the bitmap representation stored in the file a given path.
-    fn tm_character_set_with_contents_of_file(path: NSString) -> NSCharacterSet;
+    fn tm_character_set_with_contents_of_file(path: NSString) -> NSCharacterSet {
+        unsafe {
+            NSCharacterSet::from_id(msg_send![
+                Self::im_class(),
+                characterSetWithContentsOfFile: path
+            ])
+        }
+    }
 
     /// An NSData object encoding the receiver in binary format.
     fn ip_bitmap_representation(&self) -> NSData;

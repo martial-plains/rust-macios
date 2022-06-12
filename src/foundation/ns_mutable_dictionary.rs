@@ -115,24 +115,8 @@ impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {
         unsafe { msg_send![self.obj, count] }
     }
 
-    fn tm_dictionary() -> Self {
-        unsafe { Self::from_id(msg_send![Self::im_class(), dictionary]) }
-    }
-
     fn im_init() -> Self {
         unsafe { Self::from_id(msg_send![Self::im_class(), new]) }
-    }
-
-    fn tm_dictionary_with_dictionary<D>(dictionary: D) -> Self
-    where
-        D: INSDictionary<K, V>,
-    {
-        unsafe {
-            Self::from_id(msg_send![
-                Self::im_class(),
-                dictionaryWithDictionary: dictionary
-            ])
-        }
     }
 
     fn im_init_with_dictionary_copy_items(&mut self, dictionary: NSDictionary<K, V>, flag: bool) {
@@ -244,20 +228,6 @@ impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {
         K: PNSObject,
     {
         unsafe { msg_send![self.obj, removeObjectsForKeys: keys] }
-    }
-
-    fn tm_dictionary_with_capacity(capacity: UInt) -> Self
-where {
-        Self {
-            obj: unsafe {
-                Id::from_ptr(msg_send![
-                    Self::im_class(),
-                    dictionaryWithCapacity: capacity
-                ])
-            },
-            _key: PhantomData,
-            _value: PhantomData,
-        }
     }
 }
 

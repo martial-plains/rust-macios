@@ -4,10 +4,10 @@ use objc::Encode;
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 #[repr(C)]
 pub struct CGSize {
-    /// A height value.
-    pub height: f64,
     /// A width value.
     pub width: f64,
+    /// A height value.
+    pub height: f64,
 }
 
 unsafe impl Encode for CGSize {

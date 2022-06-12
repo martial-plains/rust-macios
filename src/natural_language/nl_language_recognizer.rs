@@ -155,15 +155,6 @@ impl INLLanguageRecognizer for NLLanguageRecognizer {
         }
     }
 
-    fn tm_dominant_language_for_string(&self, string: NSString) -> NLLanguage {
-        unsafe {
-            NLLanguage::from_id(msg_send![
-                Self::im_class(),
-                dominantLanguageForString: string
-            ])
-        }
-    }
-
     fn im_process_string(&mut self, string: NSString) {
         unsafe { msg_send![self.obj, processString: string] }
     }

@@ -1,9 +1,14 @@
+use objc::{msg_send, sel, sel_impl};
+
 use crate::{
     appkit::{
         ns_menu::NSMenu, NSApplicationActivationOptions, NSApplicationActivationPolicy,
         NSApplicationDelegateReply, NSApplicationTerminateReply,
     },
-    objective_c_runtime::{id, traits::PNSObject},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject},
+    },
 };
 
 use super::mouse_keyboard_and_trackpad::INSResponder;
@@ -12,10 +17,30 @@ use super::mouse_keyboard_and_trackpad::INSResponder;
 /// of that app’s objects.
 pub trait INSApplication: INSResponder {
     /// Returns the application instance, creating it if it doesn’t exist yet.
-    fn tp_shared_application() -> Self;
+    fn tp_shared_application() -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), sharedApplication]) }
+    }
+
+    /* Managing the Event Loop
+    */
+
+    /// A Boolean value indicating whether the main event loop is running.
+    fn ip_running(&self) -> bool;
+
+    /// Starts the main event loop.
+    fn im_run(&self);
+
+    /// Activates the app, opens any files specified by the NSOpen user default, and unhighlights the app’s icon.
+    fn im_finish_launching(&self);
+
+    /// Stops the main event loop.
+    fn im_stop(&self, sender: id);
 
     /* Terminating the App
-     */
+    */
 
     /// Terminates the receiver.
     fn im_terminate(self, sender: id);
@@ -24,7 +49,7 @@ pub trait INSApplication: INSResponder {
     fn reply_to_application_should_terminate(self, should_terminate: bool);
 
     /* Managing Relaunch on Login
-     */
+    */
 
     /// Disables relaunching the app on login.
     fn im_disable_relaunch_on_login(&self);
@@ -33,7 +58,7 @@ pub trait INSApplication: INSResponder {
     fn im_enable_relaunch_on_login(&self);
 
     /* Managing Remote Notifications
-     */
+    */
 
     /// Register for notifications sent by Apple Push Notification service (APNs).
     fn im_register_for_remote_notifications(&self);
@@ -42,13 +67,13 @@ pub trait INSApplication: INSResponder {
     fn im_unregister_for_remote_notifications(&self);
 
     /* Managing User Attention Requests
-     */
+    */
 
     /// Handles errors that might occur when the user attempts to open or print files.
     fn reply_to_open_or_print(self, response: NSApplicationDelegateReply);
 
     /* Configuring the Activation Policy
-     */
+    */
 
     /// Returns the app’s activation policy.
     fn im_activation_policy(&self) -> NSApplicationActivationPolicy;
@@ -72,7 +97,12 @@ pub trait INSApplication: INSResponder {
 /// An object that can manipulate and provide information for a single instance of an app.
 pub trait INSRunningApplication: PNSObject {
     /// Returns the application instance, creating it if it doesn’t exist yet.
-    fn tp_current_application() -> Self;
+    fn tp_current_application() -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), currentApplication]) }
+    }
 
     /// Indicates whether the application is currently frontmost.
     fn ip_is_active(&self) -> bool;

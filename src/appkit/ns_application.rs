@@ -1,3 +1,5 @@
+#![allow(clippy::let_unit_value)]
+
 use std::{fmt, marker::PhantomData, sync::Once};
 
 use objc::{
@@ -13,7 +15,7 @@ use crate::{
     foundation::{NSArray, NSAutoreleasePool, NSString},
     objective_c_runtime::{
         id, nil,
-        traits::{FromId, PNSObject},
+        traits::{FromId, PNSObject, ToId},
     },
 };
 
@@ -134,9 +136,7 @@ impl NSApplication {
 impl<T> NSApplication<T> {
     /// Starts the main event loop.
     pub fn run(&mut self) {
-        unsafe {
-            let _: () = msg_send![self.ptr, run];
-        };
+        self.im_run();
         self.pool.drain();
     }
 }
@@ -163,7 +163,9 @@ where
             let delegate: id = msg_send![delegate_class, new];
             let delegate_ptr: *const T = &*app_delegate;
             (&mut *delegate).set_ivar(NSAPPLICATION_PTR, delegate_ptr as usize);
+
             let _: () = msg_send![&*ptr, setDelegate: delegate];
+
             Id::from_ptr(delegate)
         };
 
@@ -183,47 +185,47 @@ impl<T> PNSObject for NSApplication<T, ()> {
     }
 
     fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { msg_send![self.ptr, isEqual: object] }
+        unsafe { msg_send![&*self.ptr, isEqual: object] }
     }
 
     fn ip_hash(&self) -> crate::foundation::UInt {
-        unsafe { msg_send![self.ptr, hash] }
+        unsafe { msg_send![&*self.ptr, hash] }
     }
 
     fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.ptr, isKindOfClass: class] }
+        unsafe { msg_send![&*self.ptr, isKindOfClass: class] }
     }
 
     fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.ptr, isMemberOfClass: class] }
+        unsafe { msg_send![&*self.ptr, isMemberOfClass: class] }
     }
 
     fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { msg_send![self.ptr, respondsToSelector: selector] }
+        unsafe { msg_send![&*self.ptr, respondsToSelector: selector] }
     }
 
     fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { msg_send![self.ptr, conformsToProtocol: protocol] }
+        unsafe { msg_send![&*self.ptr, conformsToProtocol: protocol] }
     }
 
     fn ip_description(&self) -> NSString {
-        unsafe { msg_send![self.ptr, description] }
+        unsafe { msg_send![&*self.ptr, description] }
     }
 
     fn ip_debug_description(&self) -> NSString {
-        unsafe { msg_send![self.ptr, debugDescription] }
+        unsafe { msg_send![&*self.ptr, debugDescription] }
     }
 
     fn im_perform_selector(&self, selector: Sel) -> id {
-        unsafe { msg_send![self.ptr, performSelector: selector] }
+        unsafe { msg_send![&*self.ptr, performSelector: selector] }
     }
 
     fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
-        unsafe { msg_send![self.ptr, performSelector: selector withObject: with_object] }
+        unsafe { msg_send![&*self.ptr, performSelector: selector withObject: with_object] }
     }
 
     fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![self.ptr, isProxy] }
+        unsafe { msg_send![&*self.ptr, isProxy] }
     }
 }
 
@@ -243,63 +245,79 @@ impl<T> INSApplication for NSApplication<T, ()> {
     }
 
     fn im_terminate(self, sender: id) {
-        unsafe { msg_send![self.ptr, terminate: sender] }
+        unsafe { msg_send![&*self.ptr, terminate: sender] }
     }
 
     fn reply_to_application_should_terminate(self, should_terminate: bool) {
         unsafe {
             msg_send![
-                self.ptr,
+                &*self.ptr,
                 replyToApplicationShouldTerminate: should_terminate
             ]
         }
     }
 
     fn im_disable_relaunch_on_login(&self) {
-        unsafe { msg_send![self.ptr, disableRelaunchOnLogin] }
+        unsafe { msg_send![&*self.ptr, disableRelaunchOnLogin] }
     }
 
     fn im_enable_relaunch_on_login(&self) {
-        unsafe { msg_send![self.ptr, enableRelaunchOnLogin] }
+        unsafe { msg_send![&*self.ptr, enableRelaunchOnLogin] }
     }
 
     fn im_register_for_remote_notifications(&self) {
-        unsafe { msg_send![self.ptr, registerForRemoteNotifications] }
+        unsafe { msg_send![&*self.ptr, registerForRemoteNotifications] }
     }
 
     fn im_unregister_for_remote_notifications(&self) {
-        unsafe { msg_send![self.ptr, unregisterForRemoteNotifications] }
+        unsafe { msg_send![&*self.ptr, unregisterForRemoteNotifications] }
     }
 
     fn reply_to_open_or_print(self, response: NSApplicationDelegateReply) {
-        unsafe { msg_send![self.ptr, replyToOpenOrPrint: response] }
+        unsafe { msg_send![&*self.ptr, replyToOpenOrPrint: response] }
     }
 
     fn im_activation_policy(&self) -> NSApplicationActivationPolicy {
-        unsafe { msg_send![self.ptr, activationPolicy] }
+        unsafe { msg_send![&*self.ptr, activationPolicy] }
     }
 
     fn im_set_activation_policy(&self, policy: NSApplicationActivationPolicy) {
-        unsafe { msg_send![self.ptr, setActivationPolicy: policy] }
+        unsafe { msg_send![&*self.ptr, setActivationPolicy: policy] }
     }
 
     fn ip_main_menu(&self) -> NSMenu {
-        unsafe { NSMenu::from_id(msg_send![self.ptr, mainMenu]) }
+        unsafe { NSMenu::from_id(msg_send![&*self.ptr, mainMenu]) }
     }
 
     fn ip_set_main_menu(&self, menu: NSMenu) {
-        unsafe { msg_send![self.ptr, setMainMenu: menu] }
+        unsafe { msg_send![&*self.ptr, setMainMenu: menu] }
+    }
+
+    fn ip_running(&self) -> bool {
+        unsafe { msg_send![&*self.ptr, isRunning] }
+    }
+
+    fn im_run(&self) {
+        unsafe { msg_send![&*self.ptr, run] }
+    }
+
+    fn im_finish_launching(&self) {
+        unsafe { msg_send![&*self.ptr, finishLaunching] }
+    }
+
+    fn im_stop(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, stop: sender] }
     }
 }
 
-impl<T, M> fmt::Debug for NSApplication<T, M> {
+impl<T> fmt::Debug for NSApplication<T, ()> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // let delegate = format!("{:?}", self.delegate);
-        f.debug_struct("App")
-            .field("objc", &self.ptr)
-            .field("objc_delegate", &self.ptr_delegate)
-            //.field("delegate", &delegate)
-            .field("pool", &self.pool)
-            .finish()
+        write!(f, "{}", self.ip_debug_description())
+    }
+}
+
+impl ToId for NSApplication {
+    fn to_id(mut self) -> id {
+        &mut *self.ptr
     }
 }

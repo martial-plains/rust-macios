@@ -1,5 +1,7 @@
 use std::ops::Range;
 
+use objc::{msg_send, sel, sel_impl};
+
 use crate::{
     foundation::{NSArray, NSDictionary, NSLocale, NSString, UInt},
     objective_c_runtime::{
@@ -118,25 +120,34 @@ where
      */
 
     /// Creates and returns an NSMutableArray object with enough allocated memory to initially hold a given number of objects.
-    fn tm_array_with_capacity(capacity: usize) -> Self;
+    fn tm_array_with_capacity(capacity: usize) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), arrayWithCapacity: capacity]) }
+    }
 
     /// Creates and returns a mutable array containing the contents of the file specified by the given path.
-    fn tm_array_with_contents_of_file<S>(path: S) -> Self
+    fn tm_array_with_contents_of_file(path: NSString) -> Self
     where
-        S: Into<NSString>;
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), arrayWithContentsOfFile: path]) }
+    }
 
     /// Creates and returns a mutable array containing the contents specified by a given URL.
-    fn tm_array_with_contents_of_url<S>(url: S) -> Self
+    fn tm_array_with_contents_of_url(url: NSString) -> Self
     where
-        S: Into<NSString>;
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), arrayWithContentsOfURL: url]) }
+    }
 
     /// Returns an array, initialized with enough memory to initially hold a given number of objects.
     fn im_init_with_capacity(capacity: UInt) -> Self;
 
     /// Initializes a newly allocated mutable array with the contents of the file specified by a given path
-    fn im_init_with_contents_of_file<S>(&mut self, path: S) -> bool
-    where
-        S: Into<NSString>;
+    fn im_init_with_contents_of_file(&mut self, path: NSString) -> bool;
 
     /* Adding Objects
      */
@@ -196,7 +207,12 @@ pub trait INSDictionary<K, V>: PNSObject {
      */
 
     /// Creates an empty dictionary.
-    fn tm_dictionary() -> Self;
+    fn tm_dictionary() -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), dictionary]) }
+    }
 
     /// Initializes a newly allocated dictionary.
     fn im_init() -> Self;
@@ -207,7 +223,16 @@ pub trait INSDictionary<K, V>: PNSObject {
     /// Creates a dictionary containing the keys and values from another given dictionary.
     fn tm_dictionary_with_dictionary<D>(dictionary: D) -> Self
     where
-        D: INSDictionary<K, V>;
+        Self: Sized + FromId,
+        D: INSDictionary<K, V>,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                Self::im_class(),
+                dictionaryWithDictionary: dictionary
+            ])
+        }
+    }
 
     /// Creates and initialize a dictionary
     fn im_init_with_dictionary(&mut self, dictionary: NSDictionary<K, V>);
@@ -269,7 +294,17 @@ pub trait INSMutableDictionary<K, V>: INSDictionary<K, V> {
      */
 
     /// Creates and returns a mutable dictionary, initially giving it enough allocated memory to hold a given number of entries.
-    fn tm_dictionary_with_capacity(capacity: UInt) -> Self;
+    fn tm_dictionary_with_capacity(capacity: UInt) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                Self::im_class(),
+                dictionaryWithCapacity: capacity
+            ])
+        }
+    }
 
     /* Adding Entries to a Mutable Dictionary
      */

@@ -1,4 +1,4 @@
-use std::fmt;
+use core::fmt;
 
 use objc::{
     class, msg_send,
@@ -16,31 +16,15 @@ use crate::{
     utils::to_bool,
 };
 
-use super::traits::{IBGProcessingTaskRequest, IBGTaskRequest};
-
-/// A request to launch your app in the background to execute a processing task that can take minutes to complete.
-pub struct BGProcessingTaskRequest {
+/// The visual representation of your app’s miniaturized windows and app icon as they appear in the Dock.
+pub struct NSDockTile {
     /// The underlying Objective-C object.
     pub ptr: Id<Object>,
 }
 
-impl ToId for BGProcessingTaskRequest {
-    fn to_id(mut self) -> id {
-        &mut *self.ptr
-    }
-}
-
-impl FromId for BGProcessingTaskRequest {
-    unsafe fn from_id(obj: id) -> Self {
-        Self {
-            ptr: Id::from_ptr(obj),
-        }
-    }
-}
-
-impl PNSObject for BGProcessingTaskRequest {
+impl PNSObject for NSDockTile {
     fn im_class<'a>() -> &'a Class {
-        class!(BGProcessingTaskRequest)
+        class!(NSDockTile)
     }
 
     fn im_is_equal(&self, object: &Self) -> bool {
@@ -84,48 +68,32 @@ impl PNSObject for BGProcessingTaskRequest {
     }
 
     fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![self.ptr, isProxy] }
+        unsafe { to_bool(msg_send![self.ptr, isProxy]) }
     }
 }
 
-impl IBGTaskRequest for BGProcessingTaskRequest {
-    fn ip_earliest_begin_date() -> crate::foundation::NSDate {
-        unsafe {
-            crate::foundation::NSDate::from_id(msg_send![
-                class!(BGProcessingTaskRequest),
-                earliestBeginDate
-            ])
+impl ToId for NSDockTile {
+    fn to_id(mut self) -> id {
+        &mut *self.ptr
+    }
+}
+
+impl FromId for NSDockTile {
+    unsafe fn from_id(ptr: id) -> Self {
+        Self {
+            ptr: Id::from_ptr(ptr),
         }
     }
 }
 
-impl IBGProcessingTaskRequest for BGProcessingTaskRequest {
-    fn im_init_with_identifier(identifier: NSString) -> Self {
-        unsafe {
-            Self::from_id(msg_send![
-                class!(BGProcessingTaskRequest),
-                initWithIdentifier: identifier
-            ])
-        }
-    }
-
-    fn ip_requires_external_power() -> bool {
-        unsafe { msg_send![class!(BGProcessingTaskRequest), requiresExternalPower] }
-    }
-
-    fn ip_requires_network_connectivity() -> bool {
-        unsafe { msg_send![class!(BGProcessingTaskRequest), requiresNetworkConnectivity] }
-    }
-}
-
-impl fmt::Debug for BGProcessingTaskRequest {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+impl fmt::Debug for NSDockTile {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.ip_debug_description())
     }
 }
 
-impl fmt::Display for BGProcessingTaskRequest {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+impl fmt::Display for NSDockTile {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.ip_description())
     }
 }

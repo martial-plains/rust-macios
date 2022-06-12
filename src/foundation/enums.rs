@@ -2,6 +2,8 @@
 
 //! Enums for the Foundation library.
 
+use crate::core_graphics::CGRectEdge;
+
 /// Enums for String Encoding
 pub mod string {
     /// The following constants are provided by NSString as possible string encodings.
@@ -1245,4 +1247,29 @@ pub enum NSXpcConnectionOptions {
 pub enum NSStringEncodingConversionOptions {
     AllowLossy = 1,
     ExternalRepresentation = 2,
+}
+
+///
+#[derive(Debug)]
+#[repr(u64)]
+pub enum NSRectEdge {
+    ///
+    MinXEdge,
+    ///
+    MinYEdge,
+    ///
+    MaxXEdge,
+    ///
+    MaxYEdge,
+}
+
+impl NSRectEdge {
+    #[allow(non_upper_case_globals)]
+    pub const MaxX: CGRectEdge = CGRectEdge::MaxXEdge;
+    #[allow(non_upper_case_globals)]
+    pub const MaxY: CGRectEdge = CGRectEdge::MaxYEdge;
+    #[allow(non_upper_case_globals)]
+    pub const MinX: CGRectEdge = CGRectEdge::MinXEdge;
+    #[allow(non_upper_case_globals)]
+    pub const MinY: CGRectEdge = CGRectEdge::MinYEdge;
 }

@@ -11,24 +11,24 @@ use crate::{
     foundation::{NSString, UInt},
     objective_c_runtime::{
         id,
-        traits::{FromId, PNSObject},
+        traits::{FromId, PNSObject, ToId},
     },
-    utils::to_bool,
 };
 
-/// A request to launch your app in the background to execute a short refresh task.
-pub struct BGAppRefreshTaskRequest {
-    /// The underlying Objective-C object.
+/// An object that manages the space above your app's custom content and either below or integrated with the window’s title bar.
+#[repr(transparent)]
+pub struct NSToolbar {
+    /// The underlying `NSToolbar`.
     pub ptr: Id<Object>,
 }
 
-impl PNSObject for BGAppRefreshTaskRequest {
+impl PNSObject for NSToolbar {
     fn im_class<'a>() -> &'a Class {
-        class!(BGAppRefreshTaskRequest)
+        class!(NSToolbar)
     }
 
     fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, isEqual: object]) }
+        unsafe { msg_send![self.ptr, isEqual: object] }
     }
 
     fn ip_hash(&self) -> UInt {
@@ -36,27 +36,27 @@ impl PNSObject for BGAppRefreshTaskRequest {
     }
 
     fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, isKindOfClass: class]) }
+        unsafe { msg_send![self.ptr, isKindOfClass: class] }
     }
 
     fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, isMemberOfClass: class]) }
+        unsafe { msg_send![self.ptr, isMemberOfClass: class] }
     }
 
     fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, respondsToSelector: selector]) }
+        unsafe { msg_send![self.ptr, respondsToSelector: selector] }
     }
 
     fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, conformsToProtocol: protocol]) }
+        unsafe { msg_send![self.ptr, conformsToProtocol: protocol] }
     }
 
     fn ip_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.ptr, description]) }
+        unsafe { msg_send![self.ptr, description] }
     }
 
     fn ip_debug_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.ptr, debugDescription]) }
+        unsafe { msg_send![self.ptr, debugDescription] }
     }
 
     fn im_perform_selector(&self, selector: Sel) -> id {
@@ -68,18 +68,32 @@ impl PNSObject for BGAppRefreshTaskRequest {
     }
 
     fn im_is_proxy(&self) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, isProxy]) }
+        unsafe { msg_send![self.ptr, isProxy] }
     }
 }
 
-impl fmt::Debug for BGAppRefreshTaskRequest {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+impl fmt::Debug for NSToolbar {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.ip_debug_description())
     }
 }
 
-impl fmt::Display for BGAppRefreshTaskRequest {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+impl fmt::Display for NSToolbar {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.ip_description())
+    }
+}
+
+impl ToId for NSToolbar {
+    fn to_id(mut self) -> id {
+        &mut *self.ptr
+    }
+}
+
+impl FromId for NSToolbar {
+    unsafe fn from_id(ptr: id) -> Self {
+        Self {
+            ptr: Id::from_ptr(ptr),
+        }
     }
 }
