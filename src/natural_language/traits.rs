@@ -1,8 +1,9 @@
 use block::RcBlock;
+use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{NSArray, NSDictionary, NSNumber, NSRange, NSString, UInt},
-    objective_c_runtime::traits::{INSValue, PNSObject},
+    objective_c_runtime::traits::{FromId, INSValue, PNSObject},
 };
 
 use super::{NLLanguage, NLTokenUnit, NLTokenizerAttributes};
@@ -65,7 +66,14 @@ pub trait INLLanguageRecognizer: PNSObject {
      */
 
     /// Finds the most likely language of a piece of text.
-    fn tm_dominant_language_for_string(&self, string: NSString) -> NLLanguage;
+    fn tm_dominant_language_for_string(&self, string: NSString) -> NLLanguage {
+        unsafe {
+            NLLanguage::from_id(msg_send![
+                Self::im_class(),
+                dominantLanguageForString: string
+            ])
+        }
+    }
 
     /// Analyzes the piece of text to determine its dominant language.
     fn im_process_string(&mut self, string: NSString);

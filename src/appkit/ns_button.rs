@@ -2,7 +2,7 @@ use std::fmt;
 
 use objc::{
     class, msg_send,
-    runtime::{Class, Object, Protocol, Sel},
+    runtime::{Class, Object, Sel},
     sel, sel_impl,
 };
 use objc_id::Id;
@@ -16,17 +16,18 @@ use crate::{
     utils::to_bool,
 };
 
-use super::traits::IBGTaskScheduler;
+use super::INSResponder;
 
-/// A class for scheduling task requests that launch your app in the background.
-pub struct BGTaskScheduler {
-    /// The underlying Objective-C object.
+/// A control that defines an area on the screen that a user clicks to trigger an action.
+#[repr(transparent)]
+pub struct NSButton {
+    /// The underlying `NSButton`.
     pub ptr: Id<Object>,
 }
 
-impl PNSObject for BGTaskScheduler {
+impl PNSObject for NSButton {
     fn im_class<'a>() -> &'a Class {
-        class!(BGTaskScheduler)
+        class!(NSButton)
     }
 
     fn im_is_equal(&self, object: &Self) -> bool {
@@ -38,19 +39,19 @@ impl PNSObject for BGTaskScheduler {
     }
 
     fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, isKindOfClass: class]) }
+        to_bool(unsafe { msg_send![self.ptr, isKindOfClass: class] })
     }
 
     fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, isMemberOfClass: class]) }
+        to_bool(unsafe { msg_send![self.ptr, isMemberOfClass: class] })
     }
 
     fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, respondsToSelector: selector]) }
+        to_bool(unsafe { msg_send![self.ptr, respondsToSelector: selector] })
     }
 
-    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, conformsToProtocol: protocol]) }
+    fn im_conforms_to_protocol(&self, protocol: objc::runtime::Protocol) -> bool {
+        to_bool(unsafe { msg_send![self.ptr, conformsToProtocol: protocol] })
     }
 
     fn ip_description(&self) -> NSString {
@@ -70,34 +71,34 @@ impl PNSObject for BGTaskScheduler {
     }
 
     fn im_is_proxy(&self) -> bool {
-        unsafe { to_bool(msg_send![self.ptr, isProxy]) }
+        to_bool(unsafe { msg_send![self.ptr, isProxy] })
     }
 }
 
-impl IBGTaskScheduler for BGTaskScheduler {}
+impl fmt::Debug for NSButton {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.ip_debug_description())
+    }
+}
 
-impl ToId for BGTaskScheduler {
+impl fmt::Display for NSButton {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.ip_description())
+    }
+}
+
+impl INSResponder for NSButton {}
+
+impl ToId for NSButton {
     fn to_id(mut self) -> id {
         &mut *self.ptr
     }
 }
 
-impl FromId for BGTaskScheduler {
-    unsafe fn from_id(obj: id) -> Self {
+impl FromId for NSButton {
+    unsafe fn from_id(ptr: id) -> Self {
         Self {
-            ptr: Id::from_ptr(obj),
+            ptr: Id::from_ptr(ptr),
         }
-    }
-}
-
-impl fmt::Debug for BGTaskScheduler {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl fmt::Display for BGTaskScheduler {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.ip_description())
     }
 }

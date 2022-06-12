@@ -106,24 +106,8 @@ impl<K, V> PNSObject for NSDictionary<K, V> {
 }
 
 impl<K, V> INSDictionary<K, V> for NSDictionary<K, V> {
-    fn tm_dictionary() -> Self {
-        unsafe { Self::from_id(msg_send![Self::im_class(), dictionary]) }
-    }
-
     fn im_init() -> Self {
         unsafe { Self::from_id(msg_send![Self::im_class(), init]) }
-    }
-
-    fn tm_dictionary_with_dictionary<D>(dictionary: D) -> Self
-    where
-        D: INSDictionary<K, V>,
-    {
-        unsafe {
-            Self::from_id(msg_send![
-                Self::im_class(),
-                dictionaryWithDictionary: dictionary
-            ])
-        }
     }
 
     fn im_init_with_dictionary(&mut self, dictionary: NSDictionary<K, V>) {

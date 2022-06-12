@@ -1,4 +1,4 @@
-use objc::runtime::Object;
+use objc::{msg_send, runtime::Object, sel, sel_impl};
 
 use crate::{
     foundation::{LanguageDirection, NSArray, NSLocale, NSLocaleKey, NSString},
@@ -11,39 +11,53 @@ pub trait INSLocale: PNSObject {
      */
 
     /// Initializes a locale using a given locale identifier.
-    fn im_init_with_locale_identifier<S>(locale_identifier: S) -> Self
-    where
-        S: Into<NSString>;
+    fn im_init_with_locale_identifier(locale_identifier: NSString) -> Self;
 
     /* Getting the User's Locale
      */
 
     /// A locale which tracks the user’s current preferences.
-    fn tp_autoupdating_current_locale(&self) -> NSLocale;
+    fn tp_autoupdating_current_locale() -> NSLocale {
+        unsafe { msg_send![Self::im_class(), autoupdatingCurrentLocale] }
+    }
 
     /// A locale representing the user's region settings at the time the property is read.
-    fn tp_current_locale() -> NSLocale;
+    fn tp_current_locale() -> NSLocale {
+        unsafe { msg_send![Self::im_class(), currentLocale] }
+    }
 
     /// A locale representing the generic root values with little localization.
-    fn tp_system_locale() -> NSLocale;
+    fn tp_system_locale() -> NSLocale {
+        unsafe { msg_send![Self::im_class(), systemLocale] }
+    }
 
     /* Getting Known Identifiers and Codes
      */
 
     /// The list of locale identifiers available on the system.
-    fn tp_available_locale_identifiers() -> NSArray<NSString>;
+    fn tp_available_locale_identifiers() -> NSArray<NSString> {
+        unsafe { msg_send![Self::im_class(), availableLocaleIdentifiers] }
+    }
 
     /// The list of known country or region codes.
-    fn tp_iso_country_codes() -> NSArray<NSString>;
+    fn tp_iso_country_codes() -> NSArray<NSString> {
+        unsafe { msg_send![Self::im_class(), isoCountryCodes] }
+    }
 
     /// The list of known language codes.
-    fn tp_iso_language_codes() -> NSArray<NSString>;
+    fn tp_iso_language_codes() -> NSArray<NSString> {
+        unsafe { msg_send![Self::im_class(), isoLanguageCodes] }
+    }
 
     /// The list of known currency codes.
-    fn tp_iso_currency_codes() -> NSArray<NSString>;
+    fn tp_iso_currency_codes() -> NSArray<NSString> {
+        unsafe { msg_send![Self::im_class(), isoCurrencyCodes] }
+    }
 
     /// A list of commonly encountered currency codes.
-    fn tp_common_isocurrency_codes() -> NSArray<NSString>;
+    fn tp_common_isocurrency_codes() -> NSArray<NSString> {
+        unsafe { msg_send![Self::im_class(), commonISOCurrencyCodes] }
+    }
 
     /* Converting Between Identifiers
      */
@@ -109,26 +123,40 @@ pub trait INSLocale: PNSObject {
     fn im_object_for_key(&self, key: NSLocaleKey) -> Option<Object>;
 
     /// Returns the display name for the given locale component value.
-    fn im_display_name_for_key_value<S>(&self, key: NSLocaleKey, value: S) -> Option<NSString>
-    where
-        S: Into<NSString>;
+    fn im_display_name_for_key_value<S>(
+        &self,
+        key: NSLocaleKey,
+        value: NSString,
+    ) -> Option<NSString>;
 
     /* Getting the User's Preferred Languages
      */
 
     /// An ordered list of the user's preferred languages.
-    fn tp_preferred_languages() -> NSArray<NSString>;
+    fn tp_preferred_languages() -> NSArray<NSString> {
+        unsafe { msg_send![Self::im_class(), preferredLanguages] }
+    }
 
     /* Getting Line and Character Direction for a Language
      */
 
     /// Returns the direction of the sequence of characters in a line for the specified ISO language code.
-    fn tm_character_direction_for_language<S>(&self, iso_language_code: S) -> LanguageDirection
-    where
-        S: Into<NSString>;
+    fn tm_character_direction_for_language(iso_language_code: NSString) -> LanguageDirection {
+        unsafe {
+            msg_send![
+                Self::im_class(),
+                characterDirectionForLanguage: iso_language_code
+            ]
+        }
+    }
 
     /// Returns the direction of the sequence of lines for the specified ISO language code.
-    fn tm_line_direction_for_language<S>(&self, iso_language_code: S) -> LanguageDirection
-    where
-        S: Into<NSString>;
+    fn tm_line_direction_for_language(iso_language_code: NSString) -> LanguageDirection {
+        unsafe {
+            msg_send![
+                Self::im_class(),
+                lineDirectionForLanguage: iso_language_code
+            ]
+        }
+    }
 }

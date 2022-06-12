@@ -1,25 +1,32 @@
-#![allow(trivial_casts)]
-
-use std::{collections::HashMap, ffi::CString, sync::RwLock};
-
-use block::ConcreteBlock;
+use block::{ConcreteBlock, IntoConcreteBlock};
 use objc::{
-    class,
-    declare::ClassDecl,
-    msg_send,
-    runtime::{objc_getClass, Class, Object, Sel},
+    class, msg_send,
+    runtime::{Class, Object, Protocol, Sel},
     sel, sel_impl,
 };
 use objc_id::ShareId;
 
 use crate::{
     core_graphics::{CGFloat, CGPoint, CGSize},
-    foundation::{Int, NSRect, NSString, UInt},
-    objective_c_runtime::{id, nil},
+    foundation::{
+        Int, NSAlignmentOptions, NSArray, NSData, NSDictionary, NSPoint, NSRect, NSRectEdge,
+        NSSize, NSString, UInt,
+    },
+    objective_c_runtime::{
+        id, nil,
+        traits::{FromId, PNSObject, ToId},
+    },
     utils::to_bool,
 };
 
-use super::{NSWindowStyleMask, NSWindowTitleVisibility, NSWindowToolbarStyle, PNSWindowDelegate};
+use super::{
+    ns_window_delegate::register_window_class_with_delegate, INSResponder, INSWindow,
+    NSBackingStoreType, NSButton, NSColor, NSColorSpace, NSDockTile, NSImage, NSModalResponse,
+    NSScreen, NSTitlebarSeparatorStyle, NSToolbar, NSUserInterfaceLayoutDirection,
+    NSViewController, NSWindowDepth, NSWindowFrameAutosaveName, NSWindowLevel,
+    NSWindowOcclusionState, NSWindowPersistableFrameDescriptor, NSWindowStyleMask,
+    NSWindowTitleVisibility, NSWindowToolbarStyle, PNSWindowDelegate,
+};
 
 pub(crate) static WINDOW_DELEGATE_PTR: &str = "rstNSWindowDelegate";
 
@@ -32,24 +39,13 @@ pub struct WindowConfig {
     /// The initial dimensions for the window.
     pub initial_dimensions: NSRect,
 
-    /// From the Apple docs:
-    ///
-    /// _"When true, the window server defers creating the window device
+    /// When true, the window server defers creating the window device
     /// until the window is moved onscreen. All display messages sent to
     /// the window or its views are postponed until the window is created,
-    /// just before it’s moved onscreen."_
-    ///
-    /// You generally just want this to be true, and it's the default for this struct.
+    /// just before it’s moved onscreen.
     pub defer: bool,
 
-    /// The style of toolbar that should be set here. This one is admittedly odd to be set here,
-    /// but that's how the underlying API is designed, so we're sticking to it.
-    ///
-    /// This property is not used on macOS versions prior to Big Sur. This defaults to
-    /// `ToolbarStyle::Automatic`; consult the specified enum
-    /// for other variants.
-    ///
-    /// This setting is notably important for Preferences windows.
+    /// The style of the toolbar
     pub toolbar_style: NSWindowToolbarStyle,
 }
 
@@ -82,13 +78,14 @@ impl Default for WindowConfig {
 }
 
 impl WindowConfig {
-    /// Given a set of styles, converts them to `NSUInteger` and stores them for later use.
+    /// Given a set of styles, converts them to `NSUInteger` and sets them on the
+    /// window config.
     pub fn set_styles(&mut self, styles: &[NSWindowStyleMask]) {
         let mut style: UInt = 0;
 
         for mask in styles {
             let i = *mask as UInt;
-            style = style | i;
+            style |= i;
         }
 
         self.style = style;
@@ -102,11 +99,7 @@ impl WindowConfig {
         };
     }
 
-    /// Offered as a convenience API to match the others. You can just set this property directly
-    /// if you prefer.
-    ///
-    /// Sets the Toolbar style. This is not used prior to macOS Big Sur (11.0); consult the
-    /// `ToolbarStyle` enum for more information on possible values.
+    /// Sets the toolbar style of this window.
     pub fn set_toolbar_style(&mut self, style: NSWindowToolbarStyle) {
         self.toolbar_style = style;
     }
@@ -117,63 +110,69 @@ impl WindowConfig {
 #[derive(Debug)]
 pub struct NSWindow<T = ()> {
     /// Represents an `NS/UIWindow` in the Objective-C runtime.
-    pub objc: ShareId<Object>,
+    pub ptr: ShareId<Object>,
 
     /// A delegate for this window.
     pub delegate: Option<Box<T>>,
 }
 
 impl Default for NSWindow {
-    /// Returns a default `Window`, with a default `WindowConfig`.
     fn default() -> Self {
         NSWindow::new(WindowConfig::default())
     }
 }
 
 impl NSWindow {
-    /// Constructs a new `Window`. You can use this instead of the `default()` method if you'd like
-    /// to customize the appearance of a `Window`.
-    ///
-    /// Why the config? Well, certain properties of windows are really not meant to be altered
-    /// after we initialize the backing `NSWindow`.
+    /// Constructs a new `NSWindow`
     pub fn new(config: WindowConfig) -> NSWindow {
-        let objc = unsafe {
-            // This behavior might make sense to keep as default (YES), but I think the majority of
-            // apps that would use this toolkit wouldn't be tab-oriented...
-            let _: () = msg_send![class!(NSWindow), setAllowsAutomaticWindowTabbing: false];
+        unsafe {
+            NSWindow::<()>::tm_set_allows_automatic_window_tabbing(false);
 
             let alloc: id = msg_send![class!(NSWindow), alloc];
 
-            // Other types of backing (Retained/NonRetained) are archaic, dating back to the
-            // NeXTSTEP era, and are outright deprecated... so we don't allow setting them.
-            let buffered: UInt = 2;
-            let dimensions: NSRect = config.initial_dimensions.into();
-            let window: id = msg_send![alloc, initWithContentRect:dimensions
-                styleMask:config.style
-                backing:buffered
-                defer: config.defer
-            ];
+            let dimensions: NSRect = config.initial_dimensions;
 
-            let _: () = msg_send![window, autorelease];
+            let mut window = NSWindow::from_id(alloc);
 
-            // This is very important! NSWindow is an old class and has some behavior that we need
-            // to disable, like... this. If we don't set this, we'll segfault entirely because the
-            // Objective-C runtime gets out of sync by releasing the window out from underneath of
-            // us.
-            let _: () = msg_send![window, setReleasedWhenClosed: false];
+            window = window.im_init_with_content_rect_style_mask_backing_defer(
+                dimensions,
+                config.style,
+                NSBackingStoreType::Buffered,
+                config.defer,
+            );
 
-            let _: () = msg_send![window, setRestorable: false];
+            window = window.autorelease();
+
+            window.ip_set_released_when_closed(false);
+            window.ip_set_restorable(false);
 
             let toolbar_style = config.toolbar_style;
-            let _: () = msg_send![window, setToolbarStyle: toolbar_style];
 
-            ShareId::from_ptr(window)
+            window.ip_set_toolbar_style(toolbar_style);
+
+            window
+        }
+    }
+
+    /// Allocates a new `Window`
+    fn alloc<T>(delegate: &T) -> Self
+    where
+        T: PNSWindowDelegate + 'static,
+    {
+        let objc = unsafe {
+            let class = register_window_class_with_delegate::<T>(delegate);
+            let alloc: id = msg_send![class, alloc];
+            ShareId::from_ptr(alloc)
         };
 
         NSWindow {
-            objc,
+            ptr: objc,
             delegate: None,
         }
+    }
+
+    fn autorelease(&self) -> Self {
+        unsafe { msg_send![self.ptr, autorelease] }
     }
 }
 
@@ -181,885 +180,1138 @@ impl<T> NSWindow<T>
 where
     T: PNSWindowDelegate + 'static,
 {
-    /// Constructs a new Window with a `config` and `delegate`. Using a `PNSWindowDelegate` enables
-    /// you to respond to window lifecycle events - visibility, movement, and so on. It also
-    /// enables easier structure of your codebase, and in a way simulates traditional class based
-    /// architectures... just without the subclassing.
+    /// Constructs a new NSWindow with a `config`
     pub fn with(config: WindowConfig, delegate: T) -> Self {
-        let class = register_window_class_with_delegate::<T>(&delegate);
+        let mut window = NSWindow::alloc::<T>(&delegate);
         let mut delegate = Box::new(delegate);
 
         let objc = unsafe {
-            // This behavior might make sense to keep as default (YES), but I think the majority of
-            // apps that would use this toolkit wouldn't be tab-oriented...
-            let _: () = msg_send![class!(NSWindow), setAllowsAutomaticWindowTabbing: false];
+            NSWindow::<()>::tm_set_allows_automatic_window_tabbing(false);
 
-            let alloc: id = msg_send![class, alloc];
+            let dimensions: NSRect = config.initial_dimensions;
 
-            // Other types of backing (Retained/NonRetained) are archaic, dating back to the
-            // NeXTSTEP era, and are outright deprecated... so we don't allow setting them.
-            let buffered: UInt = 2;
-            let dimensions: NSRect = config.initial_dimensions.into();
-            let window: id = msg_send![alloc, initWithContentRect:dimensions
-                styleMask:config.style
-                backing:buffered
-                defer: config.defer
-            ];
+            window = window.im_init_with_content_rect_style_mask_backing_defer(
+                dimensions,
+                config.style,
+                NSBackingStoreType::Buffered,
+                config.defer,
+            );
 
             let delegate_ptr: *const T = &*delegate;
-            (&mut *window).set_ivar(WINDOW_DELEGATE_PTR, delegate_ptr as usize);
+            let ptr: id = msg_send![&*window.ptr, self];
 
-            let _: () = msg_send![window, autorelease];
+            (&mut *ptr).set_ivar(WINDOW_DELEGATE_PTR, delegate_ptr as usize);
 
-            // This is very important! NSWindow is an old class and has some behavior that we need
-            // to disable, like... this. If we don't set this, we'll segfault entirely because the
-            // Objective-C runtime gets out of sync by releasing the window out from underneath of
-            // us.
-            let _: () = msg_send![window, setReleasedWhenClosed: false];
+            let mut window = NSWindow::from_id(ptr);
 
-            // We set the window to be its own delegate - this is cleaned up inside `Drop`.
-            let _: () = msg_send![window, setDelegate: window];
+            window = window.autorelease();
 
-            let _: () = msg_send![window, setRestorable: false];
+            window.ip_set_released_when_closed(false);
 
-            // This doesn't exist prior to Big Sur, but is important to support for Big Sur.
-            //
-            // Why this isn't a setting on the Toolbar itself I'll never know.
-            let toolbar_style = config.toolbar_style;
-            let _: () = msg_send![window, setToolbarStyle: toolbar_style];
+            window.ip_set_delegate(msg_send![&*window.ptr, self]);
+            window.ip_set_restorable(false);
 
-            ShareId::from_ptr(window)
+            window.ip_set_toolbar_style(config.toolbar_style);
+
+            window
         };
 
         {
             (&mut delegate).did_load(NSWindow {
                 delegate: None,
-                objc: objc.clone(),
+                ptr: objc.ptr.clone(),
             });
         }
 
         NSWindow {
-            objc,
+            ptr: objc.ptr.clone(),
             delegate: Some(delegate),
         }
     }
 }
 
 impl<T> NSWindow<T> {
-    /// Handles setting the title on the underlying window. Allocates and passes an `NSString` over
-    /// to the Objective C runtime.
-    pub fn set_title(&self, title: &str) {
-        unsafe {
-            let title = NSString::from(title);
-            let _: () = msg_send![&*self.objc, setTitle: title];
-        }
+    /// Sets the string that appears in the title bar of the window or the path to the represented file.
+    pub fn set_title<S>(&self, title: S)
+    where
+        S: Into<NSString>,
+    {
+        self.ip_set_title(title.into())
     }
 
-    /// Sets the title visibility for the underlying window.
-    pub fn set_title_visibility(&self, visibility: NSWindowTitleVisibility) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, setTitleVisibility: visibility];
-        }
+    /// Sets a value that indicates the visibility of the window’s title and title bar buttons.
+    pub fn set_title_visibility(&mut self, visibility: NSWindowTitleVisibility) {
+        self.ip_set_title_visibility(visibility)
     }
 
-    /// Used for configuring whether the window is movable via the background.
-    pub fn set_movable_by_background(&self, movable: bool) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, setMovableByWindowBackground: movable];
-        }
+    /// Sets a Boolean value that indicates whether the window is movable by clicking and dragging anywhere in its background.
+    pub fn set_movable_by_background(&mut self, movable: bool) {
+        self.ip_set_movable_by_window_background(movable)
     }
 
-    /// Used for setting whether this titlebar appears transparent.
-    pub fn set_titlebar_appears_transparent(&self, transparent: bool) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, setTitlebarAppearsTransparent: transparent];
-        }
+    /// Sets a Boolean value that indicates whether the title bar draws its background.
+    pub fn set_titlebar_appears_transparent(&mut self, transparent: bool) {
+        self.ip_set_titlebar_appears_transparent(transparent)
     }
 
-    /// Used for setting this Window autosave name.
-    pub fn set_autosave_name(&self, name: &str) {
-        unsafe {
-            let autosave = NSString::from(name);
-            let _: () = msg_send![&*self.objc, setFrameAutosaveName: autosave];
-        }
+    /// Sets the name AppKit uses to automatically save the window’s frame rectangle data in the defaults system.
+    pub fn set_autosave_name<S>(&self, name: S) -> bool
+    where
+        S: Into<NSString>,
+    {
+        self.im_set_frame_autosave_name(name.into())
     }
 
-    /// Sets the content size for this window.
-    pub fn set_content_size<F: Into<f64>>(&self, width: F, height: F) {
-        unsafe {
-            let size = CGSize {
-                width: width.into(),
-                height: height.into(),
-            };
-            let _: () = msg_send![&*self.objc, setContentSize: size];
-        }
+    /// Sets the size of the window’s content view to a given size, which is expressed in the window’s base coordinate system.
+    pub fn set_content_size(&self, size: NSSize) {
+        self.im_set_content_size(size);
+    }
+
+    /// Sets the minimum size of the window’s content view in the window’s base coordinate system.
+    pub fn set_minimum_content_size(&self, size: NSSize) {
+        self.ip_set_content_min_size(size);
+    }
+
+    /// Sets the minimum size to which the window’s frame (including its title bar) can be sized.
+    pub fn set_maximum_content_size(&self, size: NSSize) {
+        self.ip_set_content_max_size(size);
     }
 
     /// Sets the minimum size this window can shrink to.
-    pub fn set_minimum_content_size<F: Into<f64>>(&self, width: F, height: F) {
-        unsafe {
-            let size = CGSize {
-                width: width.into(),
-                height: height.into(),
-            };
-            let _: () = msg_send![&*self.objc, setContentMinSize: size];
-        }
+    pub fn set_minimum_size<F: Into<f64>>(&self, size: NSSize) {
+        self.ip_set_min_size(size)
     }
 
-    /// Sets the maximum size this window can shrink to.
-    pub fn set_maximum_content_size<F: Into<f64>>(&self, width: F, height: F) {
-        unsafe {
-            let size = CGSize {
-                width: width.into(),
-                height: height.into(),
-            };
-
-            let _: () = msg_send![&*self.objc, setContentMaxSize: size];
-        }
-    }
-
-    /// Sets the minimum size this window can shrink to.
-    pub fn set_minimum_size<F: Into<f64>>(&self, width: F, height: F) {
-        unsafe {
-            let size = CGSize {
-                width: width.into(),
-                height: height.into(),
-            };
-
-            let _: () = msg_send![&*self.objc, setMinSize: size];
-        }
-    }
-
-    // /// Used for setting a toolbar on this window.
-    // pub fn set_toolbar<TC: ToolbarDelegate>(&self, toolbar: &Toolbar<TC>) {
-    //     unsafe {
-    //         let _: () = msg_send![&*self.objc, setToolbar:&*toolbar.objc];
-    //     }
-    // }
-
-    /// Toggles whether the toolbar is shown for this window. Has no effect if no toolbar exists on
-    /// this window.
+    /// Toggles the visibility of the window’s toolbar.
     pub fn toggle_toolbar_shown(&self) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, toggleToolbarShown: nil];
-        }
+        self.ip_toggle_toolbar_shown(nil)
     }
 
-    /// Set whether the toolbar toggle button is shown. Has no effect if no toolbar exists on this
-    /// window.
+    /// Sets a Boolean value that indicates whether the toolbar control button is displayed.
     pub fn set_shows_toolbar_button(&self, shows: bool) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, setShowsToolbarButton: shows];
-        }
+        self.ip_set_shows_toolbar_button(shows);
     }
 
-    // /// Given a view, sets it as the content view for this window.
-    // pub fn set_content_view<L: Layout + 'static>(&self, view: &L) {
-    //     view.with_backing_node(|backing_node| unsafe {
-    //         let _: () = msg_send![&*self.objc, setContentView:&*backing_node];
-    //     });
-    // }
-
-    // /// Given a view, sets it as the content view controller for this window.
-    // pub fn set_content_view_controller<VC: Controller + 'static>(&self, controller: &VC) {
-    //     let backing_node = controller.get_backing_node();
-
-    //     unsafe {
-    //         let _: () = msg_send![&*self.objc, setContentViewController:&*backing_node];
-    //     }
-    // }
-
-    /// Shows the window.
-    pub fn show(&self) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, makeKeyAndOrderFront: nil];
-        }
-    }
-
-    /// On macOS, calling `close()` is equivalent to calling... well, `close`. It closes the
-    /// window.
-    ///
-    /// I dunno what else to say here, lol.
+    /// Removes the window from the screen.
     pub fn close(&self) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, close];
-        }
+        self.im_close()
     }
 
-    /// Toggles a Window being full screen or not.
-    pub fn toggle_full_screen(&self) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, toggleFullScreen: nil];
-        }
+    /// Takes the window into or out of fullscreen mode,
+    pub fn toggle_full_screen(&self, sender: id) {
+        self.im_toggle_full_screen(sender)
     }
 
-    // /// Sets the background color for the window. You generally don't want to do this often.
-    // pub fn set_background_color<C: AsRef<Color>>(&self, color: C) {
-    //     let color: id = color.as_ref().into();
-
-    //     unsafe {
-    //         let _: () = msg_send![&*self.objc, setBackgroundColor: color];
-    //     }
-    // }
-
-    /// Returns whether this window is opaque or not.
+    /// A Boolean value that indicates whether the window is opaque.
     pub fn is_opaque(&self) -> bool {
-        to_bool(unsafe { msg_send![&*self.objc, isOpaque] })
+        self.ip_is_opaque()
     }
 
-    /// Returns whether this window is miniaturized or not.
-    pub fn is_miniaturized(&self) -> bool {
-        to_bool(unsafe { msg_send![&*self.objc, isMiniaturized] })
+    /// A Boolean value that indicates whether the window is minimized.
+    pub fn miniaturized(&self) -> bool {
+        self.ip_miniaturized()
     }
 
-    /// Miniaturize this window.
-    pub fn miniaturize(&self) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, miniaturize];
-        }
+    /// Removes the window from the screen list and displays the minimized window in the Dock.
+    pub fn miniaturize(&self, sender: id) {
+        self.im_miniaturize(sender)
     }
 
-    /// De-mimizes this window.
-    pub fn deminiaturize(&self) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, deminiaturize];
-        }
+    /// De-minimizes the window.
+    pub fn deminiaturize(&self, sender: id) {
+        self.im_deminiaturize(sender)
     }
 
-    /// Runs the print panel, and if the user does anything except cancel, prints the window and
-    /// its contents.
-    pub fn print(&self) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, print];
-        }
+    /// Runs the Print panel, and if the user chooses an option other than canceling, prints the window (its frame view and all subviews).
+    pub fn print(&self, sender: id) {
+        self.im_print(sender)
     }
 
-    /// Indicates whether the window is on a currently active space.
-    ///
-    /// From Apple's documentation:
-    ///
-    /// _The value of this property is YES if the window is on the currently active space; otherwise, NO.
-    /// For visible windows, this property indicates whether the window is currently visible on the active
-    /// space. For nonvisible windows, it indicates whether ordering the window onscreen would cause it to
-    /// be on the active space._
+    /// A Boolean value that indicates whether the window is on the currently active space.
     pub fn is_on_active_space(&self) -> bool {
-        to_bool(unsafe { msg_send![&*self.objc, isOnActiveSpace] })
+        self.ip_is_on_active_space()
     }
 
-    /// Returns whether this window is visible or not.
+    /// A Boolean value that indicates whether the window is visible onscreen (even when it’s obscured by other windows).
     pub fn is_visible(&self) -> bool {
-        to_bool(unsafe { msg_send![&*self.objc, isVisible] })
+        self.ip_visible()
     }
 
-    /// Returns whether this window is the key or not.
-    pub fn is_key(&self) -> bool {
-        to_bool(unsafe { msg_send![&*self.objc, isKeyWindow] })
+    /// A Boolean value that indicates whether the window is the key window for the application.
+    pub fn is_key_window(&self) -> bool {
+        self.ip_key_window()
     }
 
-    /// Returns whether this window can become the key window.
-    pub fn can_become_key(&self) -> bool {
-        to_bool(unsafe { msg_send![&*self.objc, canBecomeKeyWindow] })
+    /// A Boolean value that indicates whether the window can become the key window.
+    pub fn can_become_key_window(&self) -> bool {
+        self.ip_can_become_key_window()
     }
 
-    /// Make this window the key window.
+    /// Makes the window the key window.
     pub fn make_key_window(&self) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, makeKeyWindow];
-        }
+        self.im_make_key_window()
     }
 
     /// Make the this window the key window and bring it to the front. Calling `show` does this for
     /// you.
-    pub fn make_key_and_order_front(&self) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, makeKeyAndOrderFront: nil];
-        }
+    pub fn make_key_and_order_front(&self, sender: id) {
+        self.im_make_key_and_order_front(sender)
     }
 
-    /// Returns if this is the main window or not.
-    pub fn is_main_window(&self) -> bool {
-        to_bool(unsafe { msg_send![&*self.objc, isMainWindow] })
+    /// A Boolean value that indicates whether the window is the application’s main window.
+    pub fn main_window(&self) -> bool {
+        self.ip_main_window()
     }
 
-    /// Returns if this can become the main window.
+    /// A Boolean value that indicates whether the window can become the application’s main window.
     pub fn can_become_main_window(&self) -> bool {
-        to_bool(unsafe { msg_send![&*self.objc, canBecomeMainWindow] })
+        self.ip_can_become_main_window()
     }
 
     /// Set whether this window should be excluded from the top-level "Windows" menu.
     pub fn set_excluded_from_windows_menu(&self, excluded: bool) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, setExcludedFromWindowsMenu: excluded];
-        }
+        self.ip_set_excluded_from_windows_menu(excluded)
     }
 
     /// Sets the type of separator that the app displays between the title bar and content of a window.
-    pub fn set_titlebar_separator_style(&self, style: Int) {
-        unsafe {
-            let _: () = msg_send![&*self.objc, setTitlebarSeparatorStyle: style];
-        }
+    pub fn set_titlebar_separator_style(&self, style: NSTitlebarSeparatorStyle) {
+        self.ip_set_titlebar_separator_style(style)
     }
 
-    /// Returns the backing scale (e.g, `1.0` for non retina, `2.0` for retina) used on this
-    /// window.
-    ///
-    /// Note that Apple recommends AGAINST using this in most cases. It's exposed here for the rare
-    /// cases where you DO need it.
+    /// The backing scale factor.
     pub fn backing_scale_factor(&self) -> f64 {
-        unsafe {
-            let scale: CGFloat = msg_send![&*self.objc, backingScaleFactor];
-            scale
-        }
+        self.ip_backing_scale_factor()
     }
 
-    /// Given a window and callback handler, will run it as a "sheet" (model-ish) and then run the
-    /// handler once the sheet is dismissed.
-    ///
-    /// This is a bit awkward due to Rust semantics; you have to use the same type of Window as the
-    /// one you're presenting on, but in practice this isn't too bad since you rarely want a Window
-    /// without a PNSWindowDelegate.
-    pub fn begin_sheet<F, W>(&self, window: &NSWindow<W>, completion: F)
+    /// Starts a document-modal session and presents—or queues for presentation—a sheet.
+    pub fn begin_sheet_completion_handler<F, W>(&self, window: &NSWindow<W>, completion: F)
     where
-        F: Fn() + Send + Sync + 'static,
+        F: IntoConcreteBlock<(NSModalResponse,), Ret = ()> + 'static,
         W: PNSWindowDelegate + 'static,
     {
-        let block = ConcreteBlock::new(move |_response: Int| {
-            completion();
-        });
+        let block = ConcreteBlock::new(completion);
         let block = block.copy();
 
-        unsafe {
-            let _: () = msg_send![&*self.objc, beginSheet:&*window.objc completionHandler:block];
-        }
+        self.im_begin_sheet_completion_handler(window, block)
     }
 
-    /// Closes a sheet.
+    /// Ends a document-modal session and dismisses the specified sheet.
     pub fn end_sheet<W>(&self, window: &NSWindow<W>)
     where
         W: PNSWindowDelegate + 'static,
     {
+        self.im_end_sheet(window);
+    }
+}
+
+impl<T> PNSObject for NSWindow<T> {
+    fn im_class<'a>() -> &'a Class {
+        class!(NSWindow)
+    }
+
+    fn im_is_equal(&self, object: &Self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isEqual:&*object.ptr]) }
+    }
+
+    fn ip_hash(&self) -> UInt {
+        unsafe { msg_send![&*self.ptr, hash] }
+    }
+
+    fn im_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isKindOfClass: class]) }
+    }
+
+    fn im_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isMemberOfClass: class]) }
+    }
+
+    fn im_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, respondsToSelector: selector]) }
+    }
+
+    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, conformsToProtocol: protocol]) }
+    }
+
+    fn ip_description(&self) -> NSString {
+        unsafe { msg_send![&*self.ptr, description] }
+    }
+
+    fn ip_debug_description(&self) -> NSString {
+        unsafe { msg_send![&*self.ptr, debugDescription] }
+    }
+
+    fn im_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![&*self.ptr, performSelector: selector] }
+    }
+
+    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![&*self.ptr, performSelector: selector withObject: with_object] }
+    }
+
+    fn im_is_proxy(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isProxy]) }
+    }
+}
+
+impl<T> INSResponder for NSWindow<T> {}
+
+impl<T> INSWindow for NSWindow<T> {
+    fn im_init_with_content_rect_style_mask_backing_defer(
+        &self,
+        content_rect: NSRect,
+        style: UInt,
+        backing_store_type: NSBackingStoreType,
+        defer: bool,
+    ) -> Self {
         unsafe {
-            let _: () = msg_send![&*self.objc, endSheet:&*window.objc];
+            Self::from_id(msg_send![&*self.ptr, initWithContentRect: content_rect
+                                                    styleMask: style
+                                                    backing: backing_store_type
+                                                    defer: defer])
+        }
+    }
+
+    fn im_init_with_content_rect_style_mask_backing_defer_screen(
+        &self,
+        content_rect: NSRect,
+        style: UInt,
+        backing_store_type: NSBackingStoreType,
+        flag: bool,
+        screen: NSScreen,
+    ) -> Self {
+        unsafe {
+            Self::from_id(msg_send![&*self.ptr, initWithContentRect: content_rect
+                                                    styleMask: style
+                                                    backing: backing_store_type
+                                                    defer: flag
+                                                    screen: screen])
+        }
+    }
+
+    fn ip_delegate(&self) -> id {
+        unsafe { msg_send![&*self.ptr, delegate] }
+    }
+
+    fn ip_set_delegate(&self, delegate: NSWindow) {
+        unsafe { msg_send![&*self.ptr, setDelegate: delegate] }
+    }
+
+    fn ip_content_view_controller(&self) -> NSViewController {
+        unsafe { msg_send![&*self.ptr, contentViewController] }
+    }
+
+    fn ip_style_mask(&self) -> NSWindowStyleMask {
+        unsafe { msg_send![&*self.ptr, styleMask] }
+    }
+
+    fn ip_set_style_mask(&mut self, style_mask: NSWindowStyleMask) {
+        unsafe { msg_send![&*self.ptr, setStyleMask: style_mask] }
+    }
+
+    fn im_toggle_full_screen(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, toggleFullScreen: sender] }
+    }
+
+    fn ip_works_when_modal(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, worksWhenModal]) }
+    }
+
+    fn ip_alpha_value(&self) -> CGFloat {
+        unsafe { msg_send![&*self.ptr, alphaValue] }
+    }
+
+    fn ip_set_alpha_value(&mut self, alpha_value: CGFloat) {
+        unsafe { msg_send![&*self.ptr, setAlphaValue: alpha_value] }
+    }
+
+    fn ip_background_color(&self) -> NSColor {
+        unsafe { msg_send![&*self.ptr, backgroundColor] }
+    }
+
+    fn ip_set_background_color(&mut self, color: NSColor) {
+        unsafe { msg_send![&*self.ptr, setBackgroundColor: color] }
+    }
+
+    fn ip_color_space(&self) -> NSColorSpace {
+        unsafe { msg_send![&*self.ptr, colorSpace] }
+    }
+
+    fn ip_set_color_space(&mut self, color_space: NSColorSpace) {
+        unsafe { msg_send![&*self.ptr, setColorSpace: color_space] }
+    }
+
+    fn im_set_dynamic_depth_limit(&self, flag: bool) {
+        unsafe { msg_send![&*self.ptr, setDynamicDepthLimit: flag] }
+    }
+
+    fn ip_can_hide(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, canHide]) }
+    }
+
+    fn ip_set_can_hide(&mut self, flag: bool) {
+        unsafe { msg_send![&*self.ptr, setCanHide: flag] }
+    }
+
+    fn ip_is_on_active_space(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isOnActiveSpace]) }
+    }
+
+    fn ip_hides_on_deactivate(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, hidesOnDeactivate]) }
+    }
+
+    fn ip_set_hides_on_deactivate(&mut self, flag: bool) {
+        unsafe { msg_send![&*self.ptr, setHidesOnDeactivate: flag] }
+    }
+
+    fn ip_collection_behavior(&self) -> super::NSWindowCollectionBehavior {
+        unsafe { msg_send![&*self.ptr, collectionBehavior] }
+    }
+
+    fn ip_is_opaque(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isOpaque]) }
+    }
+
+    fn ip_set_opaque(&mut self, flag: bool) {
+        unsafe { msg_send![&*self.ptr, setOpaque: flag] }
+    }
+
+    fn ip_has_shadow(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, hasShadow]) }
+    }
+
+    fn ip_set_has_shadow(&mut self, flag: bool) {
+        unsafe { msg_send![&*self.ptr, setHasShadow: flag] }
+    }
+
+    fn im_invalidate_shadow(&self) {
+        unsafe { msg_send![&*self.ptr, invalidateShadow] }
+    }
+
+    fn im_autorecalculates_content_border_thickness_for_edge(&self, edge: NSRectEdge) -> bool {
+        unsafe {
+            to_bool(msg_send![
+                &*self.ptr,
+                autorecalculatesContentBorderThicknessForEdge: edge
+            ])
+        }
+    }
+
+    fn im_set_autorecalculates_content_border_thickness_for_edge(
+        &self,
+        flag: bool,
+        edge: NSRectEdge,
+    ) {
+        unsafe {
+            msg_send![
+                &*self.ptr,
+                setAutorecalculatesContentBorderThickness: flag
+                forEdge: edge
+            ]
+        }
+    }
+
+    fn im_content_border_thickness_for_edge(&self, edge: NSRectEdge) -> CGFloat {
+        unsafe { msg_send![&*self.ptr, contentBorderThicknessForEdge: edge] }
+    }
+
+    fn im_set_content_border_thickness_for_edge(&self, thickness: CGFloat, edge: NSRectEdge) {
+        unsafe {
+            msg_send![
+                &*self.ptr,
+                setContentBorderThickness: thickness
+                forEdge: edge
+            ]
+        }
+    }
+
+    fn ip_prevents_application_termination(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, preventsApplicationTermination]) }
+    }
+
+    fn ip_appearance_source(&self) -> id {
+        unsafe { msg_send![&*self.ptr, appearanceSource] }
+    }
+
+    fn ip_depth_limit(&self) -> NSWindowDepth {
+        unsafe { msg_send![&*self.ptr, depthLimit] }
+    }
+
+    fn ip_set_depth_limit(&mut self, depth: NSWindowDepth) {
+        unsafe { msg_send![&*self.ptr, setDepthLimit: depth] }
+    }
+
+    fn ip_has_dynamic_depth_limit(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, hasDynamicDepthLimit]) }
+    }
+
+    fn ip_window_number(&self) -> Int {
+        unsafe { msg_send![&*self.ptr, windowNumber] }
+    }
+
+    fn ip_device_description(&self) -> NSDictionary<super::NSDeviceDescriptionKey, id> {
+        unsafe { msg_send![&*self.ptr, deviceDescription] }
+    }
+
+    fn ip_can_become_visible_without_login(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, canBecomeVisibleWithoutLogin]) }
+    }
+
+    fn ip_sharing_type(&self) -> super::NSWindowSharingType {
+        unsafe { msg_send![&*self.ptr, sharingType] }
+    }
+
+    fn ip_backing_type(&self) -> NSBackingStoreType {
+        unsafe { msg_send![&*self.ptr, backingType] }
+    }
+
+    fn im_content_rect_for_frame_rect(&self, frame: NSRect) -> NSRect {
+        unsafe { msg_send![&*self.ptr, contentRectForFrameRect: frame] }
+    }
+
+    fn im_frame_rect_for_content_rectim_frame_rect_for_content_rect(
+        &self,
+        content: NSRect,
+    ) -> NSRect {
+        unsafe { msg_send![&*self.ptr, frameRectForContentRect: content] }
+    }
+
+    fn ip_attached_sheet(&self) -> NSWindow {
+        unsafe { NSWindow::from_id(msg_send![&*self.ptr, attachedSheet]) }
+    }
+
+    fn ip_sheet(&mut self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isSheet]) }
+    }
+
+    fn im_begin_sheet_completion_handler<W>(
+        &self,
+        sheet: &NSWindow<W>,
+        handler: block::RcBlock<(i64,), ()>,
+    ) {
+        unsafe {
+            msg_send![
+                &*self.ptr,
+                beginSheet: sheet
+                completionHandler: handler
+            ]
+        }
+    }
+
+    fn im_begin_critical_sheet_completion_handler(
+        &self,
+        sheet: NSWindow,
+        handler: block::RcBlock<NSModalResponse, ()>,
+    ) {
+        unsafe {
+            msg_send![
+                &*self.ptr,
+                beginCriticalSheet: &*sheet.ptr
+                completionHandler: handler
+            ]
+        }
+    }
+
+    fn im_end_sheet<W>(&self, sheet: &NSWindow<W>)
+    where
+        W: PNSWindowDelegate + 'static,
+    {
+        unsafe { msg_send![&*self.ptr, endSheet:&*sheet.ptr] }
+    }
+
+    fn im_end_sheet_with_return_code(&self, sheet: NSWindow, code: NSModalResponse) {
+        unsafe { msg_send![&*self.ptr, endSheet: sheet returnCode: code] }
+    }
+
+    fn ip_sheet_parent(&self) -> NSWindow {
+        unsafe { NSWindow::from_id(msg_send![&*self.ptr, sheetParent]) }
+    }
+
+    fn ip_sheets(&self) -> NSArray<NSWindow> {
+        unsafe { NSArray::from_id(msg_send![&*self.ptr, sheets]) }
+    }
+
+    fn ip_frame(&self) -> NSRect {
+        unsafe { msg_send![&*self.ptr, frame] }
+    }
+
+    fn im_set_frame_origin(&self, point: NSPoint) {
+        unsafe { msg_send![&*self.ptr, setFrameOrigin: point] }
+    }
+
+    fn im_set_frame_top_left_point(&self, point: NSPoint) {
+        unsafe { msg_send![&*self.ptr, setFrameTopLeftPoint: point] }
+    }
+
+    fn im_constrain_frame_rect_to_screen(&self, frame: NSRect, screen: NSScreen) -> NSRect {
+        unsafe { msg_send![&*self.ptr, constrainFrameRect: frame toScreen: screen] }
+    }
+
+    fn im_cascade_top_left_from_point(&self, point: NSPoint) {
+        unsafe { msg_send![&*self.ptr, cascadeTopLeftFromPoint: point] }
+    }
+
+    fn im_set_frame_display(&self, frame: NSRect, flag: bool) {
+        unsafe { msg_send![&*self.ptr, setFrame: frame display: flag] }
+    }
+
+    fn im_set_frame_display_animate(&self, frame: NSRect, flag: bool, animate: bool) {
+        unsafe { msg_send![&*self.ptr, setFrame: frame display: flag animate: animate] }
+    }
+
+    fn im_animation_resize_time(&self, frame: NSRect) -> crate::foundation::NSTimeInterval {
+        unsafe { msg_send![&*self.ptr, animationResizeTime: frame] }
+    }
+
+    fn ip_aspect_ratio(&self) -> NSSize {
+        unsafe { msg_send![&*self.ptr, aspectRatio] }
+    }
+
+    fn ip_set_aspect_ratio(&self, ratio: NSSize) {
+        unsafe { msg_send![&*self.ptr, setAspectRatio: ratio] }
+    }
+
+    fn ip_min_size(&self) -> NSSize {
+        unsafe { msg_send![&*self.ptr, minSize] }
+    }
+
+    fn ip_set_min_size(&self, size: NSSize) {
+        unsafe { msg_send![&*self.ptr, setMinSize: size] }
+    }
+
+    fn ip_max_size(&self) -> NSSize {
+        unsafe { msg_send![&*self.ptr, maxSize] }
+    }
+
+    fn ip_set_max_size(&self, size: NSSize) {
+        unsafe { msg_send![&*self.ptr, setMaxSize: size] }
+    }
+
+    fn ip_zoomed(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isZoomed]) }
+    }
+
+    fn im_perform_zoom(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, performZoom: sender] }
+    }
+
+    fn im_zoom(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, zoom: sender] }
+    }
+
+    fn ip_resize_increments(&self) -> NSSize {
+        unsafe { msg_send![&*self.ptr, resizeIncrements] }
+    }
+
+    fn ip_set_resize_increments(&self, increments: NSSize) {
+        unsafe { msg_send![&*self.ptr, setResizeIncrements: increments] }
+    }
+
+    fn ip_preserves_content_during_live_resize(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, preservesContentDuringLiveResize]) }
+    }
+
+    fn ip_set_preserves_content_during_live_resize(&self, flag: bool) {
+        unsafe { msg_send![&*self.ptr, setPreservesContentDuringLiveResize: flag] }
+    }
+
+    fn ip_in_live_resize(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, inLiveResize]) }
+    }
+
+    fn ip_set_in_live_resize(&self, flag: bool) {
+        unsafe { msg_send![&*self.ptr, setInLiveResize: flag] }
+    }
+
+    fn ip_content_aspect_ratio(&self) -> NSSize {
+        unsafe { msg_send![&*self.ptr, contentAspectRatio] }
+    }
+
+    fn ip_set_content_aspect_ratio(&self, size: NSSize) {
+        unsafe { msg_send![&*self.ptr, setContentAspectRatio: size] }
+    }
+
+    fn ip_content_min_size(&self) -> NSSize {
+        unsafe { msg_send![&*self.ptr, contentMinSize] }
+    }
+
+    fn ip_set_content_min_size(&self, content_min_size: NSSize) {
+        unsafe { msg_send![&*self.ptr, setContentMinSize: content_min_size] }
+    }
+
+    fn im_set_content_size(&self, size: NSSize) {
+        unsafe { msg_send![&*self.ptr, setContentSize: size] }
+    }
+
+    fn ip_content_max_size(&self) -> NSSize {
+        unsafe { msg_send![&*self.ptr, contentMaxSize] }
+    }
+
+    fn ip_set_content_max_size(&self, size: NSSize) {
+        unsafe { msg_send![&*self.ptr, setContentMaxSize: size] }
+    }
+
+    fn ip_content_resize_increments(&self) -> NSSize {
+        unsafe { msg_send![&*self.ptr, contentResizeIncrements] }
+    }
+
+    fn ip_set_content_resize_increments(&self, content_resize_increments: NSSize) {
+        unsafe {
+            msg_send![
+                &*self.ptr,
+                setContentResizeIncrements: content_resize_increments
+            ]
+        }
+    }
+
+    fn ip_content_layout_guide(&self) -> id {
+        unsafe { msg_send![&*self.ptr, contentLayoutGuide] }
+    }
+
+    fn ip_set_content_layout_guide(&self, content_layout_guide: id) {
+        unsafe { msg_send![&*self.ptr, setContentLayoutGuide: content_layout_guide] }
+    }
+
+    fn ip_content_layout_rect(&self) -> NSRect {
+        unsafe { msg_send![&*self.ptr, contentLayoutRect] }
+    }
+
+    fn ip_set_content_layout_rect(&self, content_layout_rect: NSRect) {
+        unsafe { msg_send![&*self.ptr, setContentLayoutRect: content_layout_rect] }
+    }
+
+    fn ip_full_screen_tile_size(&self) -> NSSize {
+        unsafe { msg_send![&*self.ptr, fullScreenTileSize] }
+    }
+
+    fn ip_set_full_screen_tile_size(&self, size: NSSize) {
+        unsafe { msg_send![&*self.ptr, setFullScreenTileSize: size] }
+    }
+
+    fn ip_full_screen_tile_content_size(&self) -> NSSize {
+        unsafe { msg_send![&*self.ptr, fullScreenTileContentSize] }
+    }
+
+    fn ip_set_full_screen_tile_content_size(&self, size: NSSize) {
+        unsafe { msg_send![&*self.ptr, setFullScreenTileContentSize: size] }
+    }
+
+    fn im_order_out(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, orderOut: sender] }
+    }
+
+    fn im_order_back(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, orderBack: sender] }
+    }
+
+    fn im_order_front(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, orderFront: sender] }
+    }
+
+    fn im_order_front_regardless(&self) {
+        unsafe { msg_send![&*self.ptr, orderFrontRegardless] }
+    }
+
+    fn im_order_window_relative_to(&self, place: super::NSWindowOrderingMode, other: Int) {
+        unsafe { msg_send![&*self.ptr, orderWindow: place relativeTo: other] }
+    }
+
+    fn ip_window_level(&self) -> NSWindowLevel {
+        unsafe { msg_send![&*self.ptr, level] }
+    }
+
+    fn ip_set_window_level(&self, level: NSWindowLevel) {
+        unsafe { msg_send![&*self.ptr, setLevel: level] }
+    }
+
+    fn ip_visible(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isVisible]) }
+    }
+
+    fn ip_occlusion_state(&self) -> NSWindowOcclusionState {
+        unsafe { msg_send![&*self.ptr, occlusionState] }
+    }
+
+    fn im_set_frame_using_name(&self, name: NSWindowFrameAutosaveName) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, setFrameUsingName: name]) }
+    }
+
+    fn im_set_frame_using_name_force(&self, name: NSWindowFrameAutosaveName, force: bool) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, setFrameUsingName:name force:force]) }
+    }
+
+    fn im_save_frame_using_name(&self, name: NSWindowFrameAutosaveName) {
+        unsafe { msg_send![&*self.ptr, saveFrameUsingName: name] }
+    }
+
+    fn im_set_frame_autosave_name(&self, name: NSWindowFrameAutosaveName) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, setFrameAutosaveName: name]) }
+    }
+
+    fn ip_frame_autosave_name(&self) -> NSWindowFrameAutosaveName {
+        unsafe { msg_send![&*self.ptr, frameAutosaveName] }
+    }
+
+    fn ip_string_with_saved_frame(&self) -> NSWindowPersistableFrameDescriptor {
+        unsafe { msg_send![&*self.ptr, stringWithSavedFrame] }
+    }
+
+    fn im_set_frame_from_string(&self, string: NSWindowPersistableFrameDescriptor) {
+        unsafe { msg_send![&*self.ptr, setFrameFromString: string] }
+    }
+
+    fn ip_key_window(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isKeyWindow]) }
+    }
+
+    fn ip_can_become_key_window(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, canBecomeKeyWindow]) }
+    }
+
+    fn im_make_key_window(&self) {
+        unsafe { msg_send![&*self.ptr, makeKeyWindow] }
+    }
+
+    fn im_make_key_and_order_front(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, makeKeyAndOrderFront: sender] }
+    }
+
+    fn im_become_key_window(&self) {
+        unsafe { msg_send![&*self.ptr, becomeKeyWindow] }
+    }
+
+    fn im_resign_key_window(&self) {
+        unsafe { msg_send![&*self.ptr, resignKeyWindow] }
+    }
+
+    fn ip_main_window(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isMainWindow]) }
+    }
+
+    fn ip_can_become_main_window(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, canBecomeMainWindow]) }
+    }
+
+    fn im_make_main_window(&self) {
+        unsafe { msg_send![&*self.ptr, makeMainWindow] }
+    }
+
+    fn im_become_main_window(&self) {
+        unsafe { msg_send![&*self.ptr, becomeMainWindow] }
+    }
+
+    fn im_resign_main_window(&self) {
+        unsafe { msg_send![&*self.ptr, resignMainWindow] }
+    }
+
+    fn ip_toolbar(&self) -> NSToolbar {
+        unsafe { NSToolbar::from_id(msg_send![&*self.ptr, toolbar]) }
+    }
+
+    fn ip_set_toolbar(&self, toolbar: NSToolbar) {
+        unsafe { msg_send![&*self.ptr, setToolbar: toolbar] }
+    }
+
+    fn ip_toggle_toolbar_shown(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, toggleToolbarShown: sender] }
+    }
+
+    fn ip_run_toolbar_customization_palette(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, runToolbarCustomizationPalette: sender] }
+    }
+
+    fn ip_child_windows(&self) -> id {
+        unsafe { msg_send![&*self.ptr, childWindows] }
+    }
+
+    fn add_child_window_ordered(&self, child: id, order: super::NSWindowOrderingMode) {
+        unsafe { msg_send![&*self.ptr, addChildWindow:child ordered:order] }
+    }
+
+    fn remove_child_window(&self, child: id) {
+        unsafe { msg_send![&*self.ptr, removeChildWindow: child] }
+    }
+
+    fn ip_parent_window(&self) -> id {
+        unsafe { msg_send![&*self.ptr, parentWindow] }
+    }
+
+    fn ip_excluded_from_windows_menu(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isExcludedFromWindowsMenu]) }
+    }
+
+    fn ip_set_excluded_from_windows_menu(&self, flag: bool) {
+        unsafe { msg_send![&*self.ptr, setExcludedFromWindowsMenu: flag] }
+    }
+
+    fn ip_are_cursor_rects_enabled(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, areCursorRectsEnabled]) }
+    }
+
+    fn im_enable_cursor_rects(&self) {
+        unsafe { msg_send![&*self.ptr, enableCursorRects] }
+    }
+
+    fn im_disable_cursor_rects(&self) {
+        unsafe { msg_send![&*self.ptr, disableCursorRects] }
+    }
+
+    fn im_discard_cursor_rects(&self, view: id) {
+        unsafe { msg_send![&*self.ptr, discardCursorRectsForView: view] }
+    }
+
+    fn im_reset_cursor_rects(&self) {
+        unsafe { msg_send![&*self.ptr, resetCursorRects] }
+    }
+
+    fn ip_standard_window_button(&self, b: super::NSWindowButton) -> NSButton {
+        unsafe { NSButton::from_id(msg_send![&*self.ptr, standardWindowButton: b]) }
+    }
+
+    fn ip_shows_toolbar_button(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, showsToolbarButton]) }
+    }
+
+    fn ip_set_shows_toolbar_button(&self, flag: bool) {
+        unsafe { msg_send![&*self.ptr, setShowsToolbarButton: flag] }
+    }
+
+    fn ip_titlebar_appears_transparent(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, titlebarAppearsTransparent]) }
+    }
+
+    fn ip_set_titlebar_appears_transparent(&self, flag: bool) {
+        unsafe { msg_send![&*self.ptr, setTitlebarAppearsTransparent: flag] }
+    }
+
+    fn ip_toolbar_style(&self) -> NSWindowToolbarStyle {
+        unsafe { msg_send![&*self.ptr, toolbarStyle] }
+    }
+
+    fn ip_set_toolbar_style(&self, style: NSWindowToolbarStyle) {
+        unsafe { msg_send![&*self.ptr, setToolbarStyle: style] }
+    }
+
+    fn ip_titlebar_separator_style(&self) -> NSTitlebarSeparatorStyle {
+        unsafe { msg_send![&*self.ptr, titlebarSeparatorStyle] }
+    }
+
+    fn ip_set_titlebar_separator_style(&self, style: NSTitlebarSeparatorStyle) {
+        unsafe { msg_send![&*self.ptr, setTitlebarSeparatorStyle: style] }
+    }
+
+    fn ip_titlebar_layout_direction(&self) -> NSUserInterfaceLayoutDirection {
+        unsafe { msg_send![&*self.ptr, titlebarLayoutDirection] }
+    }
+
+    fn ip_backing_scale_factor(&self) -> CGFloat {
+        unsafe { msg_send![&*self.ptr, backingScaleFactor] }
+    }
+
+    fn im_backing_aligned_rect_options(&self, options: NSAlignmentOptions) -> NSRect {
+        unsafe { msg_send![&*self.ptr, backingAlignedRect: options] }
+    }
+
+    fn im_convert_rect_from_backing(&self, rect: NSRect) -> NSRect {
+        unsafe { msg_send![&*self.ptr, convertRectFromBacking: rect] }
+    }
+
+    fn im_convert_rect_from_screen(&self, rect: NSRect) -> NSRect {
+        unsafe { msg_send![&*self.ptr, convertRectFromScreen: rect] }
+    }
+
+    fn im_convert_point_from_backing(&self, point: NSPoint) -> NSPoint {
+        unsafe { msg_send![&*self.ptr, convertPointFromBacking: point] }
+    }
+
+    fn im_convert_point_from_screen(&self, point: NSPoint) -> NSPoint {
+        unsafe { msg_send![&*self.ptr, convertPointFromScreen: point] }
+    }
+
+    fn im_convert_rect_to_backing(&self, rect: NSRect) -> NSRect {
+        unsafe { msg_send![&*self.ptr, convertRectToBacking: rect] }
+    }
+
+    fn im_convert_rect_to_screen(&self, rect: NSRect) -> NSRect {
+        unsafe { msg_send![&*self.ptr, convertRectToScreen: rect] }
+    }
+
+    fn im_convert_point_to_backing(&self, point: NSPoint) -> NSPoint {
+        unsafe { msg_send![&*self.ptr, convertPointToBacking: point] }
+    }
+
+    fn im_convert_point_to_screen(&self, point: NSPoint) -> NSPoint {
+        unsafe { msg_send![&*self.ptr, convertPointToScreen: point] }
+    }
+
+    fn ip_title(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![&*self.ptr, title]) }
+    }
+
+    fn ip_set_title(&self, title: NSString) {
+        unsafe { msg_send![&*self.ptr, setTitle: title] }
+    }
+
+    fn ip_subtitle(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![&*self.ptr, subtitle]) }
+    }
+
+    fn ip_set_subtitle(&self, subtitle: NSString) {
+        unsafe { msg_send![&*self.ptr, setSubtitle: subtitle] }
+    }
+
+    fn ip_title_visibility(&self) -> NSWindowTitleVisibility {
+        unsafe { msg_send![&*self.ptr, titleVisibility] }
+    }
+
+    fn ip_set_title_visibility(&self, title_visibility: NSWindowTitleVisibility) {
+        unsafe { msg_send![&*self.ptr, setTitleVisibility: title_visibility] }
+    }
+
+    fn im_set_title_with_represented_filename(&self, path: NSString) {
+        unsafe { msg_send![&*self.ptr, setTitleWithRepresentedFilename: path] }
+    }
+
+    fn ip_represented_filename(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![&*self.ptr, representedFilename]) }
+    }
+
+    fn ip_set_represented_filename(&self, represented_filename: NSString) {
+        unsafe { msg_send![&*self.ptr, setRepresentedFilename: represented_filename] }
+    }
+
+    fn ip_screen(&self) -> NSScreen {
+        unsafe { NSScreen::from_id(msg_send![&*self.ptr, screen]) }
+    }
+
+    fn ip_deepest_screen(&self) -> NSScreen {
+        unsafe { NSScreen::from_id(msg_send![&*self.ptr, deepestScreen]) }
+    }
+
+    fn ip_displays_when_screen_profile_changes(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, displaysWhenScreenProfileChanges]) }
+    }
+
+    fn ip_movable_by_window_background(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isMovableByWindowBackground]) }
+    }
+
+    fn ip_set_movable_by_window_background(&self, movable_by_window_background: bool) {
+        unsafe {
+            msg_send![
+                &*self.ptr,
+                setMovableByWindowBackground: movable_by_window_background
+            ]
+        }
+    }
+
+    fn ip_movable(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isMovable]) }
+    }
+
+    fn ip_set_movable(&self, movable: bool) {
+        unsafe { msg_send![&*self.ptr, setMovable: movable] }
+    }
+
+    fn im_center(&self) {
+        unsafe { msg_send![&*self.ptr, center] }
+    }
+
+    fn im_perform_close(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, performClose: sender] }
+    }
+
+    fn im_close(&self) {
+        unsafe { msg_send![&*self.ptr, close] }
+    }
+
+    fn ip_released_when_closed(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isReleasedWhenClosed]) }
+    }
+
+    fn ip_set_released_when_closed(&self, released_when_closed: bool) {
+        unsafe { msg_send![&*self.ptr, setReleasedWhenClosed: released_when_closed] }
+    }
+
+    fn ip_miniaturized(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isMiniaturized]) }
+    }
+
+    fn im_perform_miniaturize(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, performMiniaturize: sender] }
+    }
+
+    fn im_miniaturize(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, miniaturize: sender] }
+    }
+
+    fn im_deminiaturize(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, deminiaturize: sender] }
+    }
+
+    fn ip_miniwindow_image(&self) -> NSImage {
+        unsafe { NSImage::from_id(msg_send![&*self.ptr, miniwindowImage]) }
+    }
+
+    fn ip_miniwindow_title(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![&*self.ptr, miniwindowTitle]) }
+    }
+
+    fn ip_dock_tile(&self) -> NSDockTile {
+        unsafe { NSDockTile::from_id(msg_send![&*self.ptr, dockTile]) }
+    }
+
+    fn im_print(&self, sender: id) {
+        unsafe { msg_send![&*self.ptr, print: sender] }
+    }
+
+    fn im_data_with_esp_inside_rect(&self, rect: NSRect) -> NSData {
+        unsafe { NSData::from_id(msg_send![&*self.ptr, dataWithEPSInsideRect: rect]) }
+    }
+
+    fn im_data_with_pdf_inside_rect(&self, rect: NSRect) -> NSData {
+        unsafe { NSData::from_id(msg_send![&*self.ptr, dataWithPDFInsideRect: rect]) }
+    }
+
+    fn ip_restorable(&self) -> bool {
+        unsafe { to_bool(msg_send![&*self.ptr, isRestorable]) }
+    }
+
+    fn ip_set_restorable(&self, restorable: bool) {
+        unsafe { msg_send![&*self.ptr, setRestorable: restorable] }
+    }
+
+    fn im_disable_snapshot_restoration(&self) {
+        unsafe { msg_send![&*self.ptr, disableSnapshotRestoration] }
+    }
+
+    fn im_enable_snapshot_restoration(&self) {
+        unsafe { msg_send![&*self.ptr, enableSnapshotRestoration] }
+    }
+}
+
+impl<T> ToId for NSWindow<T> {
+    fn to_id(self) -> id {
+        unsafe { msg_send![&*self.ptr, self] }
+    }
+}
+
+impl<T> FromId for NSWindow<T> {
+    unsafe fn from_id(id: id) -> Self {
+        Self {
+            ptr: ShareId::from_ptr(id),
+            delegate: None,
         }
     }
 }
 
 impl<T> Drop for NSWindow<T> {
-    /// When a Window is dropped on the Rust side, we want to ensure that we break the delegate
-    /// link on the Objective-C side. While this shouldn't actually be an issue, I'd rather be
-    /// safer than sorry.
-    ///
-    /// Note that only the originating `Window<T>` carries the delegate, and we
-    /// intentionally don't provide this when cloning it as a handler. This ensures that we only
-    /// release the backing Window when the original `Window<T>` is dropped.
-    ///
-    /// Well, theoretically.
     fn drop(&mut self) {
         if self.delegate.is_some() {
             unsafe {
-                // Break the delegate - this shouldn't be an issue, but we should strive to be safe
-                // here anyway.
-                let _: () = msg_send![&*self.objc, setDelegate: nil];
+                self.ip_set_delegate(NSWindow::from_id(nil));
             }
         }
     }
-}
-
-fn load<'a, T>(this: &'a Object, ptr_name: &str) -> &'a T {
-    unsafe {
-        let ptr: usize = *this.get_ivar(ptr_name);
-        let obj = ptr as *const T;
-        &*obj
-    }
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowWillClose:` event.
-/// Good place to clean up memory and what not.
-extern "C" fn should_close<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) -> bool {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-
-    window.im_should_close()
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowWillClose:` event.
-/// Good place to clean up memory and what not.
-extern "C" fn will_close<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_will_close();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowWillMove:` event.
-extern "C" fn will_move<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_will_move();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidMove:` event.
-extern "C" fn did_move<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_move();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
-extern "C" fn did_change_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_change_screen();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
-extern "C" fn did_change_screen_profile<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_change_screen_profile();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
-extern "C" fn will_resize<T: PNSWindowDelegate>(
-    this: &Object,
-    _: Sel,
-    _: id,
-    size: CGSize,
-) -> CGSize {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_will_resize_to_size(size)
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
-extern "C" fn did_resize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_resize();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
-extern "C" fn will_start_live_resize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_will_start_live_resize();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
-extern "C" fn did_end_live_resize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_end_live_resize();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
-extern "C" fn will_miniaturize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_will_miniaturize();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
-extern "C" fn did_miniaturize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_miniaturize();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreen:` event.
-extern "C" fn did_deminiaturize<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_deminiaturize();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
-extern "C" fn will_enter_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_will_enter_full_screen();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
-extern "C" fn did_enter_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_enter_full_screen();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
-extern "C" fn content_size_for_full_screen<T: PNSWindowDelegate>(
-    this: &Object,
-    _: Sel,
-    _: id,
-    size: CGSize,
-) -> CGSize {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-
-    let (width, height) = window.content_size_for_full_screen(size.width, size.height);
-
-    CGSize { width, height }
-}
-
-// /// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
-// extern "C" fn options_for_full_screen<T: PNSWindowDelegate>(
-//     this: &Object,
-//     _: Sel,
-//     _: id,
-//     options: UInt,
-// ) -> UInt {
-//     let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-
-//     let desired_opts = window.presentation_options_for_full_screen();
-
-//     if desired_opts.is_none() {
-//         options
-//     } else {
-//         let mut opts: UInt = 0;
-//         for opt in desired_opts.unwrap() {
-//             opts = opts << UInt::from(opt);
-//         }
-
-//         opts
-//     }
-// }
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
-extern "C" fn will_exit_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_will_exit_full_screen();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
-extern "C" fn did_exit_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_exit_full_screen();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
-extern "C" fn did_fail_to_enter_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_fail_to_enter_full_screen();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeScreenProfile:` event.
-extern "C" fn did_fail_to_exit_full_screen<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_fail_to_exit_full_screen();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeBackingProperties:` event.
-extern "C" fn did_change_backing_properties<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_change_backing_properties();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidChangeBackingProperties:` event.
-extern "C" fn did_change_occlusion_state<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_change_occlusion_state();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidUpdate:` event.
-extern "C" fn did_update<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_update();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidExpose:` event.
-extern "C" fn did_become_main<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_become_main();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidExpose:` event.
-extern "C" fn did_resign_main<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_resign_main();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidExpose:` event.
-extern "C" fn did_become_key<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_become_key();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidExpose:` event.
-extern "C" fn did_resign_key<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_resign_key();
-}
-
-/// Called when an `NSWindowDelegate` receives a `windowDidExpose:` event.
-extern "C" fn did_expose<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.im_did_expose();
-}
-
-/// Called as part of the responder chain, when, say, the ESC key is hit. If your
-/// delegate returns `true` in `should_cancel_on_esc`, then this will allow your
-/// window to close when the Esc key is hit. This is mostly useful for Sheet-presented
-/// windows, and so the default response from delegates is `false` and must be opted in to.
-extern "C" fn cancel<T: PNSWindowDelegate>(this: &Object, _: Sel, _: id) {
-    let window = load::<T>(this, WINDOW_DELEGATE_PTR);
-    window.cancel();
-}
-
-lazy_static::lazy_static! {
-    static ref CLASSES: ClassMap = ClassMap::new();
-}
-
-struct ClassMap(RwLock<HashMap<&'static str, HashMap<&'static str, usize>>>);
-
-impl ClassMap {
-    /// Returns a new ClassMap.
-    pub fn new() -> Self {
-        ClassMap(RwLock::new({
-            let mut map = HashMap::new();
-
-            // Top-level classes, like `NSView`, we cache here. The reasoning is that if a subclass
-            // is being created, we can avoid querying the runtime for the superclass - i.e, many
-            // subclasses will have `NSView` as their superclass.
-            let _ = map.insert("_supers", HashMap::new());
-
-            map
-        }))
-    }
-
-    /// Attempts to load a previously registered subclass.
-    pub fn load_subclass(
-        &self,
-        subclass_name: &'static str,
-        superclass_name: &'static str,
-    ) -> Option<*const Class> {
-        let reader = self.0.read().unwrap();
-
-        if let Some(inner) = (*reader).get(subclass_name) {
-            if let Some(class) = inner.get(superclass_name) {
-                return Some(*class as *const Class);
-            }
-        }
-
-        None
-    }
-
-    /// Store a newly created subclass type.
-    pub fn store_subclass(
-        &self,
-        subclass_name: &'static str,
-        superclass_name: &'static str,
-        class: *const Class,
-    ) {
-        let mut writer = self.0.write().unwrap();
-
-        if let Some(map) = (*writer).get_mut(subclass_name) {
-            let _ = map.insert(superclass_name, class as usize);
-        } else {
-            let mut map = HashMap::new();
-            let _ = map.insert(superclass_name, class as usize);
-            let _ = (*writer).insert(subclass_name, map);
-        }
-    }
-
-    /// Attempts to load a Superclass. This first checks for the cached pointer; if not present, it
-    /// will load the superclass from the Objective-C runtime and cache it for future lookup. This
-    /// assumes that the class is one that should *already* and *always* exist in the runtime, and
-    /// by design will panic if it can't load the correct superclass, as that would lead to very
-    /// invalid behavior.
-    pub fn load_superclass(&self, name: &'static str) -> Option<*const Class> {
-        {
-            let reader = self.0.read().unwrap();
-            if let Some(superclass) = (*reader)["_supers"].get(name) {
-                return Some(*superclass as *const Class);
-            }
-        }
-
-        let objc_superclass_name = CString::new(name).unwrap();
-        let superclass = unsafe { objc_getClass(objc_superclass_name.as_ptr() as *const _) };
-
-        // This should not happen, for our use-cases, but it's conceivable that this could actually
-        // be expected, so just return None and let the caller panic if so desired.
-        if superclass.is_null() {
-            return None;
-        }
-
-        {
-            let mut writer = self.0.write().unwrap();
-            if let Some(supers) = (*writer).get_mut("_supers") {
-                let _ = supers.insert(name, superclass as usize);
-            }
-        }
-
-        Some(superclass)
-    }
-}
-
-#[inline(always)]
-fn load_or_register_class<F>(
-    superclass_name: &'static str,
-    subclass_name: &'static str,
-    config: F,
-) -> *const Class
-where
-    F: Fn(&mut ClassDecl) + 'static,
-{
-    if let Some(subclass) = CLASSES.load_subclass(subclass_name, superclass_name) {
-        return subclass;
-    }
-
-    if let Some(superclass) = CLASSES.load_superclass(superclass_name) {
-        let objc_subclass_name = format!("{}_{}", subclass_name, superclass_name);
-
-        match ClassDecl::new(&objc_subclass_name, unsafe { &*superclass }) {
-            Some(mut decl) => {
-                config(&mut decl);
-
-                let class = decl.register();
-                CLASSES.store_subclass(subclass_name, superclass_name, class);
-                return class;
-            }
-
-            None => {
-                panic!(
-                    "Subclass of type {}_{} could not be allocated.",
-                    subclass_name, superclass_name
-                );
-            }
-        }
-    }
-
-    panic!(
-        "Attempted to create subclass for {}, but unable to load superclass of type {}.",
-        subclass_name, superclass_name
-    );
-}
-
-/// Injects an `NSWindowDelegate` subclass, with some callback and pointer ivars for what we
-/// need to do.
-pub(crate) fn register_window_class_with_delegate<T: PNSWindowDelegate>(
-    instance: &T,
-) -> *const Class {
-    load_or_register_class("NSWindow", instance.subclass_name(), |decl| unsafe {
-        decl.add_ivar::<usize>(WINDOW_DELEGATE_PTR);
-
-        // NSWindowDelegate methods
-        decl.add_method(
-            sel!(windowShouldClose:),
-            should_close::<T> as extern "C" fn(&Object, _, _) -> bool,
-        );
-        decl.add_method(
-            sel!(windowWillClose:),
-            will_close::<T> as extern "C" fn(&Object, _, _),
-        );
-
-        // Sizing
-        decl.add_method(
-            sel!(windowWillResize:toSize:),
-            will_resize::<T> as extern "C" fn(&Object, _, _, CGSize) -> CGSize,
-        );
-        decl.add_method(
-            sel!(windowDidResize:),
-            did_resize::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowWillStartLiveResize:),
-            will_start_live_resize::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidEndLiveResize:),
-            did_end_live_resize::<T> as extern "C" fn(&Object, _, _),
-        );
-
-        // Minimizing
-        decl.add_method(
-            sel!(windowWillMiniaturize:),
-            will_miniaturize::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidMiniaturize:),
-            did_miniaturize::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidDeminiaturize:),
-            did_deminiaturize::<T> as extern "C" fn(&Object, _, _),
-        );
-
-        // Full Screen
-        decl.add_method(
-            sel!(window:willUseFullScreenContentSize:),
-            content_size_for_full_screen::<T> as extern "C" fn(&Object, _, _, CGSize) -> CGSize,
-        );
-        // decl.add_method(
-        //     sel!(window:willUseFullScreenPresentationOptions:),
-        //     options_for_full_screen::<T> as extern "C" fn(&Object, _, _, UInt) -> UInt,
-        // );
-        decl.add_method(
-            sel!(windowWillEnterFullScreen:),
-            will_enter_full_screen::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidEnterFullScreen:),
-            did_enter_full_screen::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowWillExitFullScreen:),
-            will_exit_full_screen::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidExitFullScreen:),
-            did_exit_full_screen::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidFailToEnterFullScreen:),
-            did_fail_to_enter_full_screen::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidFailToExitFullScreen:),
-            did_fail_to_exit_full_screen::<T> as extern "C" fn(&Object, _, _),
-        );
-
-        // Key status
-        decl.add_method(
-            sel!(windowDidBecomeKey:),
-            did_become_key::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidResignKey:),
-            did_resign_key::<T> as extern "C" fn(&Object, _, _),
-        );
-
-        // Main status
-        decl.add_method(
-            sel!(windowDidBecomeMain:),
-            did_become_main::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidResignMain:),
-            did_resign_main::<T> as extern "C" fn(&Object, _, _),
-        );
-
-        // Moving Windows
-        decl.add_method(
-            sel!(windowWillMove:),
-            will_move::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidMove:),
-            did_move::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidChangeScreen:),
-            did_change_screen::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidChangeScreenProfile:),
-            did_change_screen_profile::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidChangeBackingProperties:),
-            did_change_backing_properties::<T> as extern "C" fn(&Object, _, _),
-        );
-
-        // Random
-        decl.add_method(
-            sel!(windowDidChangeOcclusionState:),
-            did_change_occlusion_state::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidExpose:),
-            did_expose::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(windowDidUpdate:),
-            did_update::<T> as extern "C" fn(&Object, _, _),
-        );
-        decl.add_method(
-            sel!(cancelOperation:),
-            cancel::<T> as extern "C" fn(&Object, _, _),
-        );
-    })
 }

@@ -1,19 +1,26 @@
+use objc::{msg_send, sel, sel_impl};
+
 use crate::{
     foundation::{NSDate, NSString},
-    objective_c_runtime::traits::INSObject,
+    objective_c_runtime::traits::{FromId, PNSObject},
 };
 
 /// A class for scheduling task requests that launch your app in the background.
-pub trait IBGTaskScheduler: INSObject {
+pub trait IBGTaskScheduler: PNSObject {
     /* Getting the Shared Task Scheduler
      */
 
     /// The shared background task scheduler instance.
-    fn tp_shared_scheduler() -> Self;
+    fn tp_shared_scheduler() -> Self
+    where
+        Self: Sized + 'static + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), sharedScheduler]) }
+    }
 }
 
 /// An abstract class for representing task requests.
-pub trait IBGTaskRequest: INSObject {
+pub trait IBGTaskRequest: PNSObject {
     /// The earliest date and time at which to run the task.
     fn ip_earliest_begin_date() -> NSDate;
 }

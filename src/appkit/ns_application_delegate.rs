@@ -97,6 +97,13 @@ extern "C" fn did_update<T: PNSApplicationDelegate>(this: &Object, _: Sel, _: id
     app::<T>(this).did_update();
 }
 
+extern "C" fn should_terminate_after_last_window_closed<T>(this: &Object, _: Sel, _: id) -> bool
+where
+    T: PNSApplicationDelegate,
+{
+    app::<T>(this).should_terminate_after_last_window_closed()
+}
+
 /// Fires when the Application Delegate receives a
 /// `applicationShouldHandleReopen:hasVisibleWindows:` notification.
 extern "C" fn should_handle_reopen<T: PNSApplicationDelegate>(
@@ -201,6 +208,11 @@ pub(crate) fn register_app_delegate_class<T: PNSApplicationDelegate + PNSApplica
         decl.add_method(
             sel!(applicationDockMenu:),
             dock_menu::<T> as extern "C" fn(&Object, _, _) -> NSMenu,
+        );
+
+        decl.add_method(
+            sel!(applicationShouldTerminateAfterLastWindowClosed:),
+            should_terminate_after_last_window_closed::<T> as extern "C" fn(&Object, _, _) -> bool,
         );
 
         DELEGATE_CLASS = decl.register();

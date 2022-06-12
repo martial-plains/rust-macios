@@ -1,7 +1,7 @@
 //! Access essential data types, collections, and operating-system services to define the base layer of functionality for your app.
 
-mod globals;
 mod enums;
+mod globals;
 mod type_defs;
 
 /// Traits for working with the Foundation framework.
@@ -10,15 +10,19 @@ pub mod traits;
 /// Macros for working with the Foundation framework.
 pub mod macros;
 
-pub use globals::*;
 pub use enums::*;
+pub use globals::*;
 pub use type_defs::*;
 
 /*
 Fundamentals
 */
 
-mod ns_array;
+/// A type that represents a pointer to an Objective-C object.
+pub mod ns_array;
+
+pub use ns_array::NSArray;
+
 mod ns_character_set;
 mod ns_coder;
 mod ns_data;
@@ -37,7 +41,6 @@ mod ns_range;
 mod ns_string;
 mod string_transform;
 
-pub use ns_array::*;
 pub use ns_character_set::*;
 pub use ns_data::*;
 pub use ns_date::*;
@@ -46,7 +49,7 @@ pub use ns_decimal::*;
 pub use ns_dictionary::*;
 pub use ns_edge_insets::*;
 pub use ns_locale::*;
-pub use ns_mutable_array::*;
+pub use ns_mutable_array::NSMutableArray;
 pub use ns_mutable_dictionary::*;
 pub use ns_mutable_string::*;
 pub use ns_notification::*;

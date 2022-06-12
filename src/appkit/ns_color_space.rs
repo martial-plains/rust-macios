@@ -1,4 +1,4 @@
-use std::fmt::{Debug, Display};
+use std::fmt;
 
 use objc::{
     class, msg_send,
@@ -7,46 +7,61 @@ use objc::{
 };
 use objc_id::Id;
 
-use crate::objective_c_runtime::{
-    id,
-    traits::{FromId, PNSObject, ToId},
+use crate::{
+    foundation::{NSString, UInt},
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
+    utils::to_bool,
 };
 
-use super::{traits::INSData, NSString};
-
-/// A static byte buffer in memory.
-pub struct NSData {
-    /// The underlying Objective-C object.
-    pub ptr: Id<Object>,
+/// An object that represents a custom color space.
+pub struct NSColorSpace {
+    ptr: Id<Object>,
 }
 
-impl PNSObject for NSData {
+impl ToId for NSColorSpace {
+    fn to_id(mut self) -> id {
+        &mut *self.ptr
+    }
+}
+
+impl FromId for NSColorSpace {
+    unsafe fn from_id(ptr: id) -> Self {
+        Self {
+            ptr: Id::from_ptr(ptr),
+        }
+    }
+}
+
+impl PNSObject for NSColorSpace {
     fn im_class<'a>() -> &'a Class {
-        class!(NSData)
+        class!(NSColorSpace)
     }
 
     fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { msg_send![&*self.ptr, isEqual: object] }
+        unsafe { to_bool(msg_send![&*self.ptr, isEqual: object]) }
     }
 
-    fn ip_hash(&self) -> super::UInt {
+    fn ip_hash(&self) -> UInt {
         unsafe { msg_send![&*self.ptr, hash] }
     }
 
     fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![&*self.ptr, isKindOfClass: class] }
+        unsafe { to_bool(msg_send![&*self.ptr, isKindOfClass: class]) }
     }
 
     fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![&*self.ptr, isMemberOfClass: class] }
+        unsafe { to_bool(msg_send![&*self.ptr, isMemberOfClass: class]) }
     }
 
     fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { msg_send![&*self.ptr, respondsToSelector: selector] }
+        unsafe { to_bool(msg_send![&*self.ptr, respondsToSelector: selector]) }
     }
 
     fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { msg_send![&*self.ptr, conformsToProtocol: protocol] }
+        unsafe { to_bool(msg_send![&*self.ptr, conformsToProtocol: protocol]) }
     }
 
     fn ip_description(&self) -> NSString {
@@ -66,38 +81,18 @@ impl PNSObject for NSData {
     }
 
     fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![&*self.ptr, isProxy] }
+        unsafe { to_bool(msg_send![&*self.ptr, isProxy]) }
     }
 }
 
-impl INSData for NSData {
-    fn ip_bytes(&self) -> *const libc::c_void {
-        unsafe { msg_send![&*self.ptr, bytes] }
-    }
-}
-
-impl ToId for NSData {
-    fn to_id(mut self) -> id {
-        &mut *self.ptr
-    }
-}
-
-impl FromId for NSData {
-    unsafe fn from_id(id: id) -> Self {
-        Self {
-            ptr: Id::from_ptr(id),
-        }
-    }
-}
-
-impl Debug for NSData {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Debug for NSColorSpace {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.ip_debug_description())
     }
 }
 
-impl Display for NSData {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for NSColorSpace {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.ip_description())
     }
 }

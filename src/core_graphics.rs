@@ -2,8 +2,10 @@
 //! with high-fidelity output. Handle path-based drawing, antialiased
 //! rendering, gradients, images, color management, PDF documents, and more.
 
+mod enums;
 mod type_defs;
 
+pub use enums::*;
 pub use type_defs::*;
 
 mod cg_function;

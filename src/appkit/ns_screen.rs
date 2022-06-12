@@ -7,29 +7,30 @@ use objc::{
 };
 use objc_id::Id;
 
-use crate::objective_c_runtime::{
-    id,
-    traits::{FromId, PNSObject, ToId},
+use crate::{
+    foundation::NSString,
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
 };
 
-use super::{traits::INSData, NSString};
-
-/// A static byte buffer in memory.
-pub struct NSData {
+/// An object that describes the attributes of a computer’s monitor or screen.
+pub struct NSScreen {
     /// The underlying Objective-C object.
     pub ptr: Id<Object>,
 }
 
-impl PNSObject for NSData {
+impl PNSObject for NSScreen {
     fn im_class<'a>() -> &'a Class {
-        class!(NSData)
+        class!(NSScreen)
     }
 
     fn im_is_equal(&self, object: &Self) -> bool {
         unsafe { msg_send![&*self.ptr, isEqual: object] }
     }
 
-    fn ip_hash(&self) -> super::UInt {
+    fn ip_hash(&self) -> crate::foundation::UInt {
         unsafe { msg_send![&*self.ptr, hash] }
     }
 
@@ -50,11 +51,11 @@ impl PNSObject for NSData {
     }
 
     fn ip_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, description]) }
+        unsafe { msg_send![&*self.ptr, description] }
     }
 
     fn ip_debug_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, debugDescription]) }
+        unsafe { msg_send![&*self.ptr, debugDescription] }
     }
 
     fn im_perform_selector(&self, selector: Sel) -> id {
@@ -70,33 +71,27 @@ impl PNSObject for NSData {
     }
 }
 
-impl INSData for NSData {
-    fn ip_bytes(&self) -> *const libc::c_void {
-        unsafe { msg_send![&*self.ptr, bytes] }
-    }
-}
-
-impl ToId for NSData {
+impl ToId for NSScreen {
     fn to_id(mut self) -> id {
         &mut *self.ptr
     }
 }
 
-impl FromId for NSData {
-    unsafe fn from_id(id: id) -> Self {
+impl FromId for NSScreen {
+    unsafe fn from_id(ptr: id) -> Self {
         Self {
-            ptr: Id::from_ptr(id),
+            ptr: Id::from_ptr(ptr),
         }
     }
 }
 
-impl Debug for NSData {
+impl Debug for NSScreen {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.ip_debug_description())
     }
 }
 
-impl Display for NSData {
+impl Display for NSScreen {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.ip_description())
     }

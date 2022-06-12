@@ -11,7 +11,7 @@ use objc::{
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::INSLocale, NSArray, NSString},
+    foundation::{traits::INSLocale, NSString},
     objective_c_runtime::{
         id,
         traits::{FromId, PNSObject},
@@ -93,55 +93,12 @@ impl PNSObject for NSLocale {
 }
 
 impl INSLocale for NSLocale {
-    fn im_init_with_locale_identifier<S>(locale_identifier: S) -> Self
-    where
-        S: Into<NSString>,
-    {
+    fn im_init_with_locale_identifier(locale_identifier: NSString) -> Self {
         unsafe {
             let class: NSLocale = msg_send![class!(NSLocale), alloc];
-            let obj = msg_send![class, initWithLocaleIdentifier: locale_identifier.into()];
+            let obj = msg_send![class, initWithLocaleIdentifier: locale_identifier];
             NSLocale { obj }
         }
-    }
-
-    fn tp_autoupdating_current_locale(&self) -> NSLocale {
-        let class = class!(NSLocale);
-        unsafe { msg_send![class, autoupdatingCurrent] }
-    }
-
-    fn tp_current_locale() -> NSLocale {
-        let class = class!(NSLocale);
-        unsafe { msg_send![class, currentLocale] }
-    }
-
-    fn tp_system_locale() -> NSLocale {
-        let class = class!(NSLocale);
-        unsafe { msg_send![class, systemLocale] }
-    }
-
-    fn tp_available_locale_identifiers() -> NSArray<NSString> {
-        let class = class!(NSLocale);
-        unsafe { msg_send![class, availableLocaleIdentifiers] }
-    }
-
-    fn tp_iso_country_codes() -> NSArray<NSString> {
-        let class = class!(NSLocale);
-        unsafe { msg_send![class, ISOCountryCodes] }
-    }
-
-    fn tp_iso_language_codes() -> NSArray<NSString> {
-        let class = class!(NSLocale);
-        unsafe { msg_send![class, ISOLanguageCodes] }
-    }
-
-    fn tp_iso_currency_codes() -> NSArray<NSString> {
-        let class = class!(NSLocale);
-        unsafe { msg_send![class, ISOCurrencyCodes] }
-    }
-
-    fn tp_common_isocurrency_codes() -> NSArray<NSString> {
-        let class = class!(NSLocale);
-        unsafe { msg_send![class, commonISOCurrencyCodes] }
     }
 
     fn ip_locale_identifier(&self) -> NSString {
@@ -216,38 +173,18 @@ impl INSLocale for NSLocale {
         unsafe { msg_send![self.obj, objectForKey: key] }
     }
 
-    fn im_display_name_for_key_value<T>(&self, key: NSLocaleKey, value: T) -> Option<NSString>
-    where
-        T: Into<NSString>,
-    {
-        let result: id = unsafe { msg_send![self.obj, displayNameForKey: key value: value.into()] };
+    fn im_display_name_for_key_value<T>(
+        &self,
+        key: NSLocaleKey,
+        value: NSString,
+    ) -> Option<NSString> {
+        let result: id = unsafe { msg_send![self.obj, displayNameForKey: key value: value] };
 
         if result.is_null() {
             None
         } else {
             Some(unsafe { NSString::from_id(result) })
         }
-    }
-
-    fn tp_preferred_languages() -> NSArray<NSString> {
-        let class = class!(NSLocale);
-        unsafe { msg_send![class, preferredLanguages] }
-    }
-
-    fn tm_character_direction_for_language<S>(&self, iso_language_code: S) -> LanguageDirection
-    where
-        S: Into<NSString>,
-    {
-        let class = class!(NSLocale);
-        unsafe { msg_send![class, characterDirectionForLanguage: iso_language_code.into()] }
-    }
-
-    fn tm_line_direction_for_language<S>(&self, iso_language_code: S) -> LanguageDirection
-    where
-        S: Into<NSString>,
-    {
-        let class = class!(NSLocale);
-        unsafe { msg_send![class, lineDirectionForLanguage: iso_language_code.into()] }
     }
 }
 
@@ -299,7 +236,7 @@ impl From<id> for NSLocale {
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn from(val: id) -> Self {
         NSLocale {
-            obj: unsafe { msg_send![val, retain] },
+            obj: unsafe { Id::from_ptr(val) },
         }
     }
 }

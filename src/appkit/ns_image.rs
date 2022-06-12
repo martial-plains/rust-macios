@@ -16,31 +16,15 @@ use crate::{
     utils::to_bool,
 };
 
-use super::traits::{IBGProcessingTaskRequest, IBGTaskRequest};
-
-/// A request to launch your app in the background to execute a processing task that can take minutes to complete.
-pub struct BGProcessingTaskRequest {
+/// A high-level interface for manipulating image data.
+pub struct NSImage {
     /// The underlying Objective-C object.
     pub ptr: Id<Object>,
 }
 
-impl ToId for BGProcessingTaskRequest {
-    fn to_id(mut self) -> id {
-        &mut *self.ptr
-    }
-}
-
-impl FromId for BGProcessingTaskRequest {
-    unsafe fn from_id(obj: id) -> Self {
-        Self {
-            ptr: Id::from_ptr(obj),
-        }
-    }
-}
-
-impl PNSObject for BGProcessingTaskRequest {
+impl PNSObject for NSImage {
     fn im_class<'a>() -> &'a Class {
-        class!(BGProcessingTaskRequest)
+        class!(NSImage)
     }
 
     fn im_is_equal(&self, object: &Self) -> bool {
@@ -84,48 +68,31 @@ impl PNSObject for BGProcessingTaskRequest {
     }
 
     fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![self.ptr, isProxy] }
+        unsafe { to_bool(msg_send![self.ptr, isProxy]) }
     }
 }
 
-impl IBGTaskRequest for BGProcessingTaskRequest {
-    fn ip_earliest_begin_date() -> crate::foundation::NSDate {
-        unsafe {
-            crate::foundation::NSDate::from_id(msg_send![
-                class!(BGProcessingTaskRequest),
-                earliestBeginDate
-            ])
+impl ToId for NSImage {
+    fn to_id(mut self) -> id {
+        &mut *self.ptr
+    }
+}
+
+impl FromId for NSImage {
+    unsafe fn from_id(ptr: id) -> Self {
+        Self {
+            ptr: Id::from_ptr(ptr),
         }
     }
 }
-
-impl IBGProcessingTaskRequest for BGProcessingTaskRequest {
-    fn im_init_with_identifier(identifier: NSString) -> Self {
-        unsafe {
-            Self::from_id(msg_send![
-                class!(BGProcessingTaskRequest),
-                initWithIdentifier: identifier
-            ])
-        }
-    }
-
-    fn ip_requires_external_power() -> bool {
-        unsafe { msg_send![class!(BGProcessingTaskRequest), requiresExternalPower] }
-    }
-
-    fn ip_requires_network_connectivity() -> bool {
-        unsafe { msg_send![class!(BGProcessingTaskRequest), requiresNetworkConnectivity] }
-    }
-}
-
-impl fmt::Debug for BGProcessingTaskRequest {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+impl fmt::Debug for NSImage {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.ip_debug_description())
     }
 }
 
-impl fmt::Display for BGProcessingTaskRequest {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+impl fmt::Display for NSImage {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.ip_description())
     }
 }

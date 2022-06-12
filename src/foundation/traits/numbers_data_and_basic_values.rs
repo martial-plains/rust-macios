@@ -4,13 +4,14 @@ use libc::{
     c_char, c_double, c_float, c_int, c_long, c_longlong, c_schar, c_short, c_uchar, c_uint,
     c_ulong, c_ulonglong, c_ushort, c_void,
 };
+use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{
         Int, NSComparisonResult, NSData, NSDecimal, NSDecimalNumber, NSLocale, NSRoundingMode,
         NSString, UInt,
     },
-    objective_c_runtime::traits::{INSValue, PNSObject},
+    objective_c_runtime::traits::{FromId, INSValue, PNSObject},
 };
 
 use super::INSLocale;
@@ -29,7 +30,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_bool(value: bool) -> Self;
+    fn tm_number_with_bool(value: bool) -> Self
+    where
+        Self: Sized + 'static + FromId,
+    {
+        unsafe { msg_send![Self::im_class(), numberWithBool: value] }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a signed char.
     ///
@@ -40,7 +46,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_char(value: c_schar) -> Self;
+    fn tm_number_with_char(value: c_schar) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithChar: value]) }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a double.
     ///
@@ -51,7 +62,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_double(value: c_double) -> Self;
+    fn tm_number_with_double(value: c_double) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithDouble: value]) }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a float.
     ///
@@ -62,7 +78,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_float(value: c_float) -> Self;
+    fn tm_number_with_float(value: c_float) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithFloat: value]) }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a signed int.
     ///
@@ -73,7 +94,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_int(value: c_int) -> Self;
+    fn tm_number_with_int(value: c_int) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithInt: value]) }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an NSInteger.
     ///
@@ -84,7 +110,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_integer(value: Int) -> Self;
+    fn tm_number_with_integer(value: Int) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithInteger: value]) }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a signed long.
     ///
@@ -95,7 +126,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_long(value: c_long) -> Self;
+    fn tm_number_with_long(value: c_long) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithLong: value]) }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a signed long long.
     ///
@@ -106,8 +142,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_long_long(value: c_longlong) -> Self;
-
+    fn tm_number_with_long_long(value: c_longlong) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithLongLong: value]) }
+    }
     /// Creates and returns an NSNumber object containing value, treating it as a signed short.
     ///
     /// # Arguments
@@ -117,7 +157,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_short(value: c_short) -> Self;
+    fn tm_number_with_short(value: c_short) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithShort: value]) }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned char.
     ///
@@ -128,7 +173,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_unsigned_char(value: c_uchar) -> Self;
+    fn tm_number_with_unsigned_char(value: c_uchar) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithUnsignedChar: value]) }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned int.
     ///
@@ -139,7 +189,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_unsigned_int(value: c_uint) -> Self;
+    fn tm_number_with_unsigned_int(value: c_uint) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithUnsignedInt: value]) }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an NSUInteger.
     ///
@@ -150,7 +205,17 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_unsigned_integer(value: UInt) -> Self;
+    fn tm_number_with_unsigned_integer(value: UInt) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                Self::im_class(),
+                numberWithUnsignedInteger: value
+            ])
+        }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned long.
     ///
@@ -161,7 +226,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_unsigned_long(value: c_ulong) -> Self;
+    fn tm_number_with_unsigned_long(value: c_ulong) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithUnsignedLong: value]) }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned long long.
     ///
@@ -172,7 +242,17 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_unsigned_long_long(value: c_ulonglong) -> Self;
+    fn tm_number_with_unsigned_long_long(value: c_ulonglong) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                Self::im_class(),
+                numberWithUnsignedLongLong: value
+            ])
+        }
+    }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as an unsigned short.
     ///
@@ -183,7 +263,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn tm_number_with_unsigned_short(value: c_ushort) -> Self;
+    fn tm_number_with_unsigned_short(value: c_ushort) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), numberWithUnsignedShort: value]) }
+    }
 
     /* Initializing an NSNumber Object
      */
@@ -441,34 +526,78 @@ pub trait INSDecimalNumber: INSNumber {
      */
 
     /// Creates and returns a decimal number equivalent to a given decimal structure.
-    fn tm_decimal_number_with_decimal(decimal: NSDecimalNumber) -> Self;
+    fn tm_decimal_number_with_decimal(decimal: NSDecimalNumber) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                Self::im_class(),
+                decimalNumberWithDecimal: decimal
+            ])
+        }
+    }
 
     /// Creates and returns a decimal number equivalent to the number specified by the arguments.
     fn tm_decimal_number_with_mantissa(
         mantissa: c_ulonglong,
         exponent: c_short,
         is_negative: bool,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                Self::im_class(),
+                decimalNumberWithMantissa: mantissa
+                exponent: exponent
+                isNegative: is_negative
+            ])
+        }
+    }
 
     /// Creates a decimal number whose value is equivalent to that in a given numeric string.
-    fn tm_decimal_number_with_string<S>(string: S) -> Self
+    fn tm_decimal_number_with_string(string: NSString) -> Self
     where
-        S: Into<NSString>;
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), decimalNumberWithString: string]) }
+    }
 
     /// Creates a decimal number whose value is equivalent to that in a given numeric string, interpreted using a given locale.
-    fn tm_decimal_number_with_string_locale<S, L>(string: S, locale: L) -> Self
+    fn tm_decimal_number_with_string_locale(string: NSString, locale: NSLocale) -> Self
     where
-        S: Into<NSString>,
-        L: INSLocale;
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![Self::im_class(), decimalNumberWithString:string locale:locale])
+        }
+    }
 
     /// A decimal number equivalent to the number 1.0.
-    fn tp_one() -> Self;
+    fn tp_one() -> Self
+    where
+        Self: Sized + 'static + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), one]) }
+    }
 
     /// A decimal number equivalent to the number 0.0.
-    fn tp_zero() -> Self;
+    fn tp_zero() -> Self
+    where
+        Self: Sized + 'static + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), zero]) }
+    }
 
     /// A decimal number that specifies no number.
-    fn tp_not_a_number() -> Self;
+    fn tp_not_a_number() -> Self
+    where
+        Self: Sized + 'static + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), notANumber]) }
+    }
 
     /* Initializing a Decimal Number
      */
@@ -570,13 +699,20 @@ pub trait INSDecimalNumber: INSNumber {
      */
 
     /// The way arithmetic methods round off and handle error conditions.
-    fn tp_default_behavior() -> Arc<dyn PNSDecimalNumberBehaviors>;
+    fn tp_default_behavior() -> Arc<dyn PNSDecimalNumberBehaviors> {
+        unsafe {
+            let behavior = msg_send![Self::im_class(), defaultBehavior];
+            Arc::from_raw(behavior)
+        }
+    }
 
     /// Sets the way arithmetic methods round off and handle error conditions.
-    fn tp_set_default_behavior(behavior: Arc<dyn PNSDecimalNumberBehaviors>);
+    fn tp_set_default_behavior(behavior: Arc<dyn PNSDecimalNumberBehaviors>) {
+        unsafe { msg_send![Self::im_class(), setDefaultBehavior: behavior] }
+    }
 
     /// The decimal number’s value, expressed as an NSDecimal structure.
-    fn tp_decimal_value(&self) -> NSDecimal;
+    fn ip_decimal_value(&self) -> NSDecimal;
 
     /// The decimal number’s closest approximate double value.
     fn ip_double_value(&self) -> f64;
@@ -599,10 +735,14 @@ pub trait INSDecimalNumber: INSNumber {
      */
 
     /// Returns the largest possible value of a decimal number.
-    fn tp_maximum_decimal_number() -> Self;
+    fn tp_maximum_decimal_number() -> NSDecimalNumber {
+        unsafe { msg_send![Self::im_class(), maximumDecimalNumber] }
+    }
 
     /// Returns the smallest possible value of a decimal number.
-    fn tp_minimum_decimal_number() -> Self;
+    fn tp_minimum_decimal_number() -> NSDecimalNumber {
+        unsafe { msg_send![Self::im_class(), minimumDecimalNumber] }
+    }
 }
 
 /// A protocol that declares three methods that control the discretionary aspects of working with decimal numbers.
@@ -623,29 +763,66 @@ pub trait INSData: PNSObject {
      */
 
     /// Creates an empty data object.
-    fn tm_data() -> Self;
+    fn tm_data() -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), data]) }
+    }
 
     /// Creates a data object containing a given number of bytes copied from a given buffer.
-    fn tm_data_with_bytes_length(bytes: *const c_void, length: UInt) -> Self;
+    fn tm_data_with_bytes_length(bytes: *const c_void, length: UInt) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), dataWithBytes: bytes length: length]) }
+    }
 
     /// Creates a data object that holds a given number of bytes from a given buffer.
-    fn tm_data_with_bytes_no_copy_length(bytes: *const c_void, length: UInt) -> Self;
+    fn tm_data_with_bytes_no_copy_length(bytes: *const c_void, length: UInt) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![Self::im_class(), dataWithBytesNoCopy: bytes
+                                                                  length: length])
+        }
+    }
 
     /// Creates a data object that holds a given number of bytes from a given buffer.
     fn tm_data_with_bytes_no_copy_length_free_when_done(
         bytes: *const c_void,
         length: UInt,
         b: bool,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(
+                msg_send![Self::im_class(), dataWithBytesNoCopy:bytes length:length freeWhenDone:b],
+            )
+        }
+    }
 
     /// Creates a data object containing the contents of another data object.
-    fn tm_data_with_data(data: NSData) -> Self;
+    fn tm_data_with_data(data: NSData) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), dataWithData: data]) }
+    }
 
     /*Reading Data from a File
      */
 
     /// Creates a data object by reading every byte from the file at a given path.
-    fn tm_data_with_contents_of_file(path: NSString) -> Self;
+    fn tm_data_with_contents_of_file(path: NSString) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::im_class(), dataWithContentsOfFile: path]) }
+    }
 
     /* Accessing Underlying Bytes
 
