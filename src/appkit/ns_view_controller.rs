@@ -9,7 +9,7 @@ use objc_id::Id;
 
 use crate::{foundation::UInt, objective_c_runtime::traits::PNSObject, utils::to_bool};
 
-use super::INSResponder;
+use super::traits::INSResponder;
 
 /// A controller that manages a view, typically loaded from a nib file.
 pub struct NSViewController {

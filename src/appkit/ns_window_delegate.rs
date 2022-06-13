@@ -7,7 +7,7 @@ use objc::{
 
 use crate::{core_graphics::CGSize, objective_c_runtime::id, utils::load_or_register_class};
 
-use super::{PNSWindowDelegate, WINDOW_DELEGATE_PTR};
+use super::{WINDOW_DELEGATE_PTR, traits::PNSWindowDelegate};
 
 fn load<'a, T>(this: &'a Object, ptr_name: &str) -> &'a T {
     unsafe {

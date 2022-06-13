@@ -21,9 +21,8 @@ use crate::{
 
 use super::{
     ns_application_delegate::register_app_delegate_class, ns_menu::NSMenu,
-    ns_menu_item::NSMenuItem, INSApplication, INSResponder, NSApplicationActivationOptions,
+    ns_menu_item::NSMenuItem, traits::{PNSApplicationDelegate, INSResponder, INSApplication}, NSApplicationActivationOptions,
     NSApplicationActivationPolicy, NSApplicationDelegateReply, NSRunningApplication,
-    PNSApplicationDelegate,
 };
 
 pub(crate) static NSAPPLICATION_PTR: &str = "rstNSApplicationPtr";

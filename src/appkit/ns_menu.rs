@@ -17,7 +17,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{ns_menu_item::NSMenuItem, INSMenu};
+use super::{ns_menu_item::NSMenuItem, traits::INSMenu};
 
 /// An object that manages an app’s menus.
 #[repr(transparent)]

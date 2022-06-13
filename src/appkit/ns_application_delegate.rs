@@ -11,7 +11,7 @@ use objc::{
 
 use crate::objective_c_runtime::id;
 
-use super::{NSApplicationTerminateReply, NSMenu, PNSApplicationDelegate, NSAPPLICATION_PTR};
+use super::{NSApplicationTerminateReply, NSMenu, NSAPPLICATION_PTR, traits::PNSApplicationDelegate};
 
 /// A handy method for grabbing our `NSApplicationDelegate` from the pointer. This is different from our
 /// standard `utils` version as this doesn't require `RefCell` backing.

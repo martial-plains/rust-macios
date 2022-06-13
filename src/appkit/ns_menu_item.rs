@@ -16,7 +16,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{ns_menu::NSMenu, INSMenuItem};
+use super::{ns_menu::NSMenu, traits::INSMenuItem};
 
 /// A command item in an app menu.
 pub struct NSMenuItem {

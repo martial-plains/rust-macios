@@ -2,17 +2,17 @@
 //! macOS app.
 
 pub use app_kit_proc_macros::ns_application_main;
+/// Traits for interacting with the AppKit framework.
+pub mod traits;
 
 mod enums;
 mod globals;
 mod macros;
-mod traits;
 mod type_defs;
 
 pub use enums::*;
 pub use globals::*;
 pub use macros::*;
-pub use traits::*;
 pub use type_defs::*;
 
 mod ns_application;

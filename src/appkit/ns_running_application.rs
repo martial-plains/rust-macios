@@ -16,7 +16,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{INSRunningApplication, NSApplicationActivationOptions};
+use super::{NSApplicationActivationOptions, traits::INSRunningApplication};
 
 /// An object that can manipulate and provide information for a single instance of an app.
 pub struct NSRunningApplication {

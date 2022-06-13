@@ -20,12 +20,12 @@ use crate::{
 };
 
 use super::{
-    ns_window_delegate::register_window_class_with_delegate, INSResponder, INSWindow,
-    NSBackingStoreType, NSButton, NSColor, NSColorSpace, NSDockTile, NSImage, NSModalResponse,
-    NSScreen, NSTitlebarSeparatorStyle, NSToolbar, NSUserInterfaceLayoutDirection,
-    NSViewController, NSWindowDepth, NSWindowFrameAutosaveName, NSWindowLevel,
-    NSWindowOcclusionState, NSWindowPersistableFrameDescriptor, NSWindowStyleMask,
-    NSWindowTitleVisibility, NSWindowToolbarStyle, PNSWindowDelegate,
+    ns_window_delegate::register_window_class_with_delegate, NSBackingStoreType, NSButton, NSColor,
+    NSColorSpace, NSDockTile, NSImage, NSModalResponse, NSScreen, NSTitlebarSeparatorStyle,
+    NSToolbar, NSUserInterfaceLayoutDirection, NSViewController, NSWindowDepth,
+    NSWindowFrameAutosaveName, NSWindowLevel, NSWindowOcclusionState,
+    NSWindowPersistableFrameDescriptor, NSWindowStyleMask, NSWindowTitleVisibility,
+    NSWindowToolbarStyle, traits::{PNSWindowDelegate, INSResponder, INSWindow},
 };
 
 pub(crate) static WINDOW_DELEGATE_PTR: &str = "rstNSWindowDelegate";

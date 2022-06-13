@@ -16,7 +16,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::INSResponder;
+use super::traits::INSResponder;
 
 /// A control that defines an area on the screen that a user clicks to trigger an action.
 #[repr(transparent)]
