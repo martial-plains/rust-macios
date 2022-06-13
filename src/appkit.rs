@@ -5,11 +5,13 @@ mod enums;
 mod globals;
 mod traits;
 mod type_defs;
+mod macros;
 
 pub use enums::*;
 pub use globals::*;
 pub use traits::*;
 pub use type_defs::*;
+pub use macros::*;
 
 mod ns_application;
 mod ns_application_delegate;
