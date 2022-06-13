@@ -1,17 +1,19 @@
 //! Construct and manage a graphical, event-driven user interface for your
 //! macOS app.
 
+pub use app_kit_proc_macros::ns_application_main;
+
 mod enums;
 mod globals;
+mod macros;
 mod traits;
 mod type_defs;
-mod macros;
 
 pub use enums::*;
 pub use globals::*;
+pub use macros::*;
 pub use traits::*;
 pub use type_defs::*;
-pub use macros::*;
 
 mod ns_application;
 mod ns_application_delegate;
