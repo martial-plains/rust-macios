@@ -1,4 +1,4 @@
-use std::fmt;
+use core::fmt;
 
 use objc::{
     class, msg_send,
@@ -12,52 +12,48 @@ use crate::objective_c_runtime::{
     traits::{FromId, PNSObject, ToId},
 };
 
-use super::traits::{INSButton, INSControl, INSResponder, INSView};
+use super::traits::{INSResponder, INSView};
 
-/// A control that defines an area on the screen that a user clicks to trigger an action.
+/// The infrastructure for drawing, printing, and handling events in an app.
 #[repr(transparent)]
-pub struct NSButton {
-    /// The underlying `NSButton`.
+pub struct NSView {
+    /// The underlying Objective-C object.
     pub ptr: Id<Object>,
 }
 
-impl PNSObject for NSButton {
+impl PNSObject for NSView {
     fn im_class<'a>() -> &'a Class {
-        class!(NSButton)
+        class!(NSView)
     }
 
     fn im_self(&self) -> id {
-        unsafe { msg_send![&*self.ptr, self] }
+        unsafe { msg_send![self.ptr, self] }
     }
 }
 
-impl INSView for NSButton {}
+impl INSResponder for NSView {}
 
-impl INSControl for NSButton {}
+impl INSView for NSView {}
 
-impl INSButton for NSButton {}
-
-impl fmt::Debug for NSButton {
+impl fmt::Debug for NSView {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.ip_debug_description())
     }
 }
 
-impl fmt::Display for NSButton {
+impl fmt::Display for NSView {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.ip_description())
     }
 }
 
-impl INSResponder for NSButton {}
-
-impl ToId for NSButton {
+impl ToId for NSView {
     fn to_id(mut self) -> id {
         &mut *self.ptr
     }
 }
 
-impl FromId for NSButton {
+impl FromId for NSView {
     unsafe fn from_id(ptr: id) -> Self {
         Self {
             ptr: Id::from_ptr(ptr),

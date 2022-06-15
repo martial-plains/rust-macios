@@ -2,21 +2,17 @@ use std::fmt;
 
 use objc::{
     class, msg_send,
-    runtime::{Class, Object, Protocol, Sel},
+    runtime::{Class, Object},
     sel, sel_impl,
 };
 use objc_id::Id;
 
-use crate::{
-    foundation::{NSString, UInt},
-    objective_c_runtime::{
-        id,
-        traits::{FromId, PNSObject, ToId},
-    },
-    utils::to_bool,
+use crate::objective_c_runtime::{
+    id,
+    traits::{FromId, PNSObject, ToId},
 };
 
-use super::{NSApplicationActivationOptions, traits::INSRunningApplication};
+use super::{traits::INSRunningApplication, NSApplicationActivationOptions};
 
 /// An object that can manipulate and provide information for a single instance of an app.
 pub struct NSRunningApplication {
@@ -47,60 +43,12 @@ impl PNSObject for NSRunningApplication {
         class!(NSRunningApplication)
     }
 
-    fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { msg_send![&*self.ptr, isEqual: object] }
-    }
-
-    fn ip_hash(&self) -> UInt {
-        unsafe { msg_send![&*self.ptr, hash] }
-    }
-
-    fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![&*self.ptr, isKindOfClass: class] }
-    }
-
-    fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![&*self.ptr, isMemberOfClass: class] }
-    }
-
-    fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { msg_send![&*self.ptr, respondsToSelector: selector] }
-    }
-
-    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { msg_send![&*self.ptr, conformsToProtocol: protocol] }
-    }
-
-    fn ip_description(&self) -> NSString {
-        unsafe { msg_send![&*self.ptr, description] }
-    }
-
-    fn ip_debug_description(&self) -> NSString {
-        unsafe { msg_send![&*self.ptr, debugDescription] }
-    }
-
-    fn im_perform_selector(&self, selector: Sel) -> id {
-        unsafe { msg_send![&*self.ptr, performSelector: selector] }
-    }
-
-    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
-        unsafe { msg_send![&*self.ptr, performSelector: selector withObject: with_object] }
-    }
-
-    fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![&*self.ptr, isProxy] }
+    fn im_self(&self) -> id {
+        unsafe { msg_send![&*self.ptr, self] }
     }
 }
 
-impl INSRunningApplication for NSRunningApplication {
-    fn ip_is_active(&self) -> bool {
-        to_bool(unsafe { msg_send![&*self.ptr, isActive] })
-    }
-
-    fn im_activate_with_options(&mut self, options: NSApplicationActivationOptions) {
-        unsafe { msg_send![&*self.ptr, activateWithOptions: options] }
-    }
-}
+impl INSRunningApplication for NSRunningApplication {}
 
 impl fmt::Debug for NSRunningApplication {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

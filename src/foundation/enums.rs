@@ -7,7 +7,7 @@ use crate::core_graphics::CGRectEdge;
 /// Enums for String Encoding
 pub mod string {
     /// The following constants are provided by NSString as possible string encodings.
-    #[derive(Debug)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
     #[repr(u64)]
     pub enum Encoding {
         /// Strict 7-bit ASCII encoding within 8-bit chars; ASCII values 0…127 only.
@@ -1242,7 +1242,7 @@ pub enum NSXpcConnectionOptions {
     Privileged = (1 << 12),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 #[repr(u64)]
 pub enum NSStringEncodingConversionOptions {
     AllowLossy = 1,

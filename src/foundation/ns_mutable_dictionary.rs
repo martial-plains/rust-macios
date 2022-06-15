@@ -8,23 +8,19 @@ use std::{
 
 use objc::{
     class, msg_send,
-    runtime::{Class, Object, Protocol, Sel},
+    runtime::{Class, Object},
     sel, sel_impl,
 };
 use objc_id::Id;
 
-use crate::{
-    objective_c_runtime::{
-        id,
-        traits::{FromId, PNSObject, ToId},
-    },
-    utils::to_bool,
+use crate::objective_c_runtime::{
+    id,
+    traits::{FromId, PNSObject, ToId},
 };
 
 use super::{
     traits::{INSDictionary, INSMutableDictionary},
-    Int, Int16, Int32, Int8, NSArray, NSDictionary, NSNumber, NSString, UInt, UInt16, UInt32,
-    UInt8,
+    Int, Int16, Int32, Int8, NSDictionary, NSNumber, NSString, UInt, UInt16, UInt32, UInt8,
 };
 
 /// A dynamic collection of objects associated with unique keys.
@@ -61,175 +57,14 @@ impl<K, V> PNSObject for NSMutableDictionary<K, V> {
         class!(NSMutableDictionary)
     }
 
-    fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { msg_send![self.obj, isEqual: object] }
-    }
-
-    fn ip_hash(&self) -> UInt {
-        unsafe { msg_send![self.obj, hash] }
-    }
-
-    fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.obj, isKindOfClass: class] }
-    }
-
-    fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.obj, isMemberOfClass: class] }
-    }
-
-    fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { msg_send![self.obj, respondsToSelector: selector] }
-    }
-
-    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { msg_send![self.obj, conformsToProtocol: protocol] }
-    }
-
-    fn ip_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.obj, description]) }
-    }
-
-    fn ip_debug_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
-    }
-
-    fn im_perform_selector(&self, selector: Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: selector] }
-    }
-
-    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
-    }
-
-    fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![self.obj, isProxy] }
+    fn im_self(&self) -> id {
+        unsafe { msg_send![self.obj, self] }
     }
 }
 
-impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {
-    fn im_init_with_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
-        unsafe { msg_send![self.obj, initWithDictionary: dictionary] }
-    }
+impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {}
 
-    fn ip_count(&self) -> UInt {
-        unsafe { msg_send![self.obj, count] }
-    }
-
-    fn im_init() -> Self {
-        unsafe { Self::from_id(msg_send![Self::im_class(), new]) }
-    }
-
-    fn im_init_with_dictionary_copy_items(&mut self, dictionary: NSDictionary<K, V>, flag: bool) {
-        unsafe { msg_send![self.obj, initWithDictionary: dictionary copyItems: flag] }
-    }
-
-    fn im_is_equal_to_dictionary<D>(&self, other: D) -> bool
-    where
-        D: INSDictionary<K, V>,
-    {
-        unsafe { to_bool(msg_send![self.obj, isEqualToDictionary: other]) }
-    }
-
-    fn ip_all_keys(&self) -> NSArray<K> {
-        unsafe { NSArray::from_id(msg_send![self.obj, allKeys]) }
-    }
-
-    fn im_all_keys_for_object(&self, object: &V) -> NSArray<K> {
-        unsafe { NSArray::from_id(msg_send![self.obj, allKeysForObject: object]) }
-    }
-
-    fn ip_all_values(&self) -> NSArray<V> {
-        unsafe { NSArray::from_id(msg_send![self.obj, allValues]) }
-    }
-
-    fn im_value_for_key(&self, key: &K) -> V
-    where
-        V: FromId,
-    {
-        unsafe { V::from_id(msg_send![self.obj, valueForKey: key]) }
-    }
-
-    fn im_get_objects_and_keys_count(&self, objects: *mut V, keys: *mut K, count: UInt) {
-        unsafe {
-            msg_send![
-                self.obj,
-                getObjects: objects
-                andKeys: keys
-                count: count
-            ]
-        }
-    }
-
-    fn im_objects_for_keys_not_found_marker(&self, keys: &NSArray<K>, value: &V) -> NSArray<V> {
-        unsafe { NSArray::from_id(msg_send![self.obj, objectsForKeys: keys notFoundMarker: value]) }
-    }
-
-    fn im_object_for_key(&self, key: K) -> V
-    where
-        V: FromId,
-    {
-        unsafe { V::from_id(msg_send![self.obj, objectForKey: key]) }
-    }
-
-    fn im_object_for_keyed_subscript(&self, key: &K) -> V
-    where
-        V: FromId,
-    {
-        unsafe { V::from_id(msg_send![self.obj, objectForKeyedSubscript: key]) }
-    }
-}
-
-impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {
-    fn im_set_object_for_key(&mut self, key: K, value: V)
-    where
-        K: PNSObject,
-        V: PNSObject,
-    {
-        unsafe { msg_send![self.obj, setObject: value forKey: key] }
-    }
-
-    fn im_set_object_forkeyed_superscript(&mut self, key: K, value: V)
-    where
-        K: Into<id>,
-        V: Into<id>,
-    {
-        unsafe { msg_send![self.obj, setObject: value forKeyedSubscript: key] }
-    }
-
-    fn im_set_value_for_key(&mut self, key: K, value: V)
-    where
-        K: Into<NSString>,
-        V: Into<id>,
-    {
-        unsafe { msg_send![self.obj, setValue: value forKey: key] }
-    }
-
-    fn im_add_entries_from_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
-        unsafe { msg_send![self.obj, addEntriesFromDictionary: dictionary] }
-    }
-
-    fn im_set_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
-        unsafe { msg_send![self.obj, setDictionary: dictionary] }
-    }
-
-    fn im_remove_object_for_key(&mut self, key: K)
-    where
-        K: Into<id>,
-    {
-        unsafe { msg_send![self.obj, removeObjectForKey: key] }
-    }
-
-    fn im_remove_all_objects(&mut self) {
-        unsafe { msg_send![self.obj, removeAllObjects] }
-    }
-
-    fn im_remove_objects_for_keys(&mut self, keys: NSArray<K>)
-    where
-        K: PNSObject,
-    {
-        unsafe { msg_send![self.obj, removeObjectsForKeys: keys] }
-    }
-}
+impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {}
 
 impl<K, V> ToId for NSMutableDictionary<K, V> {
     fn to_id(mut self) -> id {

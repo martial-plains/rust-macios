@@ -17,3 +17,12 @@ pub type NSWindowFrameAutosaveName = NSString;
 
 /// The type of a window’s frame descriptor.
 pub type NSWindowPersistableFrameDescriptor = NSString;
+
+/// Values that specify the reason for the `NSPopoverWillCloseNotification` notification.
+pub type NSPopoverCloseReasonValue = NSString;
+
+///
+pub type NSNibName = NSString;
+
+/// Named images, defined by the system or you, for use in your app.
+pub type NSImageName = NSString;

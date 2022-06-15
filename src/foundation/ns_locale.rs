@@ -5,20 +5,15 @@ use std::{
 
 use objc::{
     class, msg_send,
-    runtime::{Class, Object, Protocol, Sel},
+    runtime::{Class, Object},
     sel, sel_impl,
 };
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::INSLocale, NSString},
-    objective_c_runtime::{
-        id,
-        traits::{FromId, PNSObject},
-    },
+    foundation::traits::INSLocale,
+    objective_c_runtime::{id, traits::PNSObject},
 };
-
-use super::NSLocaleKey;
 
 /// The directions that a language may take across a page of text.
 #[repr(usize)]
@@ -47,146 +42,12 @@ impl PNSObject for NSLocale {
         class!(NSLocale)
     }
 
-    fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { msg_send![self.obj, isEqual: object] }
-    }
-
-    fn ip_hash(&self) -> super::UInt {
-        unsafe { msg_send![self.obj, hash] }
-    }
-
-    fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.obj, isKindOfClass: class] }
-    }
-
-    fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.obj, isMemberOfClass: class] }
-    }
-
-    fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { msg_send![self.obj, respondsToSelector: selector] }
-    }
-
-    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { msg_send![self.obj, conformsToProtocol: protocol] }
-    }
-
-    fn ip_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.obj, description]) }
-    }
-
-    fn ip_debug_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
-    }
-
-    fn im_perform_selector(&self, selector: Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: selector] }
-    }
-
-    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
-    }
-
-    fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![self.obj, isProxy] }
+    fn im_self(&self) -> id {
+        unsafe { msg_send![self.obj, self] }
     }
 }
 
-impl INSLocale for NSLocale {
-    fn im_init_with_locale_identifier(locale_identifier: NSString) -> Self {
-        unsafe {
-            let class: NSLocale = msg_send![class!(NSLocale), alloc];
-            let obj = msg_send![class, initWithLocaleIdentifier: locale_identifier];
-            NSLocale { obj }
-        }
-    }
-
-    fn ip_locale_identifier(&self) -> NSString {
-        unsafe { msg_send![self.obj, localeIdentifier] }
-    }
-
-    fn ip_country_code(&self) -> NSString {
-        unsafe { msg_send![self.obj, countryCode] }
-    }
-
-    fn ip_language_code(&self) -> NSString {
-        unsafe { msg_send![self.obj, languageCode] }
-    }
-
-    fn ip_script_code(&self) -> NSString {
-        unsafe { msg_send![self.obj, scriptCode] }
-    }
-
-    fn ip_variant_code(&self) -> NSString {
-        unsafe { msg_send![self.obj, variantCode] }
-    }
-
-    fn ip_collation_identifier(&self) -> NSString {
-        unsafe { msg_send![self.obj, collationIdentifier] }
-    }
-
-    fn ip_collator_identifier(&self) -> NSString {
-        unsafe { msg_send![self.obj, collatorIdentifier] }
-    }
-
-    fn ip_uses_metric_system(&self) -> bool {
-        unsafe { msg_send![self.obj, usesMetricSystem] }
-    }
-
-    fn ip_decimal_separator(&self) -> NSString {
-        unsafe { msg_send![self.obj, decimalSeparator] }
-    }
-
-    fn ip_grouping_separator(&self) -> NSString {
-        unsafe { msg_send![self.obj, groupingSeparator] }
-    }
-
-    fn ip_currency_code(&self) -> NSString {
-        unsafe { msg_send![self.obj, currencyCode] }
-    }
-
-    fn ip_currency_symbol(&self) -> NSString {
-        unsafe { msg_send![self.obj, currencySymbol] }
-    }
-
-    fn ip_calendar_identifier(&self) -> NSString {
-        unsafe { msg_send![self.obj, calendarIdentifier] }
-    }
-
-    fn ip_quotation_begin_delimiter(&self) -> NSString {
-        unsafe { msg_send![self.obj, quotationBeginDelimiter] }
-    }
-
-    fn ip_quotation_end_delimiter(&self) -> NSString {
-        unsafe { msg_send![self.obj, quotationEndDelimiter] }
-    }
-
-    fn ip_alternate_quotation_begin_delimiter(&self) -> NSString {
-        unsafe { msg_send![self.obj, alternateQuotationBeginDelimiter] }
-    }
-
-    fn ip_alternate_quotation_end_delimiter(&self) -> NSString {
-        unsafe { msg_send![self.obj, alternateQuotationEndDelimiter] }
-    }
-
-    fn im_object_for_key(&self, key: NSLocaleKey) -> Option<Object> {
-        unsafe { msg_send![self.obj, objectForKey: key] }
-    }
-
-    fn im_display_name_for_key_value<T>(
-        &self,
-        key: NSLocaleKey,
-        value: NSString,
-    ) -> Option<NSString> {
-        let result: id = unsafe { msg_send![self.obj, displayNameForKey: key value: value] };
-
-        if result.is_null() {
-            None
-        } else {
-            Some(unsafe { NSString::from_id(result) })
-        }
-    }
-}
+impl INSLocale for NSLocale {}
 
 impl Display for NSLocale {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

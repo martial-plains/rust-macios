@@ -1,4 +1,4 @@
-use std::fmt;
+use std::fmt::{Debug, Display};
 
 use objc::{
     class, msg_send,
@@ -12,17 +12,15 @@ use crate::objective_c_runtime::{
     traits::{FromId, PNSObject, ToId},
 };
 
-use super::traits::INSCoder;
-
-/// An abstract class that serves as the basis for objects that enable archiving and distribution of other objects.
-pub struct NSCoder {
+/// A representation of the code and resources stored in a bundle directory on disk.
+pub struct NSBundle {
     /// The underlying Objective-C object.
     pub ptr: Id<Object>,
 }
 
-impl PNSObject for NSCoder {
+impl PNSObject for NSBundle {
     fn im_class<'a>() -> &'a Class {
-        class!(NSCoder)
+        class!(NSBundle)
     }
 
     fn im_self(&self) -> id {
@@ -30,27 +28,25 @@ impl PNSObject for NSCoder {
     }
 }
 
-impl INSCoder for NSCoder {}
-
-impl fmt::Debug for NSCoder {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl fmt::Display for NSCoder {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl Debug for NSBundle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.ip_description())
     }
 }
 
-impl ToId for NSCoder {
+impl Display for NSBundle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.ip_description())
+    }
+}
+
+impl ToId for NSBundle {
     fn to_id(mut self) -> id {
         &mut *self.ptr
     }
 }
 
-impl FromId for NSCoder {
+impl FromId for NSBundle {
     unsafe fn from_id(ptr: id) -> Self {
         Self {
             ptr: Id::from_ptr(ptr),

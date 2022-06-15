@@ -448,3 +448,24 @@ pub enum NSUserInterfaceLayoutDirection {
     /// Layout direction is right to left.
     RightToLeft,
 }
+
+/// The appearance and disappearance behavior of a popover.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(i64)]
+pub enum NSPopoverBehavior {
+    /// Your application assumes responsibility for closing the popover.
+    ApplicationDefined = 0,
+    /// The system will close the popover when the user interacts with a user interface element outside the popover.
+    Transient = 1,
+    /// The system will close the popover when the user interacts with user interface elements in the window containing the popover's positioning view.
+    Semitransient = 2,
+}
+
+/// A set of optional status item behaviors.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NSStatusItemBehavior {
+    /// A status item that allows interactive removal.
+    RemovalAllowed = (1 << 1),
+    /// A status item that quits the application upon removal.
+    TerminationOnRemoval = (1 << 2),
+}

@@ -1,9 +1,9 @@
 use std::{fmt, ops::Range};
 
-use block::{ConcreteBlock, IntoConcreteBlock, RcBlock};
+use block::{ConcreteBlock, IntoConcreteBlock};
 use objc::{
     class, msg_send,
-    runtime::{Class, Object, Protocol, Sel},
+    runtime::{Class, Object},
     sel, sel_impl,
 };
 use objc_id::Id;
@@ -12,7 +12,7 @@ use crate::{
     foundation::{NSArray, NSRange, NSString, UInt},
     objective_c_runtime::{
         id,
-        traits::{FromId, INSValue, PNSObject},
+        traits::{FromId, INSValue, PNSObject, ToId},
     },
 };
 
@@ -96,109 +96,12 @@ impl PNSObject for NLTokenizer {
         class!(NLTokenizer)
     }
 
-    fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { msg_send![self.obj, isEqual: object] }
-    }
-
-    fn ip_hash(&self) -> UInt {
-        unsafe { msg_send![self.obj, hash] }
-    }
-
-    fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.obj, isKindOfClass: class] }
-    }
-
-    fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.obj, isMemberOfClass: class] }
-    }
-
-    fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { msg_send![self.obj, respondsToSelector: selector] }
-    }
-
-    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { msg_send![self.obj, conformsToProtocol: protocol] }
-    }
-
-    fn ip_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.obj, description]) }
-    }
-
-    fn ip_debug_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
-    }
-
-    fn im_perform_selector(&self, selector: Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: selector] }
-    }
-
-    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
-    }
-
-    fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![self.obj, isProxy] }
+    fn im_self(&self) -> id {
+        unsafe { msg_send![self.obj, self] }
     }
 }
 
-impl INLTokenizer for NLTokenizer {
-    /* Creating a Tokenizer
-     */
-
-    fn im_init_with_unit(unit: NLTokenUnit) -> Self {
-        unsafe {
-            let cls = class!(NLTokenizer);
-            let obj: *mut Object = msg_send![cls, new];
-            let obj = msg_send![obj, initWithUnit: unit];
-            Self { obj }
-        }
-    }
-
-    fn ip_string(&self) -> NSString {
-        unsafe { msg_send![&*self.obj, string] }
-    }
-
-    fn ip_set_string(&self, string: NSString) {
-        unsafe { msg_send![self.obj, setString: string] }
-    }
-
-    fn im_set_language(&self, language: NLLanguage) {
-        unsafe { msg_send![self.obj, setLanguage: language] }
-    }
-
-    fn ip_unit(&self) -> NLTokenUnit {
-        unsafe { msg_send![self.obj, unit] }
-    }
-
-    fn im_enumerate_tokens_in_range_using_block(
-        &self,
-        range: NSRange,
-        block: RcBlock<(NSRange, NLTokenizerAttributes, *mut bool), ()>,
-    ) {
-        unsafe {
-            msg_send![
-                self.obj,
-                enumerateTokensInRange: range
-                usingBlock: block
-            ]
-        }
-    }
-
-    fn im_tokens_for_range<T>(&self, range: NSRange) -> NSArray<T>
-    where
-        T: INSValue,
-    {
-        unsafe { NSArray::from_id(msg_send![self.obj, tokensForRange: range]) }
-    }
-
-    fn im_token_range_at_index(&self, character_index: UInt) -> NSRange {
-        unsafe { msg_send![self.obj, tokenRangeAtIndex: character_index] }
-    }
-
-    fn im_token_range_for_range(&self, range: NSRange) -> NSRange {
-        unsafe { msg_send![self.obj, tokenRangeForRange: range] }
-    }
-}
+impl INLTokenizer for NLTokenizer {}
 
 impl fmt::Debug for NLTokenizer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -209,6 +112,20 @@ impl fmt::Debug for NLTokenizer {
 impl fmt::Display for NLTokenizer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.ip_description())
+    }
+}
+
+impl ToId for NLTokenizer {
+    fn to_id(mut self) -> id {
+        &mut *self.obj
+    }
+}
+
+impl FromId for NLTokenizer {
+    unsafe fn from_id(id: id) -> NLTokenizer {
+        NLTokenizer {
+            obj: Id::from_ptr(id),
+        }
     }
 }
 

@@ -2,27 +2,27 @@ use std::{
     ffi::{CStr, CString},
     fmt,
     marker::PhantomData,
-    ops::{Deref, DerefMut, Range},
+    ops::{Deref, DerefMut},
     string::String,
 };
 
-use libc::{c_char, c_void};
-use objc::{class, msg_send, runtime::Object, sel, sel_impl};
+use libc::c_char;
+use objc::{
+    class, msg_send,
+    runtime::{Class, Object},
+    sel, sel_impl,
+};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::INSString, Int, NSComparisonResult, NSLocale, UInt},
+    foundation::{traits::INSString, NSComparisonResult},
     objective_c_runtime::{
         id,
         traits::{FromId, PNSObject, ToId},
     },
-    utils::to_bool,
 };
 
-use super::{
-    string::Encoding, unichar, NSArray, NSData, NSMutableString, NSStringCompareOptions,
-    NSStringTransform, UTF8_ENCODING,
-};
+use super::{string::Encoding, NSMutableString, UTF8_ENCODING};
 
 /// This is a mapping to the Objective-C NSString class.
 #[repr(C)]
@@ -50,395 +50,68 @@ impl NSString {
             bytes.to_str()
         }
     }
+
+    /// Returns a boolean value indicating whether the string contains a given string by performing a case-sensitive, locale-unaware search.
+    pub fn contains<S>(&self, string: S) -> bool
+    where
+        S: Into<NSString>,
+    {
+        self.im_contains_string(string.into())
+    }
+
+    /// Returns a Boolean value that indicates whether a given string matches the beginning characters of the receiver.
+    pub fn has_prefix<S>(&self, prefix: S) -> bool
+    where
+        S: Into<NSString>,
+    {
+        self.im_has_prefix(prefix.into())
+    }
+
+    /// Returns a Boolean value that indicates whether a given string matches the ending characters of the receiver.
+    pub fn has_suffix<S>(&self, suffix: S) -> bool
+    where
+        S: Into<NSString>,
+    {
+        self.im_has_suffix(suffix.into())
+    }
+
+    /// Returns a Boolean value that indicates whether a given string is equal to the receiver using a literal Unicode-based comparison.
+    pub fn is_equal_to<S>(&self, string: S) -> bool
+    where
+        S: Into<NSString>,
+    {
+        self.im_is_equal_to_string(string.into())
+    }
+
+    /// Returns the result of invoking compare:options:range: with no options and the receiver’s full extent as the range.
+
+    pub fn compare<S>(&self, string: S) -> NSComparisonResult
+    where
+        S: Into<NSString>,
+    {
+        self.im_compare(string.into())
+    }
+
+    /// Compares strings as sorted by the Finder.
+    pub fn localized_standard_compare<S>(&self, string: S) -> NSComparisonResult
+    where
+        S: Into<NSString>,
+    {
+        self.im_localized_standard_compare(string.into())
+    }
 }
 
 impl PNSObject for NSString {
-    fn im_class<'a>() -> &'a objc::runtime::Class {
+    fn im_class<'a>() -> &'a Class {
         class!(NSString)
     }
 
-    fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isEqual: &*object.ptr]) }
-    }
-
-    fn ip_hash(&self) -> UInt {
-        unsafe { msg_send![&*self.ptr, hash] }
-    }
-
-    fn im_is_kind_of_class(&self, class: objc::runtime::Class) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isKindOfClass: class]) }
-    }
-
-    fn im_is_member_of_class(&self, class: objc::runtime::Class) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isMemberOfClass: class]) }
-    }
-
-    fn im_responds_to_selector(&self, selector: objc::runtime::Sel) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, respondsToSelector: selector]) }
-    }
-
-    fn im_conforms_to_protocol(&self, protocol: objc::runtime::Protocol) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, conformsToProtocol: protocol]) }
-    }
-
-    fn ip_description(&self) -> NSString {
-        unsafe { msg_send![&*self.ptr, description] }
-    }
-
-    fn ip_debug_description(&self) -> NSString {
-        unsafe { msg_send![&*self.ptr, debugDescription] }
-    }
-
-    fn im_perform_selector(&self, selector: objc::runtime::Sel) -> id {
-        unsafe { msg_send![&*self.ptr, performSelector: selector] }
-    }
-
-    fn im_perform_selector_with_object(&self, selector: objc::runtime::Sel, with_object: id) -> id {
-        unsafe { msg_send![&*self.ptr, performSelector: selector withObject: with_object] }
-    }
-
-    fn im_is_proxy(&self) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isProxy]) }
+    fn im_self(&self) -> id {
+        unsafe { msg_send![&*self.ptr, self] }
     }
 }
 
-impl INSString for NSString {
-    fn im_init(self) -> Self {
-        unsafe { Self::from_id(msg_send![&*self.ptr, init]) }
-    }
-
-    fn im_init_with_bytes_length_encoding(
-        self,
-        bytes: *const c_void,
-        len: UInt,
-        encoding: Encoding,
-    ) -> Self {
-        unsafe {
-            Self::from_id(
-                msg_send![&*self.ptr, initWithBytes: bytes length: len encoding: encoding],
-            )
-        }
-    }
-
-    fn im_init_with_bytes_no_copy_length_encoding_free_when_done(
-        self,
-        bytes: *mut c_void,
-        len: UInt,
-        encoding: Encoding,
-        free_buffer: bool,
-    ) -> Self {
-        unsafe {
-            Self::from_id(msg_send![
-                class!(NSMutableString),
-                stringWithBytesNoCopy: bytes
-                length: len
-                encoding: encoding
-                freeWhenDone: free_buffer
-            ])
-        }
-    }
-
-    fn im_init_with_characters_length(self, characters: *const unichar, len: UInt) -> Self {
-        unsafe {
-            Self::from_id(
-                msg_send![class!(NSMutableString), stringWithCharacters: characters length: len],
-            )
-        }
-    }
-
-    fn im_init_with_characters_no_copy_length_free_when_done(
-        self,
-        characters: unichar,
-        length: UInt,
-        free_buffer: bool,
-    ) -> Self {
-        unsafe {
-            Self::from_id(msg_send![
-                &*self.ptr,
-                initWithCharactersNoCopy: characters
-                length: length
-                freeWhenDone: free_buffer
-            ])
-        }
-    }
-
-    fn im_init_with_string<S>(self, s: S) -> Self
-    where
-        S: Into<NSString>,
-    {
-        unsafe { Self::from_id(msg_send![&*self.ptr, initWithString: s.into().ptr]) }
-    }
-
-    fn im_init_with_cstring_encoding(self, c_str: *const c_char, encoding: Encoding) -> Self {
-        unsafe { Self::from_id(msg_send![&*self.ptr, initWithCString: c_str encoding: encoding]) }
-    }
-
-    fn im_init_with_utf8_string(self, c_str: *const c_char) -> Self {
-        unsafe { Self::from_id(msg_send![&*self.ptr, initWithUTF8String: c_str]) }
-    }
-
-    fn im_init_with_data_encoding(self, data: NSData, encoding: Encoding) -> Self {
-        unsafe { Self::from_id(msg_send![&*self.ptr, initWithData: data encoding: encoding]) }
-    }
-
-    fn ip_length(&self) -> UInt {
-        unsafe { msg_send![&*self.ptr, length] }
-    }
-
-    fn im_length_of_bytes_using_encoding(&self, enc: Encoding) -> UInt {
-        unsafe { msg_send![&*self.ptr, lengthOfBytesUsingEncoding: enc] }
-    }
-
-    fn im_maximum_length_of_bytes_using_encoding(&self, enc: Encoding) -> Int {
-        unsafe { msg_send![&*self.ptr, maximumLengthOfBytesUsingEncoding: enc] }
-    }
-
-    fn im_character_at_index(&self, index: UInt) -> char {
-        unsafe {
-            let c: u8 = msg_send![&*self.ptr, characterAtIndex: index];
-            c as char
-        }
-    }
-
-    fn im_get_characters_range(&self, buffer: *mut unichar, range: Range<UInt>) {
-        unsafe { msg_send![&*self.ptr, getCharacters: buffer range: range] }
-    }
-
-    fn im_get_bytes_max_length_used_length_encoding_options_range_remaining_range(
-        &self,
-        buffer: *mut c_void,
-        max_length: Int,
-        used_length: *mut Int,
-        encoding: Encoding,
-        options: super::NSStringEncodingConversionOptions,
-        range: Range<UInt>,
-        remaining_range: Range<UInt>,
-    ) -> bool {
-        unsafe {
-            to_bool(msg_send![
-                &*self.ptr,
-                getBytes: buffer
-                maxLength: max_length
-                usedLength: used_length
-                encoding: encoding
-                options: options
-                range: range
-                remainingRange: remaining_range
-            ])
-        }
-    }
-
-    fn im_c_string_using_encoding(&self, encoding: Encoding) -> *const c_char {
-        unsafe { msg_send![&*self.ptr, cStringUsingEncoding: encoding] }
-    }
-
-    fn im_get_cstring_max_length_encoding(
-        &self,
-        buffer: *mut c_char,
-        max_length: UInt,
-        encoding: Encoding,
-    ) -> bool {
-        unsafe {
-            to_bool(
-                msg_send![&*self.ptr, getCString: buffer maxLength: max_length encoding: encoding],
-            )
-        }
-    }
-
-    fn ip_utf8_string(&self) -> *const c_char {
-        unsafe { msg_send![&*self.ptr, UTF8String] }
-    }
-
-    fn im_case_insensitive_compare<S>(&self, string: S) -> NSComparisonResult
-    where
-        S: Into<NSString>,
-    {
-        unsafe { msg_send![&*self.ptr, caseInsensitiveCompare: string.into()] }
-    }
-
-    fn im_localized_case_insensitive_compare<S>(&self, string: S) -> NSComparisonResult
-    where
-        S: Into<NSString>,
-    {
-        unsafe { msg_send![&*self.ptr, localizedCaseInsensitiveCompare: string.into()] }
-    }
-
-    fn im_compare<S>(&self, string: S) -> NSComparisonResult
-    where
-        S: Into<NSString>,
-    {
-        unsafe { msg_send![&*self.ptr, compare: string.into()] }
-    }
-
-    fn im_localized_compare<S>(&self, string: S) -> NSComparisonResult
-    where
-        S: Into<NSString>,
-    {
-        unsafe { msg_send![&*self.ptr, localizedCompare: string.into()] }
-    }
-
-    fn im_compare_options<S>(&self, string: S, mask: NSStringCompareOptions) -> NSComparisonResult
-    where
-        S: Into<NSString>,
-    {
-        unsafe { msg_send![&*self.ptr, compare: string.into() options: mask] }
-    }
-
-    fn im_compare_options_range<S>(
-        &self,
-        string: S,
-        mask: NSStringCompareOptions,
-        range: Range<UInt>,
-    ) -> NSComparisonResult
-    where
-        S: Into<NSString>,
-    {
-        unsafe { msg_send![&*self.ptr, compare: string.into() options: mask range: range] }
-    }
-
-    fn im_compare_options_range_locale<S>(
-        &self,
-        string: S,
-        mask: NSStringCompareOptions,
-        range: Range<UInt>,
-        locale: NSLocale,
-    ) -> NSComparisonResult
-    where
-        S: Into<NSString>,
-    {
-        unsafe {
-            msg_send![&*self.ptr, compare: string.into() options: mask range: range locale: locale]
-        }
-    }
-
-    fn im_localized_standard_compare<S>(&self, string: S) -> NSComparisonResult
-    where
-        S: Into<NSString>,
-    {
-        unsafe { msg_send![&*self.ptr, localizedStandardCompare: string.into()] }
-    }
-
-    fn im_has_prefix<S>(&self, prefix: S) -> bool
-    where
-        S: Into<NSString>,
-    {
-        unsafe { to_bool(msg_send![&*self.ptr, hasPrefix: prefix.into()]) }
-    }
-
-    fn im_has_suffix<S>(&self, suffix: S) -> bool
-    where
-        S: Into<NSString>,
-    {
-        unsafe { to_bool(msg_send![&*self.ptr, hasSuffix: suffix.into()]) }
-    }
-
-    fn im_is_equal_to_string<S>(&self, string: S) -> bool
-    where
-        S: Into<NSString>,
-    {
-        unsafe { to_bool(msg_send![&*self.ptr, isEqualToString: string.into()]) }
-    }
-
-    fn im_string_by_appending_string<S>(&self, string: S) -> NSString
-    where
-        S: Into<NSString>,
-    {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, stringByAppendingString: string.into()]) }
-    }
-
-    fn im_string_by_padding_to_length_with_string_starting_at_index<S>(
-        &self,
-        new_length: UInt,
-        pad_string: S,
-        starting_at: UInt,
-    ) -> NSString
-    where
-        S: Into<NSString>,
-    {
-        unsafe {
-            NSString::from_id(msg_send![
-                &*self.ptr,
-                stringByPaddingToLength: new_length
-                withString: pad_string.into()
-                startingAtIndex: starting_at
-            ])
-        }
-    }
-
-    fn ip_lowercase_string(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, lowercaseString]) }
-    }
-
-    fn ip_localized_lowercase_string(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, localizedLowercaseString]) }
-    }
-
-    fn im_lowercase_string_with_locale(&self, locale: NSLocale) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, lowercaseStringWithLocale: locale]) }
-    }
-
-    fn ip_uppercase_string(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, uppercaseString]) }
-    }
-
-    fn ip_localized_uppercase_string(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, localizedUppercaseString]) }
-    }
-
-    fn im_uppercase_string_with_locale(&self, locale: NSLocale) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, uppercaseStringWithLocale: locale]) }
-    }
-
-    fn ip_capitalized_string(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, capitalizedString]) }
-    }
-
-    fn ip_localized_capitalized_string(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, localizedCapitalizedString]) }
-    }
-
-    fn im_capitalized_string_with_locale(&self, locale: NSLocale) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, capitalizedStringWithLocale: locale]) }
-    }
-
-    fn im_components_separated_by_string<S>(&self, separator: S) -> NSArray<NSString>
-    where
-        S: Into<NSString>,
-    {
-        unsafe { msg_send![&*self.ptr, componentsSeparatedByString: separator.into()] }
-    }
-
-    fn im_contains_string<S>(&self, other: S) -> bool
-    where
-        S: Into<NSString>,
-    {
-        unsafe { to_bool(msg_send![&*self.ptr, containsString: other.into()]) }
-    }
-
-    fn im_string_by_applying_transform_reverse(
-        &mut self,
-        transform: NSStringTransform,
-        reverse: bool,
-    ) -> Option<NSString> {
-        unsafe {
-            let result: id =
-                msg_send![&*self.ptr, stringByApplyingTransform: transform reverse: reverse];
-            if result.is_null() {
-                None
-            } else {
-                Some(NSString::from_id(result))
-            }
-        }
-    }
-
-    fn im_can_be_converted_to_encoding(&self, encoding: Encoding) -> bool {
-        unsafe { msg_send![&*self.ptr, canBeConvertedToEncoding: encoding] }
-    }
-
-    fn im_data_using_encoding(&self, encoding: Encoding) -> NSData {
-        unsafe { NSData::from_id(msg_send![&*self.ptr, dataUsingEncoding: encoding]) }
-    }
-}
+impl INSString for NSString {}
 
 impl Default for NSString {
     fn default() -> Self {
@@ -532,6 +205,26 @@ impl From<&str> for NSString {
             let nsstring: *mut Object = msg_send![class!(NSString), alloc];
             Id::from_ptr(
                 msg_send![nsstring, initWithBytes: CString::new(s).unwrap().into_raw() as *mut Object
+                    length:s.len()
+                    encoding:UTF8_ENCODING
+                ],
+            )
+        };
+
+        NSString {
+            ptr: objc,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl From<&&str> for NSString {
+    /// Creates a new `NSString` from a `&str`.
+    fn from(s: &&str) -> Self {
+        let objc = unsafe {
+            let nsstring: *mut Object = msg_send![class!(NSString), alloc];
+            Id::from_ptr(
+                msg_send![nsstring, initWithBytes: CString::new(*s).unwrap().into_raw() as *mut Object
                     length:s.len()
                     encoding:UTF8_ENCODING
                 ],
@@ -657,8 +350,8 @@ mod tests {
     #[test]
     fn test_contains() {
         let s = NSString::from("Hello, World!");
-        assert!(s.im_contains_string("Hello"));
-        assert!(!s.im_contains_string("Goodbye"));
+        assert!(s.contains("Hello"));
+        assert!(!s.contains("Goodbye"));
     }
 
     #[test]
@@ -682,22 +375,22 @@ mod tests {
     #[test]
     fn test_has_prefix() {
         let s = NSString::from("Hello, World!");
-        assert!(s.im_has_prefix("Hello"));
-        assert!(!s.im_has_prefix("Goodbye"));
+        assert!(s.has_prefix("Hello"));
+        assert!(!s.has_prefix("Goodbye"));
     }
 
     #[test]
     fn test_has_suffix() {
         let s = NSString::from("Hello, World!");
-        assert!(s.im_has_suffix("World!"));
-        assert!(!s.im_has_suffix("Goodbye"));
+        assert!(s.has_suffix("World!"));
+        assert!(!s.has_suffix("Goodbye"));
     }
 
     #[test]
     fn test_is_equal_to() {
         let s = NSString::from("Hello, World!");
-        assert!(s.im_is_equal_to_string("Hello, World!"));
-        assert!(!s.im_is_equal_to_string("Goodbye, World!"));
+        assert!(s.is_equal_to("Hello, World!"));
+        assert!(!s.is_equal_to("Goodbye, World!"));
     }
 
     #[test]
@@ -719,24 +412,11 @@ mod tests {
     fn test_case_insensitive_compare() {
         let s = NSString::from("Hello, World!");
         assert_eq!(
-            s.im_case_insensitive_compare("hello, world!"),
+            s.im_case_insensitive_compare(NSString::from("hello, world!")),
             NSComparisonResult::OrderedSame
         );
         assert_eq!(
-            s.im_case_insensitive_compare("goodbye, world!"),
-            NSComparisonResult::OrderedDescending
-        );
-    }
-
-    #[test]
-    fn test_localized_case_insensitive_compare() {
-        let s = NSString::from("Hello, World!");
-        assert_eq!(
-            s.im_localized_case_insensitive_compare("hello, world!"),
-            NSComparisonResult::OrderedSame
-        );
-        assert_eq!(
-            s.im_localized_case_insensitive_compare("goodbye, world!"),
+            s.im_case_insensitive_compare(NSString::from("goodbye, world!")),
             NSComparisonResult::OrderedDescending
         );
     }
@@ -744,12 +424,9 @@ mod tests {
     #[test]
     fn test_compare() {
         let s = NSString::from("Hello, World!");
+        assert_eq!(s.compare("Hello, World!"), NSComparisonResult::OrderedSame);
         assert_eq!(
-            s.im_compare("Hello, World!"),
-            NSComparisonResult::OrderedSame
-        );
-        assert_eq!(
-            s.im_compare("Goodbye, World!"),
+            s.compare("Goodbye, World!"),
             NSComparisonResult::OrderedDescending
         );
     }
@@ -758,11 +435,11 @@ mod tests {
     fn test_localized_standard_compare() {
         let s = NSString::from("Hello, World!");
         assert_eq!(
-            s.im_localized_standard_compare("Hello, World!"),
+            s.localized_standard_compare("Hello, World!"),
             NSComparisonResult::OrderedSame
         );
         assert_eq!(
-            s.im_localized_standard_compare("Goodbye, World!"),
+            s.localized_standard_compare("Goodbye, World!"),
             NSComparisonResult::OrderedDescending
         );
     }
@@ -782,35 +459,25 @@ mod tests {
     fn test_im_case_insensitive_compare() {
         let s = NSString::from("Hello, World!");
         assert_eq!(
-            s.im_case_insensitive_compare("hello, world!"),
+            s.im_case_insensitive_compare(NSString::from("hello, world!")),
             NSComparisonResult::OrderedSame
         );
         assert_eq!(
-            s.im_case_insensitive_compare("goodbye, world!"),
+            s.im_case_insensitive_compare(NSString::from("goodbye, world!")),
             NSComparisonResult::OrderedDescending
         );
     }
 
     #[test]
-    fn test_im_has_prefix() {
-        let s = NSString::from("Hello, World!");
-        assert!(s.im_has_prefix("Hello"));
-        assert!(!s.im_has_prefix("Goodbye"));
-    }
-
-    #[test]
-    fn test_im_has_suffix() {
-        let s = NSString::from("Hello, World!");
-        assert!(s.im_has_suffix("World!"));
-        assert!(!s.im_has_suffix("Goodbye"));
-    }
-
-    #[test]
-    fn test_im_string_by_padding_to_length_with_string_starting_at_index() {
+    fn test_string_by_padding_to_length_with_string_starting_at_index() {
         let s = NSString::from("Hello, World!");
 
         assert_eq!(
-            s.im_string_by_padding_to_length_with_string_starting_at_index(20, ".", 0),
+            s.im_string_by_padding_to_length_with_string_starting_at_index(
+                20,
+                NSString::from("."),
+                0
+            ),
             "Hello, World!......."
         );
     }

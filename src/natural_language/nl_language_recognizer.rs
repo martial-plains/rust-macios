@@ -7,7 +7,7 @@ use std::{
 
 use objc::{
     class, msg_send,
-    runtime::{Class, Object, Protocol, Sel},
+    runtime::{Class, Object},
     sel, sel_impl,
 };
 use objc_id::Id;
@@ -97,104 +97,12 @@ impl PNSObject for NLLanguageRecognizer {
         class!(NLLanguageRecognizer)
     }
 
-    fn ip_superclass<'a>() -> Option<&'a Class> {
-        unsafe { msg_send![Self::im_class(), superclass] }
-    }
-
-    fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { msg_send![self.obj, isEqual: object] }
-    }
-
-    fn ip_hash(&self) -> UInt {
-        unsafe { msg_send![self.obj, hash] }
-    }
-
-    fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.obj, isKindOfClass: class] }
-    }
-
-    fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { msg_send![self.obj, isMemberOfClass: class] }
-    }
-
-    fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { msg_send![self.obj, respondsToSelector: selector] }
-    }
-
-    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { msg_send![self.obj, conformsToProtocol: protocol] }
-    }
-
-    fn ip_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.obj, description]) }
-    }
-
-    fn ip_debug_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
-    }
-
-    fn im_perform_selector(&self, selector: Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: selector] }
-    }
-
-    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
-    }
-
-    fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![self.obj, isProxy] }
+    fn im_self(&self) -> id {
+        unsafe { msg_send![self.obj, self] }
     }
 }
 
-impl INLLanguageRecognizer for NLLanguageRecognizer {
-    fn im_init() -> Self {
-        unsafe {
-            let obj: id = msg_send![Self::im_class(), alloc];
-            let obj: id = msg_send![obj, init];
-            Self::from_id(obj)
-        }
-    }
-
-    fn im_process_string(&mut self, string: NSString) {
-        unsafe { msg_send![self.obj, processString: string] }
-    }
-
-    fn ip_dominant_language(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.obj, dominantLanguage]) }
-    }
-
-    fn im_language_hypotheses_with_maximum(
-        &self,
-        max_hypotheses: UInt,
-    ) -> NSDictionary<NLLanguage, NSNumber> {
-        unsafe {
-            NSDictionary::from_id(msg_send![
-                self.obj,
-                languageHypothesesWithMaximum: max_hypotheses
-            ])
-        }
-    }
-
-    fn im_reset(&self) {
-        unsafe { msg_send![self.obj, reset] }
-    }
-
-    fn ip_language_hints(&self) -> NSDictionary<NLLanguage, NSNumber> {
-        unsafe { NSDictionary::from_id(msg_send![self.obj, languageHints]) }
-    }
-
-    fn ip_set_language_hints(&self, language_hints: NSDictionary<NLLanguage, NSNumber>) {
-        unsafe { msg_send![self.obj, setLanguageHints: language_hints] }
-    }
-
-    fn ip_language_constraints(&self) -> NSArray<NLLanguage> {
-        unsafe { NSArray::from_id(msg_send![self.obj, languageConstraints]) }
-    }
-
-    fn ip_set_language_constraints(&self, language_constraints: NSArray<NLLanguage>) {
-        unsafe { msg_send![self.obj, setLanguageConstraints: language_constraints] }
-    }
-}
+impl INLLanguageRecognizer for NLLanguageRecognizer {}
 
 impl ToId for NLLanguageRecognizer {
     fn to_id(mut self) -> id {

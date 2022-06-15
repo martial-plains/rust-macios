@@ -12,18 +12,33 @@ use crate::objective_c_runtime::{
     traits::{FromId, PNSObject, ToId},
 };
 
-/// An object that stores color data and sometimes opacity (alpha value).
-pub struct NSColor {
-    ptr: Id<Object>,
+use super::traits::INSStatusBar;
+
+/// An individual element displayed in the system menu bar.
+pub struct NSStatusBar {
+    /// The underlying Objective-C object.
+    pub ptr: Id<Object>,
 }
 
-impl ToId for NSColor {
+impl PNSObject for NSStatusBar {
+    fn im_class<'a>() -> &'a Class {
+        class!(NSStatusBar)
+    }
+
+    fn im_self(&self) -> id {
+        unsafe { msg_send![self.ptr, self] }
+    }
+}
+
+impl INSStatusBar for NSStatusBar {}
+
+impl ToId for NSStatusBar {
     fn to_id(mut self) -> id {
         &mut *self.ptr
     }
 }
 
-impl FromId for NSColor {
+impl FromId for NSStatusBar {
     unsafe fn from_id(ptr: id) -> Self {
         Self {
             ptr: Id::from_ptr(ptr),
@@ -31,23 +46,13 @@ impl FromId for NSColor {
     }
 }
 
-impl PNSObject for NSColor {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSColor)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![&*self.ptr, self] }
-    }
-}
-
-impl fmt::Debug for NSColor {
+impl fmt::Debug for NSStatusBar {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.ip_debug_description())
     }
 }
 
-impl fmt::Display for NSColor {
+impl fmt::Display for NSStatusBar {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.ip_description())
     }

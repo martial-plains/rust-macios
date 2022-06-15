@@ -23,6 +23,7 @@ pub mod ns_array;
 
 pub use ns_array::NSArray;
 
+mod ns_bundle;
 mod ns_character_set;
 mod ns_coder;
 mod ns_data;
@@ -41,7 +42,9 @@ mod ns_range;
 mod ns_string;
 mod string_transform;
 
+pub use ns_bundle::*;
 pub use ns_character_set::*;
+pub use ns_coder::*;
 pub use ns_data::*;
 pub use ns_date::*;
 pub use ns_date_interval::*;

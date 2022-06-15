@@ -5,6 +5,8 @@ use libc::c_double;
 
 use crate::core_graphics::{CGPoint, CGRect, CGSize};
 
+use super::NSString;
+
 /// Describes an integer.
 #[cfg(target_pointer_width = "32")]
 pub type Int = libc::c_int;
@@ -62,9 +64,9 @@ pub type NSSize = CGSize;
 */
 
 /// Constants representing an ICU string transform.
-pub type NSStringTransform = *const super::NSString;
+pub type NSStringTransform = *const NSString;
 /// The keys used to access components of a locale.
-pub type NSLocaleKey = *mut super::NSString;
+pub type NSLocaleKey = *mut NSString;
 
 /// These constants specify mutability options in property lists.
 pub type NSPropertyListWriteOptions = super::NSPropertyListMutabilityOptions;
@@ -80,3 +82,6 @@ pub type NSTimeInterval = c_double;
 
 /// A point in a Cartesian coordinate system.
 pub type NSPoint = CGPoint;
+
+/// A structure that defines the name of a notification.
+pub type NSNotificationName = NSString;

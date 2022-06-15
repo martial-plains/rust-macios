@@ -2,19 +2,18 @@ use std::fmt;
 
 use objc::{
     class, msg_send,
-    runtime::{Class, Object, Protocol, Sel},
+    runtime::{Class, Object, Sel},
     sel, sel_impl, Encode, Encoding,
 };
 use objc_id::Id;
 
 use crate::{
     core_graphics::CGFloat,
-    foundation::{Int, NSString, UInt},
+    foundation::{Int, NSString},
     objective_c_runtime::{
         id,
         traits::{FromId, PNSObject, ToId},
     },
-    utils::to_bool,
 };
 
 use super::{ns_menu_item::NSMenuItem, traits::INSMenu};
@@ -123,115 +122,12 @@ impl PNSObject for NSMenu {
         class!(NSMenu)
     }
 
-    fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isEqual: object]) }
-    }
-
-    fn ip_hash(&self) -> UInt {
-        unsafe { msg_send![&*self.ptr, hash] }
-    }
-
-    fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isKindOfClass: class]) }
-    }
-
-    fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isMemberOfClass: class]) }
-    }
-
-    fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, respondsToSelector: selector]) }
-    }
-
-    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, conformsToProtocol: protocol]) }
-    }
-
-    fn ip_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, description]) }
-    }
-
-    fn ip_debug_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, debugDescription]) }
-    }
-
-    fn im_perform_selector(&self, selector: Sel) -> id {
-        unsafe { msg_send![&*self.ptr, performSelector: selector] }
-    }
-
-    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
-        unsafe { msg_send![&*self.ptr, performSelector: selector withObject: with_object] }
-    }
-
-    fn im_is_proxy(&self) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isProxy]) }
-    }
-
-    fn ip_superclass<'a>() -> Option<&'a Class> {
-        Self::im_class().superclass()
+    fn im_self(&self) -> id {
+        unsafe { msg_send![&*self.ptr, self] }
     }
 }
 
-impl INSMenu for NSMenu {
-    fn ip_menu_bar_height(&self) -> CGFloat {
-        unsafe { msg_send![&*self.ptr, menuBarHeight] }
-    }
-
-    fn im_init_with_title(title: NSString) -> Self {
-        unsafe {
-            let ptr: id = msg_send![class!(NSMenu), new];
-            Self::from_id(msg_send![ptr, initWithTitle: title])
-        }
-    }
-
-    fn im_insert_item_at_index(&mut self, new_item: NSMenuItem, index: Int) {
-        unsafe { msg_send![&*self.ptr, insertItem: new_item.ptr atIndex: index] }
-    }
-
-    fn im_insert_item_with_title_action_key_equivalent_at_index(
-        &mut self,
-        string: NSString,
-        sel: Sel,
-        char_code: NSString,
-        index: Int,
-    ) -> NSMenuItem {
-        unsafe {
-            NSMenuItem::from_id(msg_send![&*self.ptr, insertItemWithTitle: string
-                                                                  action: sel
-                                                           keyEquivalent: char_code
-                                                                  atIndex: index])
-        }
-    }
-
-    fn im_add_item(&mut self, new_item: NSMenuItem) {
-        unsafe { msg_send![&*self.ptr, addItem: new_item] }
-    }
-
-    fn im_add_item_with_title_action_key_equivalent(
-        &mut self,
-        title: NSString,
-        sel: Sel,
-        char_code: NSString,
-    ) -> NSMenuItem {
-        unsafe {
-            NSMenuItem::from_id(msg_send![&*self.ptr, addItemWithTitle: title
-                                                                action: sel
-                                                         keyEquivalent: char_code])
-        }
-    }
-
-    fn im_remove_item(&mut self, item: NSMenuItem) {
-        unsafe { msg_send![&*self.ptr, removeItem: item] }
-    }
-
-    fn im_remove_item_at_index(&mut self, index: Int) {
-        unsafe { msg_send![&*self.ptr, removeItemAtIndex: index] }
-    }
-
-    fn im_remove_all_items(&mut self) {
-        unsafe { msg_send![&*self.ptr, removeAllItems] }
-    }
-}
+impl INSMenu for NSMenu {}
 
 impl ToId for NSMenu {
     fn to_id(mut self) -> id {

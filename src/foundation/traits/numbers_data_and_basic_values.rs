@@ -14,7 +14,7 @@ use crate::{
     objective_c_runtime::traits::{FromId, INSValue, PNSObject},
 };
 
-use super::INSLocale;
+use super::{INSLocale, INSString};
 
 /// The group of methods that are used with `NSNumber` objects.
 pub trait INSNumber: INSValue {
@@ -278,7 +278,12 @@ pub trait INSNumber: INSValue {
     /// # Arguments
     ///
     /// * `value` - The value to store in the NSNumber object.
-    fn im_init_with_bool(&self, value: bool) -> Self;
+    fn im_init_with_bool(&self, value: bool) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithBool: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as a signed char.
     ///
@@ -289,7 +294,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_char(&self, value: c_schar) -> Self;
+    fn im_init_with_char(&self, value: c_schar) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithChar: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain value, treated as a double.
     ///
@@ -300,7 +310,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_double(&self, value: c_double) -> Self;
+    fn im_init_with_double(&self, value: c_double) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithDouble: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as a float.
     ///
@@ -311,7 +326,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_float(&self, value: c_float) -> Self;
+    fn im_init_with_float(&self, value: c_float) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithFloat: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as a signed int.
     ///
@@ -322,7 +342,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_int(&self, value: c_int) -> Self;
+    fn im_init_with_int(&self, value: c_int) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithInt: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an NSInteger.
     ///
@@ -333,7 +358,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_integer(&self, value: Int) -> Self;
+    fn im_init_with_integer(&self, value: Int) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithInteger: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as a signed long.
     ///
@@ -344,7 +374,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_long(&self, value: c_long) -> Self;
+    fn im_init_with_long(&self, value: c_long) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithLong: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain value, treated as a signed long long.
     ///
@@ -355,7 +390,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_long_long(&self, value: c_longlong) -> Self;
+    fn im_init_with_long_long(&self, value: c_longlong) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithLongLong: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as a signed short.
     ///
@@ -366,7 +406,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_short(&self, value: c_short) -> Self;
+    fn im_init_with_short(&self, value: c_short) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithShort: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned char.
     ///
@@ -377,7 +422,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_unsigned_char(&self, value: c_uchar) -> Self;
+    fn im_init_with_unsigned_char(&self, value: c_uchar) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithUnsignedChar: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned int.
     ///
@@ -388,7 +438,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_unsigned_int(&self, value: c_uint) -> Self;
+    fn im_init_with_unsigned_int(&self, value: c_uint) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithUnsignedInt: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an NSUInteger.
     ///
@@ -399,7 +454,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_unsigned_integer(&self, value: c_uint) -> Self;
+    fn im_init_with_unsigned_integer(&self, value: c_uint) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithUnsignedInteger: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned long.
     ///
@@ -410,7 +470,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_unsigned_long(&self, value: c_ulong) -> Self;
+    fn im_init_with_unsigned_long(&self, value: c_ulong) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithUnsignedLong: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned long long.
     ///
@@ -421,7 +486,12 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_unsigned_long_long(&self, value: c_ulonglong) -> Self;
+    fn im_init_with_unsigned_long_long(&self, value: c_ulonglong) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithUnsignedLongLong: value]) }
+    }
 
     /// Returns an NSNumber object initialized to contain a given value, treated as an unsigned short.
     ///
@@ -432,58 +502,143 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// Returns an `NSNumber` object containing the value.
-    fn im_init_with_unsigned_short(&self, value: c_ushort) -> Self;
+    fn im_init_with_unsigned_short(&self, value: c_ushort) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithUnsignedShort: value]) }
+    }
 
     /* Accessing Numeric Values
      */
 
     /// The number object's value expressed as a Boolean value.
-    fn ip_bool_value(&self) -> bool;
+    fn ip_bool_value(&self) -> bool
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), boolValue] }
+    }
 
     /// The number object's value expressed as a char.
-    fn ip_char_value(&self) -> c_schar;
+    fn ip_char_value(&self) -> c_schar
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), charValue] }
+    }
 
     /// The number object's value expressed as an NSDecimal structure.
-    fn ip_decimal_value(&self) -> NSDecimal;
+    fn ip_decimal_value(&self) -> NSDecimal
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), decimalValue] }
+    }
 
     /// The number object's value expressed as a double, converted as necessary.
-    fn ip_double_value(&self) -> c_double;
+    fn ip_double_value(&self) -> c_double
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), doubleValue] }
+    }
 
     /// The number object's value expressed as a float, converted as necessary.
-    fn ip_float_value(&self) -> c_float;
+    fn ip_float_value(&self) -> c_float
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), floatValue] }
+    }
 
     /// The number object's value expressed as an int, converted as necessary.
-    fn ip_int_value(&self) -> c_int;
+    fn ip_int_value(&self) -> c_int
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), intValue] }
+    }
 
     /// The number object's value expressed as an NSInteger object, converted as necessary.
-    fn ip_integer_value(&self) -> Int;
+    fn ip_integer_value(&self) -> Int
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), integerValue] }
+    }
 
     /// The number object’s value expressed as a long long, converted as necessary.
-    fn ip_long_long_value(&self) -> c_longlong;
+    fn ip_long_long_value(&self) -> c_longlong
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), longLongValue] }
+    }
 
     /// The number object’s value expressed as a long, converted as necessary.
-    fn ip_long_value(&self) -> c_long;
+    fn ip_long_value(&self) -> c_long
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), longValue] }
+    }
 
     /// The number object's value expressed as a short, converted as necessary.
-    fn ip_short_value(&self) -> c_short;
+    fn ip_short_value(&self) -> c_short
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), shortValue] }
+    }
 
     /// The number object's value expressed as an unsigned char, converted as necessary.
-    fn ip_unsigned_char_value(&self) -> c_uchar;
+    fn ip_unsigned_char_value(&self) -> c_uchar
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), unsignedCharValue] }
+    }
 
     /// The number object's value expressed as an NSUInteger object, converted as necessary.
-    fn ip_unsigned_integer_value(&self) -> UInt;
+    fn ip_unsigned_integer_value(&self) -> UInt
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), unsignedIntegerValue] }
+    }
 
     /// The number object's value expressed as an unsigned int, converted as necessary.
-    fn ip_unsigned_int_value(&self) -> c_uint;
+    fn ip_unsigned_int_value(&self) -> c_uint
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), unsignedIntValue] }
+    }
 
     /// The number object’s value expressed as an unsigned long long, converted as necessary.
-    fn ip_unsigned_long_long_value(&self) -> c_ulonglong;
+    fn ip_unsigned_long_long_value(&self) -> c_ulonglong
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), unsignedLongLongValue] }
+    }
 
     /// The number object's value expressed as an unsigned long, converted as necessary.
-    fn ip_unsigned_long_value(&self) -> c_ulong;
+    fn ip_unsigned_long_value(&self) -> c_ulong
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), unsignedLongValue] }
+    }
 
     /// The number object's value expressed as an unsigned short, converted as necessary.
-    fn ip_unsigned_short_value(&self) -> c_ushort;
+    fn ip_unsigned_short_value(&self) -> c_ushort
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), unsignedShortValue] }
+    }
 
     /* Retrieving String Representations
      */
@@ -497,10 +652,20 @@ pub trait INSNumber: INSValue {
     /// # Returns
     ///
     /// A string that represents the contents of the number object formatted using the locale information in `locale`.
-    fn im_description_with_locale(&self, locale: NSLocale) -> NSString;
+    fn im_description_with_locale(&self, locale: NSLocale) -> NSString
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), descriptionWithLocale: locale.im_self()] }
+    }
 
     /// The number object's value expressed as a human-readable string.
-    fn ip_string_value(&self) -> NSString;
+    fn ip_string_value(&self) -> NSString
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), stringValue] }
+    }
 
     /* Comparing NSNumber Objects
      */
@@ -510,14 +675,24 @@ pub trait INSNumber: INSValue {
     /// # Arguments
     ///
     /// * `other` - The number to compare to the number object’s value.
-    fn im_compare(&self, other: &Self) -> NSComparisonResult;
+    fn im_compare(&self, other: &Self) -> NSComparisonResult
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), compare: other.im_self()] }
+    }
 
     /// Returns a Boolean value that indicates whether the number object’s value and a given number are equal.
     ///
     /// # Arguments
     ///
     /// * `other` - The number to compare to the number object’s value.
-    fn im_is_equal_to_number(&self, other: Self) -> bool;
+    fn im_is_equal_to_number(&self, other: Self) -> bool
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { msg_send![self.im_self(), isEqualToNumber: other.im_self()] }
+    }
 }
 
 /// An object for representing and performing arithmetic on base-10 numbers.
@@ -603,7 +778,9 @@ pub trait INSDecimalNumber: INSNumber {
      */
 
     /// Initializes a decimal number to represent a given decimal.
-    fn im_init_with_decimal(&mut self, decimal: NSDecimalNumber);
+    fn im_init_with_decimal(&mut self, decimal: NSDecimalNumber) {
+        unsafe { msg_send![self.im_self(), initWithDecimal: decimal] }
+    }
 
     /// Initializes a decimal number using the given mantissa, exponent, and sign.
     fn im_init_with_mantissa_exponent_is_negative(
@@ -611,81 +788,219 @@ pub trait INSDecimalNumber: INSNumber {
         mantissa: c_ulonglong,
         exponent: c_short,
         is_negative: bool,
-    );
+    ) {
+        unsafe {
+            msg_send![self.im_self(), initWithMantissa: mantissa
+                exponent: exponent
+                isNegative: is_negative]
+        }
+    }
 
     /// Initializes a decimal number so that its value is equivalent to that in a given numeric string.
     fn im_init_with_string<S>(&mut self, string: S)
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), initWithString: string] }
+    }
 
     /// Initializes a decimal number so that its value is equivalent to that in a given numeric string, interpreted using a given locale.
     fn im_init_with_string_locale<S, L>(&mut self, string: S, locale: L)
     where
-        S: Into<NSString>,
-        L: INSLocale;
+        S: INSString,
+        L: INSLocale,
+    {
+        unsafe { msg_send![self.im_self(), initWithString: string locale: locale] }
+    }
 
     /* Performing Arithmetic
      */
 
     /// Adds this number to another given number.
-    fn im_decimal_number_by_adding(&self, decimal_number: Self) -> Self;
+    fn im_decimal_number_by_adding(&self, decimal_number: Self) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberByAdding: decimal_number
+            ])
+        }
+    }
 
     /// Subtracts another given number from this one.
-    fn im_decimal_number_by_subtracting(&self, decimal_number: Self) -> Self;
+    fn im_decimal_number_by_subtracting(&self, decimal_number: Self) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberBySubtracting: decimal_number
+            ])
+        }
+    }
 
     /// Multiplies the number by another given number.
-    fn im_decimal_number_by_multiplying_by(&self, decimal_number: Self) -> Self;
+    fn im_decimal_number_by_multiplying_by(&self, decimal_number: Self) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberByMultiplyingBy: decimal_number
+            ])
+        }
+    }
 
     /// Divides the number by another given number.
-    fn im_decimal_number_by_dividing_by(&self, decimal_number: Self) -> Self;
+    fn im_decimal_number_by_dividing_by(&self, decimal_number: Self) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberByDividingBy: decimal_number
+            ])
+        }
+    }
 
     /// Raises the number to a given power.
-    fn im_decimal_number_by_raising_to_power(&self, power: c_uint) -> Self;
+    fn im_decimal_number_by_raising_to_power(&self, power: c_uint) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberByRaisingToPower: power
+            ])
+        }
+    }
 
     /// Multiplies the number by 10 raised to the given power.
-    fn im_decimal_number_by_multiplying_by_power_of_10(&self, power: c_short) -> Self;
+    fn im_decimal_number_by_multiplying_by_power_of_10(&self, power: c_short) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberByMultiplyingByPowerOf10: power
+            ])
+        }
+    }
 
     /// Adds this number to another given number using the specified behavior.
     fn im_decimal_number_by_adding_with_behavior(
         &self,
         decimal_number: &Self,
         with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberByAdding: decimal_number
+                withBehavior: with_behavior
+            ])
+        }
+    }
 
     /// Subtracts this a given number from this one using the specified behavior.
     fn im_decimal_number_by_subtracting_with_behavior(
         &self,
         decimal_number: &Self,
         with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberBySubtracting: decimal_number
+                withBehavior: with_behavior
+            ])
+        }
+    }
 
     /// Multiplies this number by another given number using the specified behavior.
     fn im_decimal_number_by_multiplying_by_with_behavior(
         &self,
         decimal_number: &Self,
         with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberByMultiplyingBy: decimal_number
+                withBehavior: with_behavior
+            ])
+        }
+    }
 
     /// Divides this number by another given number using the specified behavior.
     fn im_decimal_number_by_dividing_by_with_behavior(
         &self,
         decimal_number: &Self,
         with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberByDividingBy: decimal_number
+                withBehavior: with_behavior
+            ])
+        }
+    }
 
     /// Raises the number to a given power using the specified behavior.
     fn im_decimal_number_by_raising_to_power_with_behavior(
         &self,
         power: c_uint,
         with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberByRaisingToPower: power
+                withBehavior: with_behavior
+            ])
+        }
+    }
 
     /// Multiplies the number by 10 raised to the given power using the specified behavior.
     fn im_decimal_number_by_multiplying_by_power_of10_with_behavior(
         &self,
         power: c_short,
         with_behavior: Arc<dyn PNSDecimalNumberBehaviors>,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberByMultiplyingByPowerOf10: power
+                withBehavior: with_behavior
+            ])
+        }
+    }
 
     /* Rounding Off
      */
@@ -693,7 +1008,17 @@ pub trait INSDecimalNumber: INSNumber {
     fn im_decimal_number_by_rounding_according_to_behavior(
         &self,
         behavior: Arc<dyn PNSDecimalNumberBehaviors>,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                decimalNumberByRoundingAccordingToBehavior: behavior
+            ])
+        }
+    }
 
     /* Managing Behavior
      */
@@ -712,36 +1037,52 @@ pub trait INSDecimalNumber: INSNumber {
     }
 
     /// The decimal number’s value, expressed as an NSDecimal structure.
-    fn ip_decimal_value(&self) -> NSDecimal;
+    fn ip_decimal_value(&self) -> NSDecimal {
+        unsafe { NSDecimal::from_id(msg_send![self.im_self(), decimalValue]) }
+    }
 
     /// The decimal number’s closest approximate double value.
-    fn ip_double_value(&self) -> f64;
+    fn ip_double_value(&self) -> f64 {
+        unsafe { msg_send![self.im_self(), doubleValue] }
+    }
 
     /// Returns a string representation of the decimal number appropriate for the specified locale.
     fn im_description_with_locale<L>(&self, locale: L) -> NSString
     where
-        L: INSLocale;
+        L: INSLocale,
+    {
+        unsafe {
+            NSString::from_id(msg_send![
+                self.im_self(),
+                descriptionWithLocale: locale.im_self()
+            ])
+        }
+    }
 
     /// A C string containing the Objective-C type for the data contained in the decimal number object.
-    fn ip_objc_type(&self) -> *const c_char;
+    fn ip_objc_type(&self) -> *const c_char {
+        unsafe { msg_send![self.im_self(), objCType] }
+    }
 
     /* Comparing Decimal Numbers
      */
 
     /// Compares this decimal number and another.
-    fn im_compare(&self, decimal_number: &Self) -> NSComparisonResult;
+    fn im_compare(&self, decimal_number: &Self) -> NSComparisonResult {
+        unsafe { msg_send![self.im_self(), compare: decimal_number.im_self()] }
+    }
 
     /* Getting Maximum and Minimum Possible Values
      */
 
     /// Returns the largest possible value of a decimal number.
     fn tp_maximum_decimal_number() -> NSDecimalNumber {
-        unsafe { msg_send![Self::im_class(), maximumDecimalNumber] }
+        unsafe { NSDecimalNumber::from_id(msg_send![Self::im_class(), maximumDecimalNumber]) }
     }
 
     /// Returns the smallest possible value of a decimal number.
     fn tp_minimum_decimal_number() -> NSDecimalNumber {
-        unsafe { msg_send![Self::im_class(), minimumDecimalNumber] }
+        unsafe { NSDecimalNumber::from_id(msg_send![Self::im_class(), minimumDecimalNumber]) }
     }
 }
 
@@ -829,5 +1170,7 @@ pub trait INSData: PNSObject {
     */
 
     /// A pointer to the data object's contents.
-    fn ip_bytes(&self) -> *const c_void;
+    fn ip_bytes(&self) -> *const c_void {
+        unsafe { msg_send![self.im_self(), bytes] }
+    }
 }

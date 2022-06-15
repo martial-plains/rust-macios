@@ -3,6 +3,7 @@ use objc::{msg_send, sel, sel_impl};
 use crate::{
     foundation::{ns_date::NSDate, NSComparisonResult, NSTimeInterval},
     objective_c_runtime::traits::{FromId, PNSObject},
+    utils::to_bool,
 };
 
 /// A representation of a specific point in time, independent of any calendar or time zone.
@@ -96,25 +97,43 @@ pub trait INSDate: PNSObject {
      */
 
     /// Returns a Boolean value that indicates whether a given object is a date that is exactly equal the receiver.
-    fn im_is_equal_to_date(&self, date: NSDate) -> bool;
+    fn im_is_equal_to_date(&self, date: NSDate) -> bool {
+        unsafe { to_bool(msg_send![self.im_self(), isEqualToDate: date]) }
+    }
 
     /// Returns the earlier of the receiver and another given date.
-    fn im_earlier_date(&self, date: NSDate) -> Self;
+    fn im_earlier_date(&self, date: NSDate) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), earlierDate: date]) }
+    }
 
     /// Returns the later of the receiver and another given date.
-    fn im_later_date(&self, date: NSDate) -> Self;
+    fn im_later_date(&self, date: NSDate) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), laterDate: date]) }
+    }
 
     /// Indicates the temporal ordering of the receiver and another given date.
-    fn im_compare(&self, date: NSDate) -> NSComparisonResult;
+    fn im_compare(&self, date: NSDate) -> NSComparisonResult {
+        unsafe { msg_send![self.im_self(), compare: date] }
+    }
 
     /* Getting Time Intervals
      */
 
     /// Returns the interval between the receiver and another given date.
-    fn im_time_interval_since_date(&self, date: NSDate) -> NSTimeInterval;
+    fn im_time_interval_since_date(&self, date: NSDate) -> NSTimeInterval {
+        unsafe { msg_send![self.im_self(), timeIntervalSinceDate: date] }
+    }
 
     /// The interval between the date object and the current date and time.
-    fn ip_time_interval_since_now(&self) -> NSTimeInterval;
+    fn ip_time_interval_since_now(&self) -> NSTimeInterval {
+        unsafe { msg_send![self.im_self(), timeIntervalSinceNow] }
+    }
 
     /// The interval between the date object and 00:00:00 UTC on 1 January 2001.
     fn tp_time_interval_since_reference_date() -> NSTimeInterval {
@@ -130,5 +149,15 @@ pub trait INSDate: PNSObject {
      */
 
     /// Returns a new date object that is set to a given number of seconds relative to the receiver.
-    fn im_date_by_adding_time_interval(&self, secs_to_be_added: NSTimeInterval) -> Self;
+    fn im_date_by_adding_time_interval(&self, secs_to_be_added: NSTimeInterval) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                dateByAddingTimeInterval: secs_to_be_added
+            ])
+        }
+    }
 }

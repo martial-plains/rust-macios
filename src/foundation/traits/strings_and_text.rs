@@ -1,15 +1,17 @@
-use std::ops::Range;
-
 use libc::{c_char, c_void};
 use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{
-        ns_coder::NSCoder, string::Encoding, unichar, Int, NSArray, NSCharacterSet,
-        NSComparisonResult, NSData, NSLocale, NSMutableString, NSRange, NSString,
-        NSStringCompareOptions, NSStringEncodingConversionOptions, NSStringTransform, UInt, UInt8,
+        string::Encoding, unichar, Int, NSArray, NSCharacterSet, NSCoder, NSComparisonResult,
+        NSData, NSLocale, NSMutableString, NSRange, NSString, NSStringCompareOptions,
+        NSStringEncodingConversionOptions, NSStringTransform, UInt, UInt8,
     },
-    objective_c_runtime::traits::{FromId, PNSObject},
+    objective_c_runtime::{
+        id, nil,
+        traits::{FromId, PNSObject},
+    },
+    utils::to_bool,
 };
 
 /* ------------------------------------------------------------------------- */
@@ -19,7 +21,7 @@ use crate::{
 /// A static, plain-text Unicode string object.
 pub trait INSString: PNSObject {
     /* Creating and Initializing Strings
-     */
+    */
 
     /// Returns an empty string.
     fn tm_string() -> Self
@@ -30,7 +32,12 @@ pub trait INSString: PNSObject {
     }
 
     /// Returns an initialized NSString object that contains no characters.
-    fn im_init(self) -> Self;
+    fn im_init(self) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), init]) }
+    }
 
     /// Returns an initialized NSString object containing a given number of bytes from a given
     /// buffer of bytes interpreted in a given encoding.
@@ -52,7 +59,16 @@ pub trait INSString: PNSObject {
         bytes: *const c_void,
         len: UInt,
         encoding: Encoding,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(
+                msg_send![self.im_self(), initWithBytes: bytes length: len encoding: encoding],
+            )
+        }
+    }
 
     /// Returns an initialized NSString object that contains a given number of bytes from a given buffer of bytes interpreted in a given encoding, and optionally frees the buffer.
     ///
@@ -72,7 +88,17 @@ pub trait INSString: PNSObject {
         len: UInt,
         encoding: Encoding,
         free_buffer: bool,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                initWithBytesNoCopy: bytes length: len encoding: encoding freeWhenDone: free_buffer
+            ])
+        }
+    }
 
     /// Returns an initialized NSString object that contains a given number of characters from
     /// a given C array of UTF-16 code units.
@@ -85,7 +111,14 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An initialized NSString object containing length characters from characters.
-    fn im_init_with_characters_length(self, characters: *const unichar, len: UInt) -> Self;
+    fn im_init_with_characters_length(self, characters: *const unichar, len: UInt) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![self.im_self(), initWithCharacters: characters length: len])
+        }
+    }
 
     /// Returns an initialized NSString object that contains a given number of characters
     /// from a given C array of UTF-16 code units.
@@ -104,7 +137,17 @@ pub trait INSString: PNSObject {
         characters: unichar,
         length: UInt,
         free_buffer: bool,
-    ) -> Self;
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                self.im_self(),
+                initWithCharactersNoCopy: characters length: length freeWhenDone: free_buffer
+            ])
+        }
+    }
 
     /// Returns an NSString object initialized by copying the characters from another given string.
     ///
@@ -117,8 +160,11 @@ pub trait INSString: PNSObject {
     /// An NSString object initialized by copying the characters from s.
     fn im_init_with_string<S>(self, s: S) -> Self
     where
-        S: Into<NSString>;
-
+        Self: Sized + FromId,
+        S: INSString,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithString: s]) }
+    }
     /// Returns an NSString object initialized using the characters in a given C array,
     /// interpreted according to a given encoding.
     ///
@@ -131,7 +177,14 @@ pub trait INSString: PNSObject {
     ///
     /// An NSString object initialized using the characters in c_str,
     /// interpreted according to encoding.
-    fn im_init_with_cstring_encoding(self, c_str: *const c_char, encoding: Encoding) -> Self;
+    fn im_init_with_cstring_encoding(self, c_str: *const c_char, encoding: Encoding) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![self.im_self(), initWithCString: c_str encoding: encoding])
+        }
+    }
 
     /// Returns an NSString object initialized using the characters in a given C array,
     /// interpreted according to a UTF8 string.
@@ -144,7 +197,12 @@ pub trait INSString: PNSObject {
     ///
     /// An NSString object initialized using the characters in c_str,
     /// interpreted as a UTF8 string.
-    fn im_init_with_utf8_string(self, c_str: *const c_char) -> Self;
+    fn im_init_with_utf8_string(self, c_str: *const c_char) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithUTF8String: c_str]) }
+    }
 
     /// Returns an NSString object initialized by converting given data into
     /// UTF-16 code units using a given encoding.
@@ -157,7 +215,12 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object initialized by converting data into UTF-16 code units using encoding.
-    fn im_init_with_data_encoding(self, data: NSData, encoding: Encoding) -> Self;
+    fn im_init_with_data_encoding(self, data: NSData, encoding: Encoding) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithData: data encoding: encoding]) }
+    }
 
     /// Returns a localized string intended for display in a notification alert.
     ///
@@ -226,7 +289,7 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// An NSString object containing the bytes in c_str, interpreted according to encoding.
-    fn tm_string_with_cstring_encoding(c_str: *const c_char, encoding: Encoding) -> Self
+    fn tm_string_with_cstring_encoding(c_str: *const c_char, encoding: &Encoding) -> Self
     where
         Self: Sized + FromId,
     {
@@ -253,10 +316,12 @@ pub trait INSString: PNSObject {
     }
 
     /* Getting a String’s Length
-     */
+    */
 
     /// The number of Unicode characters in this string.
-    fn ip_length(&self) -> UInt;
+    fn ip_length(&self) -> UInt {
+        unsafe { msg_send![self.im_self(), length] }
+    }
 
     /// Returns the number of bytes required to store the receiver in a given encoding.
     ///
@@ -271,7 +336,9 @@ pub trait INSString: PNSObject {
     /// NULL character. Returns 0 if the specified encoding cannot be used to convert
     /// the receiver or if the amount of memory required for storing the results of the
     /// encoding conversion would exceed NSIntegerMax.
-    fn im_length_of_bytes_using_encoding(&self, enc: Encoding) -> UInt;
+    fn im_length_of_bytes_using_encoding(&self, enc: Encoding) -> UInt {
+        unsafe { msg_send![self.im_self(), lengthOfBytesUsingEncoding: enc] }
+    }
 
     /// Returns the maximum number of bytes needed to store the receiver in a given encoding.
     ///
@@ -285,10 +352,12 @@ pub trait INSString: PNSObject {
     /// representation. The length does not include space for a terminating NULL character.
     /// Returns 0 if the amount of memory required for storing the results of the encoding
     /// conversion would exceed NSIntegerMax.
-    fn im_maximum_length_of_bytes_using_encoding(&self, enc: Encoding) -> Int;
+    fn im_maximum_length_of_bytes_using_encoding(&self, enc: Encoding) -> Int {
+        unsafe { msg_send![self.im_self(), maximumLengthOfBytesUsingEncoding: enc] }
+    }
 
     /* Getting Characters and Bytes
-     */
+    */
 
     /// Returns the character at a given UTF-16 code unit index.
     ///
@@ -299,7 +368,9 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// The character at the array position given by index.
-    fn im_character_at_index(&self, index: UInt) -> char;
+    fn im_character_at_index(&self, index: UInt) -> char {
+        unsafe { msg_send![self.im_self(), characterAtIndex: index] }
+    }
 
     /// Copies characters from a given range in the receiver into a given buffer.
     ///
@@ -307,7 +378,9 @@ pub trait INSString: PNSObject {
     ///
     /// * `buffer` - Upon return, contains the characters from the receiver. buffer must be large enough to contain the characters in the range aRange (aRange.length*sizeof(unichar)).
     /// * `range` - The range of characters to copy.
-    fn im_get_characters_range(&self, buffer: *mut unichar, range: Range<UInt>);
+    fn im_get_characters_range(&self, buffer: *mut unichar, range: NSRange) {
+        unsafe { msg_send![self.im_self(), getCharacters: buffer range: range] }
+    }
 
     /// Gets a given range of characters as bytes in a specified encoding.
     ///
@@ -326,14 +399,20 @@ pub trait INSString: PNSObject {
         buffer: *mut c_void,
         max_length: Int,
         used_length: *mut Int,
-        encoding: Encoding,
-        options: NSStringEncodingConversionOptions,
-        range: Range<UInt>,
-        remaining_range: Range<UInt>,
-    ) -> bool;
+        encoding: &Encoding,
+        options: &NSStringEncodingConversionOptions,
+        range: NSRange,
+        remaining_range: NSRange,
+    ) -> bool {
+        unsafe {
+            to_bool(
+                msg_send![self.im_self(), getBytes: buffer maxLength: max_length usedLength: used_length encoding: encoding options: options range: range remainingRange: remaining_range],
+            )
+        }
+    }
 
     /* Getting C Strings
-     */
+    */
 
     /// Returns a representation of the string as a C string using a given encoding.
     ///
@@ -344,7 +423,9 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// A pointer to a C string containing the receiver. The pointer is owned by the string, and must not be freed by the caller.
-    fn im_c_string_using_encoding(&self, encoding: Encoding) -> *const c_char;
+    fn im_c_string_using_encoding(&self, encoding: Encoding) -> *const c_char {
+        unsafe { msg_send![self.im_self(), cStringUsingEncoding: encoding] }
+    }
 
     /// Returns a representation of the string as a C string.
     ///
@@ -362,13 +443,21 @@ pub trait INSString: PNSObject {
         buffer: *mut c_char,
         max_length: UInt,
         encoding: Encoding,
-    ) -> bool;
+    ) -> bool {
+        unsafe {
+            to_bool(
+                msg_send![self.im_self(), getCString: buffer maxLength: max_length encoding: encoding],
+            )
+        }
+    }
 
     /// A null-terminated UTF8 representation of the string.
-    fn ip_utf8_string(&self) -> *const c_char;
+    fn ip_utf8_string(&self) -> *const c_char {
+        unsafe { msg_send![self.im_self(), UTF8String] }
+    }
 
     /* Identifying and Comparing Strings
-     */
+    */
 
     /// Returns the result of invoking compare:options: with NSCaseInsensitiveSearch as the only option.
     ///
@@ -384,7 +473,10 @@ pub trait INSString: PNSObject {
     /// and `OrderedDescending` if the receiver follows `string`.
     fn im_case_insensitive_compare<S>(&self, string: S) -> NSComparisonResult
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), caseInsensitiveCompare: string] }
+    }
 
     /// Compares the string with a given string using a case-insensitive, localized, comparison.
     ///
@@ -400,7 +492,10 @@ pub trait INSString: PNSObject {
     /// and `OrderedDescending` if the receiver follows `string`
     fn im_localized_case_insensitive_compare<S>(&self, string: S) -> NSComparisonResult
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), localizedCaseInsensitiveCompare: string] }
+    }
 
     /// Returns the result of invoking compare:options:range: with no options
     /// and the receiver’s full extent as the range.
@@ -422,7 +517,10 @@ pub trait INSString: PNSObject {
     /// and `OrderedDescending` if the receiver follows `string`
     fn im_compare<S>(&self, string: S) -> NSComparisonResult
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), compare: string] }
+    }
 
     /// Returns the result of invoking compare:options:range: with no options
     /// and the receiver’s full extent as the range.
@@ -437,7 +535,10 @@ pub trait INSString: PNSObject {
     /// and `OrderedDescending` if the receiver follows `string`
     fn im_localized_compare<S>(&self, string: S) -> NSComparisonResult
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), localizedCompare: string] }
+    }
 
     /// Compares the string with the specified string using the given options.
     ///
@@ -451,7 +552,10 @@ pub trait INSString: PNSObject {
     /// Returns an `ComparisonResult` value that indicates the lexical ordering.
     fn im_compare_options<S>(&self, string: S, mask: NSStringCompareOptions) -> NSComparisonResult
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), compare: string options: mask] }
+    }
 
     /// Compares the string with the specified string using the given options.
     ///
@@ -464,10 +568,13 @@ pub trait INSString: PNSObject {
         &self,
         string: S,
         mask: NSStringCompareOptions,
-        range: Range<UInt>,
+        range: NSRange,
     ) -> NSComparisonResult
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), compare: string options: mask range: range] }
+    }
 
     /// Compares the string using the specified options and returns the lexical ordering for the range.
     ///
@@ -485,11 +592,16 @@ pub trait INSString: PNSObject {
         &self,
         string: S,
         mask: NSStringCompareOptions,
-        range: Range<UInt>,
+        range: NSRange,
         locale: NSLocale,
     ) -> NSComparisonResult
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe {
+            msg_send![self.im_self(), compare: string options: mask range: range locale: locale]
+        }
+    }
 
     /// Compares strings as sorted by the Finder.
     ///
@@ -502,7 +614,10 @@ pub trait INSString: PNSObject {
     /// The result of the comparison.
     fn im_localized_standard_compare<S>(&self, string: S) -> NSComparisonResult
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), localizedStandardCompare: string] }
+    }
 
     /// Returns a Boolean value that indicates whether a given string matches the beginning characters of the receiver.
     ///
@@ -515,7 +630,10 @@ pub trait INSString: PNSObject {
     /// Returns `true` if the string begins with the prefix, otherwise `false`.
     fn im_has_prefix<S>(&self, prefix: S) -> bool
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { to_bool(msg_send![self.im_self(), hasPrefix: prefix]) }
+    }
 
     /// Returns a Boolean value that indicates whether a given string matches the ending characters of the receiver.
     ///
@@ -528,7 +646,10 @@ pub trait INSString: PNSObject {
     /// Returns `true` if the string ends with the suffix, otherwise `false`.
     fn im_has_suffix<S>(&self, suffix: S) -> bool
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { to_bool(msg_send![self.im_self(), hasSuffix: suffix]) }
+    }
 
     /// Returns a Boolean value that indicates whether a given string is equal to the receiver using a literal Unicode-based comparison.
     ///
@@ -541,10 +662,13 @@ pub trait INSString: PNSObject {
     /// Returns `true` if the string is equal to the receiver, otherwise `false`.
     fn im_is_equal_to_string<S>(&self, string: S) -> bool
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { to_bool(msg_send![self.im_self(), isEqualToString: string]) }
+    }
 
     /* Combining Strings
-     */
+    */
 
     /// Returns a new string made by appending a given string to the receiver.
     ///
@@ -553,7 +677,10 @@ pub trait INSString: PNSObject {
     /// * `string` - The string to append to the receiver. This value must not be nil.
     fn im_string_by_appending_string<S>(&self, string: S) -> NSString
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), stringByAppendingString: string] }
+    }
 
     /// Returns a new string formed from the receiver by either removing characters from the end, or by appending as many occurrences as necessary of a given pad string.
     ///
@@ -573,17 +700,26 @@ pub trait INSString: PNSObject {
         starting_at: UInt,
     ) -> NSString
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe {
+            NSString::from_id(msg_send![self.im_self(), stringByPaddingToLength: new_length withString: pad_string startingAtIndex: starting_at])
+        }
+    }
 
     /* Changing Case
-     */
+    */
 
     /// A lowercase representation of the string.
-    fn ip_lowercase_string(&self) -> NSString;
+    fn ip_lowercase_string(&self) -> NSString {
+        unsafe { msg_send![self.im_self(), lowercaseString] }
+    }
 
     /// Returns a version of the string with all letters converted to lowercase,
     /// taking into account the current locale.
-    fn ip_localized_lowercase_string(&self) -> NSString;
+    fn ip_localized_lowercase_string(&self) -> NSString {
+        unsafe { msg_send![self.im_self(), localizedLowercaseString] }
+    }
 
     /// Returns a version of the string with all letters converted to
     /// lowercase, taking into account the specified locale.
@@ -595,14 +731,20 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// A new string with all letters converted to lowercase.
-    fn im_lowercase_string_with_locale(&self, locale: NSLocale) -> NSString;
+    fn im_lowercase_string_with_locale(&self, locale: NSLocale) -> NSString {
+        unsafe { msg_send![self.im_self(), lowercaseStringWithLocale: locale] }
+    }
 
     /// An uppercase representation of the string.
-    fn ip_uppercase_string(&self) -> NSString;
+    fn ip_uppercase_string(&self) -> NSString {
+        unsafe { msg_send![self.im_self(), uppercaseString] }
+    }
 
     /// Returns a version of the string with all letters converted to uppercase,
     /// taking into account the current locale.
-    fn ip_localized_uppercase_string(&self) -> NSString;
+    fn ip_localized_uppercase_string(&self) -> NSString {
+        unsafe { msg_send![self.im_self(), localizedUppercaseString] }
+    }
 
     /// Returns a version of the string with all letters converted to uppercase,
     /// taking into account the specified locale.
@@ -614,29 +756,40 @@ pub trait INSString: PNSObject {
     /// # Returns
     ///
     /// A new string with all letters converted to uppercase.
-    fn im_uppercase_string_with_locale(&self, locale: NSLocale) -> NSString;
+    fn im_uppercase_string_with_locale(&self, locale: NSLocale) -> NSString {
+        unsafe { msg_send![self.im_self(), uppercaseStringWithLocale: locale] }
+    }
 
     /// A capitalized representation of the string.
-    fn ip_capitalized_string(&self) -> NSString;
+    fn ip_capitalized_string(&self) -> NSString {
+        unsafe { msg_send![self.im_self(), capitalizedString] }
+    }
 
     /// Returns a capitalized representation of the receiver using the current
     /// locale.
-    fn ip_localized_capitalized_string(&self) -> NSString;
+    fn ip_localized_capitalized_string(&self) -> NSString {
+        unsafe { msg_send![self.im_self(), localizedCapitalizedString] }
+    }
 
     /// Returns a capitalized representation of the receiver using the
     /// specified locale.
-    fn im_capitalized_string_with_locale(&self, locale: NSLocale) -> NSString;
+    fn im_capitalized_string_with_locale(&self, locale: NSLocale) -> NSString {
+        unsafe { msg_send![self.im_self(), capitalizedStringWithLocale: locale] }
+    }
 
     /* Dividing Strings
-     */
+    */
 
     /// Returns an array containing substrings from the receiver that have been divided by a given separator.
     fn im_components_separated_by_string<S>(&self, separator: S) -> NSArray<NSString>
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), componentsSeparatedByString: separator] }
+    }
 
     /* Finding Characters and Substrings
-     */
+    */
 
     /// Returns a boolean value indicating whether the string contains a given string by performing a case-sensitive, locale-unaware search.
     ///
@@ -649,10 +802,13 @@ pub trait INSString: PNSObject {
     /// Returns `true` if `string` is contained in the receiver, otherwise `false`.
     fn im_contains_string<S>(&self, other: S) -> bool
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { to_bool(msg_send![self.im_self(), containsString: other]) }
+    }
 
     /* Transforming Strings
-     */
+    */
 
     /// Returns a new string made by appending to the receiver a given string.
     ///
@@ -664,10 +820,20 @@ pub trait INSString: PNSObject {
         &mut self,
         transform: NSStringTransform,
         reverse: bool,
-    ) -> Option<NSString>;
+    ) -> Option<NSString> {
+        unsafe {
+            let string: id =
+                msg_send![self.im_self(), stringByApplyingTransform: transform reverse: reverse];
+            if string == nil {
+                None
+            } else {
+                Some(NSString::from_id(string))
+            }
+        }
+    }
 
     /* Working with Encodings
-     */
+    */
 
     /// Returns a zero-terminated list of the encodings string objects support in the application’s environment.
     fn tp_available_string_encodings() -> *const Encoding {
@@ -680,10 +846,19 @@ pub trait INSString: PNSObject {
     }
 
     /// Returns a Boolean value that indicates whether the receiver can be converted to a given encoding without loss of information.
-    fn im_can_be_converted_to_encoding(&self, encoding: Encoding) -> bool;
+    fn im_can_be_converted_to_encoding(&self, encoding: Encoding) -> bool {
+        unsafe {
+            to_bool(msg_send![
+                self.im_self(),
+                canBeConvertedToEncoding: encoding
+            ])
+        }
+    }
 
     /// Returns an NSData object containing a representation of the receiver encoded using a given encoding.
-    fn im_data_using_encoding(&self, encoding: Encoding) -> NSData;
+    fn im_data_using_encoding(&self, encoding: Encoding) -> NSData {
+        unsafe { NSData::from_id(msg_send![self.im_self(), dataUsingEncoding: encoding]) }
+    }
 }
 
 /// A dynamic plain-text Unicode string object.
@@ -713,7 +888,12 @@ pub trait INSMutableString: INSString {
     /// # Arguments
     ///
     /// * `capacity` - The number of characters to allocate space for.
-    fn im_init_with_capacity(self, capacity: UInt) -> NSMutableString;
+    fn im_init_with_capacity(self, capacity: UInt) -> NSMutableString
+    where
+        Self: Sized,
+    {
+        unsafe { msg_send![self.im_self(), initWithCapacity: capacity] }
+    }
 
     /* Modifying a String
      */
@@ -725,7 +905,10 @@ pub trait INSMutableString: INSString {
     /// * `string` - The string to append to the receiver.
     fn im_append_string<S>(&mut self, string: S)
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), appendString: string] }
+    }
 
     /// Transliterates the receiver by applying a specified ICU string transform.
     ///
@@ -743,16 +926,28 @@ pub trait INSMutableString: INSString {
         &mut self,
         transform: NSStringTransform,
         reverse: bool,
-        range: Range<UInt>,
-        out_range: Range<UInt>,
-    ) -> bool;
+        range: NSRange,
+        out_range: NSRange,
+    ) -> bool {
+        unsafe {
+            msg_send![
+                self.im_self(),
+                applyTransform: transform
+                reverse: reverse
+                range: range
+                updatedRange: out_range
+            ]
+        }
+    }
 
     /// Removes from the receiver the characters in a given range.
     ///
     /// # Arguments
     ///
     /// * `range` - The range of characters to remove.
-    fn im_delete_characters_in_range(&mut self, range: Range<UInt>);
+    fn im_delete_characters_in_range(&mut self, range: NSRange) {
+        unsafe { msg_send![self.im_self(), deleteCharactersInRange: range] }
+    }
 
     /// Inserts into the receiver the characters of a given string at a given
     /// location.
@@ -763,7 +958,10 @@ pub trait INSMutableString: INSString {
     /// * `loc` - The location at which to insert `string`.
     fn im_insert_string_at_index<S>(&mut self, string: S, loc: UInt)
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), insertString: string atIndex: loc] }
+    }
 
     /// Replaces the characters from aRange with those in `string`.
     ///
@@ -771,9 +969,18 @@ pub trait INSMutableString: INSString {
     ///
     /// * `range` - The range of characters to replace.
     /// * `string` - The string to replace with.
-    fn im_replace_characters_in_range_with_string<S>(&mut self, range: Range<UInt>, string: S)
+    fn im_replace_characters_in_range_with_string<S>(&mut self, range: NSRange, string: S)
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe {
+            msg_send![
+                self.im_self(),
+                replaceCharactersInRange: range
+                withString: string
+            ]
+        }
+    }
 
     /// Replaces all occurrences of a given string in a given range with
     /// another given string, returning the number of replacements.
@@ -782,10 +989,21 @@ pub trait INSMutableString: INSString {
         target: NSString,
         replacement: S,
         options: NSStringCompareOptions,
-        search_range: Range<UInt>,
+        search_range: NSRange,
     ) -> UInt
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe {
+            msg_send![
+                self.im_self(),
+                replaceOccurrencesOfString: target
+                withString: replacement
+                options: options
+                range: search_range
+            ]
+        }
+    }
 
     /// Replaces the characters of the receiver with those in a given string.
     ///
@@ -794,7 +1012,10 @@ pub trait INSMutableString: INSString {
     /// * `string` - The string to replace the characters of the receiver with. string must not be `null`.
     fn im_set_string<S>(&mut self, string: S)
     where
-        S: Into<NSString>;
+        S: INSString,
+    {
+        unsafe { msg_send![self.im_self(), setString: string] }
+    }
 }
 
 /// An object representing a fixed set of Unicode character values for use in
@@ -915,7 +1136,12 @@ pub trait INSCharacterSet: PNSObject {
      */
 
     /// Initializing with coder
-    fn im_init_with_coder(self, coder: NSCoder) -> Self;
+    fn im_init_with_coder(self, coder: NSCoder) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithCoder: coder]) }
+    }
 
     /// Returns a character set containing the characters in a given string.
     fn tm_character_set_with_characters_in_string(string: NSString) -> NSCharacterSet {
@@ -958,23 +1184,35 @@ pub trait INSCharacterSet: PNSObject {
     }
 
     /// An NSData object encoding the receiver in binary format.
-    fn ip_bitmap_representation(&self) -> NSData;
+    fn ip_bitmap_representation(&self) -> NSData {
+        unsafe { NSData::from_id(msg_send![self.im_self(), bitmapRepresentation]) }
+    }
 
     /// A character set containing only characters that don’t exist in the receiver.
-    fn ip_inverted_set(&self) -> NSCharacterSet;
+    fn ip_inverted_set(&self) -> NSCharacterSet {
+        unsafe { NSCharacterSet::from_id(msg_send![self.im_self(), invertedSet]) }
+    }
 
     /* Testing Set Membership
      */
 
     /// Returns a Boolean value that indicates whether a given character is in the receiver.
-    fn im_character_is_member(&self, character: unichar) -> bool;
+    fn im_character_is_member(&self, character: unichar) -> bool {
+        unsafe { to_bool(msg_send![self.im_self(), characterIsMember: character]) }
+    }
 
     /// Returns a Boolean value that indicates whether the receiver has at least one member in a given character plane.
-    fn im_has_member_in_plane(&self, plane: UInt8) -> bool;
+    fn im_has_member_in_plane(&self, plane: UInt8) -> bool {
+        unsafe { to_bool(msg_send![self.im_self(), hasMemberInPlane: plane]) }
+    }
 
     /// Returns a Boolean value that indicates whether the receiver is a superset of another given character set.
-    fn im_is_superset_of_set(&self, other: NSCharacterSet) -> bool;
+    fn im_is_superset_of_set(&self, other: NSCharacterSet) -> bool {
+        unsafe { to_bool(msg_send![self.im_self(), isSupersetOfSet: other]) }
+    }
 
     /// Returns a Boolean value that indicates whether a given long character is a member of the receiver.
-    fn im_long_character_is_member(&self, long_char: u32) -> bool;
+    fn im_long_character_is_member(&self, long_char: u32) -> bool {
+        unsafe { to_bool(msg_send![self.im_self(), longCharacterIsMember: long_char]) }
+    }
 }

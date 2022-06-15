@@ -1,8 +1,14 @@
 use libc::{c_char, c_int};
 
-use crate::foundation::Int;
+use crate::{
+    core_graphics::CGFloat,
+    foundation::{Int, NSNotificationName, NSString},
+};
 
-use super::{NSColorSpaceName, NSDeviceDescriptionKey, NSWindowDepth, NSWindowLevel};
+use super::{
+    NSColorSpaceName, NSDeviceDescriptionKey, NSPopoverCloseReasonValue, NSWindowDepth,
+    NSWindowLevel,
+};
 
 extern "C" {
     /// Called by the main function to create and run the application.
@@ -81,3 +87,36 @@ extern "C" {
     /// The level for a torn-off menu. Synonymous with NSSubmenuWindowLevel.
     pub static NSTornOffMenuWindowLevel: NSWindowLevel;
 }
+
+extern "C" {
+    /// The userInfo key containing the reason for the `NSPopoverWillCloseNotification.`
+    pub static NSPopoverCloseReasonKey: *const NSString;
+}
+
+extern "C" {
+    /// Specifies that the popover has been closed because it is being detached to a window.
+    pub static NSPopoverCloseReasonDetachToWindow: NSPopoverCloseReasonValue;
+
+    /// Specifies that the popover has been closed in a standard way.
+    pub static NSPopoverCloseReasonStandard: NSPopoverCloseReasonValue;
+}
+
+extern "C" {
+    /// NSPopoverWillShowNotification
+    pub static NSPopoverWillShowNotification: NSNotificationName;
+
+    /// Sent after the popover has finished animating onscreen.
+    pub static NSPopoverDidShowNotification: NSNotificationName;
+
+    /// Sent before the popover is closed.
+    pub static NSPopoverWillCloseNotification: NSNotificationName;
+
+    /// Sent after the popover has finished animating offscreen.
+    pub static NSPopoverDidCloseNotification: NSNotificationName;
+}
+
+/// A status item length that is equal to the status bar’s thickness.
+pub const NSSQUARE_STATUS_ITEM_LENGTH: CGFloat = -2.0;
+
+/// A status item length that dynamically adjusts to the width of its contents.
+pub const NSVARIABLE_STATUS_ITEM_LENGTH: CGFloat = -1.0;

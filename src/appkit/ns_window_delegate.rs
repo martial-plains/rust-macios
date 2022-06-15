@@ -1,13 +1,9 @@
 #![allow(trivial_casts)]
 
-use objc::{
-    runtime::{Class, Object, Sel},
-    sel, sel_impl,
-};
 
-use crate::{core_graphics::CGSize, objective_c_runtime::id, utils::load_or_register_class};
+use crate::{core_graphics::CGSize, objective_c_runtime::{id, sel, sel_impl, Class, Object, Sel}, utils::load_or_register_class};
 
-use super::{WINDOW_DELEGATE_PTR, traits::PNSWindowDelegate};
+use super::{traits::PNSWindowDelegate, WINDOW_DELEGATE_PTR};
 
 fn load<'a, T>(this: &'a Object, ptr_name: &str) -> &'a T {
     unsafe {

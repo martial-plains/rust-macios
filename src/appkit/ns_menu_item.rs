@@ -8,12 +8,11 @@ use objc::{
 use objc_id::Id;
 
 use crate::{
-    foundation::{NSString, UInt},
+    foundation::NSString,
     objective_c_runtime::{
         id,
         traits::{FromId, PNSObject, ToId},
     },
-    utils::to_bool,
 };
 
 use super::{ns_menu::NSMenu, traits::INSMenuItem};
@@ -120,119 +119,12 @@ impl PNSObject for NSMenuItem {
         class!(NSMenuItem)
     }
 
-    fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isEqual: object]) }
-    }
-
-    fn ip_hash(&self) -> UInt {
-        unsafe { msg_send![&*self.ptr, hash] }
-    }
-
-    fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isKindOfClass: class]) }
-    }
-
-    fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isMemberOfClass: class]) }
-    }
-
-    fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, respondsToSelector: selector]) }
-    }
-
-    fn im_conforms_to_protocol(&self, protocol: objc::runtime::Protocol) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, conformsToProtocol: protocol]) }
-    }
-
-    fn ip_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, description]) }
-    }
-
-    fn ip_debug_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, debugDescription]) }
-    }
-
-    fn im_perform_selector(&self, selector: Sel) -> id {
-        unsafe { msg_send![&*self.ptr, performSelector: selector] }
-    }
-
-    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
-        unsafe { msg_send![&*self.ptr, performSelector: selector withObject: with_object] }
-    }
-
-    fn im_is_proxy(&self) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isProxy]) }
+    fn im_self(&self) -> id {
+        unsafe { msg_send![&*self.ptr, self] }
     }
 }
 
-impl INSMenuItem for NSMenuItem {
-    fn ip_is_enabled(&self) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isEnabled]) }
-    }
-
-    fn ip_set_enabled(&mut self, enabled: bool) {
-        unsafe { msg_send![&*self.ptr, setEnabled: enabled] }
-    }
-
-    fn ip_is_hidden(&self) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isHidden]) }
-    }
-
-    fn ip_set_hidden(&mut self, hidden: bool) {
-        unsafe { msg_send![&*self.ptr, setHidden: hidden] }
-    }
-
-    fn ip_is_hidden_or_has_hidden_ancestor(&self) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, isHiddenOrHasHiddenAncestor]) }
-    }
-
-    fn ip_target(&self) -> id {
-        unsafe { msg_send![&*self.ptr, target] }
-    }
-
-    fn ip_set_target(&mut self, target: id) {
-        unsafe { msg_send![&*self.ptr, setTarget: target] }
-    }
-
-    fn ip_action(&self) -> Sel {
-        unsafe { msg_send![&*self.ptr, action] }
-    }
-
-    fn ip_set_action(&mut self, action: Sel) {
-        unsafe { msg_send![&*self.ptr, setAction: action] }
-    }
-
-    fn ip_title(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![&*self.ptr, title]) }
-    }
-
-    fn ip_set_title(&mut self, title: NSString) {
-        unsafe { msg_send![&*self.ptr, setTitle: title] }
-    }
-
-    fn ip_submenu(&self) -> NSMenu {
-        unsafe { NSMenu::from_id(msg_send![&*self.ptr, submenu]) }
-    }
-
-    fn ip_set_submenu(&mut self, submenu: NSMenu) {
-        unsafe { msg_send![&*self.ptr, setSubmenu: submenu] }
-    }
-
-    fn ip_has_submenu(&self) -> bool {
-        unsafe { to_bool(msg_send![&*self.ptr, hasSubmenu]) }
-    }
-
-    fn ip_parent_item(&self) -> Option<NSMenuItem> {
-        unsafe {
-            let ptr: id = msg_send![&*self.ptr, parentItem];
-            if ptr.is_null() {
-                None
-            } else {
-                Some(NSMenuItem::from_id(ptr))
-            }
-        }
-    }
-}
+impl INSMenuItem for NSMenuItem {}
 
 impl ToId for NSMenuItem {
     fn to_id(mut self) -> id {

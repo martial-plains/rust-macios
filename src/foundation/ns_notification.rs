@@ -7,11 +7,8 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl, Encode};
 use objc_id::Id;
 
 use crate::{
-    foundation::{traits::INSNotification, NSString},
-    objective_c_runtime::{
-        id,
-        traits::{FromId, PNSObject},
-    },
+    foundation::traits::INSNotification,
+    objective_c_runtime::{id, traits::PNSObject},
 };
 
 /// A container for information broadcast through a notification center to all registered observers.
@@ -24,48 +21,8 @@ impl PNSObject for NSNotification {
         class!(NSNotification)
     }
 
-    fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { msg_send![self.obj, isEqual: object] }
-    }
-
-    fn ip_hash(&self) -> super::UInt {
-        unsafe { msg_send![self.obj, hash] }
-    }
-
-    fn im_is_kind_of_class(&self, class: objc::runtime::Class) -> bool {
-        unsafe { msg_send![self.obj, isKindOfClass: class] }
-    }
-
-    fn im_is_member_of_class(&self, class: objc::runtime::Class) -> bool {
-        unsafe { msg_send![self.obj, isMemberOfClass: class] }
-    }
-
-    fn im_responds_to_selector(&self, selector: objc::runtime::Sel) -> bool {
-        unsafe { msg_send![self.obj, respondsToSelector: selector] }
-    }
-
-    fn im_conforms_to_protocol(&self, protocol: objc::runtime::Protocol) -> bool {
-        unsafe { msg_send![self.obj, conformsToProtocol: protocol] }
-    }
-
-    fn ip_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.obj, description]) }
-    }
-
-    fn ip_debug_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.obj, debugDescription]) }
-    }
-
-    fn im_perform_selector(&self, selector: objc::runtime::Sel) -> id {
-        unsafe { msg_send![self.obj, performSelector: selector] }
-    }
-
-    fn im_perform_selector_with_object(&self, selector: objc::runtime::Sel, with_object: id) -> id {
-        unsafe { msg_send![self.obj, performSelector: selector withObject: with_object] }
-    }
-
-    fn im_is_proxy(&self) -> bool {
-        unsafe { msg_send![self.obj, isProxy] }
+    fn im_self(&self) -> id {
+        unsafe { msg_send![self.obj, self] }
     }
 }
 
@@ -87,15 +44,7 @@ impl fmt::Display for NSNotification {
     }
 }
 
-impl INSNotification for NSNotification {
-    fn im_init() -> Self {
-        unsafe {
-            NSNotification {
-                obj: msg_send![class!(NSNotification), new],
-            }
-        }
-    }
-}
+impl INSNotification for NSNotification {}
 
 impl Deref for NSNotification {
     type Target = Object;
