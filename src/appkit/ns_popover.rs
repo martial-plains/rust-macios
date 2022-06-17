@@ -17,16 +17,16 @@ use super::traits::{INSPopover, INSResponder};
 /// A means to display additional content related to existing content on the screen.
 pub struct NSPopover {
     /// The underlying C object.
-    pub obj: Id<Object>,
+    pub ptr: Id<Object>,
 }
 
 impl NSPopover {
     /// Creates a new popover.
     pub fn new() -> Self {
         unsafe {
-            let obj = msg_send![class!(NSPopover), alloc];
+            let obj = msg_send![class!(NSPopover), new];
             Self {
-                obj: Id::from_ptr(obj),
+                ptr: Id::from_ptr(obj),
             }
         }
     }
@@ -44,7 +44,7 @@ impl PNSObject for NSPopover {
     }
 
     fn im_self(&self) -> id {
-        unsafe { msg_send![&*self.obj, self] }
+        unsafe { msg_send![&*self.ptr, self] }
     }
 }
 
@@ -66,14 +66,20 @@ impl fmt::Display for NSPopover {
 
 impl ToId for NSPopover {
     fn to_id(mut self) -> id {
-        &mut *self.obj
+        &mut *self.ptr
     }
 }
 
 impl FromId for NSPopover {
     unsafe fn from_id(ptr: id) -> NSPopover {
         NSPopover {
-            obj: Id::from_ptr(ptr),
+            ptr: Id::from_ptr(ptr),
         }
+    }
+}
+
+impl Clone for NSPopover {
+    fn clone(&self) -> Self {
+        unsafe { Self::from_id(msg_send![&*self.ptr, retain]) }
     }
 }

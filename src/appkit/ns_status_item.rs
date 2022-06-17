@@ -98,3 +98,9 @@ impl FromId for NSStatusItem {
         }
     }
 }
+
+impl Clone for NSStatusItem {
+    fn clone(&self) -> Self {
+        unsafe { Self::from_id(msg_send![&*self.ptr, retain]) }
+    }
+}
