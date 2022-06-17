@@ -24,6 +24,6 @@ pub trait INSStatusBar: PNSObject {
 
     /// Returns a newly created status item that has been allotted a specified space within the status bar.
     fn im_status_item_with_length(&self, length: CGFloat) -> NSStatusItem {
-        unsafe { msg_send![self.im_self(), statusItemWithLength: length] }
+        unsafe { NSStatusItem::from_id(msg_send![self.im_self(), statusItemWithLength: length]) }
     }
 }
