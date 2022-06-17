@@ -1,9 +1,6 @@
 use libc::{c_char, c_int};
 
-use crate::{
-    core_graphics::CGFloat,
-    foundation::{Int, NSNotificationName, NSString},
-};
+use crate::foundation::{Int, NSNotificationName, NSString};
 
 use super::{
     NSColorSpaceName, NSDeviceDescriptionKey, NSPopoverCloseReasonValue, NSWindowDepth,
@@ -114,9 +111,3 @@ extern "C" {
     /// Sent after the popover has finished animating offscreen.
     pub static NSPopoverDidCloseNotification: NSNotificationName;
 }
-
-/// A status item length that is equal to the status bar’s thickness.
-pub const NSSQUARE_STATUS_ITEM_LENGTH: CGFloat = -2.0;
-
-/// A status item length that dynamically adjusts to the width of its contents.
-pub const NSVARIABLE_STATUS_ITEM_LENGTH: CGFloat = -1.0;

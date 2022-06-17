@@ -10,9 +10,12 @@ use objc::{
 };
 use objc_id::Id;
 
-use crate::objective_c_runtime::{
-    id,
-    traits::{FromId, PNSObject, ToId},
+use crate::{
+    core_graphics::CGFloat,
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
 };
 
 use super::traits::INSStatusItem;
@@ -24,9 +27,15 @@ pub struct NSStatusItem {
 }
 
 impl NSStatusItem {
+    /// A status item length that is equal to the status bar’s thickness.
+    pub const NSSQUARE_STATUS_ITEM_LENGTH: CGFloat = -2.0;
+
+    /// A status item length that dynamically adjusts to the width of its contents.
+    pub const NSVARIABLE_STATUS_ITEM_LENGTH: CGFloat = -1.0;
+
     /// Creates a new status item.
     pub fn new() -> Self {
-        unsafe { Self::from_id(msg_send![NSStatusItem::im_class(), new]) }
+        unsafe { Self::from_id(msg_send![NSStatusItem::im_class(), alloc]) }
     }
 }
 
