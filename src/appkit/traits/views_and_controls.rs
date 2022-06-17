@@ -80,12 +80,12 @@ pub trait INSButton: INSControl {
      */
 
     /// The title displayed on the button when it’s in an off state.
-    fn title(&self) -> NSString {
+    fn ip_title(&self) -> NSString {
         unsafe { msg_send![self.im_self(), title] }
     }
 
     /// Sets the title displayed on the button when it’s in an off state.
-    fn set_title(&self, title: NSString) {
+    fn ip_set_title(&self, title: NSString) {
         unsafe { msg_send![self.im_self(), setTitle: title] }
     }
 
