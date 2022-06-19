@@ -1,3 +1,5 @@
+#![allow(trivial_casts)]
+
 use std::fmt;
 
 use objc::{
@@ -12,13 +14,36 @@ use crate::objective_c_runtime::{
     traits::{FromId, PNSObject, ToId},
 };
 
-use super::traits::{INSButton, INSControl, INSResponder, INSStatusBarButton, INSView};
+use super::{
+    traits::{INSButton, INSControl, INSResponder, INSStatusBarButton, INSView},
+    ActionHandler,
+};
 
 /// The appearance and behavior of an item in the systemwide menu bar.
 pub struct NSStatusBarButton {
     /// The undrlying Objective-C object.
     pub ptr: Id<Object>,
 }
+
+/// This is an action handler for `NSStatusBarButton`
+pub static mut NSSTATUS_BAR_BUTTON_HANDLER: Option<ActionHandler> = None;
+
+impl NSStatusBarButton {
+
+    /// Sets the default action-message selector associated with the control.
+    ///
+    /// # Arguments
+    ///
+    /// * `action` - The new action-message.
+    pub fn set_action<F: Fn() + Send + Sync + 'static>(&mut self, action: F) {
+        let this = self.im_self();
+        let handler = ActionHandler::new(unsafe { &*this }, action);
+        unsafe {
+            NSSTATUS_BAR_BUTTON_HANDLER = Some(handler);
+        }
+    }
+}
+
 impl PNSObject for NSStatusBarButton {
     fn im_class<'a>() -> &'a Class {
         class!(NSStatusBarButton)

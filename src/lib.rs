@@ -36,5 +36,6 @@ pub mod core_graphics;
 pub mod foundation;
 pub mod natural_language;
 pub mod objective_c_runtime;
+pub mod uikit;
 
 pub(crate) mod utils;

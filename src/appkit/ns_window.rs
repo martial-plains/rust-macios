@@ -427,6 +427,18 @@ impl<T> FromId for NSWindow<T> {
     }
 }
 
+impl<T> Clone for NSWindow<T>
+where
+    T: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            ptr: self.ptr.clone(),
+            delegate: self.delegate.clone(),
+        }
+    }
+}
+
 impl<T> Drop for NSWindow<T> {
     fn drop(&mut self) {
         if self.delegate.is_some() {

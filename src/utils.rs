@@ -2,7 +2,7 @@ use std::{collections::HashMap, ffi::CString, sync::RwLock};
 
 use objc::{
     declare::ClassDecl,
-    runtime::{objc_getClass, Class, BOOL, NO, YES},
+    runtime::{objc_getClass, Class, Object, BOOL, NO, YES},
 };
 
 /// A helper function to convert an Objective-C bool to a Rust bool.
@@ -146,4 +146,13 @@ where
         "Attempted to create subclass for {}, but unable to load superclass of type {}.",
         subclass_name, superclass_name
     );
+}
+
+/// Getting the instance variable of an object. 
+pub fn get_variable<'a, T>(this: &'a Object, ptr_name: &str) -> &'a T {
+    unsafe {
+        let ptr: usize = *this.get_ivar(ptr_name);
+        let obj = ptr as *const T;
+        &*obj
+    }
 }

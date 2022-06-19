@@ -1,7 +1,14 @@
 #![allow(trivial_casts)]
 
-
-use crate::{core_graphics::CGSize, objective_c_runtime::{id, sel, sel_impl, Class, Object, Sel}, utils::load_or_register_class};
+use crate::{
+    core_graphics::CGSize,
+    objective_c_runtime::{
+        id,
+        runtime::{Class, Object, Sel},
+        sel, sel_impl,
+    },
+    utils::load_or_register_class,
+};
 
 use super::{traits::PNSWindowDelegate, WINDOW_DELEGATE_PTR};
 

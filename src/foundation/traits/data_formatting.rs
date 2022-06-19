@@ -12,7 +12,7 @@ use crate::{
 /// The `Locale` class provides information about the user’s locale and formatting preferences.
 pub trait INSLocale: PNSObject {
     /* Initializing a Locale
-     */
+    */
 
     /// Initializes a locale using a given locale identifier.
     fn im_init_with_locale_identifier(locale_identifier: NSString) -> Self
@@ -27,7 +27,7 @@ pub trait INSLocale: PNSObject {
     }
 
     /* Getting the User's Locale
-     */
+    */
 
     /// A locale which tracks the user’s current preferences.
     fn tp_autoupdating_current_locale() -> NSLocale {
@@ -45,7 +45,7 @@ pub trait INSLocale: PNSObject {
     }
 
     /* Getting Known Identifiers and Codes
-     */
+    */
 
     /// The list of locale identifiers available on the system.
     fn tp_available_locale_identifiers() -> NSArray<NSString> {
@@ -54,17 +54,17 @@ pub trait INSLocale: PNSObject {
 
     /// The list of known country or region codes.
     fn tp_iso_country_codes() -> NSArray<NSString> {
-        unsafe { msg_send![Self::im_class(), isoCountryCodes] }
+        unsafe { msg_send![Self::im_class(), ISOCountryCodes] }
     }
 
     /// The list of known language codes.
     fn tp_iso_language_codes() -> NSArray<NSString> {
-        unsafe { msg_send![Self::im_class(), isoLanguageCodes] }
+        unsafe { msg_send![Self::im_class(), ISOLanguageCodes] }
     }
 
     /// The list of known currency codes.
     fn tp_iso_currency_codes() -> NSArray<NSString> {
-        unsafe { msg_send![Self::im_class(), isoCurrencyCodes] }
+        unsafe { msg_send![Self::im_class(), ISOCurrencyCodes] }
     }
 
     /// A list of commonly encountered currency codes.
@@ -73,10 +73,10 @@ pub trait INSLocale: PNSObject {
     }
 
     /* Converting Between Identifiers
-     */
+    */
 
     /* Getting Information About a Locale
-     */
+    */
 
     /// The identifier for the locale.
     fn ip_locale_identifier(&self) -> NSString {
@@ -163,7 +163,7 @@ pub trait INSLocale: PNSObject {
     }
 
     /* Accessing Locale Information by Key
-     */
+    */
 
     /// Returns the value of the component corresponding to the specified key.
     fn im_object_for_key(&self, key: NSLocaleKey) -> Option<id> {
@@ -194,7 +194,7 @@ pub trait INSLocale: PNSObject {
     }
 
     /* Getting the User's Preferred Languages
-     */
+    */
 
     /// An ordered list of the user's preferred languages.
     fn tp_preferred_languages() -> NSArray<NSString> {
@@ -202,7 +202,7 @@ pub trait INSLocale: PNSObject {
     }
 
     /* Getting Line and Character Direction for a Language
-     */
+    */
 
     /// Returns the direction of the sequence of characters in a line for the specified ISO language code.
     fn tm_character_direction_for_language(iso_language_code: NSString) -> LanguageDirection {

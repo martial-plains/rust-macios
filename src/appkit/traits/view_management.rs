@@ -1,7 +1,7 @@
 use objc::{msg_send, sel, sel_impl};
 
 use crate::{
-    appkit::NSNibName,
+    appkit::{NSNibName, NSView},
     foundation::NSBundle,
     objective_c_runtime::{id, traits::FromId},
 };
@@ -11,7 +11,7 @@ use super::{INSResponder, INSView};
 /// A controller that manages a view, typically loaded from a nib file.
 pub trait INSViewController: INSResponder {
     /* Creating A View Controller
-    */
+     */
 
     /// Returns a view controller object initialized to the nib file in the specified bundle.
     fn im_init_with_nib_name_bundle(nib_name: NSNibName, bundle: NSBundle) -> Self
@@ -30,7 +30,7 @@ pub trait INSViewController: INSResponder {
     }
 
     /* Represented Object
-    */
+     */
 
     /// Returns the represented object of the view controller.
     fn ip_represented_object(&self) -> id {
@@ -38,7 +38,7 @@ pub trait INSViewController: INSResponder {
     }
 
     /* Nib Properties
-    */
+     */
 
     /// The nib bundle to be loaded to instantiate the receiver’s primary view.
     fn ip_nib_bundle(&self) -> NSBundle {
@@ -51,11 +51,11 @@ pub trait INSViewController: INSResponder {
     }
 
     /* View Properties
-    */
+     */
 
     /// The view controller’s primary view.
-    fn ip_view(&self) -> id {
-        unsafe { msg_send![self.im_self(), view] }
+    fn ip_view(&self) -> NSView {
+        unsafe { NSView::from_id(msg_send![self.im_self(), view]) }
     }
 
     /// Sets the view controller’s primary view.
@@ -85,7 +85,7 @@ pub trait INSViewController: INSResponder {
     }
 
     /* Responding to View Events
-    */
+     */
 
     /// Called after the view controller’s view has been loaded into memory.
     fn ip_view_did_load(&self) {

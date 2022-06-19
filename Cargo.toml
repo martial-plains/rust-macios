@@ -6,11 +6,13 @@ authors = ["Allister Isaiah Harvey <a.i.harvey@icloud.com>"]
 description = "Apple Frameworks for Rust"
 license = "MIT"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[workspace]
+members = ["src/appkit/proc-macros", "src/objective_c_runtime/proc-macros"]
 
 [dependencies]
 # Macros defined in workspace
 app-kit-proc-macros = { version = "0.1.0", path = "src/appkit/proc-macros" }
+objective-c-runtime-proc-macros = { version = "0.1.0", path = "src/objective_c_runtime/proc-macros" }
 
 # crates.io dependencies
 objc = { version = "0.2.7", features = ["exception"] }

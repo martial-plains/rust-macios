@@ -29,15 +29,16 @@ pub trait INSWindow: INSResponder {
      */
 
     /// Creates a titled window that contains the specified content view controller.
-    fn tm_window_with_content_view_controller(content_view_controller: NSViewController) -> Self
+    fn tm_window_with_content_view_controller<V>(content_view_controller: V) -> Self
     where
-        Self: Sized + 'static,
+        Self: Sized + FromId,
+        V: INSViewController,
     {
         unsafe {
-            msg_send![
+            Self::from_id(msg_send![
                 Self::im_class(),
                 windowWithContentViewController: content_view_controller
-            ]
+            ])
         }
     }
 

@@ -7,9 +7,11 @@ pub mod traits;
 pub mod macros;
 
 mod globals;
-mod type_defs;
 mod reexports;
+mod type_defs;
 
 pub use globals::*;
-pub use type_defs::*;
 pub use reexports::*;
+pub use type_defs::*;
+
+pub use objective_c_runtime_proc_macros::*;

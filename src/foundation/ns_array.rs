@@ -49,6 +49,14 @@ impl<T> NSArray<T> {
 }
 
 impl<T> NSArray<T> {
+    /// Creates an empty array.
+    pub fn new() -> Self {
+        Self {
+            obj: unsafe { Id::from_ptr(msg_send![Self::im_class(), new]) },
+            _marker: PhantomData,
+        }
+    }
+
     /// Returns true if the obect is an instance of NSArray.
     pub fn contains(&self, object: T) -> bool
     where
@@ -60,6 +68,12 @@ impl<T> NSArray<T> {
     /// Returns the number of objects in the array.
     pub fn count(&self) -> u64 {
         self.ip_count()
+    }
+}
+
+impl<T> Default for NSArray<T> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
