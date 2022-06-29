@@ -85,3 +85,9 @@ pub type NSPoint = CGPoint;
 
 /// A structure that defines the name of a notification.
 pub type NSNotificationName = NSString;
+
+///
+pub type NSErrorDomain = NSString;
+
+/// These keys may exist in the user info dictionary.
+pub type NSErrorUserInfoKey = NSString;
