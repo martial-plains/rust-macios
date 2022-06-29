@@ -1,7 +1,7 @@
 use objc::{msg_send, sel, sel_impl};
 
 use crate::{
-    foundation::{NSArray, NSDictionary, NSLocale, NSRange, NSString, UInt},
+    foundation::{NSArray, NSDictionary, NSLocale, NSNull, NSRange, NSString, UInt},
     objective_c_runtime::{
         id,
         traits::{FromId, PNSObject},
@@ -511,5 +511,16 @@ pub trait INSMutableDictionary<K, V>: INSDictionary<K, V> {
         K: PNSObject,
     {
         unsafe { msg_send![self.im_self(), removeObjectsForKeys: keys] }
+    }
+}
+
+/// A singleton object used to represent null values in collection objects that don’t allow nil values.
+pub trait INSNull: PNSObject {
+    /* Obtaining an instance
+     */
+
+    /// Returns the singleton instance of NSNull.
+    fn tm_null() -> NSNull {
+        unsafe { NSNull::from_id(msg_send![Self::im_class(), null]) }
     }
 }

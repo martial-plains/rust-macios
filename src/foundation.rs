@@ -41,6 +41,7 @@ mod ns_number;
 mod ns_range;
 mod ns_string;
 mod string_transform;
+mod ns_null;
 
 pub use ns_bundle::*;
 pub use ns_character_set::*;
@@ -60,6 +61,7 @@ pub use ns_number::*;
 pub use ns_range::*;
 pub use ns_string::*;
 pub use string_transform::*;
+pub use ns_null::*;
 
 /* App Support
 */
