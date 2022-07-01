@@ -37,7 +37,6 @@ mod ns_toolbar;
 mod ns_view;
 mod ns_view_controller;
 mod ns_window;
-mod ns_window_controller;
 mod ns_window_delegate;
 
 pub use action_handler::*;
@@ -60,4 +59,3 @@ pub use ns_toolbar::*;
 pub use ns_view::*;
 pub use ns_view_controller::*;
 pub use ns_window::*;
-pub use ns_window_controller::*;

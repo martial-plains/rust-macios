@@ -1,26 +1,12 @@
-use std::fmt;
+use objc::{class, msg_send, runtime::Sel, sel, sel_impl};
 
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object, Sel},
-    sel, sel_impl,
-};
-use objc_id::Id;
+use crate::{foundation::NSString, objective_c_runtime::{id, traits::FromId}};
 
-use crate::{
-    foundation::NSString,
-    objective_c_runtime::{
-        id,
-        traits::{FromId, PNSObject, ToId},
-    },
-};
+use super::{ns_menu::NSMenu, object, traits::INSMenuItem};
 
-use super::{ns_menu::NSMenu, traits::INSMenuItem};
-
-/// A command item in an app menu.
-pub struct NSMenuItem {
-    /// The underlying `NSMenuItem` object.
-    pub ptr: Id<Object>,
+object! {
+    /// A command item in an app menu.
+    unsafe pub struct NSMenuItem;
 }
 
 impl NSMenuItem {
@@ -114,40 +100,4 @@ impl Default for NSMenuItem {
     }
 }
 
-impl PNSObject for NSMenuItem {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSMenuItem)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![&*self.ptr, self] }
-    }
-}
-
 impl INSMenuItem for NSMenuItem {}
-
-impl ToId for NSMenuItem {
-    fn to_id(mut self) -> id {
-        &mut *self.ptr
-    }
-}
-
-impl FromId for NSMenuItem {
-    unsafe fn from_id(ptr: id) -> Self {
-        Self {
-            ptr: Id::from_ptr(ptr),
-        }
-    }
-}
-
-impl fmt::Debug for NSMenuItem {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl fmt::Display for NSMenuItem {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_description())
-    }
-}

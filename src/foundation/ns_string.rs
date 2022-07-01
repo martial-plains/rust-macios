@@ -2,7 +2,6 @@ use std::{
     ffi::{CStr, CString},
     fmt,
     marker::PhantomData,
-    ops::{Deref, DerefMut},
     string::String,
 };
 
@@ -12,7 +11,7 @@ use objc::{
     runtime::{Class, Object},
     sel, sel_impl,
 };
-use objc_id::Id;
+use objc_id::{Id, ShareId};
 
 use crate::{
     foundation::{traits::INSString, NSComparisonResult},
@@ -28,7 +27,7 @@ use super::{string::Encoding, NSMutableString, UTF8_ENCODING};
 #[repr(C)]
 pub struct NSString {
     /// The raw pointer to the Objective-C object.
-    pub ptr: Id<Object>,
+    pub ptr: ShareId<Object>,
     marker: PhantomData<()>,
 }
 
@@ -137,25 +136,9 @@ impl Clone for NSString {
     }
 }
 
-impl Deref for NSString {
-    type Target = Object;
-
-    /// Derefs to the underlying Objective-C Object.
-    fn deref(&self) -> &Object {
-        &*self.ptr
-    }
-}
-
-impl DerefMut for NSString {
-    /// Derefs to the underlying Objective-C Object.
-    fn deref_mut(&mut self) -> &mut Object {
-        &mut *self.ptr
-    }
-}
-
 impl ToId for NSString {
-    fn to_id(mut self) -> id {
-        &mut *self.ptr
+    fn to_id(self) -> id {
+        unsafe { &mut *self.im_self() }
     }
 }
 

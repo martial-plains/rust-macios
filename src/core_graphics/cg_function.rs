@@ -1,17 +1,12 @@
 use libc::{c_void, size_t};
-use objc::runtime::Object;
-use objc_id::Id;
 
-use crate::core_foundation::CFTypeID;
+use crate::{core_foundation::CFTypeID, objective_c_runtime::macros::object};
 
 use super::{CGFloat, CGFunctionCallbacks, CGFunctionRef};
 
-/// A general facility for defining and using callback functions.
-#[derive(Debug)]
-#[repr(transparent)]
-pub struct CGFunction {
-    /// The underlying `CGFunctionRef`.
-    pub ptr: Id<Object>,
+object! {
+    /// A general facility for defining and using callback functions.
+    unsafe pub  struct CGFunction;
 }
 
 impl CGFunction {

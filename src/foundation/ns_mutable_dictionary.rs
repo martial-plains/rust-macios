@@ -1,21 +1,15 @@
 use std::{
     borrow::Borrow,
     collections::HashMap,
-    fmt,
     marker::PhantomData,
     ops::{Deref, DerefMut},
 };
 
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object},
-    sel, sel_impl,
-};
-use objc_id::Id;
+use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 
 use crate::objective_c_runtime::{
-    id,
-    traits::{FromId, PNSObject, ToId},
+    macros::object,
+    traits::{FromId, PNSObject},
 };
 
 use super::{
@@ -23,12 +17,12 @@ use super::{
     Int, Int16, Int32, Int8, NSDictionary, NSNumber, NSString, UInt, UInt16, UInt32, UInt8,
 };
 
-/// A dynamic collection of objects associated with unique keys.
-pub struct NSMutableDictionary<K, V> {
-    /// The raw pointer to the Objective-C object.
-    pub obj: Id<Object>,
-    _key: PhantomData<K>,
-    _value: PhantomData<V>,
+object! {
+    /// A dynamic collection of objects associated with unique keys.
+    unsafe pub struct NSMutableDictionary<K,V> {
+        _key: PhantomData<K>,
+        _value: PhantomData<V>,
+    }
 }
 
 impl<K, V> NSMutableDictionary<K, V> {
@@ -52,35 +46,9 @@ impl<K, V> NSMutableDictionary<K, V> {
     }
 }
 
-impl<K, V> PNSObject for NSMutableDictionary<K, V> {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSMutableDictionary)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![self.obj, self] }
-    }
-}
-
 impl<K, V> INSDictionary<K, V> for NSMutableDictionary<K, V> {}
 
 impl<K, V> INSMutableDictionary<K, V> for NSMutableDictionary<K, V> {}
-
-impl<K, V> ToId for NSMutableDictionary<K, V> {
-    fn to_id(mut self) -> id {
-        &mut *self.obj
-    }
-}
-
-impl<K, V> FromId for NSMutableDictionary<K, V> {
-    unsafe fn from_id(obj: id) -> Self {
-        Self {
-            obj: Id::from_ptr(obj),
-            _key: PhantomData,
-            _value: PhantomData,
-        }
-    }
-}
 
 impl<K, V> Default for NSMutableDictionary<K, V> {
     fn default() -> Self {
@@ -88,25 +56,9 @@ impl<K, V> Default for NSMutableDictionary<K, V> {
     }
 }
 
-impl<K, V> fmt::Debug for NSMutableDictionary<K, V>
-where
-    K: fmt::Debug,
-    V: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl fmt::Display for NSMutableDictionary<NSString, NSString> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.ip_description())
-    }
-}
-
 impl Borrow<NSDictionary<NSString, NSString>> for NSMutableDictionary<NSString, NSString> {
     fn borrow(&self) -> &NSDictionary<NSString, NSString> {
-        unsafe { msg_send![self.obj, dictionaryWithDictionary: self] }
+        unsafe { msg_send![self.im_self(), dictionaryWithDictionary: self] }
     }
 }
 
@@ -115,14 +67,14 @@ impl<K, V> Deref for NSMutableDictionary<K, V> {
 
     /// Derefs to the underlying Objective-C Object.
     fn deref(&self) -> &Object {
-        &*self.obj
+        unsafe { &*self.im_self() }
     }
 }
 
 impl<K, V> DerefMut for NSMutableDictionary<K, V> {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
-        &mut *self.obj
+        unsafe { &mut *self.im_self() }
     }
 }
 
@@ -132,12 +84,7 @@ where
     V: PNSObject,
 {
     fn from(dictionary: NSDictionary<K, V>) -> Self {
-        Self {
-            obj: dictionary.obj,
-
-            _key: PhantomData,
-            _value: PhantomData,
-        }
+        unsafe { Self::from_id(dictionary.im_self()) }
     }
 }
 
@@ -147,28 +94,18 @@ where
     V: PNSObject,
 {
     fn from(capacity: UInt) -> Self {
-        Self {
-            obj: unsafe {
-                msg_send![
-                    class!(NSMutableDictionary),
-                    dictionaryWithCapacity: capacity
-                ]
-            },
-
-            _key: PhantomData,
-            _value: PhantomData,
+        unsafe {
+            Self::from_id(msg_send![
+                class!(NSMutableDictionary),
+                dictionaryWithCapacity: capacity
+            ])
         }
     }
 }
 
 impl<K, V> Clone for NSMutableDictionary<K, V> {
     fn clone(&self) -> Self {
-        Self {
-            obj: unsafe { msg_send![self.obj, retain] },
-
-            _key: PhantomData,
-            _value: PhantomData,
-        }
+        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
     }
 }
 

@@ -1,15 +1,9 @@
-use std::fmt;
-
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object},
-    sel, sel_impl,
-};
-use objc_id::Id;
+use objc::{msg_send, sel, sel_impl};
 
 use crate::objective_c_runtime::{
     id,
-    traits::{FromId, PNSObject, ToId},
+    macros::object,
+    traits::{FromId, PNSObject},
 };
 
 use super::{
@@ -17,11 +11,9 @@ use super::{
     NSComparisonResult, NSString,
 };
 
-/// A mutable string.
-#[repr(C)]
-pub struct NSMutableString {
-    /// The underlying Objective-C object.
-    pub ptr: Id<Object>,
+object! {
+    /// A mutable string.
+    unsafe pub struct NSMutableString;
 }
 
 impl NSMutableString {
@@ -31,16 +23,6 @@ impl NSMutableString {
         S: Into<NSString>,
     {
         self.im_append_string(string.into())
-    }
-}
-
-impl PNSObject for NSMutableString {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSMutableString)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![&*self.ptr, self] }
     }
 }
 
@@ -54,21 +36,9 @@ impl Default for NSMutableString {
     }
 }
 
-impl fmt::Debug for NSMutableString {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_description().as_str().unwrap())
-    }
-}
-
-impl fmt::Display for NSMutableString {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_description().as_str().unwrap())
-    }
-}
-
 impl Clone for NSMutableString {
     fn clone(&self) -> Self {
-        unsafe { msg_send![&*self.ptr, retain] }
+        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
     }
 }
 
@@ -81,20 +51,6 @@ impl PartialEq for NSMutableString {
 impl PartialEq<&str> for NSMutableString {
     fn eq(&self, other: &&str) -> bool {
         self.im_localized_compare(NSString::from(*other)) == NSComparisonResult::OrderedSame
-    }
-}
-
-impl ToId for NSMutableString {
-    fn to_id(mut self) -> id {
-        &mut *self.ptr
-    }
-}
-
-impl FromId for NSMutableString {
-    unsafe fn from_id(id: id) -> Self {
-        Self {
-            ptr: Id::from_ptr(id),
-        }
     }
 }
 

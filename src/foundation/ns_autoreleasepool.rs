@@ -1,32 +1,18 @@
-use std::fmt::{Debug, Display};
+use objc::{class, msg_send, sel, sel_impl};
 
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object},
-    sel, sel_impl,
-};
-use objc_id::Id;
-
-use crate::objective_c_runtime::{
-    id,
-    traits::{PNSObject, ToId},
-};
+use crate::objective_c_runtime::{macros::object, traits::ToId};
 
 use super::traits::INSAutoreleasePool;
 
-/// An object that supports Cocoa’s reference-counted memory management system.
-pub struct NSAutoreleasePool {
-    /// The underlying Objective-C object.
-    pub ptr: Id<Object>,
+object! {
+    /// An object that supports Cocoa’s reference-counted memory management system.
+    unsafe pub struct NSAutoreleasePool;
 }
 
 impl NSAutoreleasePool {
     /// Creates a new autorelease pool.
     pub fn new() -> Self {
-        let ptr = unsafe { msg_send![class!(NSAutoreleasePool), new] };
-        Self {
-            ptr: unsafe { Id::from_retained_ptr(ptr) },
-        }
+        unsafe { Self::from(msg_send![class!(NSAutoreleasePool), new]) }
     }
 
     /// In a reference-counted environment, releases and pops the receiver; in a garbage-collected environment, triggers garbage collection if the memory allocated since the last collection is greater than the current threshold.
@@ -49,26 +35,4 @@ impl Default for NSAutoreleasePool {
     }
 }
 
-impl PNSObject for NSAutoreleasePool {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSAutoreleasePool)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![&*self.ptr, self] }
-    }
-}
-
 impl INSAutoreleasePool for NSAutoreleasePool {}
-
-impl Debug for NSAutoreleasePool {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl Display for NSAutoreleasePool {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.ip_description())
-    }
-}

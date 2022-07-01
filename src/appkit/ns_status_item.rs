@@ -1,29 +1,17 @@
-use std::{
-    fmt::{Debug, Display},
-    ops::{Deref, DerefMut},
-};
+use std::ops::{Deref, DerefMut};
 
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object},
-    sel, sel_impl,
-};
-use objc_id::Id;
+use objc::{msg_send, runtime::Object, sel, sel_impl};
 
 use crate::{
     core_graphics::CGFloat,
-    objective_c_runtime::{
-        id,
-        traits::{FromId, PNSObject, ToId},
-    },
+    objective_c_runtime::traits::{FromId, PNSObject},
 };
 
-use super::traits::INSStatusItem;
+use super::{object, traits::INSStatusItem};
 
-/// An individual element displayed in the system menu bar.
-pub struct NSStatusItem {
-    /// The underlying Objective-C object.
-    pub ptr: Id<Object>,
+object! {
+    /// An individual element displayed in the system menu bar.
+    unsafe pub struct NSStatusItem;
 }
 
 impl NSStatusItem {
@@ -45,62 +33,26 @@ impl Default for NSStatusItem {
     }
 }
 
-impl PNSObject for NSStatusItem {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSStatusItem)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![self.ptr, self] }
-    }
-}
-
 impl INSStatusItem for NSStatusItem {}
-
-impl Debug for NSStatusItem {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl Display for NSStatusItem {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.ip_description())
-    }
-}
 
 impl Deref for NSStatusItem {
     type Target = Object;
 
     /// Derefs to the underlying Objective-C Object.
     fn deref(&self) -> &Object {
-        &*self.ptr
+        unsafe { &*self.im_self() }
     }
 }
 
 impl DerefMut for NSStatusItem {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
-        &mut *self.ptr
-    }
-}
-
-impl ToId for NSStatusItem {
-    fn to_id(mut self) -> id {
-        &mut *self.ptr
-    }
-}
-
-impl FromId for NSStatusItem {
-    unsafe fn from_id(ptr: id) -> Self {
-        Self {
-            ptr: Id::from_ptr(ptr),
-        }
+        unsafe { &mut *self.im_self() }
     }
 }
 
 impl Clone for NSStatusItem {
     fn clone(&self) -> Self {
-        unsafe { Self::from_id(msg_send![&*self.ptr, retain]) }
+        unsafe { Self::from_id(msg_send![&*self.im_self(), retain]) }
     }
 }

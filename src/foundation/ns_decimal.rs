@@ -1,16 +1,10 @@
 use std::{
-    fmt,
     ops::{Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
     os::raw::c_float,
 };
 
 use libc::{c_double, c_int, c_long, c_short, c_uint, c_ulong, c_ushort};
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object},
-    sel, sel_impl,
-};
-use objc_id::Id;
+use objc::{msg_send, runtime::Object, sel, sel_impl};
 
 use crate::{
     foundation::{
@@ -18,15 +12,12 @@ use crate::{
         NSComparisonResult, NSLocale, NSString,
     },
     objective_c_runtime::{
-        id,
-        traits::{FromId, INSValue, PNSObject, ToId},
+        macros::object,
+        traits::{INSValue, PNSObject},
     },
 };
 
-use super::{NSCalculationError, NSRoundingMode};
-
-/// Type alias for `NSDecimalNumber`.
-pub type NSDecimal = NSDecimalNumber;
+use super::{NSCalculationError, NSDecimal, NSRoundingMode};
 
 #[link(name = "Foundation", kind = "framework")]
 extern "C" {
@@ -118,20 +109,9 @@ extern "C" {
     ) -> NSComparisonResult;
 }
 
-/// An object for representing and performing arithmetic on base-10 numbers.
-pub struct NSDecimalNumber {
-    /// The raw pointer to the Objective-C object.
-    pub ptr: Id<Object>,
-}
-
-impl PNSObject for NSDecimalNumber {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSDecimalNumber)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![&*self.ptr, self] }
-    }
+object! {
+    /// An object for representing and performing arithmetic on base-10 numbers.
+    unsafe pub struct NSDecimalNumber;
 }
 
 impl INSValue for NSDecimalNumber {}
@@ -140,21 +120,9 @@ impl INSNumber for NSDecimalNumber {}
 
 impl INSDecimalNumber for NSDecimalNumber {}
 
-impl fmt::Debug for NSDecimalNumber {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl fmt::Display for NSDecimalNumber {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.ip_description())
-    }
-}
-
 impl Clone for NSDecimalNumber {
     fn clone(&self) -> Self {
-        unsafe { msg_send![&*self.ptr, retain] }
+        unsafe { msg_send![self.im_self(), retain] }
     }
 }
 
@@ -163,28 +131,14 @@ impl Deref for NSDecimalNumber {
 
     /// Derefs to the underlying Objective-C Object.
     fn deref(&self) -> &Object {
-        &*self.ptr
+        unsafe { &*self.im_self() }
     }
 }
 
 impl DerefMut for NSDecimalNumber {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
-        &mut *self.ptr
-    }
-}
-
-impl ToId for NSDecimalNumber {
-    fn to_id(mut self) -> id {
-        &mut *self.ptr
-    }
-}
-
-impl FromId for NSDecimalNumber {
-    unsafe fn from_id(ptr: id) -> Self {
-        Self {
-            ptr: Id::from_ptr(ptr),
-        }
+        unsafe { &mut *self.im_self() }
     }
 }
 

@@ -1,40 +1,21 @@
-use std::{
-    fmt,
-    ops::{Add, Deref, DerefMut},
-};
+use std::ops::{Add, Deref, DerefMut};
 
 use libc::{
     c_double, c_float, c_int, c_long, c_schar, c_short, c_uchar, c_uint, c_ulong, c_ushort,
 };
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object},
-    sel, sel_impl,
-};
-use objc_id::Id;
+use objc::{msg_send, runtime::Object, sel, sel_impl};
 
 use crate::{
     foundation::traits::INSNumber,
     objective_c_runtime::{
-        id,
-        traits::{FromId, INSValue, PNSObject, ToId},
+        macros::object,
+        traits::{FromId, INSValue, PNSObject},
     },
 };
 
-/// An object wrapper for primitive scalar numeric values.
-pub struct NSNumber {
-    /// The underlying Objective-C object.
-    pub obj: Id<Object>,
-}
-
-impl PNSObject for NSNumber {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSNumber)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![self.obj, self] }
-    }
+object! {
+    /// An object wrapper for primitive scalar numeric values.
+    unsafe pub struct NSNumber;
 }
 
 impl INSValue for NSNumber {}
@@ -52,35 +33,20 @@ impl Deref for NSNumber {
 
     /// Derefs to the underlying Objective-C Object.
     fn deref(&self) -> &Object {
-        &*self.obj
+        unsafe { &*self.im_self() }
     }
 }
 
 impl DerefMut for NSNumber {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
-        &mut *self.obj
-    }
-}
-
-impl fmt::Debug for NSNumber {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl fmt::Display for NSNumber {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_description())
+        unsafe { &mut *self.im_self() }
     }
 }
 
 impl Clone for NSNumber {
     fn clone(&self) -> Self {
-        unsafe {
-            let obj = msg_send![self.obj, retain];
-            NSNumber { obj }
-        }
+        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
     }
 }
 
@@ -102,20 +68,6 @@ where
             sum = sum + item.into();
         }
         sum
-    }
-}
-
-impl ToId for NSNumber {
-    fn to_id(mut self) -> id {
-        &mut *self.obj
-    }
-}
-
-impl FromId for NSNumber {
-    unsafe fn from_id(obj: id) -> Self {
-        NSNumber {
-            obj: Id::from_ptr(obj),
-        }
     }
 }
 

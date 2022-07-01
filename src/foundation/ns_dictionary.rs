@@ -1,20 +1,15 @@
 use std::{
     collections::HashMap,
-    fmt::{self, Formatter},
     marker::PhantomData,
     ops::{Deref, DerefMut},
 };
 
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object},
-    sel, sel_impl,
-};
-use objc_id::Id;
+use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 
 use crate::objective_c_runtime::{
     id,
-    traits::{FromId, PNSObject, ToId},
+    macros::shared_object,
+    traits::{FromId, PNSObject},
 };
 
 use super::{
@@ -22,12 +17,12 @@ use super::{
     Int, Int16, Int32, Int8, NSMutableDictionary, NSNumber, NSString, UInt, UInt16, UInt32, UInt8,
 };
 
-/// A static collection of objects associated with unique keys.
-pub struct NSDictionary<K, V> {
-    /// The raw pointer to the Objective-C object.
-    pub obj: Id<Object>,
-    _key: PhantomData<K>,
-    _value: PhantomData<V>,
+shared_object! {
+    /// A static collection of objects associated with unique keys.
+    unsafe pub struct NSDictionary<K, V> {
+        _key: PhantomData<K>,
+        _value: PhantomData<V>,
+    }
 }
 
 impl<K, V> NSDictionary<K, V> {
@@ -51,50 +46,12 @@ impl<K, V> NSDictionary<K, V> {
     }
 }
 
-impl<K, V> PNSObject for NSDictionary<K, V> {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSDictionary)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![self.obj, self] }
-    }
-}
-
 impl<K, V> INSDictionary<K, V> for NSDictionary<K, V> {}
-
-impl<K, V> fmt::Debug for NSDictionary<K, V> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl<K, V> fmt::Display for NSDictionary<K, V> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.ip_description())
-    }
-}
-
-impl<K, V> ToId for NSDictionary<K, V> {
-    fn to_id(mut self) -> id {
-        &mut *self.obj
-    }
-}
-
-impl<K, V> FromId for NSDictionary<K, V> {
-    unsafe fn from_id(id: id) -> Self {
-        NSDictionary {
-            obj: Id::from_ptr(id),
-            _key: PhantomData,
-            _value: PhantomData,
-        }
-    }
-}
 
 impl<K, V> Clone for NSDictionary<K, V> {
     fn clone(&self) -> Self {
         unsafe {
-            let obj: id = msg_send![self.obj, retain];
+            let obj: id = msg_send![self.im_self(), retain];
             Self::from_id(obj)
         }
     }
@@ -117,25 +74,21 @@ impl<K, V> Deref for NSDictionary<K, V> {
 
     /// Derefs to the underlying Objective-C Object.
     fn deref(&self) -> &Object {
-        &*self.obj
+        unsafe { &*self.im_self() }
     }
 }
 
 impl<K, V> DerefMut for NSDictionary<K, V> {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
-        &mut *self.obj
+        unsafe { &mut *self.im_self() }
     }
 }
 
 impl<K, V> From<id> for NSDictionary<K, V> {
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn from(obj: id) -> Self {
-        Self {
-            obj: unsafe { Id::from_ptr(obj) },
-            _key: PhantomData,
-            _value: PhantomData,
-        }
+        unsafe { Self::from_id(obj) }
     }
 }
 

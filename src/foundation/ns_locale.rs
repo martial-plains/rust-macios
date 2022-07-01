@@ -1,18 +1,14 @@
-use std::{
-    fmt::{Debug, Display},
-    ops::{Deref, DerefMut},
-};
+use std::ops::{Deref, DerefMut};
 
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object},
-    sel, sel_impl,
-};
-use objc_id::Id;
+use objc::{msg_send, runtime::Object, sel, sel_impl};
 
 use crate::{
     foundation::traits::INSLocale,
-    objective_c_runtime::{id, traits::PNSObject},
+    objective_c_runtime::{
+        id,
+        macros::object,
+        traits::{FromId, PNSObject},
+    },
 };
 
 /// The directions that a language may take across a page of text.
@@ -31,41 +27,16 @@ pub enum LanguageDirection {
     BottomToTop = 4,
 }
 
-/// The `Locale` class provides information about the user’s locale and formatting preferences.
-pub struct NSLocale {
-    /// The raw pointer to the Objective-C object.
-    pub obj: Id<Object>,
-}
-
-impl PNSObject for NSLocale {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSLocale)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![self.obj, self] }
-    }
+object! {
+    /// The `Locale` class provides information about the user’s locale and formatting preferences.
+    unsafe pub struct NSLocale;
 }
 
 impl INSLocale for NSLocale {}
 
-impl Display for NSLocale {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.ip_description())
-    }
-}
-
-impl Debug for NSLocale {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Locale: {}", self.ip_debug_description())
-    }
-}
-
 impl Clone for NSLocale {
     fn clone(&self) -> Self {
-        NSLocale {
-            obj: { unsafe { msg_send![self.obj, retain] } },
-        }
+        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
     }
 }
 
@@ -74,30 +45,27 @@ impl Deref for NSLocale {
 
     /// Derefs to the underlying Objective-C Object.
     fn deref(&self) -> &Object {
-        &*self.obj
+        unsafe { &*self.im_self() }
     }
 }
 
 impl DerefMut for NSLocale {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
-        &mut *self.obj
+        unsafe { &mut *self.im_self() }
     }
 }
 
 impl From<NSLocale> for id {
     /// Converts the `Locale` into an `Object`.
-    fn from(mut val: NSLocale) -> Self {
-        &mut *val.obj
+    fn from(val: NSLocale) -> Self {
+        unsafe { &mut *val.im_self() }
     }
 }
 
 impl From<id> for NSLocale {
     /// Converts the `Object` into a `Locale`.
-    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn from(val: id) -> Self {
-        NSLocale {
-            obj: unsafe { Id::from_ptr(val) },
-        }
+        unsafe { Self::from_id(val) }
     }
 }

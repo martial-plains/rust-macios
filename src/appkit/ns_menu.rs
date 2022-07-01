@@ -1,28 +1,16 @@
-use std::fmt;
-
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object, Sel},
-    sel, sel_impl, Encode, Encoding,
-};
-use objc_id::Id;
+use objc::{class, msg_send, runtime::Sel, sel, sel_impl, Encode, Encoding};
 
 use crate::{
     core_graphics::CGFloat,
     foundation::{Int, NSString},
-    objective_c_runtime::{
-        id,
-        traits::{FromId, PNSObject, ToId},
-    },
+    objective_c_runtime::traits::{FromId, PNSObject},
 };
 
-use super::{ns_menu_item::NSMenuItem, traits::INSMenu};
+use super::{ns_menu_item::NSMenuItem, object, traits::INSMenu};
 
-/// An object that manages an app’s menus.
-#[repr(transparent)]
-pub struct NSMenu {
-    /// The underlying `NSMenu` object.
-    pub ptr: Id<Object>,
+object! {
+    /// An object that manages an app’s menus.
+    unsafe pub struct NSMenu;
 }
 
 impl NSMenu {
@@ -117,29 +105,11 @@ impl NSMenu {
     }
 }
 
-impl PNSObject for NSMenu {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSMenu)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![&*self.ptr, self] }
-    }
-}
-
 impl INSMenu for NSMenu {}
 
-impl ToId for NSMenu {
-    fn to_id(mut self) -> id {
-        &mut *self.ptr
-    }
-}
-
-impl FromId for NSMenu {
-    unsafe fn from_id(ptr: id) -> Self {
-        NSMenu {
-            ptr: Id::from_ptr(ptr),
-        }
+impl Default for NSMenu {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -149,26 +119,8 @@ unsafe impl Encode for NSMenu {
     }
 }
 
-impl Default for NSMenu {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Clone for NSMenu {
     fn clone(&self) -> Self {
-        unsafe { Self::from_id(msg_send![&*self.ptr, retain]) }
-    }
-}
-
-impl fmt::Debug for NSMenu {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl fmt::Display for NSMenu {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.ip_description())
+        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
     }
 }

@@ -1,59 +1,10 @@
-use std::fmt;
-
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object},
-    sel, sel_impl,
-};
-use objc_id::Id;
-
-use crate::objective_c_runtime::{
-    id,
-    traits::{FromId, PNSObject, ToId},
-};
+use crate::objective_c_runtime::macros::object;
 
 use super::traits::INSCoder;
 
-/// An abstract class that serves as the basis for objects that enable archiving and distribution of other objects.
-pub struct NSCoder {
-    /// The underlying Objective-C object.
-    pub ptr: Id<Object>,
-}
-
-impl PNSObject for NSCoder {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSCoder)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![&*self.ptr, self] }
-    }
+object! {
+    /// An abstract class that serves as the basis for objects that enable archiving and distribution of other objects.
+    unsafe pub struct NSCoder;
 }
 
 impl INSCoder for NSCoder {}
-
-impl fmt::Debug for NSCoder {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl fmt::Display for NSCoder {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.ip_description())
-    }
-}
-
-impl ToId for NSCoder {
-    fn to_id(mut self) -> id {
-        &mut *self.ptr
-    }
-}
-
-impl FromId for NSCoder {
-    unsafe fn from_id(ptr: id) -> Self {
-        Self {
-            ptr: Id::from_ptr(ptr),
-        }
-    }
-}

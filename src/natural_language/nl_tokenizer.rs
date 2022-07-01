@@ -1,28 +1,17 @@
-use std::{fmt, ops::Range};
+use std::ops::Range;
 
 use block::{ConcreteBlock, IntoConcreteBlock};
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object},
-    sel, sel_impl,
-};
-use objc_id::Id;
 
 use crate::{
     foundation::{NSArray, NSRange, NSString, UInt},
-    objective_c_runtime::{
-        id,
-        traits::{FromId, INSValue, PNSObject, ToId},
-    },
+    objective_c_runtime::{macros::object, traits::INSValue},
 };
 
 use super::{traits::INLTokenizer, NLLanguage, NLTokenUnit, NLTokenizerAttributes};
 
-/// A tokenizer that segments natural language text into semantic units.
-#[repr(transparent)]
-pub struct NLTokenizer {
-    /// The underlying Objective-C object.
-    pub obj: Id<Object>,
+object! {
+    /// A tokenizer that segments natural language text into semantic units.
+    unsafe pub struct NLTokenizer;
 }
 
 impl NLTokenizer {
@@ -91,43 +80,7 @@ impl NLTokenizer {
     }
 }
 
-impl PNSObject for NLTokenizer {
-    fn im_class<'a>() -> &'a Class {
-        class!(NLTokenizer)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![self.obj, self] }
-    }
-}
-
 impl INLTokenizer for NLTokenizer {}
-
-impl fmt::Debug for NLTokenizer {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl fmt::Display for NLTokenizer {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.ip_description())
-    }
-}
-
-impl ToId for NLTokenizer {
-    fn to_id(mut self) -> id {
-        &mut *self.obj
-    }
-}
-
-impl FromId for NLTokenizer {
-    unsafe fn from_id(id: id) -> NLTokenizer {
-        NLTokenizer {
-            obj: Id::from_ptr(id),
-        }
-    }
-}
 
 #[cfg(test)]
 mod tests {

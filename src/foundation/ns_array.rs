@@ -1,23 +1,18 @@
 use std::{
-    fmt,
     marker::PhantomData,
     ops::{Deref, DerefMut},
     slice,
 };
 
 use libc::c_char;
-use objc::{
-    class, msg_send,
-    runtime::{Class, Object},
-    sel, sel_impl,
-};
-use objc_id::Id;
+use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 
 use crate::{
     foundation::{traits::INSArray, NSString},
     objective_c_runtime::{
         id,
-        traits::{FromId, PNSObject, ToId},
+        macros::shared_object,
+        traits::{FromId, PNSObject},
     },
 };
 
@@ -28,11 +23,11 @@ use super::{ns_mutable_array::NSMutableArray, NSNumber, UInt8};
 /// Iterator for Array
 pub mod iter;
 
-/// A static ordered collection of objects.
-pub struct NSArray<T> {
-    /// The underlying Objective-C object.
-    pub obj: Id<Object>,
-    _marker: PhantomData<T>,
+shared_object! {
+    /// A static ordered collection of objects.
+    unsafe pub struct NSArray<T> {
+        _marker: PhantomData<T>,
+    }
 }
 
 impl<T> NSArray<T> {
@@ -51,10 +46,7 @@ impl<T> NSArray<T> {
 impl<T> NSArray<T> {
     /// Creates an empty array.
     pub fn new() -> Self {
-        Self {
-            obj: unsafe { Id::from_ptr(msg_send![Self::im_class(), new]) },
-            _marker: PhantomData,
-        }
+        unsafe { Self::from_id(msg_send![Self::im_class(), new]) }
     }
 
     /// Returns true if the obect is an instance of NSArray.
@@ -77,39 +69,11 @@ impl<T> Default for NSArray<T> {
     }
 }
 
-impl<T> PNSObject for NSArray<T> {
-    fn im_class<'a>() -> &'a Class {
-        class!(NSArray)
-    }
-
-    fn im_self(&self) -> id {
-        unsafe { msg_send![self.obj, self] }
-    }
-}
-
 impl<T> INSArray<T> for NSArray<T> {}
-
-impl<T> fmt::Debug for NSArray<T>
-where
-    T: fmt::Debug + PNSObject,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.ip_debug_description())
-    }
-}
-
-impl<T> fmt::Display for NSArray<T>
-where
-    T: fmt::Display + PNSObject,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.ip_description())
-    }
-}
 
 impl<T> Clone for NSArray<T> {
     fn clone(&self) -> Self {
-        let cls: id = unsafe { msg_send![self.obj, retain] };
+        let cls: id = unsafe { msg_send![self.im_self(), retain] };
         NSArray::from(cls)
     }
 }
@@ -137,21 +101,6 @@ impl<T> From<id> for NSArray<T> {
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn from(obj: id) -> Self {
         unsafe { NSArray::from_id(obj) }
-    }
-}
-
-impl<T> FromId for NSArray<T> {
-    unsafe fn from_id(obj: id) -> Self {
-        Self {
-            obj: Id::from_ptr(obj),
-            _marker: PhantomData,
-        }
-    }
-}
-
-impl<T> ToId for NSArray<T> {
-    fn to_id(mut self) -> id {
-        &mut *self.obj
     }
 }
 
@@ -357,14 +306,14 @@ impl<T> Deref for NSArray<T> {
 
     /// Derefs to the underlying Objective-C Object.
     fn deref(&self) -> &Object {
-        &*self.obj
+        unsafe { &*self.im_self() }
     }
 }
 
 impl<T> DerefMut for NSArray<T> {
     /// Derefs to the underlying Objective-C Object.
     fn deref_mut(&mut self) -> &mut Object {
-        &mut *self.obj
+        unsafe { &mut *self.im_self() }
     }
 }
 
