@@ -62,6 +62,7 @@ where
 }
 
 impl<T> From<id> for NSMutableArray<T> {
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn from(obj: id) -> Self {
         unsafe { Self::from_id(obj) }
     }

@@ -65,6 +65,7 @@ impl From<NSLocale> for id {
 
 impl From<id> for NSLocale {
     /// Converts the `Object` into a `Locale`.
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn from(val: id) -> Self {
         unsafe { Self::from_id(val) }
     }
