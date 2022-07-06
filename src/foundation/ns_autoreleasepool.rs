@@ -1,8 +1,8 @@
-use objc::{class, msg_send, sel, sel_impl};
+use objc::{msg_send, sel, sel_impl};
 
 use crate::objective_c_runtime::{
     macros::object,
-    traits::{FromId, ToId},
+    traits::{PNSObject, ToId},
 };
 
 use super::traits::INSAutoreleasePool;
@@ -15,7 +15,7 @@ object! {
 impl NSAutoreleasePool {
     /// Creates a new autorelease pool.
     pub fn new() -> Self {
-        unsafe { Self::from_id(msg_send![class!(NSAutoreleasePool), new]) }
+        unsafe { msg_send![Self::im_class(), new] }
     }
 
     /// In a reference-counted environment, releases and pops the receiver; in a garbage-collected environment, triggers garbage collection if the memory allocated since the last collection is greater than the current threshold.
