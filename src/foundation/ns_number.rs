@@ -1,16 +1,12 @@
-use std::ops::{Add, Deref, DerefMut};
+use std::ops::Add;
 
 use libc::{
     c_double, c_float, c_int, c_long, c_schar, c_short, c_uchar, c_uint, c_ulong, c_ushort,
 };
-use objc::{msg_send, runtime::Object, sel, sel_impl};
 
 use crate::{
     foundation::traits::INSNumber,
-    objective_c_runtime::{
-        macros::object,
-        traits::{FromId, INSValue, PNSObject},
-    },
+    objective_c_runtime::{macros::object, traits::INSValue},
 };
 
 object! {
@@ -25,28 +21,6 @@ impl INSNumber for NSNumber {}
 impl PartialEq for NSNumber {
     fn eq(&self, other: &Self) -> bool {
         self.im_is_equal_to_number(other.clone())
-    }
-}
-
-impl Deref for NSNumber {
-    type Target = Object;
-
-    /// Derefs to the underlying Objective-C Object.
-    fn deref(&self) -> &Object {
-        unsafe { &*self.im_self() }
-    }
-}
-
-impl DerefMut for NSNumber {
-    /// Derefs to the underlying Objective-C Object.
-    fn deref_mut(&mut self) -> &mut Object {
-        unsafe { &mut *self.im_self() }
-    }
-}
-
-impl Clone for NSNumber {
-    fn clone(&self) -> Self {
-        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
     }
 }
 

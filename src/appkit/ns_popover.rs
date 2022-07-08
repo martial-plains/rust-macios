@@ -1,6 +1,6 @@
 use objc::{class, msg_send, sel, sel_impl};
 
-use crate::objective_c_runtime::traits::{FromId, PNSObject};
+use crate::objective_c_runtime::traits::FromId;
 
 use super::{
     object,
@@ -28,9 +28,3 @@ impl Default for NSPopover {
 impl INSResponder for NSPopover {}
 
 impl INSPopover for NSPopover {}
-
-impl Clone for NSPopover {
-    fn clone(&self) -> Self {
-        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
-    }
-}

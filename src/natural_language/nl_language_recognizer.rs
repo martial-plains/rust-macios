@@ -1,12 +1,8 @@
 //! The language of a body of text.
 
-use std::ops::{Deref, DerefMut};
-
-use objc::runtime::Object;
-
 use crate::{
     foundation::{NSArray, NSDictionary, NSNumber, NSString, UInt},
-    objective_c_runtime::{macros::object, traits::PNSObject},
+    objective_c_runtime::macros::object,
 };
 
 use super::{traits::INLLanguageRecognizer, NLLanguage};
@@ -81,22 +77,6 @@ impl Default for NLLanguageRecognizer {
 }
 
 impl INLLanguageRecognizer for NLLanguageRecognizer {}
-
-impl Deref for NLLanguageRecognizer {
-    type Target = Object;
-
-    /// Derefs to the underlying Objective-C Object.
-    fn deref(&self) -> &Object {
-        unsafe { &*self.im_self() }
-    }
-}
-
-impl DerefMut for NLLanguageRecognizer {
-    /// Derefs to the underlying Objective-C Object.
-    fn deref_mut(&mut self) -> &mut Object {
-        unsafe { &mut *self.im_self() }
-    }
-}
 
 #[cfg(test)]
 mod tests {

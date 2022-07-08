@@ -1,7 +1,4 @@
-use std::{
-    marker::PhantomData,
-    ops::{Deref, DerefMut},
-};
+use std::marker::PhantomData;
 
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 
@@ -26,40 +23,6 @@ object! {
 impl<T> INSArray<T> for NSMutableArray<T> where T: PNSObject + FromId {}
 
 impl<T> INSMutableArray<T> for NSMutableArray<T> where T: PNSObject + FromId {}
-
-impl<T> Default for NSMutableArray<T>
-where
-    T: PNSObject,
-{
-    fn default() -> Self {
-        unsafe { Self::from_id(msg_send![class!(NSMutableArray), init]) }
-    }
-}
-
-impl<T> Deref for NSMutableArray<T> {
-    type Target = Object;
-
-    /// Derefs to the underlying Objective-C Object.
-    fn deref(&self) -> &Object {
-        unsafe { &*self.im_self() }
-    }
-}
-
-impl<T> DerefMut for NSMutableArray<T> {
-    /// Derefs to the underlying Objective-C Object.
-    fn deref_mut(&mut self) -> &mut Object {
-        unsafe { &mut *self.im_self() }
-    }
-}
-
-impl<T> Clone for NSMutableArray<T>
-where
-    T: PNSObject,
-{
-    fn clone(&self) -> Self {
-        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
-    }
-}
 
 impl<T> From<id> for NSMutableArray<T> {
     #[allow(clippy::not_unsafe_ptr_arg_deref)]

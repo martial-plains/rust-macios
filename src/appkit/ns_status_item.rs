@@ -1,6 +1,4 @@
-use std::ops::{Deref, DerefMut};
-
-use objc::{msg_send, runtime::Object, sel, sel_impl};
+use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     core_graphics::CGFloat,
@@ -34,25 +32,3 @@ impl Default for NSStatusItem {
 }
 
 impl INSStatusItem for NSStatusItem {}
-
-impl Deref for NSStatusItem {
-    type Target = Object;
-
-    /// Derefs to the underlying Objective-C Object.
-    fn deref(&self) -> &Object {
-        unsafe { &*self.im_self() }
-    }
-}
-
-impl DerefMut for NSStatusItem {
-    /// Derefs to the underlying Objective-C Object.
-    fn deref_mut(&mut self) -> &mut Object {
-        unsafe { &mut *self.im_self() }
-    }
-}
-
-impl Clone for NSStatusItem {
-    fn clone(&self) -> Self {
-        unsafe { Self::from_id(msg_send![&*self.im_self(), retain]) }
-    }
-}

@@ -36,12 +36,6 @@ impl Default for NSMutableString {
     }
 }
 
-impl Clone for NSMutableString {
-    fn clone(&self) -> Self {
-        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
-    }
-}
-
 impl PartialEq for NSMutableString {
     fn eq(&self, other: &NSMutableString) -> bool {
         self.im_localized_compare(other.clone()) == NSComparisonResult::OrderedSame

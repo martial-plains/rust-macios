@@ -105,12 +105,12 @@ pub trait PNSObject {
 
     /// A textual representation of the receiver.
     fn ip_description(&self) -> NSString {
-        unsafe { msg_send![self.im_self(), description] }
+        unsafe { NSString::from_id(msg_send![self.im_self(), description]) }
     }
 
     /// A textual representation of the receiver to use with a debugger.
     fn ip_debug_description(&self) -> NSString {
-        unsafe { msg_send![self.im_self(), debugDescription] }
+        unsafe { NSString::from_id(msg_send![self.im_self(), debugDescription]) }
     }
 
     /* Sending Messages

@@ -1,7 +1,3 @@
-use std::ops::{Deref, DerefMut};
-
-use objc::{msg_send, runtime::Object, sel, sel_impl};
-
 use crate::{
     foundation::traits::INSLocale,
     objective_c_runtime::{
@@ -33,28 +29,6 @@ object! {
 }
 
 impl INSLocale for NSLocale {}
-
-impl Clone for NSLocale {
-    fn clone(&self) -> Self {
-        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
-    }
-}
-
-impl Deref for NSLocale {
-    type Target = Object;
-
-    /// Derefs to the underlying Objective-C Object.
-    fn deref(&self) -> &Object {
-        unsafe { &*self.im_self() }
-    }
-}
-
-impl DerefMut for NSLocale {
-    /// Derefs to the underlying Objective-C Object.
-    fn deref_mut(&mut self) -> &mut Object {
-        unsafe { &mut *self.im_self() }
-    }
-}
 
 impl From<NSLocale> for id {
     /// Converts the `Locale` into an `Object`.

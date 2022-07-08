@@ -1,8 +1,4 @@
-use std::{
-    marker::PhantomData,
-    ops::{Deref, DerefMut},
-    slice,
-};
+use std::{marker::PhantomData, slice};
 
 use libc::c_char;
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
@@ -70,13 +66,6 @@ impl<T> Default for NSArray<T> {
 }
 
 impl<T> INSArray<T> for NSArray<T> {}
-
-impl<T> Clone for NSArray<T> {
-    fn clone(&self) -> Self {
-        let cls: id = unsafe { msg_send![self.im_self(), retain] };
-        NSArray::from(cls)
-    }
-}
 
 impl<'a, T> IntoIterator for &'a NSArray<T>
 where
@@ -298,22 +287,6 @@ where
             }
         };
         NSArray::from(cls)
-    }
-}
-
-impl<T> Deref for NSArray<T> {
-    type Target = Object;
-
-    /// Derefs to the underlying Objective-C Object.
-    fn deref(&self) -> &Object {
-        unsafe { &*self.im_self() }
-    }
-}
-
-impl<T> DerefMut for NSArray<T> {
-    /// Derefs to the underlying Objective-C Object.
-    fn deref_mut(&mut self) -> &mut Object {
-        unsafe { &mut *self.im_self() }
     }
 }
 

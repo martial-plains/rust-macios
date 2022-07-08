@@ -1,20 +1,16 @@
 use std::{
-    ops::{Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
     os::raw::c_float,
 };
 
 use libc::{c_double, c_int, c_long, c_short, c_uint, c_ulong, c_ushort};
-use objc::{msg_send, runtime::Object, sel, sel_impl};
 
 use crate::{
     foundation::{
         traits::{INSDecimalNumber, INSNumber},
         NSComparisonResult, NSLocale, NSString,
     },
-    objective_c_runtime::{
-        macros::object,
-        traits::{INSValue, PNSObject},
-    },
+    objective_c_runtime::{macros::object, traits::INSValue},
 };
 
 use super::{NSCalculationError, NSDecimal, NSRoundingMode};
@@ -119,28 +115,6 @@ impl INSValue for NSDecimalNumber {}
 impl INSNumber for NSDecimalNumber {}
 
 impl INSDecimalNumber for NSDecimalNumber {}
-
-impl Clone for NSDecimalNumber {
-    fn clone(&self) -> Self {
-        unsafe { msg_send![self.im_self(), retain] }
-    }
-}
-
-impl Deref for NSDecimalNumber {
-    type Target = Object;
-
-    /// Derefs to the underlying Objective-C Object.
-    fn deref(&self) -> &Object {
-        unsafe { &*self.im_self() }
-    }
-}
-
-impl DerefMut for NSDecimalNumber {
-    /// Derefs to the underlying Objective-C Object.
-    fn deref_mut(&mut self) -> &mut Object {
-        unsafe { &mut *self.im_self() }
-    }
-}
 
 impl From<c_uint> for NSDecimalNumber {
     fn from(value: c_uint) -> Self {

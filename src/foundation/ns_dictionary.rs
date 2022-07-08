@@ -1,10 +1,6 @@
-use std::{
-    collections::HashMap,
-    marker::PhantomData,
-    ops::{Deref, DerefMut},
-};
+use std::{collections::HashMap, marker::PhantomData};
 
-use objc::{class, msg_send, runtime::Object, sel, sel_impl};
+use objc::{class, msg_send, sel, sel_impl};
 
 use crate::objective_c_runtime::{
     id,
@@ -48,15 +44,6 @@ impl<K, V> NSDictionary<K, V> {
 
 impl<K, V> INSDictionary<K, V> for NSDictionary<K, V> {}
 
-impl<K, V> Clone for NSDictionary<K, V> {
-    fn clone(&self) -> Self {
-        unsafe {
-            let obj: id = msg_send![self.im_self(), retain];
-            Self::from_id(obj)
-        }
-    }
-}
-
 impl<K, V> Default for NSDictionary<K, V> {
     fn default() -> Self {
         unsafe { Self::from_id(msg_send![class!(NSDictionary), dictionary]) }
@@ -66,22 +53,6 @@ impl<K, V> Default for NSDictionary<K, V> {
 impl<K, V> AsMut<NSDictionary<K, V>> for NSDictionary<K, V> {
     fn as_mut(&mut self) -> &mut Self {
         self
-    }
-}
-
-impl<K, V> Deref for NSDictionary<K, V> {
-    type Target = Object;
-
-    /// Derefs to the underlying Objective-C Object.
-    fn deref(&self) -> &Object {
-        unsafe { &*self.im_self() }
-    }
-}
-
-impl<K, V> DerefMut for NSDictionary<K, V> {
-    /// Derefs to the underlying Objective-C Object.
-    fn deref_mut(&mut self) -> &mut Object {
-        unsafe { &mut *self.im_self() }
     }
 }
 

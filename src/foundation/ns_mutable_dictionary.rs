@@ -1,11 +1,6 @@
-use std::{
-    borrow::Borrow,
-    collections::HashMap,
-    marker::PhantomData,
-    ops::{Deref, DerefMut},
-};
+use std::{borrow::Borrow, collections::HashMap, marker::PhantomData};
 
-use objc::{class, msg_send, runtime::Object, sel, sel_impl};
+use objc::{class, msg_send, sel, sel_impl};
 
 use crate::objective_c_runtime::{
     macros::object,
@@ -62,22 +57,6 @@ impl Borrow<NSDictionary<NSString, NSString>> for NSMutableDictionary<NSString, 
     }
 }
 
-impl<K, V> Deref for NSMutableDictionary<K, V> {
-    type Target = Object;
-
-    /// Derefs to the underlying Objective-C Object.
-    fn deref(&self) -> &Object {
-        unsafe { &*self.im_self() }
-    }
-}
-
-impl<K, V> DerefMut for NSMutableDictionary<K, V> {
-    /// Derefs to the underlying Objective-C Object.
-    fn deref_mut(&mut self) -> &mut Object {
-        unsafe { &mut *self.im_self() }
-    }
-}
-
 impl<K, V> From<NSDictionary<K, V>> for NSMutableDictionary<K, V>
 where
     K: PNSObject,
@@ -100,12 +79,6 @@ where
                 dictionaryWithCapacity: capacity
             ])
         }
-    }
-}
-
-impl<K, V> Clone for NSMutableDictionary<K, V> {
-    fn clone(&self) -> Self {
-        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
     }
 }
 

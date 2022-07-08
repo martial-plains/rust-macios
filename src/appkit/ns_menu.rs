@@ -3,7 +3,7 @@ use objc::{class, msg_send, runtime::Sel, sel, sel_impl, Encode, Encoding};
 use crate::{
     core_graphics::CGFloat,
     foundation::{Int, NSString},
-    objective_c_runtime::traits::{FromId, PNSObject},
+    objective_c_runtime::traits::FromId,
 };
 
 use super::{ns_menu_item::NSMenuItem, object, traits::INSMenu};
@@ -116,11 +116,5 @@ impl Default for NSMenu {
 unsafe impl Encode for NSMenu {
     fn encode() -> Encoding {
         unsafe { Encoding::from_str("@") }
-    }
-}
-
-impl Clone for NSMenu {
-    fn clone(&self) -> Self {
-        unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
     }
 }

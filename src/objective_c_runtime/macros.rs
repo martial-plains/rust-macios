@@ -53,7 +53,7 @@ pub(crate) macro object {
         impl<$($t $(: $b)?),*> core::fmt::Display for $name<$($t),*> {
             fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                std::write!(f, "{}", self.ip_description())
+                std::write!(f, "{}", self.clone().ip_description())
             }
         }
 
@@ -69,6 +69,29 @@ pub(crate) macro object {
                     ptr: crate::objective_c_runtime::Id::from_ptr(ptr),
                      $($p: std::marker::PhantomData),*
                 }
+            }
+        }
+
+        impl<$($t $(: $b)?),*> Clone for $name<$($t),*> {
+            fn clone(&self) -> Self {
+                use $crate::objective_c_runtime::{traits::{FromId, PNSObject}, msg_send, sel, sel_impl};
+                unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
+            }
+        }
+
+        impl<$($t $(: $b)?),*> core::ops::Deref for $name<$($t),*> {
+            type Target = $crate::objective_c_runtime::runtime::Object;
+
+            fn deref(&self) -> &Self::Target {
+                use $crate::objective_c_runtime::traits::PNSObject;
+                unsafe { &*self.im_self() }
+            }
+        }
+
+        impl<$($t $(: $b)?),*> core::ops::DerefMut for $name<$($t),*> {
+            fn deref_mut(&mut self) -> &mut $crate::objective_c_runtime::runtime::Object {
+                use $crate::objective_c_runtime::traits::PNSObject;
+                unsafe { &mut *self.im_self()}
             }
         }
     },
@@ -139,5 +162,29 @@ pub(crate) macro shared_object {
                 }
             }
         }
+
+        impl<$($t $(: $b)?),*> Clone for $name<$($t),*> {
+            fn clone(&self) -> Self {
+                use $crate::objective_c_runtime::{traits::{FromId, PNSObject}, msg_send, sel, sel_impl};
+                unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
+            }
+        }
+
+        impl<$($t $(: $b)?),*> core::ops::Deref for $name<$($t),*> {
+            type Target = $crate::objective_c_runtime::runtime::Object;
+
+            fn deref(&self) -> &Self::Target {
+                use $crate::objective_c_runtime::traits::PNSObject;
+                unsafe { &*self.im_self() }
+            }
+        }
+
+        impl<$($t $(: $b)?),*> core::ops::DerefMut for $name<$($t),*> {
+            fn deref_mut(&mut self) -> &mut $crate::objective_c_runtime::runtime::Object {
+                use $crate::objective_c_runtime::traits::PNSObject;
+                unsafe { &mut *self.im_self()}
+            }
+        }
+
     },
 }
