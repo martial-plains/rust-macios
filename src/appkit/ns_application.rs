@@ -164,7 +164,7 @@ where
             let delegate_class = register_app_delegate_class::<T>();
             let delegate: id = msg_send![delegate_class, new];
             let delegate_ptr: *const T = &*app_delegate;
-            (&mut *delegate).set_ivar(NSAPPLICATION_PTR, delegate_ptr as usize);
+            (*delegate).set_ivar(NSAPPLICATION_PTR, delegate_ptr as usize);
 
             let _: () = msg_send![&*ptr, setDelegate: delegate];
 
