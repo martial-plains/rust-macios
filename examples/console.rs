@@ -1,8 +1,8 @@
-use rust_macios::foundation::macros::ns_array;
+use rust_macios::foundation::NSOrthography;
 
 fn main() {
-    let arr = ns_array! {1, 2, 3, 4, 5};
+    let arr = NSOrthography::default_orthography_for_language("en");
 
-    println!("{}", arr);
+    println!("{:?}", arr);
     println!("Still prints");
 }

@@ -4,7 +4,7 @@ use objc::{msg_send, sel, sel_impl};
 use crate::{
     foundation::{
         string::Encoding, unichar, Int, NSArray, NSCharacterSet, NSCoder, NSComparisonResult,
-        NSData, NSLocale, NSMutableString, NSRange, NSString, NSStringCompareOptions,
+        NSData, NSDictionary, NSLocale, NSMutableString, NSRange, NSString, NSStringCompareOptions,
         NSStringEncodingConversionOptions, NSStringTransform, UInt, UInt8,
     },
     objective_c_runtime::{
@@ -21,7 +21,7 @@ use crate::{
 /// A static, plain-text Unicode string object.
 pub trait INSString: PNSObject {
     /* Creating and Initializing Strings
-    */
+     */
 
     /// Returns an empty string.
     fn tm_string() -> Self
@@ -316,7 +316,7 @@ pub trait INSString: PNSObject {
     }
 
     /* Getting a String’s Length
-    */
+     */
 
     /// The number of Unicode characters in this string.
     fn ip_length(&self) -> UInt {
@@ -357,7 +357,7 @@ pub trait INSString: PNSObject {
     }
 
     /* Getting Characters and Bytes
-    */
+     */
 
     /// Returns the character at a given UTF-16 code unit index.
     ///
@@ -412,7 +412,7 @@ pub trait INSString: PNSObject {
     }
 
     /* Getting C Strings
-    */
+     */
 
     /// Returns a representation of the string as a C string using a given encoding.
     ///
@@ -457,7 +457,7 @@ pub trait INSString: PNSObject {
     }
 
     /* Identifying and Comparing Strings
-    */
+     */
 
     /// Returns the result of invoking compare:options: with NSCaseInsensitiveSearch as the only option.
     ///
@@ -668,7 +668,7 @@ pub trait INSString: PNSObject {
     }
 
     /* Combining Strings
-    */
+     */
 
     /// Returns a new string made by appending a given string to the receiver.
     ///
@@ -703,12 +703,14 @@ pub trait INSString: PNSObject {
         S: INSString,
     {
         unsafe {
-            NSString::from_id(msg_send![self.im_self(), stringByPaddingToLength: new_length withString: pad_string startingAtIndex: starting_at])
+            NSString::from_id(
+                msg_send![self.im_self(), stringByPaddingToLength: new_length withString: pad_string startingAtIndex: starting_at],
+            )
         }
     }
 
     /* Changing Case
-    */
+     */
 
     /// A lowercase representation of the string.
     fn ip_lowercase_string(&self) -> NSString {
@@ -778,7 +780,7 @@ pub trait INSString: PNSObject {
     }
 
     /* Dividing Strings
-    */
+     */
 
     /// Returns an array containing substrings from the receiver that have been divided by a given separator.
     fn im_components_separated_by_string<S>(&self, separator: S) -> NSArray<NSString>
@@ -789,7 +791,7 @@ pub trait INSString: PNSObject {
     }
 
     /* Finding Characters and Substrings
-    */
+     */
 
     /// Returns a boolean value indicating whether the string contains a given string by performing a case-sensitive, locale-unaware search.
     ///
@@ -808,7 +810,7 @@ pub trait INSString: PNSObject {
     }
 
     /* Transforming Strings
-    */
+     */
 
     /// Returns a new string made by appending to the receiver a given string.
     ///
@@ -833,7 +835,7 @@ pub trait INSString: PNSObject {
     }
 
     /* Working with Encodings
-    */
+     */
 
     /// Returns a zero-terminated list of the encodings string objects support in the application’s environment.
     fn tp_available_string_encodings() -> *const Encoding {
@@ -1026,77 +1028,84 @@ pub trait INSCharacterSet: PNSObject {
 
     /// A character set containing the characters in Unicode General Categories L*, M*, and N*.
     fn tp_alphanumeric_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), alphanumericCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), alphanumericCharacterSet]) }
     }
 
     /// A character set containing the characters in Unicode General Category Lt.
     fn tp_capitalized_letter_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), capitalizedLetterCharacterSet] }
+        unsafe {
+            NSCharacterSet::from_id(msg_send![Self::im_class(), capitalizedLetterCharacterSet])
+        }
     }
 
     /// A character set containing the characters in Unicode General Category Cc and Cf.
     fn tp_control_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), controlCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), controlCharacterSet]) }
     }
 
     /// A character set containing the characters in the category of Decimal Numbers.
     fn tp_decimal_digit_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), decimalDigitCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), decimalDigitCharacterSet]) }
     }
 
     /// A character set containing individual Unicode characters that can also be represented as composed character sequences (such as for letters with accents), by the definition of “standard decomposition” in version 3.2 of the Unicode character encoding standard.
     fn tp_decomposable_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), decomposableCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), decomposableCharacterSet]) }
     }
 
     /// A character set containing values in the category of Non-Characters or that have not yet been defined in version 3.2 of the Unicode standard.
     fn tp_illegal_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), illegalCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), illegalCharacterSet]) }
     }
 
     /// A character set containing the characters in Unicode General Category L* & M*.
     fn tp_letter_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), letterCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), letterCharacterSet]) }
     }
 
     /// A character set containing the characters in Unicode General Category Ll.
     fn tp_lowercase_letter_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), lowercaseLetterCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), lowercaseLetterCharacterSet]) }
     }
 
     /// A character set containing the newline characters (U+000A ~ U+000D, U+0085, U+2028, and U+2029).
     fn tp_newline_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), newlineCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), newlineCharacterSet]) }
     }
 
     /// A character set containing the characters in Unicode General Category M*.
     fn tp_non_base_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), nonBaseCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), nonBaseCharacterSet]) }
     }
 
     /// A character set containing the characters in Unicode General Category P*.
     fn tp_punctuation_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), punctuationCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), punctuationCharacterSet]) }
     }
 
     /// A character set containing the characters in Unicode General Category S*.
     fn tp_symbol_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), symbolCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), symbolCharacterSet]) }
     }
 
     /// A character set containing the characters in Unicode General Category Lu and Lt.
     fn tp_uppercase_letter_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), uppercaseLetterCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), uppercaseLetterCharacterSet]) }
     }
 
     /// A character set containing characters in Unicode General Category Z*, U+000A ~ U+000D, and U+0085.
     fn tp_whitespace_and_newline_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), whitespaceAndNewlineCharacterSet] }
+        unsafe {
+            NSCharacterSet::from_id(msg_send![
+                Self::im_class(),
+                whitespaceAndNewlineCharacterSet
+            ])
+        }
     }
 
     /// A character set containing the characters in Unicode General Category Zs and CHARACTER TABULATION (U+0009).
     fn tp_whitespace_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), whitespaceCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), whitespaceCharacterSet]) }
     }
 
     /* Getting Character Sets for URL Encoding
@@ -1104,32 +1113,36 @@ pub trait INSCharacterSet: PNSObject {
 
     /// Returns the character set for characters allowed in a fragment URL component.
     fn tp_urlfragment_allowed_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), URLFragmentAllowedCharacterSet] }
+        unsafe {
+            NSCharacterSet::from_id(msg_send![Self::im_class(), URLFragmentAllowedCharacterSet])
+        }
     }
 
     /// Returns the character set for characters allowed in a host URL subcomponent.
     fn tp_urlhost_allowed_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), URLHostAllowedCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), URLHostAllowedCharacterSet]) }
     }
 
     /// Returns the character set for characters allowed in a password URL subcomponent.
     fn tp_urlpassword_allowed_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), URLPasswordAllowedCharacterSet] }
+        unsafe {
+            NSCharacterSet::from_id(msg_send![Self::im_class(), URLPasswordAllowedCharacterSet])
+        }
     }
 
     /// Returns the character set for characters allowed in a path URL component.
     fn tp_urlpath_allowed_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), URLPathAllowedCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), URLPathAllowedCharacterSet]) }
     }
 
     /// Returns the character set for characters allowed in a query URL component.
     fn tp_urlquery_allowed_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), URLQueryAllowedCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), URLQueryAllowedCharacterSet]) }
     }
 
     /// Returns the character set for characters allowed in a user URL subcomponent.
     fn tp_urluser_allowed_character_set() -> NSCharacterSet {
-        unsafe { msg_send![Self::im_class(), URLUserAllowedCharacterSet] }
+        unsafe { NSCharacterSet::from_id(msg_send![Self::im_class(), URLUserAllowedCharacterSet]) }
     }
 
     /* Creating a Custom Character Set
@@ -1214,5 +1227,101 @@ pub trait INSCharacterSet: PNSObject {
     /// Returns a Boolean value that indicates whether a given long character is a member of the receiver.
     fn im_long_character_is_member(&self, long_char: u32) -> bool {
         unsafe { to_bool(msg_send![self.im_self(), longCharacterIsMember: long_char]) }
+    }
+}
+
+/// A description of the linguistic content of natural language text, typically used for spelling and grammar checking.
+pub trait INSOrthography: PNSObject {
+    /* Creating Orthography Objects
+     */
+
+    /// Creates and returns an orthography object with the default language map for the specified language.
+    fn tm_default_orthography_for_language(language: NSString) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                Self::im_class(),
+                defaultOrthographyForLanguage: language
+            ])
+        }
+    }
+
+    /// Creates an orthography object with the specified dominant script and language map.
+    fn im_init_with_dominant_script_language_map(
+        &mut self,
+        script: NSString,
+        map: NSDictionary<NSString, NSArray<NSString>>,
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(
+                msg_send![self.im_self(), initWithDominantScript: script languageMap: map],
+            )
+        }
+    }
+
+    /// Creates and returns an orthography object with the specified dominant script and language map.
+    fn tm_orthography_with_dominant_script(
+        script: NSString,
+        map: NSDictionary<NSString, NSArray<NSString>>,
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(
+                msg_send![Self::im_class(), orthographyWithDominantScript: script languageMap: map],
+            )
+        }
+    }
+
+    /* Determining Correspondences Between Languages and Scripts
+     */
+
+    /// A dictionary that maps script tags to arrays of language tags.
+    fn ip_language_map(&self) -> NSDictionary<NSString, NSArray<NSString>> {
+        unsafe { NSDictionary::from_id(msg_send![self.im_self(), languageMap]) }
+    }
+
+    /// The first language in the list of languages for the dominant script.
+    fn ip_dominant_language(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.im_self(), dominantLanguage]) }
+    }
+
+    /// The dominant script for the text.
+    fn ip_dominant_script(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.im_self(), dominantScript]) }
+    }
+
+    /// Returns the dominant language for the specified script.
+    fn im_dominant_language_for_script(&self, script: NSString) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.im_self(), dominantLanguageForScript: script]) }
+    }
+
+    /// Returns the list of languages for the specified script.
+    fn im_languages_for_script(&self, script: NSString) -> NSArray<NSString> {
+        unsafe { NSArray::from_id(msg_send![self.im_self(), languagesForScript: script]) }
+    }
+
+    /// The scripts appearing as keys in the language map.
+    fn ip_all_scripts(&self) -> NSArray<NSString> {
+        unsafe { NSArray::from_id(msg_send![self.im_self(), allScripts]) }
+    }
+
+    /// The languages appearing in values of the language map.
+    fn ip_all_languages(&self) -> NSArray<NSString> {
+        unsafe { NSArray::from_id(msg_send![self.im_self(), allLanguages]) }
+    }
+
+    /// Initialize with [`NSCoder`]
+    fn im_init_with_coder(&self, coder: NSCoder) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.im_self(), initWithCoder: coder]) }
     }
 }
