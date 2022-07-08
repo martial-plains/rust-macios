@@ -194,7 +194,7 @@ where
             let delegate_ptr: *const T = &*delegate;
             let ptr: id = msg_send![&*window.ptr, self];
 
-            (&mut *ptr).set_ivar(WINDOW_DELEGATE_PTR, delegate_ptr as usize);
+            (*ptr).set_ivar(WINDOW_DELEGATE_PTR, delegate_ptr as usize);
 
             let mut window = NSWindow::from_id(ptr);
 
@@ -211,7 +211,7 @@ where
         };
 
         {
-            (&mut delegate).did_load(NSWindow {
+            delegate.did_load(NSWindow {
                 delegate: None,
                 ptr: objc.ptr.clone(),
             });

@@ -47,9 +47,7 @@ impl ViewController {
         }));
 
         // 2: Create a label
-        let label = NSTextField::tm_label_with_string(NSString::from(
-            "Hello World!",
-        ));
+        let label = NSTextField::tm_label_with_string(NSString::from("Hello World!"));
 
         label.ip_set_translates_autoresizing_mask_to_constraints(false);
         let view = self.ip_view();
@@ -92,7 +90,7 @@ impl AppDelegate {}
 impl PNSApplicationDelegate for AppDelegate {
     fn did_finish_launching(&mut self) {
         let view_controller = ViewController::init();
-        view_controller.view_did_load(&*view_controller.ptr);
+        view_controller.view_did_load(&view_controller.ptr);
 
         let window = NSWindow::tm_window_with_content_view_controller(view_controller);
 

@@ -40,7 +40,7 @@ impl ActionHandler {
             ShareId::from_ptr({
                 let invoker: id = msg_send![Self::register_handler_class::<F>(), alloc];
                 let invoker: id = msg_send![invoker, init];
-                (&mut *invoker).set_ivar(ACTION_CALLBACK_PTR, ptr as usize);
+                (*invoker).set_ivar(ACTION_CALLBACK_PTR, ptr as usize);
                 let _: () = msg_send![control, setAction: sel!(perform:)];
                 let _: () = msg_send![control, setTarget: invoker];
                 invoker
