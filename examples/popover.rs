@@ -2,13 +2,13 @@ use std::sync::{Arc, Mutex};
 
 use rust_macios::{
     appkit::{
+        ns_application_main,
         traits::{
-            INSApplication, INSButton, INSPopover, INSResponder, INSStatusBar, INSStatusItem,
-            INSTextField, INSView, INSViewController, PNSApplicationDelegate,
+            INSButton, INSPopover, INSResponder, INSStatusBar, INSStatusItem, INSTextField,
+            INSView, INSViewController, PNSApplicationDelegate, INSApplication,
         },
         NSApplication, NSApplicationActivationPolicy, NSPopover, NSPopoverBehavior, NSStatusBar,
         NSStatusItem, NSTextField, NSView,
-        ns_application_main
     },
     foundation::{macros::ns_array, NSPoint, NSRect, NSRectEdge, NSSize, NSString},
     objective_c_runtime::{
@@ -143,6 +143,8 @@ impl PNSApplicationDelegate for AppDelegate {
 
 #[ns_application_main]
 fn main() {
-    let app = NSApplication::new("com.rust.macos.appkit.example", AppDelegate::default());
-    app.im_set_activation_policy(NSApplicationActivationPolicy::Regular);
+    let mut app = NSApplication::shared_application();
+
+    app.ip_set_delegate(AppDelegate::default());
+    app.set_activation_policy(NSApplicationActivationPolicy::Regular);
 }

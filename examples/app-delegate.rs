@@ -1,10 +1,14 @@
 use app_kit_proc_macros::ns_application_main;
+
 use rust_macios::appkit::{
-    traits::{PNSApplicationDelegate, INSApplication}, NSApplication, NSApplicationActivationPolicy,
+    traits::{INSApplication, PNSApplicationDelegate},
+    NSApplication, NSApplicationActivationPolicy,
 };
 
 #[derive(Default, Clone)]
-struct AppDelegate {}
+struct AppDelegate {
+    name: String,
+}
 
 unsafe impl Sync for AppDelegate {}
 
@@ -12,12 +16,15 @@ unsafe impl Send for AppDelegate {}
 
 impl PNSApplicationDelegate for AppDelegate {
     fn did_finish_launching(&mut self) {
-        println!("Done Launching");
+        self.name = "Hello".to_string();
+        println!("Done Launching. \n{}", self.name);
     }
 }
 
 #[ns_application_main]
 fn main() {
-    let app = NSApplication::new("com.rust.macos.appkit.example", AppDelegate::default());
-    app.im_set_activation_policy(NSApplicationActivationPolicy::Regular);
+    let mut app = NSApplication::shared_application();
+
+    app.ip_set_delegate(AppDelegate::default());
+    app.set_activation_policy(NSApplicationActivationPolicy::Regular);
 }

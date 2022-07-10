@@ -2,8 +2,9 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     appkit::{
-        ns_menu::NSMenu, NSApplicationActivationOptions, NSApplicationActivationPolicy,
-        NSApplicationDelegateReply, NSApplicationTerminateReply,
+        ns_menu::NSMenu, register_app_delegate_class, NSApplicationActivationOptions,
+        NSApplicationActivationPolicy, NSApplicationDelegateReply, NSApplicationTerminateReply,
+        NSAPPLICATION_PTR,
     },
     objective_c_runtime::{
         id,
@@ -22,6 +23,25 @@ pub trait INSApplication: INSResponder {
         Self: Sized + FromId,
     {
         unsafe { Self::from_id(msg_send![Self::im_class(), sharedApplication]) }
+    }
+
+    /// The app delegate object.
+    fn ip_delegate(&self) -> id {
+        unsafe { msg_send![self.im_self(), delegate] }
+    }
+
+    /// Sets the app delegate object.
+    fn ip_set_delegate<'app, T>(&'app mut self, app_delegate: T)
+    where
+        T: PNSApplicationDelegate + 'app,
+    {
+        unsafe {
+            let delegate_class = register_app_delegate_class::<T>();
+            let delegate: id = msg_send![delegate_class, new];
+            let delegate_ptr: *const T = &app_delegate;
+            (*delegate).set_ivar(NSAPPLICATION_PTR, delegate_ptr as usize);
+            msg_send![self.im_self(), setDelegate: delegate]
+        }
     }
 
     /* Managing the Event Loop
@@ -69,12 +89,12 @@ pub trait INSApplication: INSResponder {
      */
 
     /// Disables relaunching the app on login.
-    fn im_disable_relaunch_on_login(&self) {
+    fn im_disable_relaunch_on_login(&mut self) {
         unsafe { msg_send![self.im_self(), disableRelaunchOnLogin] }
     }
 
     /// Enables relaunching the app on login.
-    fn im_enable_relaunch_on_login(&self) {
+    fn im_enable_relaunch_on_login(&mut self) {
         unsafe { msg_send![self.im_self(), enableRelaunchOnLogin] }
     }
 
@@ -82,12 +102,12 @@ pub trait INSApplication: INSResponder {
      */
 
     /// Register for notifications sent by Apple Push Notification service (APNs).
-    fn im_register_for_remote_notifications(&self) {
+    fn im_register_for_remote_notifications(&mut self) {
         unsafe { msg_send![self.im_self(), registerForRemoteNotifications] }
     }
 
     /// Unregister for notifications received from Apple Push Notification service.
-    fn im_unregister_for_remote_notifications(&self) {
+    fn im_unregister_for_remote_notifications(&mut self) {
         unsafe { msg_send![self.im_self(), unregisterForRemoteNotifications] }
     }
 
@@ -112,7 +132,7 @@ pub trait INSApplication: INSResponder {
     /// # Arguments
     ///
     /// * `policy` - The activation policy to set.
-    fn im_set_activation_policy(&self, policy: NSApplicationActivationPolicy) {
+    fn im_set_activation_policy(&mut self, policy: NSApplicationActivationPolicy) {
         unsafe { msg_send![self.im_self(), setActivationPolicy: policy] }
     }
 
@@ -124,7 +144,7 @@ pub trait INSApplication: INSResponder {
     }
 
     /// Sets the app’s main menu bar.
-    fn ip_set_main_menu(&self, menu: NSMenu) {
+    fn ip_set_main_menu(&mut self, menu: NSMenu) {
         unsafe { msg_send![self.im_self(), setMainMenu: menu] }
     }
 }

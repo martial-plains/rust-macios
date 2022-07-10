@@ -3,8 +3,8 @@ use app_kit_proc_macros::ns_application_main;
 use rust_macios::{
     appkit::{
         traits::{
-            INSApplication, INSResponder, INSTextField, INSView, INSViewController, INSWindow,
-            PNSApplicationDelegate,
+            INSResponder, INSTextField, INSView, INSViewController, INSWindow,
+            PNSApplicationDelegate, INSApplication,
         },
         NSApplication, NSApplicationActivationPolicy, NSTextField, NSView, NSWindow,
     },
@@ -113,6 +113,9 @@ impl PNSApplicationDelegate for AppDelegate {
 
 #[ns_application_main]
 fn main() {
-    let app = NSApplication::new("com.rust.macos.appkit.example", AppDelegate::default());
-    app.im_set_activation_policy(NSApplicationActivationPolicy::Regular);
+    let mut app = NSApplication::shared_application();
+
+    app.ip_set_delegate(AppDelegate::default());
+
+    app.set_activation_policy(NSApplicationActivationPolicy::Regular);
 }

@@ -41,6 +41,7 @@ mod ns_window_delegate;
 
 pub use action_handler::*;
 pub use ns_application::*;
+pub use ns_application_delegate::register_app_delegate_class;
 pub use ns_button::*;
 pub use ns_color::*;
 pub use ns_color_space::*;

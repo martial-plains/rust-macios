@@ -125,7 +125,7 @@ extern "C" fn dock_menu<T: PNSApplicationDelegate>(this: &mut Object, _: Sel, _:
 
 /// Registers an `NSObject` application delegate, and configures it for the various callbacks and
 /// pointers we need to have.
-pub(crate) fn register_app_delegate_class<T: PNSApplicationDelegate + PNSApplicationDelegate>(
+pub fn register_app_delegate_class<T: PNSApplicationDelegate + PNSApplicationDelegate>(
 ) -> *const Class {
     static mut DELEGATE_CLASS: *const Class = 0 as *const Class;
     static INIT: Once = Once::new();
