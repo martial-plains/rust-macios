@@ -178,9 +178,7 @@ pub trait PNSApplicationDelegate {
     /// your setup in `did_finish_launching` unless you're sure of what you're doing.
     fn will_finish_launching(&mut self) {}
 
-    /// Fired when the application has finished launching. Unlike most other "load" lifecycle
-    /// events in this framework, you don't get a reference to an app here - if you need to call
-    /// through to your shared application, then used the `App::shared()` call.
+    /// Fired when the application has finished launching.
     fn did_finish_launching(&mut self) {}
 
     /// Fired when the application is about to become active.

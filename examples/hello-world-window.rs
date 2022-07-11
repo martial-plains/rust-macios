@@ -3,8 +3,8 @@ use app_kit_proc_macros::ns_application_main;
 use rust_macios::{
     appkit::{
         traits::{
-            INSResponder, INSTextField, INSView, INSViewController, INSWindow,
-            PNSApplicationDelegate, INSApplication,
+            INSApplication, INSResponder, INSTextField, INSView, INSViewController, INSWindow,
+            PNSApplicationDelegate,
         },
         NSApplication, NSApplicationActivationPolicy, NSTextField, NSView, NSWindow,
     },

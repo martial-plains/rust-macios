@@ -346,8 +346,7 @@ impl<T> NSWindow<T> {
         self.im_make_key_window()
     }
 
-    /// Make the this window the key window and bring it to the front. Calling `show` does this for
-    /// you.
+    /// Moves the window to the front of the screen list, within its level, and makes it the key window; that is, it shows the window.
     pub fn make_key_and_order_front(&self, sender: id) {
         self.im_make_key_and_order_front(sender)
     }

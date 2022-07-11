@@ -4,13 +4,17 @@ use rust_macios::{
     appkit::{
         ns_application_main,
         traits::{
-            INSButton, INSPopover, INSResponder, INSStatusBar, INSStatusItem, INSTextField,
-            INSView, INSViewController, PNSApplicationDelegate, INSApplication,
+            INSApplication, INSButton, INSPopover, INSResponder, INSStatusBar, INSStatusItem,
+            INSTextField, INSView, INSViewController, PNSApplicationDelegate,
         },
         NSApplication, NSApplicationActivationPolicy, NSPopover, NSPopoverBehavior, NSStatusBar,
         NSStatusItem, NSTextField, NSView,
     },
-    foundation::{macros::ns_array, NSPoint, NSRect, NSRectEdge, NSSize, NSString},
+    foundation::{
+        macros::{ns_array, ns_log},
+        traits::INSBundle,
+        NSBundle, NSPoint, NSRect, NSRectEdge, NSSize, NSString,
+    },
     objective_c_runtime::{
         id, msg_send, nil, objc_impl, objc_impl_init, objc_selector_impl,
         runtime::{Class, Object},
@@ -47,6 +51,10 @@ impl ViewController {
                 height: 300.0,
             },
         }));
+
+        let main_bundle = NSBundle::main_bundle();
+
+        ns_log!(main_bundle.ip_resource_path());
 
         // 2: Create a label
         let label = NSTextField::tm_label_with_string(NSString::from(

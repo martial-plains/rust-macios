@@ -26,3 +26,6 @@ pub type NSNibName = NSString;
 
 /// Named images, defined by the system or you, for use in your app.
 pub type NSImageName = NSString;
+
+/// The name of the storyboard file.
+pub type NSStoryboardName = NSString;
