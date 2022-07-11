@@ -96,12 +96,12 @@ impl PNSApplicationDelegate for AppDelegate {
 
         self.window = Some(window);
 
-        if let Some(window) = &self.window {
+        if let Some(window) = &mut self.window {
             window.set_minimum_content_size(NSSize {
                 width: 200.0,
                 height: 200.0,
             });
-            window.set_title("Hello World");
+            window.set_title("Hello World!");
             window.make_key_and_order_front(nil);
         }
     }
@@ -116,6 +116,6 @@ fn main() {
     let mut app = NSApplication::shared_application();
 
     app.ip_set_delegate(AppDelegate::default());
-
     app.set_activation_policy(NSApplicationActivationPolicy::Regular);
+    app.im_activate_ignoring_other_apps(true);
 }

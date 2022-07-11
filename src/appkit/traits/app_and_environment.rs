@@ -10,6 +10,7 @@ use crate::{
         id,
         traits::{FromId, PNSObject},
     },
+    utils::to_bool,
 };
 
 use super::mouse_keyboard_and_trackpad::INSResponder;
@@ -83,6 +84,24 @@ pub trait INSApplication: INSResponder {
                 replyToApplicationShouldTerminate: should_terminate
             ]
         }
+    }
+
+    /* Activating and Deactivating the App
+     */
+
+    /// A Boolean value indicating whether this is the active app.
+    fn ip_active(&self) -> bool {
+        unsafe { to_bool(msg_send![self.im_self(), isActive]) }
+    }
+
+    /// Makes the receiver the active app.
+    fn im_activate_ignoring_other_apps(&mut self, flag: bool) {
+        unsafe { msg_send![self.im_self(), activateIgnoringOtherApps: flag] }
+    }
+
+    /// Deactivates the receiver.
+    fn im_deactivate(&mut self) {
+        unsafe { msg_send![self.im_self(), deactivate] }
     }
 
     /* Managing Relaunch on Login
