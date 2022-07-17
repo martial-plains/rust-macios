@@ -1,8 +1,5 @@
-use rust_macios::foundation::NSOrthography;
+use rust_macios::foundation::NSUUID;
 
 fn main() {
-    let arr = NSOrthography::default_orthography_for_language("en");
-
-    println!("{:?}", arr);
-    println!("Still prints");
+    println!("From Class: {}", NSUUID::uuid());
 }
