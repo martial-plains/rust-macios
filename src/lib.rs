@@ -27,6 +27,7 @@
 #![warn(clippy::all, missing_debug_implementations)]
 #![allow(improper_ctypes)]
 #![feature(decl_macro)]
+#![feature(type_ascription)]
 
 pub mod appkit;
 pub mod background_tasks;

@@ -100,7 +100,7 @@ pub fn objc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
         impl #input_type {
             pub fn register_class() -> *const objc::runtime::Class {
                 use std::sync::Once;
-                
+
                 use rust_macios::objective_c_runtime::{
                     class,
                     declare::ClassDecl,
