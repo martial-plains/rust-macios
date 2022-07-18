@@ -1,5 +1,5 @@
-use rust_macios::foundation::NSUUID;
+use rust_macios::foundation::{NSUUID, NSLocale};
 
 fn main() {
-    println!("From Class: {}", NSUUID::uuid());
+    println!("From Class: {}", NSLocale::current_locale());
 }

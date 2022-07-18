@@ -38,6 +38,8 @@ pub fn interface_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
 
                 if val.attrs.iter().any(|a| a.path.is_ident("method")) {
                     Some(method_sig(val))
+                } else if val.attrs.iter().any(|a| a.path.is_ident("property")) {
+                    Some(property_sig(val))
                 } else {
                     None
                 }
@@ -73,7 +75,9 @@ pub fn interface_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
                     }
 
                     if val.attrs.iter().any(|a| a.path.is_ident("method")) {
-                        Some(trait_fn_sig(val))
+                        Some(trait_method_sig(val))
+                    } else if val.attrs.iter().any(|a| a.path.is_ident("property")) {
+                        Some(trait_property_sig(val))
                     } else {
                         None
                     }
@@ -241,7 +245,7 @@ fn method_sig(input: &ImplItemMethod) -> proc_macro2::TokenStream {
 
 /// This method is for extracting the method data from the [`ImplItemMethod`] and parsing a new
 /// trait function which contains the statements from the given [`ImplItemMethod`] argument.
-fn trait_fn_sig(input: &ImplItemMethod) -> proc_macro2::TokenStream {
+fn trait_method_sig(input: &ImplItemMethod) -> proc_macro2::TokenStream {
     let name = Ident::new(&format!("m_{}", input.sig.clone().ident), Span::call_site());
     let return_type = input.sig.output.clone();
 
@@ -288,6 +292,302 @@ fn trait_fn_sig(input: &ImplItemMethod) -> proc_macro2::TokenStream {
         .attrs
         .iter()
         .filter(|attr| !attr.path.is_ident("method"))
+        .collect::<Vec<_>>();
+
+    match input.sig.receiver() {
+        Some(receiver) => match receiver {
+            syn::FnArg::Receiver(receiver) => match receiver.mutability {
+                Some(_) => match generic_params.is_empty() {
+                    true => match where_clause {
+                        Some(clause) => quote! {
+                            #(#attrs)*
+                            fn #name(&mut self, #(#arg_name: #arg_type),* ) #return_type #clause {
+                                #(#body)*
+                            }
+                        },
+                        None => quote! {
+                            #(#attrs)*
+                            fn #name(&mut self, #(#arg_name : #arg_type),* ) #return_type {
+                                #(#body)*
+                            }
+                        },
+                    },
+                    false => {
+                        let generic_params = generic_params.iter();
+                        match where_clause {
+                            Some(clause) => quote! {
+                                #(#attrs)*
+                                fn #name<#(#generic_params),*>(&mut self, #(#arg_name: #arg_type),* ) #return_type #clause {
+                                    #(#body)*
+                                }
+                            },
+                            None => quote! {
+                                #(#attrs)*
+                                fn #name<#(#generic_params),*>(&mut self, #(#arg_name : #arg_type),* ) #return_type {
+                                    #(#body)*
+                                }
+                            },
+                        }
+                    }
+                },
+                None => match generic_params.is_empty() {
+                    true => match where_clause {
+                        Some(clause) => quote! {
+                            #(#attrs)*
+                            fn #name(&self, #(#arg_name : #arg_type),*) #return_type #clause {
+                               #(#body)*
+                            }
+                        },
+                        None => quote! {
+                            #(#attrs)*
+                            fn #name(&self, #(#arg_name : #arg_type),*) #return_type {
+                               #(#body)*
+                            }
+                        },
+                    },
+                    false => {
+                        let generic_params = generic_params.iter();
+
+                        match where_clause {
+                            Some(clause) => quote! {
+                                #(#attrs)*
+                                fn #name<#(#generic_params),*>(&self, #(#arg_name : #arg_type),*) #return_type #clause {
+                                   #(#body)*
+                                }
+                            },
+                            None => quote! {
+                                #(#attrs)*
+                                fn #name<#(#generic_params),*>(&self, #(#arg_name : #arg_type),*) #return_type {
+                                   #(#body)*
+                                }
+                            },
+                        }
+                    }
+                },
+            },
+            syn::FnArg::Typed(_) => unreachable!(),
+        },
+        None => match generic_params.is_empty() {
+            true => match where_clause {
+                Some(clause) => quote! {
+                    #(#attrs)*
+                    fn #name(#(#arg_name: #arg_type),*) #return_type #clause {
+                        #(#body)*
+                    }
+                },
+                None => quote! {
+                    #(#attrs)*
+                    fn #name(#(#arg_name: #arg_type),*) #return_type {
+                        #(#body)*
+                    }
+                },
+            },
+            false => {
+                let generic_params = generic_params.iter();
+
+                match where_clause {
+                    Some(clause) => quote! {
+                        #(#attrs)*
+                        fn #name<#(#generic_params),*>(#(#arg_name: #arg_type),*) #return_type #clause {
+                            #(#body)*
+                        }
+                    },
+                    None => quote! {
+                        #(#attrs)*
+                        fn #name<#(#generic_params),*>(#(#arg_name: #arg_type),*) #return_type {
+                            #(#body)*
+                        }
+                    },
+                }
+            }
+        },
+    }
+}
+
+/// This method is for extracting the method data from the [`ImplItemMethod`] and parsing a new
+/// method replacing the body to contain a method call to the Interface's trait method which matches the name of the method
+/// excluding the prefix "m_".
+fn property_sig(input: &ImplItemMethod) -> proc_macro2::TokenStream {
+    let name = input.sig.ident.clone();
+    let return_type = input.sig.output.clone();
+
+    let trait_name = Ident::new(&format!("p_{}", name), Span::call_site());
+
+    let generics = input.sig.generics.clone();
+
+    let where_clause = generics.where_clause;
+
+    let generic_params = generics.params;
+
+    let mut fn_args: Vec<FnArg> = vec![];
+
+    if has_arguments(input.sig.clone()) {
+        fn_args = input
+            .sig
+            .inputs
+            .iter()
+            .skip_while(|arg| match arg {
+                FnArg::Receiver(_) => true,
+                FnArg::Typed(_) => false,
+            })
+            .cloned()
+            .collect();
+    }
+
+    let arg_name = fn_args
+        .iter()
+        .map(|arg| match arg {
+            FnArg::Receiver(_) => unreachable!(),
+            FnArg::Typed(pat) => *pat.pat.clone(),
+        })
+        .collect::<Vec<_>>();
+
+    let arg_type = fn_args
+        .iter()
+        .map(|arg| match arg {
+            FnArg::Receiver(_) => unreachable!(),
+            FnArg::Typed(pat) => *pat.ty.clone(),
+        })
+        .collect::<Vec<_>>();
+
+    let attrs = input
+        .attrs
+        .iter()
+        .filter(|attr| !attr.path.is_ident("property"))
+        .collect::<Vec<_>>();
+
+    match input.sig.receiver() {
+        Some(receiver) => match receiver {
+            syn::FnArg::Receiver(receiver) => match receiver.mutability {
+                Some(_) => match generic_params.is_empty() {
+                    true => match where_clause {
+                        Some(clause) => quote! {
+                            #(#attrs)*
+                            pub fn #name(&mut self, #(#arg_name: #arg_type),* ) #return_type #clause {
+                                self.#trait_name(#(#arg_name),*)
+                            }
+                        },
+                        None => quote! {
+                            #(#attrs)*
+                            pub fn #name(&mut self, #(#arg_name: #arg_type),* ) #return_type {
+                                self.#trait_name(#(#arg_name),*)
+                            }
+                        },
+                    },
+                    false => {
+                        let generic_params = generic_params.iter();
+
+                        match where_clause {
+                            Some(clause) => quote! {
+                                #(#attrs)*
+                                pub fn #name<#(#generic_params),*>(&mut self, #(#arg_name: #arg_type),* ) #return_type #clause {
+                                    self.#trait_name(#(#arg_name),*)
+                                }
+                            },
+                            None => quote! {
+                                #(#attrs)*
+                                pub fn #name<#(#generic_params),*>(&mut self, #(#arg_name: #arg_type),* ) #return_type {
+                                    self.#trait_name(#(#arg_name),*)
+                                }
+                            },
+                        }
+                    }
+                },
+                None => match generic_params.is_empty() {
+                    true => match where_clause {
+                        Some(clause) => quote! {
+                            #(#attrs)*
+                            pub fn #name(&self, #(#arg_name : #arg_type),*) #return_type #clause {
+                                self.#trait_name(#(#arg_name),*)
+                            }
+                        },
+                        None => quote! {
+                            #(#attrs)*
+                            pub fn #name(&self, #(#arg_name : #arg_type),*) #return_type {
+                                self.#trait_name(#(#arg_name),*)
+                            }
+                        },
+                    },
+                    false => {
+                        let generic_params = generic_params.iter();
+
+                        match where_clause {
+                            Some(clause) => quote! {
+                                #(#attrs)*
+                                pub fn #name<#(#generic_params),*>(&self, #(#arg_name : #arg_type),*) #return_type #clause {
+                                    self.#trait_name(#(#arg_name),*)
+                                }
+                            },
+                            None => quote! {
+                                #(#attrs)*
+                                pub fn #name<#(#generic_params),*>(&self, #(#arg_name : #arg_type),*) #return_type {
+                                    self.#trait_name(#(#arg_name),*)
+                                }
+                            },
+                        }
+                    }
+                },
+            },
+            syn::FnArg::Typed(_) => unreachable!(),
+        },
+        None => quote! {
+            #(#attrs)*
+            pub fn #name(#(#arg_name : #arg_type,)*) #return_type {
+                Self::#trait_name(#(#arg_name),*)
+            }
+        },
+    }
+}
+
+/// This method is for extracting the method data from the [`ImplItemMethod`] and parsing a new
+/// trait function which contains the statements from the given [`ImplItemMethod`] argument.
+fn trait_property_sig(input: &ImplItemMethod) -> proc_macro2::TokenStream {
+    let name = Ident::new(&format!("p_{}", input.sig.clone().ident), Span::call_site());
+    let return_type = input.sig.output.clone();
+
+    let generics = input.sig.generics.clone();
+
+    let where_clause = generics.where_clause;
+
+    let generic_params = generics.params;
+
+    let body = input.block.stmts.clone();
+
+    let mut fn_args: Vec<FnArg> = vec![];
+
+    if has_arguments(input.sig.clone()) {
+        fn_args = input
+            .sig
+            .inputs
+            .iter()
+            .skip_while(|arg| match arg {
+                FnArg::Receiver(_) => true,
+                FnArg::Typed(_) => false,
+            })
+            .cloned()
+            .collect();
+    }
+
+    let arg_name = fn_args
+        .iter()
+        .map(|arg| match arg {
+            FnArg::Receiver(_) => unreachable!(),
+            FnArg::Typed(pat) => *pat.pat.clone(),
+        })
+        .collect::<Vec<_>>();
+
+    let arg_type = fn_args
+        .iter()
+        .map(|arg| match arg {
+            FnArg::Receiver(_) => unreachable!(),
+            FnArg::Typed(pat) => *pat.ty.clone(),
+        })
+        .collect::<Vec<_>>();
+
+    let attrs = input
+        .attrs
+        .iter()
+        .filter(|attr| !attr.path.is_ident("property"))
         .collect::<Vec<_>>();
 
     match input.sig.receiver() {

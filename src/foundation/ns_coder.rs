@@ -12,7 +12,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{Int, Int32, Int64, NSPoint, NSRect, NSSize, NSString, UInt, UInt8};
+use super::{Int, Int32, Int64, NSPoint, NSRect, NSSize, NSString, UInt, UInt8, NSDecodingFailurePolicy};
 
 object! {
     /// An abstract class that serves as the basis for objects that enable archiving and distribution of other objects.
