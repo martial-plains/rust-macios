@@ -9,6 +9,18 @@ license = "MIT"
 [workspace]
 members = ["src/appkit/proc-macros", "src/objective_c_runtime/proc-macros"]
 
+[features]
+default = ["foundation", "objective_c_runtime"]
+appkit = ["objective_c_runtime"]
+background_tasks = ["foundation"]
+compression = []
+core_foundation = []
+core_graphics = []
+foundation = ["objective_c_runtime", "core_foundation", "core_graphics"]
+natural_language = ["foundation"]
+objective_c_runtime = ["foundation"]
+uikit = ["foundation"]
+
 [dependencies]
 # Macros defined in workspace
 app-kit-proc-macros = { version = "0.1.0", path = "src/appkit/proc-macros" }

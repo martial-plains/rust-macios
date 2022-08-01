@@ -1,7 +1,6 @@
 #![allow(missing_docs)]
 
 //! Enums for the Foundation library.
-
 use crate::core_graphics::CGRectEdge;
 
 /// Enums for String Encoding
@@ -1264,12 +1263,19 @@ pub enum NSRectEdge {
 }
 
 impl NSRectEdge {
+    ///
     #[allow(non_upper_case_globals)]
     pub const MaxX: CGRectEdge = CGRectEdge::MaxXEdge;
+
+    ///
     #[allow(non_upper_case_globals)]
     pub const MaxY: CGRectEdge = CGRectEdge::MaxYEdge;
+
+    ///
     #[allow(non_upper_case_globals)]
     pub const MinX: CGRectEdge = CGRectEdge::MinXEdge;
+
+    ///
     #[allow(non_upper_case_globals)]
     pub const MinY: CGRectEdge = CGRectEdge::MinYEdge;
 }

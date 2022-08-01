@@ -29,14 +29,24 @@
 #![feature(decl_macro)]
 #![feature(type_ascription)]
 
+#[cfg(feature = "appkit")]
 pub mod appkit;
+#[cfg(feature = "background_tasks")]
 pub mod background_tasks;
+#[cfg(feature = "compression")]
 pub mod compression;
+#[cfg(feature = "core_foundation")]
 pub mod core_foundation;
+#[cfg(feature = "core_graphics")]
 pub mod core_graphics;
+#[cfg(feature = "foundation")]
 pub mod foundation;
+
+#[cfg(feature = "natural_language")]
 pub mod natural_language;
+#[cfg(feature = "objective_c_runtime")]
 pub mod objective_c_runtime;
+#[cfg(feature = "uikit")]
 pub mod uikit;
 
 pub(crate) mod utils;

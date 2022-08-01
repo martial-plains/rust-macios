@@ -2,8 +2,8 @@ use libc::{c_char, c_double, c_float, c_void};
 use objc::{msg_send, sel, sel_impl};
 use objective_c_runtime_proc_macros::interface_impl;
 
+use crate::core_graphics::{CGPoint, CGRect, CGSize};
 use crate::{
-    core_graphics::{CGPoint, CGRect, CGSize},
     objective_c_runtime::{
         id,
         macros::object,
