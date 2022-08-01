@@ -10,7 +10,17 @@ license = "MIT"
 members = ["src/appkit/proc-macros", "src/objective_c_runtime/proc-macros"]
 
 [features]
-default = ["foundation", "objective_c_runtime"]
+default = [
+    "appkit",
+    "background_tasks",
+    "compression",
+    "core_foundation",
+    "core_graphics",
+    "foundation",
+    "natural_language",
+    "objective_c_runtime",
+    "uikit",
+]
 appkit = ["objective_c_runtime"]
 background_tasks = ["foundation"]
 compression = []
