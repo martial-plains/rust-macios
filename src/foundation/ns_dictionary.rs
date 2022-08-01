@@ -2,15 +2,18 @@ use std::{collections::HashMap, marker::PhantomData};
 
 use objc::{class, msg_send, sel, sel_impl};
 
-use crate::objective_c_runtime::{
-    id,
-    macros::shared_object,
-    traits::{FromId, PNSObject},
+use crate::{
+    objective_c_runtime::{
+        id,
+        macros::shared_object,
+        traits::{FromId, PNSObject},
+    },
+    utils::to_bool,
 };
 
 use super::{
-    traits::{INSDictionary, INSMutableDictionary},
-    Int, Int16, Int32, Int8, NSMutableDictionary, NSNumber, NSString, UInt, UInt16, UInt32, UInt8,
+    INSMutableDictionary, Int, Int16, Int32, Int8, NSArray, NSMutableDictionary, NSNumber,
+    NSString, UInt, UInt16, UInt32, UInt8,
 };
 
 shared_object! {
@@ -39,6 +42,128 @@ impl<K, V> NSDictionary<K, V> {
         V: FromId,
     {
         self.im_object_for_key(key)
+    }
+}
+
+/// A static collection of objects associated with unique keys.
+pub trait INSDictionary<K, V>: PNSObject {
+    /* Creating an Empty Dictionary
+     */
+
+    /// Creates an empty dictionary.
+    fn tm_dictionary() -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::m_class(), dictionary]) }
+    }
+
+    /// Initializes a newly allocated dictionary.
+    fn im_init() -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::m_class(), new]) }
+    }
+
+    /* Creating a Dictionary from Another Dictionary
+     */
+
+    /// Creates a dictionary containing the keys and values from another given dictionary.
+    fn tm_dictionary_with_dictionary<D>(dictionary: D) -> Self
+    where
+        Self: Sized + FromId,
+        D: INSDictionary<K, V>,
+    {
+        unsafe {
+            Self::from_id(msg_send![
+                Self::m_class(),
+                dictionaryWithDictionary: dictionary
+            ])
+        }
+    }
+
+    /// Creates and initialize a dictionary
+    fn im_init_with_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
+        unsafe { msg_send![self.m_self(), initWithDictionary: dictionary] }
+    }
+
+    /// Initializes a newly allocated dictionary using the objects contained in another given dictionary.
+    fn im_init_with_dictionary_copy_items(&mut self, dictionary: NSDictionary<K, V>, flag: bool) {
+        unsafe { msg_send![self.m_self(), initWithDictionary: dictionary copyItems: flag] }
+    }
+
+    /* Counting Entries
+     */
+
+    /// The number of entries in the dictionary.
+    fn ip_count(&self) -> UInt {
+        unsafe { msg_send![self.m_self(), count] }
+    }
+
+    /* Comparing Dictionaries
+     */
+
+    /// Returns a Boolean value that indicates whether the contents of the receiving dictionary are equal to the contents of another given dictionary.
+    fn im_is_equal_to_dictionary<D>(&self, other: D) -> bool
+    where
+        D: INSDictionary<K, V>,
+    {
+        unsafe { to_bool(msg_send![self.m_self(), isEqualToDictionary: other.m_self()]) }
+    }
+
+    /* Accessing Keys and Values
+     */
+
+    /// A new array containing the dictionary’s keys, or an empty array if the dictionary has no entries.
+    fn ip_all_keys(&self) -> NSArray<K> {
+        unsafe { NSArray::from_id(msg_send![self.m_self(), allKeys]) }
+    }
+
+    /// Returns a new array containing the keys corresponding to all occurrences of a given object in the dictionary.
+    fn im_all_keys_for_object(&self, object: &V) -> NSArray<K> {
+        unsafe { NSArray::from_id(msg_send![self.m_self(), allKeysForObject: object]) }
+    }
+
+    /// A new array containing the dictionary’s values, or an empty array if the dictionary has no entries.
+    fn ip_all_values(&self) -> NSArray<V> {
+        unsafe { NSArray::from_id(msg_send![self.m_self(), allValues]) }
+    }
+
+    /// Returns the value associated with a given key.
+    fn im_value_for_key(&self, key: &K) -> V
+    where
+        V: FromId,
+    {
+        unsafe { V::from_id(msg_send![self.m_self(), valueForKey: key]) }
+    }
+
+    /// Returns by reference C arrays of the keys and values in the dictionary.
+    fn im_get_objects_and_keys_count(&self, objects: *mut V, keys: *mut K, count: UInt) {
+        unsafe { msg_send![self.m_self(), getObjects: objects andKeys: keys count: count] }
+    }
+
+    /// Returns as a static array the set of objects from the dictionary that corresponds to the specified keys.
+    fn im_objects_for_keys_not_found_marker(&self, keys: &NSArray<K>, value: &V) -> NSArray<V> {
+        unsafe {
+            NSArray::from_id(msg_send![self.m_self(), objectsForKeys: keys notFoundMarker: value])
+        }
+    }
+
+    /// Returns the value associated with a given key.
+    fn im_object_for_key(&self, key: K) -> V
+    where
+        V: FromId,
+    {
+        unsafe { V::from_id(msg_send![self.m_self(), objectForKey: key]) }
+    }
+
+    /// Returns the value associated with a given key.
+    fn im_object_for_keyed_subscript(&self, key: &K) -> V
+    where
+        V: FromId,
+    {
+        unsafe { V::from_id(msg_send![self.m_self(), objectForKeyedSubscript: key]) }
     }
 }
 

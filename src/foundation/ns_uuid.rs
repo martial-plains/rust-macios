@@ -26,7 +26,7 @@ impl NSUUID {
     where
         Self: Sized + FromId,
     {
-        unsafe { Self::from_id(msg_send![Self::im_class(), UUID]) }
+        unsafe { Self::from_id(msg_send![Self::m_class(), UUID]) }
     }
 
     /// Initializes a new UUID with RFC 4122 version 4 random bytes.
@@ -35,7 +35,7 @@ impl NSUUID {
     where
         Self: Sized + FromId,
     {
-        unsafe { Self::from_id(msg_send![self.im_self(), init]) }
+        unsafe { Self::from_id(msg_send![self.m_self(), init]) }
     }
 
     /// Initializes a new UUID with the formatted string.
@@ -44,7 +44,7 @@ impl NSUUID {
     where
         Self: Sized + FromId,
     {
-        unsafe { Self::from_id(msg_send![self.im_self(), initWithUUIDString: string]) }
+        unsafe { Self::from_id(msg_send![self.m_self(), initWithUUIDString: string]) }
     }
 
     /// Initializes a new UUID with the given bytes.
@@ -61,7 +61,7 @@ impl NSUUID {
     where
         Self: Sized + FromId,
     {
-        unsafe { Self::from_id(msg_send![self.im_self(), initWithUUIDBytes: bytes]) }
+        unsafe { Self::from_id(msg_send![self.m_self(), initWithUUIDBytes: bytes]) }
     }
 
     /* Get UUID Values
@@ -74,18 +74,18 @@ impl NSUUID {
     /// * uuid - The value of uuid represented as raw bytes.
     #[method]
     pub fn get_uuid_bytes(&self, uuid: *mut c_uchar) {
-        unsafe { msg_send![self.im_self(), getUUIDBytes: uuid] }
+        unsafe { msg_send![self.m_self(), getUUIDBytes: uuid] }
     }
 
     /// The UUID as a string.
     #[property]
     pub fn uuid_string(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.im_self(), UUIDString]) }
+        unsafe { NSString::from_id(msg_send![self.m_self(), UUIDString]) }
     }
 
     /// Compares [`NSUUID`] with another
     #[method]
     pub fn compare(&self, other_uuid: NSUUID) -> NSComparisonResult {
-        unsafe { msg_send![self.im_self(), compare: other_uuid] }
+        unsafe { msg_send![self.m_self(), compare: other_uuid] }
     }
 }

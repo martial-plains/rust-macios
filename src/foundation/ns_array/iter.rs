@@ -1,12 +1,9 @@
 use crate::{
-    foundation::{
-        traits::{INSArray, INSMutableArray},
-        NSMutableArray, NSNumber, NSString, UInt,
-    },
+    foundation::{ns_mutable_array::INSMutableArray, NSMutableArray, NSNumber, NSString, UInt},
     objective_c_runtime::traits::{FromId, PNSObject},
 };
 
-use super::NSArray;
+use super::{INSArray, NSArray};
 
 /// An iterator for `Array`
 #[derive(Debug)]

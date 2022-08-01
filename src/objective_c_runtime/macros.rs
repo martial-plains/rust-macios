@@ -25,11 +25,11 @@ pub(crate) macro object {
         }
 
         impl<$($t $(: $b)?),*> $crate::objective_c_runtime::traits::PNSObject for $name<$($t),*> {
-            fn im_class<'a>() -> &'a $crate::objective_c_runtime::runtime::Class {
+            fn m_class<'a>() -> &'a $crate::objective_c_runtime::runtime::Class {
                 $crate::objective_c_runtime::class!($name)
             }
 
-            fn im_self(&self) -> $crate::objective_c_runtime::id {
+            fn m_self(&self) -> $crate::objective_c_runtime::id {
                 use $crate::objective_c_runtime::{msg_send, sel, sel_impl};
                 unsafe { msg_send![&*self.ptr, self] }
             }
@@ -39,21 +39,21 @@ pub(crate) macro object {
             #[inline]
             fn hash<H: ::core::hash::Hasher>(&self, state: &mut H) {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                self.ip_hash().hash(state);
+                self.p_hash().hash(state);
             }
         }
 
         impl<$($t $(: $b)?),*> core::fmt::Debug for $name<$($t),*> {
             fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                std::write!(f, "{}", self.ip_debug_description())
+                std::write!(f, "{}", self.p_debug_description())
             }
         }
 
         impl<$($t $(: $b)?),*> core::fmt::Display for $name<$($t),*> {
             fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                std::write!(f, "{}", self.clone().ip_description())
+                std::write!(f, "{}", self.clone().p_description())
             }
         }
 
@@ -75,7 +75,7 @@ pub(crate) macro object {
         impl<$($t $(: $b)?),*> Clone for $name<$($t),*> {
             fn clone(&self) -> Self {
                 use $crate::objective_c_runtime::{traits::{FromId, PNSObject}, msg_send, sel, sel_impl};
-                unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
+                unsafe { Self::from_id(msg_send![self.m_self(), retain]) }
             }
         }
 
@@ -84,14 +84,14 @@ pub(crate) macro object {
 
             fn deref(&self) -> &Self::Target {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                unsafe { &*self.im_self() }
+                unsafe { &*self.m_self() }
             }
         }
 
         impl<$($t $(: $b)?),*> core::ops::DerefMut for $name<$($t),*> {
             fn deref_mut(&mut self) -> &mut $crate::objective_c_runtime::runtime::Object {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                unsafe { &mut *self.im_self()}
+                unsafe { &mut *self.m_self()}
             }
         }
     },
@@ -115,11 +115,11 @@ pub(crate) macro shared_object {
         }
 
         impl<$($t $(: $b)?),*> $crate::objective_c_runtime::traits::PNSObject for $name<$($t),*> {
-            fn im_class<'a>() -> &'a $crate::objective_c_runtime::runtime::Class {
+            fn m_class<'a>() -> &'a $crate::objective_c_runtime::runtime::Class {
                 $crate::objective_c_runtime::class!($name)
             }
 
-            fn im_self(&self) -> $crate::objective_c_runtime::id {
+            fn m_self(&self) -> $crate::objective_c_runtime::id {
                 use $crate::objective_c_runtime::{msg_send, sel, sel_impl};
                 unsafe { msg_send![&*self.ptr, self] }
             }
@@ -129,28 +129,28 @@ pub(crate) macro shared_object {
             #[inline]
             fn hash<H: ::core::hash::Hasher>(&self, state: &mut H) {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                self.ip_hash().hash(state);
+                self.p_hash().hash(state);
             }
         }
 
         impl<$($t $(: $b)?),*> core::fmt::Debug for $name<$($t),*> {
             fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                std::write!(f, "{}", self.ip_debug_description())
+                std::write!(f, "{}", self.p_debug_description())
             }
         }
 
         impl<$($t $(: $b)?),*> core::fmt::Display for $name<$($t),*> {
             fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                std::write!(f, "{}", self.ip_description())
+                std::write!(f, "{}", self.p_description())
             }
         }
 
         impl<$($t $(: $b)?),*> $crate::objective_c_runtime::traits::ToId for $name<$($t),*> {
             fn to_id(self) -> $crate::objective_c_runtime::id {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                self.im_self()
+                self.m_self()
             }
         }
 
@@ -166,7 +166,7 @@ pub(crate) macro shared_object {
         impl<$($t $(: $b)?),*> Clone for $name<$($t),*> {
             fn clone(&self) -> Self {
                 use $crate::objective_c_runtime::{traits::{FromId, PNSObject}, msg_send, sel, sel_impl};
-                unsafe { Self::from_id(msg_send![self.im_self(), retain]) }
+                unsafe { Self::from_id(msg_send![self.m_self(), retain]) }
             }
         }
 
@@ -175,14 +175,14 @@ pub(crate) macro shared_object {
 
             fn deref(&self) -> &Self::Target {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                unsafe { &*self.im_self() }
+                unsafe { &*self.m_self() }
             }
         }
 
         impl<$($t $(: $b)?),*> core::ops::DerefMut for $name<$($t),*> {
             fn deref_mut(&mut self) -> &mut $crate::objective_c_runtime::runtime::Object {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                unsafe { &mut *self.im_self()}
+                unsafe { &mut *self.m_self()}
             }
         }
 

@@ -1,19 +1,45 @@
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
-use quote::quote;
-use syn::{parse_macro_input, FnArg, ImplItemMethod, ItemImpl, Signature};
+use quote::{quote, quote_spanned};
+use syn::{parse_macro_input, spanned::Spanned, FnArg, ImplItemMethod, ItemImpl, Signature};
 
 #[derive(Debug)]
 struct ExportAttributes {
     super_class_name: String,
+    is_super_class_generic: bool,
 }
 
 impl ExportAttributes {
     pub fn new(attributes: &str) -> Self {
         let mut vals = attributes.split(',');
+        let is_super_class_generic = if attributes.contains('<') {
+            let left_angle_count = attributes.chars().filter(|c| *c == '<').count();
+            let right_angle_count = attributes.chars().filter(|c| *c == '>').count();
+
+            match left_angle_count.cmp(&right_angle_count) {
+                std::cmp::Ordering::Less => {
+                    quote_spanned! {
+                        attributes.span() =>
+                        compile_error!("There is an extra '>'\n");
+                    };
+                    false
+                }
+                std::cmp::Ordering::Equal => true,
+                std::cmp::Ordering::Greater => {
+                    quote_spanned! {
+                        attributes.span() =>
+                        compile_error!("There is an extra '<'\n");
+                    };
+                    false
+                }
+            }
+        } else {
+            false
+        };
 
         Self {
             super_class_name: vals.next().unwrap().trim().to_string(),
+            is_super_class_generic,
         }
     }
 }
@@ -63,7 +89,11 @@ pub fn interface_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
             Ident::new(&format!("I{}", super_class_name), Span::call_site())
         };
 
-        let name = Ident::new(&format!("I{}", input_type), Span::call_site());
+        let name = {
+            let input_type = quote!(#input_type).to_string();
+
+            Ident::new(&format!("I{}", input_type), Span::call_site())
+        };
 
         let trait_fns = input
             .items
@@ -86,26 +116,70 @@ pub fn interface_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
             })
             .collect::<Vec<_>>();
 
-        quote! {
-            pub trait #name : #sup_name {
-                #(#trait_fns)*
+        match input.generics.params.is_empty() {
+            true => quote! {
+                pub trait #name : #sup_name {
+                    #(#trait_fns)*
+                }
+            },
+            false => {
+                let generic_params = input.generics.params.iter();
+                match attributes.is_super_class_generic {
+                    true => {
+                        let sup_generic_params = input.generics.params.iter();
+
+                        quote! {
+                            pub trait #name<#(#generic_params),*> : #sup_name<#(#sup_generic_params),*> {
+                                #(#trait_fns)*
+                            }
+                        }
+                    }
+                    false => quote! {
+                        pub trait #name<#(#generic_params),*> : #sup_name {
+                            #(#trait_fns)*
+                        }
+                    },
+                }
             }
         }
     };
 
-    let trait_name = Ident::new(&format!("I{}", input_type), Span::call_site());
+    let trait_name = {
+        let input_type = quote!(#input_type).to_string();
+
+        Ident::new(&format!("I{}", input_type), Span::call_site())
+    };
 
     let trait_doc = format!("A trait containing all the methods for [`{}`]", input_type);
 
-    quote! {
-        #type_impl
+    match input.generics.params.is_empty() {
+        true => quote! {
+            #type_impl
 
-        #[doc = #trait_doc]
-        #type_trait
+            #[doc = #trait_doc]
+            #type_trait
 
-        impl #trait_name for #input_type {}
+            impl #trait_name for #input_type {}
+        }
+        .into(),
+        false => {
+            let generic_params = input.generics.params.iter();
+            let input_type_generic = generic_params.clone();
+
+            match input.generics.where_clause {
+                Some(clause) => quote! {
+                    #type_impl
+
+                    #[doc = #trait_doc]
+                    #type_trait
+
+                    impl<#(#generic_params),*> #trait_name for #input_type<#(#input_type_generic),*> #clause {}
+                }
+                .into(),
+                None => todo!(),
+            }
+        }
     }
-    .into()
 }
 
 /// This method is for extracting the method data from the [`ImplItemMethod`] and parsing a new
@@ -234,10 +308,30 @@ fn method_sig(input: &ImplItemMethod) -> proc_macro2::TokenStream {
             },
             syn::FnArg::Typed(_) => unreachable!(),
         },
-        None => quote! {
-            #(#attrs)*
-            pub fn #name(#(#arg_name : #arg_type,)*) #return_type {
-                Self::#trait_name(#(#arg_name),*)
+        None => match generic_params.is_empty() {
+            true => quote! {
+                #(#attrs)*
+                pub fn #name(#(#arg_name : #arg_type,)*) #return_type {
+                    Self::#trait_name(#(#arg_name),*)
+                }
+            },
+            false => {
+                let generic_params = generic_params.iter();
+
+                match where_clause {
+                    Some(clause) => quote! {
+                        #(#attrs)*
+                        pub fn #name<#(#generic_params),*>(#(#arg_name : #arg_type,)*) #return_type #clause {
+                            Self::#trait_name(#(#arg_name),*)
+                        }
+                    },
+                    None => quote! {
+                        #(#attrs)*
+                        pub fn #name<#(#generic_params),*>(#(#arg_name : #arg_type,)*) #return_type {
+                            Self::#trait_name(#(#arg_name),*)
+                        }
+                    },
+                }
             }
         },
     }

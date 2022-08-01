@@ -2,8 +2,6 @@
 //! macOS app.
 
 pub use app_kit_proc_macros::ns_application_main;
-/// Traits for interacting with the AppKit framework.
-pub mod traits;
 
 mod enums;
 mod globals;
@@ -22,11 +20,14 @@ mod ns_application_delegate;
 mod ns_button;
 mod ns_color;
 mod ns_color_space;
+mod ns_control;
 mod ns_dock_tile;
 mod ns_image;
 mod ns_menu;
 mod ns_menu_item;
 mod ns_popover;
+mod ns_popover_delegate;
+mod ns_responder;
 mod ns_running_application;
 mod ns_screen;
 mod ns_status_bar;
@@ -42,15 +43,17 @@ mod ns_window_delegate;
 
 pub use action_handler::*;
 pub use ns_application::*;
-pub use ns_application_delegate::register_app_delegate_class;
+pub use ns_application_delegate::*;
 pub use ns_button::*;
 pub use ns_color::*;
 pub use ns_color_space::*;
+pub use ns_control::*;
 pub use ns_dock_tile::*;
 pub use ns_image::*;
 pub use ns_menu::*;
 pub use ns_menu_item::*;
 pub use ns_popover::*;
+pub use ns_responder::*;
 pub use ns_running_application::*;
 pub use ns_screen::*;
 pub use ns_status_bar::*;

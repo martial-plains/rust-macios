@@ -4,9 +4,6 @@ mod enums;
 mod globals;
 mod type_defs;
 
-/// Traits for working with the Foundation framework.
-pub mod traits;
-
 /// Macros for working with the Foundation framework.
 pub mod macros;
 
@@ -29,6 +26,7 @@ mod ns_coder;
 mod ns_data;
 mod ns_date;
 mod ns_decimal;
+mod ns_decimal_number_behaviors;
 mod ns_dictionary;
 mod ns_edge_insets;
 mod ns_error;

@@ -1,103 +1,138 @@
-use objc::{class, msg_send, runtime::Sel, sel, sel_impl};
+use objc::{msg_send, runtime::Sel, sel, sel_impl};
+use objective_c_runtime_proc_macros::interface_impl;
 
-use crate::{foundation::NSString, objective_c_runtime::{id, traits::FromId}};
+use crate::{
+    foundation::NSString,
+    objective_c_runtime::{
+        id, nil,
+        traits::{FromId, PNSObject},
+    },
+    utils::to_bool,
+};
 
-use super::{ns_menu::NSMenu, object, traits::INSMenuItem};
+use super::{object, NSMenu};
 
 object! {
     /// A command item in an app menu.
     unsafe pub struct NSMenuItem;
 }
 
+#[interface_impl(NSObject)]
 impl NSMenuItem {
-    /// Returns a new `NSMenuItem` instance.
-    pub fn new() -> Self {
-        unsafe { Self::from_id(msg_send![class!(NSMenuItem), new]) }
-    }
+    /* Enabling a Menu Item
+     */
 
     /// A Boolean value that indicates whether the menu item is enabled.
-    pub fn enabled(&self) -> bool {
-        self.ip_is_enabled()
+    #[property]
+    pub fn is_enabled(&self) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), isEnabled]) }
     }
 
     /// Sets whether the menu item is enabled.
+    #[property]
     pub fn set_enabled(&mut self, enabled: bool) {
-        self.ip_set_enabled(enabled);
+        unsafe { msg_send![self.m_self(), setEnabled: enabled] }
     }
 
+    /* Managing Hidden Status
+     */
+
     /// A Boolean value that indicates whether the menu item is hidden.
-    pub fn hidden(&self) -> bool {
-        self.ip_is_hidden()
+    #[property]
+    pub fn is_hidden(&self) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), isHidden]) }
     }
 
     /// Sets whether the menu item is hidden.
+    #[property]
     pub fn set_hidden(&mut self, hidden: bool) {
-        self.ip_set_hidden(hidden);
+        unsafe { msg_send![self.m_self(), setHidden: hidden] }
     }
 
     /// A Boolean value that indicates whether the menu item or any of its superitems is hidden.
-    pub fn hidden_or_has_hidden_ancestor(&self) -> bool {
-        self.ip_is_hidden_or_has_hidden_ancestor()
+    #[property]
+    pub fn is_hidden_or_has_hidden_ancestor(&self) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), isHiddenOrHasHiddenAncestor]) }
     }
 
+    /*  Managing the Target and Action */
+
     /// The menu item's target.
+    #[property]
     pub fn target(&self) -> id {
-        self.ip_target()
+        unsafe { msg_send![self.m_self(), target] }
     }
 
     /// Sets the menu item's target.
+    #[property]
     pub fn set_target(&mut self, target: id) {
-        self.ip_set_target(target);
+        unsafe { msg_send![self.m_self(), setTarget: target] }
     }
 
     /// The menu item's action-method selector.
+    #[property]
     pub fn action(&self) -> Sel {
-        self.ip_action()
+        unsafe { msg_send![self.m_self(), action] }
     }
 
     /// Sets the menu item's action-method selector.
+    #[property]
     pub fn set_action(&mut self, action: Sel) {
-        self.ip_set_action(action);
+        unsafe { msg_send![self.m_self(), setAction: action] }
     }
 
+    /* Managing the Title
+     */
+
     /// The menu item's title.
+    #[property]
     pub fn title(&self) -> NSString {
-        self.ip_title()
+        unsafe { NSString::from_id(msg_send![self.m_self(), title]) }
     }
 
     /// Sets the menu item's title.
-    pub fn set_title<S>(&mut self, title: S)
-    where
-        S: Into<NSString>,
-    {
-        self.ip_set_title(title.into());
+    #[property]
+    pub fn set_title(&mut self, title: NSString) {
+        unsafe { msg_send![self.m_self(), setTitle: title] }
     }
 
+    /* Managing Submenus
+     */
+
     /// The submenu of the menu item.
+    #[property]
     pub fn submenu(&self) -> NSMenu {
-        self.ip_submenu()
+        unsafe { NSMenu::from_id(msg_send![self.m_self(), submenu]) }
     }
 
     /// Sets the submenu of the menu item.
+    #[property]
     pub fn set_submenu(&mut self, submenu: NSMenu) {
-        self.ip_set_submenu(submenu);
+        unsafe { msg_send![self.m_self(), setSubmenu: submenu] }
     }
 
     /// A Boolean value that indicates whether the menu item has a submenu.
+    #[property]
     pub fn has_submenu(&self) -> bool {
-        self.ip_has_submenu()
+        unsafe { to_bool(msg_send![self.m_self(), hasSubmenu]) }
     }
 
     /// The menu item whose submenu contains the receiver.
+    #[property]
     pub fn parent_item(&self) -> Option<NSMenuItem> {
-        self.ip_parent_item()
+        unsafe {
+            let id = msg_send![self.m_self(), parentItem];
+            if id == nil {
+                None
+            } else {
+                Some(NSMenuItem::from_id(id))
+            }
+        }
     }
 }
 
 impl Default for NSMenuItem {
     fn default() -> Self {
-        Self::new()
+        Self::m_new()
     }
 }
-
-impl INSMenuItem for NSMenuItem {}

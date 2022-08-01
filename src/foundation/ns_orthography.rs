@@ -1,80 +1,125 @@
-use crate::objective_c_runtime::macros::object;
+use objc::{msg_send, sel, sel_impl};
+use objective_c_runtime_proc_macros::interface_impl;
 
-use super::{traits::INSOrthography, NSArray, NSCoder, NSDictionary, NSString};
+use crate::objective_c_runtime::{
+    macros::object,
+    traits::{FromId, PNSObject},
+};
+
+use super::{NSArray, NSCoder, NSDictionary, NSString};
 
 object! {
     /// A description of the linguistic content of natural language text, typically used for spelling and grammar checking.
     unsafe pub struct NSOrthography;
 }
 
+#[interface_impl(NSObject)]
 impl NSOrthography {
+    /* Creating Orthography Objects
+     */
+
     /// Creates and returns an orthography object with the default language map for the specified language.
-    pub fn default_orthography_for_language<S>(language: S) -> Self
+    #[method]
+    pub fn default_orthography_for_language(language: NSString) -> Self
     where
-        S: Into<NSString>,
+        Self: Sized + FromId,
     {
-        Self::tm_default_orthography_for_language(language.into())
+        unsafe {
+            Self::from_id(msg_send![
+                Self::m_class(),
+                defaultOrthographyForLanguage: language
+            ])
+        }
     }
 
     /// Creates an orthography object with the specified dominant script and language map.
+    #[method]
     pub fn init_with_dominant_script_language_map(
         &mut self,
         script: NSString,
         map: NSDictionary<NSString, NSArray<NSString>>,
-    ) -> Self {
-        self.im_init_with_dominant_script_language_map(script, map)
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(msg_send![self.m_self(), initWithDominantScript: script languageMap: map])
+        }
     }
 
     /// Creates and returns an orthography object with the specified dominant script and language map.
+    #[method]
     pub fn orthography_with_dominant_script(
         script: NSString,
         map: NSDictionary<NSString, NSArray<NSString>>,
-    ) -> Self {
-        Self::tm_orthography_with_dominant_script(script, map)
+    ) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe {
+            Self::from_id(
+                msg_send![Self::m_class(), orthographyWithDominantScript: script languageMap: map],
+            )
+        }
     }
 
     /* Determining Correspondences Between Languages and Scripts
      */
 
     /// A dictionary that maps script tags to arrays of language tags.
+    #[property]
     pub fn language_map(&self) -> NSDictionary<NSString, NSArray<NSString>> {
-        self.ip_language_map()
+        unsafe { NSDictionary::from_id(msg_send![self.m_self(), languageMap]) }
     }
 
     /// The first language in the list of languages for the dominant script.
+    #[property]
     pub fn dominant_language(&self) -> NSString {
-        self.ip_dominant_language()
+        unsafe { NSString::from_id(msg_send![self.m_self(), dominantLanguage]) }
     }
 
     /// The dominant script for the text.
+    #[property]
     pub fn dominant_script(&self) -> NSString {
-        self.ip_dominant_script()
+        unsafe { NSString::from_id(msg_send![self.m_self(), dominantScript]) }
     }
 
     /// Returns the dominant language for the specified script.
+    #[method]
     pub fn dominant_language_for_script(&self, script: NSString) -> NSString {
-        self.im_dominant_language_for_script(script)
+        unsafe { NSString::from_id(msg_send![self.m_self(), dominantLanguageForScript: script]) }
     }
 
     /// Returns the list of languages for the specified script.
+    #[method]
     pub fn languages_for_script(&self, script: NSString) -> NSArray<NSString> {
-        self.im_languages_for_script(script)
+        unsafe { NSArray::from_id(msg_send![self.m_self(), languagesForScript: script]) }
     }
 
     /// The scripts appearing as keys in the language map.
+    #[property]
     pub fn all_scripts(&self) -> NSArray<NSString> {
-        self.ip_all_scripts()
+        unsafe { NSArray::from_id(msg_send![self.m_self(), allScripts]) }
     }
 
     /// The languages appearing in values of the language map.
+    #[property]
     pub fn all_languages(&self) -> NSArray<NSString> {
-        self.ip_all_languages()
+        unsafe { NSArray::from_id(msg_send![self.m_self(), allLanguages]) }
     }
 
     /// Initialize with [`NSCoder`]
-    pub fn init_with_coder(&self, coder: NSCoder) -> Self {
-        self.im_init_with_coder(coder)
+    #[method]
+    pub fn init_with_coder(&mut self, coder: NSCoder) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.m_self(), initWithCoder: coder]) }
     }
 }
 
-impl INSOrthography for NSOrthography {}
+impl Default for NSOrthography {
+    fn default() -> Self {
+        NSOrthography::m_new()
+    }
+}

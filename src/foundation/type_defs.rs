@@ -5,7 +5,7 @@ use libc::c_double;
 
 use crate::core_graphics::{CGPoint, CGRect, CGSize};
 
-use super::{NSString, NSDecimalNumber};
+use super::{NSDecimalNumber, NSString};
 
 /// Describes an integer.
 #[cfg(target_pointer_width = "32")]

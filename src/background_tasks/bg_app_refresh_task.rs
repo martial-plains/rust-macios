@@ -1,4 +1,9 @@
-use crate::{background_tasks::traits::IBGTask, objective_c_runtime::macros::object};
+use objective_c_runtime_proc_macros::interface_impl;
+
+use crate::{
+    background_tasks::bg_task::IBGTask,
+    objective_c_runtime::{macros::object, traits::PNSObject},
+};
 
 object! {
     /// An object representing a short task typically used to refresh content
@@ -6,4 +11,13 @@ object! {
     unsafe pub struct BGAppRefreshTask;
 }
 
+#[interface_impl(BGTask)]
+impl BGAppRefreshTask {}
+
 impl IBGTask for BGAppRefreshTask {}
+
+impl Default for BGAppRefreshTask {
+    fn default() -> Self {
+        Self::m_new()
+    }
+}

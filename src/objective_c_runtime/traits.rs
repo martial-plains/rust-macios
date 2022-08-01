@@ -50,88 +50,96 @@ pub trait INSObject {
 
 /// The group of methods that are fundamental to all Objective-C objects.
 pub trait PNSObject {
+    ///  Allocates a new instance of the receiving class, sends it an init message, and returns the initialized object.
+    fn m_new() -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::m_class(), new]) }
+    }
+
     /* Identifying Classes
      */
 
     /// Returns the class object for the receiver’s class.
-    fn im_class<'a>() -> &'a Class;
+    fn m_class<'a>() -> &'a Class;
 
     /// Returns the class object for the receiver’s superclass.
     fn ip_superclass<'a>() -> Option<&'a Class> {
-        Self::im_class().superclass()
+        Self::m_class().superclass()
     }
 
     /* Identifying and Comparing Objects
      */
 
     /// Returns a Boolean value that indicates whether the receiver and a given object are equal.
-    fn im_is_equal(&self, object: &Self) -> bool {
-        unsafe { to_bool(msg_send![self.im_self(), isEqual: object]) }
+    fn m_is_equal(&self, object: &Self) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), isEqual: object]) }
     }
 
     /// Returns an integer that can be used as a table address in a hash table structure.
-    fn ip_hash(&self) -> UInt {
-        unsafe { msg_send![self.im_self(), hash] }
+    fn p_hash(&self) -> UInt {
+        unsafe { msg_send![self.m_self(), hash] }
     }
 
     /// Returns the receiver.
-    fn im_self(&self) -> id;
+    fn m_self(&self) -> id;
 
     /* Testing Object Inheritance, Behavior, and Conformance
      */
 
     /// Returns a Boolean value that indicates whether the receiver is an instance of given class or an instance of any class that inherits from that class.
-    fn im_is_kind_of_class(&self, class: Class) -> bool {
-        unsafe { to_bool(msg_send![self.im_self(), isKindOfClass: class]) }
+    fn m_is_kind_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), isKindOfClass: class]) }
     }
 
     /// Returns a Boolean value that indicates whether the receiver is an instance of a given class.
-    fn im_is_member_of_class(&self, class: Class) -> bool {
-        unsafe { to_bool(msg_send![self.im_self(), isMemberOfClass: class]) }
+    fn m_is_member_of_class(&self, class: Class) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), isMemberOfClass: class]) }
     }
 
     /// Returns a Boolean value that indicates whether the receiver implements or inherits a method that can respond to a specified message.
-    fn im_responds_to_selector(&self, selector: Sel) -> bool {
-        unsafe { to_bool(msg_send![self.im_self(), respondsToSelector: selector]) }
+    fn m_responds_to_selector(&self, selector: Sel) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), respondsToSelector: selector]) }
     }
 
     /// Returns a Boolean value that indicates whether the receiver conforms to a given protocol.
-    fn im_conforms_to_protocol(&self, protocol: Protocol) -> bool {
-        unsafe { to_bool(msg_send![self.im_self(), conformsToProtocol: protocol]) }
+    fn m_conforms_to_protocol(&self, protocol: Protocol) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), conformsToProtocol: protocol]) }
     }
 
     /* Describing Objects
      */
 
     /// A textual representation of the receiver.
-    fn ip_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.im_self(), description]) }
+    fn p_description(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.m_self(), description]) }
     }
 
     /// A textual representation of the receiver to use with a debugger.
-    fn ip_debug_description(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.im_self(), debugDescription]) }
+    fn p_debug_description(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.m_self(), debugDescription]) }
     }
 
     /* Sending Messages
      */
 
     /// Sends a specified message to the receiver and returns the result of the message.
-    fn im_perform_selector(&self, selector: Sel) -> id {
-        unsafe { msg_send![self.im_self(), performSelector: selector] }
+    fn m_perform_selector(&self, selector: Sel) -> id {
+        unsafe { msg_send![self.m_self(), performSelector: selector] }
     }
 
     /// Sends a message to the receiver with an object as the argument.
-    fn im_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
-        unsafe { msg_send![self.im_self(), performSelector: selector withObject: with_object] }
+    fn m_perform_selector_with_object(&self, selector: Sel, with_object: id) -> id {
+        unsafe { msg_send![self.m_self(), performSelector: selector withObject: with_object] }
     }
 
     /* Identifying Proxies
      */
 
     /// Returns a Boolean value that indicates whether the receiver does not descend from NSObject.
-    fn im_is_proxy(&self) -> bool {
-        unsafe { to_bool(msg_send![self.im_self(), isProxy]) }
+    fn m_is_proxy(&self) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), isProxy]) }
     }
 }
 

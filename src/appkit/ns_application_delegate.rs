@@ -11,9 +11,100 @@ use objc::{
 
 use crate::objective_c_runtime::id;
 
-use super::{
-    traits::PNSApplicationDelegate, NSApplicationTerminateReply, NSMenu, NSAPPLICATION_PTR,
-};
+use super::{NSApplicationTerminateReply, NSMenu, NSAPPLICATION_PTR};
+
+/// A set of methods that manage your app’s life cycle and its interaction
+/// with common system services.
+
+pub trait PNSApplicationDelegate {
+    /// Called right before the application will finish launching. You really, probably, want to do
+    /// your setup in `did_finish_launching` unless you're sure of what you're doing.
+    fn will_finish_launching(&mut self) {}
+
+    /// Fired when the application has finished launching.
+    fn did_finish_launching(&mut self) {}
+
+    /// Fired when the application is about to become active.
+    fn did_become_active(&mut self) {}
+
+    /// Fired when the application is about to resign active state.
+    fn will_resign_active(&mut self) {}
+
+    /// Fired when the user is going to continue an activity.
+    fn will_continue_user_activity(&mut self, _activity_type: &str) -> bool {
+        false
+    }
+
+    /// Fired before the application terminates. You can use this to do any required cleanup.
+    fn will_terminate(&mut self) {}
+
+    /// Fired immediately before the application is about to become active.
+    fn will_become_active(&mut self) {}
+
+    /// Fired when the application has resigned active state.
+    fn did_resign_active(&mut self) {}
+
+    /// Fired when the application is about to hide.
+    fn will_hide(&mut self) {}
+
+    /// Fired after the application has hidden.
+    fn did_hide(&mut self) {}
+
+    /// Fired when the application is about to unhide itself.
+    fn will_unhide(&mut self) {}
+
+    /// Fired after the application has unhidden itself.
+    fn did_unhide(&mut self) {}
+
+    /// Fired immediately before the application object updates its windows.
+    fn will_update(&mut self) {}
+
+    /// Fired immediately after the application object updates its windows.
+    fn did_update(&mut self) {}
+
+    /// This is fired after the `Quit` menu item has been selected, or after you've called `App::terminate()`.
+    ///
+    /// In most cases you just want `TerminateResponse::Now` here, which enables business as usual. If you need,
+    /// though, you can cancel the termination via `TerminateResponse::Cancel` to continue something essential. If
+    /// you do this, you'll need to be sure to call `App::reply_to_termination_request()` to circle
+    /// back.
+    fn should_terminate(&mut self) -> NSApplicationTerminateReply {
+        NSApplicationTerminateReply::Now
+    }
+
+    /// Called after closing the last open window. Return `true` here if you want
+    /// the application to terminate.
+    fn should_terminate_after_last_window_closed(&mut self) -> bool {
+        false
+    }
+
+    /// Sent by the application to the delegate prior to default behavior to reopen AppleEvents.
+    ///
+    /// `has_visible_windows` indicates whether the Application object found any visible windows in your application.
+    /// You can use this value as an indication of whether the application would do anything if you return `true`.
+    ///
+    /// Return `true` if you want the application to perform its normal tasks, or `false` if you want the
+    /// application to do nothing. The default implementation of this method returns `true`.
+    ///
+    /// Some finer points of discussion, from Apple documentation:
+    ///
+    /// These events are sent whenever the Finder reactivates an already running application because someone
+    /// double-clicked it again or used the dock to activate it.
+    ///
+    /// For most document-based applications, an untitled document will be created.
+    ///
+    /// [Read more
+    /// here](https://developer.apple.com/documentation/appkit/nsapplicationdelegate/1428638-applicationshouldhandlereopen?language=objc)
+    fn should_handle_reopen(&mut self, _has_visible_windows: bool) -> bool {
+        true
+    }
+
+    /// Supply a dock menu for the application dynamically. The default implementation for this
+    /// method returns `None`, for no menu.
+    fn dock_menu(&mut self) -> Option<NSMenu> {
+        None
+    }
+}
 
 /// A handy method for grabbing our `NSApplicationDelegate` from the pointer. This is different from our
 /// standard `utils` version as this doesn't require `RefCell` backing.

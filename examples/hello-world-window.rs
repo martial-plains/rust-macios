@@ -2,11 +2,9 @@ use app_kit_proc_macros::ns_application_main;
 
 use rust_macios::{
     appkit::{
-        traits::{
-            INSApplication, INSResponder, INSTextField, INSView, INSViewController, INSWindow,
-            PNSApplicationDelegate,
-        },
+        INSApplication, INSResponder, INSView, INSViewController, INSWindow,
         NSApplication, NSApplicationActivationPolicy, NSTextField, NSView, NSWindow,
+        PNSApplicationDelegate,
     },
     foundation::{macros::ns_array, NSPoint, NSRect, NSSize, NSString},
     objective_c_runtime::{
@@ -16,10 +14,7 @@ use rust_macios::{
         traits::PNSObject,
         Id, ShareId,
     },
-    uikit::{
-        traits::{INSLayoutAnchor, INSLayoutConstraint},
-        NSLayoutConstraint,
-    },
+    uikit::{INSLayoutAnchor, NSLayoutConstraint},
 };
 
 pub struct ViewController {
@@ -31,14 +26,14 @@ impl ViewController {
     #[objc_impl_init]
     fn init() -> Self {
         Self {
-            ptr: unsafe { Id::from_ptr(msg_send![Self::im_class(), new]) },
+            ptr: unsafe { Id::from_ptr(msg_send![Self::m_class(), new]) },
         }
     }
 
     #[objc_selector_impl("viewDidLoad")]
     pub fn view_did_load(&self, _: &Object) {
         // 1: Create a view
-        self.ip_set_view(NSView::im_init_with_frame(NSRect {
+        self.p_set_view(NSView::init_with_frame(NSRect {
             origin: NSPoint { x: 0.0, y: 0.0 },
             size: NSSize {
                 width: 300.0,
@@ -47,31 +42,31 @@ impl ViewController {
         }));
 
         // 2: Create a label
-        let label = NSTextField::tm_label_with_string(NSString::from("Hello World!"));
+        let label = NSTextField::label_with_string(NSString::from("Hello World!"));
 
-        label.ip_set_translates_autoresizing_mask_to_constraints(false);
-        let view = self.ip_view();
+        label.p_set_translates_autoresizing_mask_to_constraints(false);
+        let view = self.p_view();
 
-        view.ip_add_subview(label.clone());
-        self.ip_set_view(view);
+        view.add_subview(label.clone());
+        self.p_set_view(view);
 
-        NSLayoutConstraint::tm_activate_constraints(ns_array![
+        NSLayoutConstraint::activate_constraints(ns_array![
             label
-                .ip_center_x_anchor()
-                .im_constraint_equal_to_anchor(self.ip_view().ip_center_x_anchor()),
+                .p_center_x_anchor()
+                .m_constraint_equal_to_anchor(self.p_view().center_x_anchor()),
             label
-                .ip_center_y_anchor()
-                .im_constraint_equal_to_anchor(self.ip_view().ip_center_y_anchor())
+                .p_center_y_anchor()
+                .m_constraint_equal_to_anchor(self.p_view().center_y_anchor())
         ])
     }
 }
 
 impl PNSObject for ViewController {
-    fn im_class<'a>() -> &'a Class {
+    fn m_class<'a>() -> &'a Class {
         unsafe { &*Self::register_class() }
     }
 
-    fn im_self(&self) -> id {
+    fn m_self(&self) -> id {
         unsafe { msg_send![&*self.ptr, self] }
     }
 }

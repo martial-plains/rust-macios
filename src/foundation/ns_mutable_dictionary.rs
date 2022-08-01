@@ -3,13 +3,14 @@ use std::{borrow::Borrow, collections::HashMap, marker::PhantomData};
 use objc::{class, msg_send, sel, sel_impl};
 
 use crate::objective_c_runtime::{
+    id,
     macros::object,
     traits::{FromId, PNSObject},
 };
 
 use super::{
-    traits::{INSDictionary, INSMutableDictionary},
-    Int, Int16, Int32, Int8, NSDictionary, NSNumber, NSString, UInt, UInt16, UInt32, UInt8,
+    INSDictionary, Int, Int16, Int32, Int8, NSArray, NSDictionary, NSNumber, NSString, UInt,
+    UInt16, UInt32, UInt8,
 };
 
 object! {
@@ -17,6 +18,84 @@ object! {
     unsafe pub struct NSMutableDictionary<K,V> {
         _key: PhantomData<K>,
         _value: PhantomData<V>,
+    }
+}
+
+/// A dynamic collection of objects associated with unique keys.
+pub trait INSMutableDictionary<K, V>: INSDictionary<K, V> {
+    /* Creating and Initializing a Mutable Dictionary
+     */
+
+    /// Creates and returns a mutable dictionary, initially giving it enough allocated memory to hold a given number of entries.
+    fn tm_dictionary_with_capacity(capacity: UInt) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::m_class(), dictionaryWithCapacity: capacity]) }
+    }
+
+    /* Adding Entries to a Mutable Dictionary
+     */
+
+    /// Adds a given key-value pair to the dictionary.
+    fn im_set_object_for_key(&mut self, key: K, value: V)
+    where
+        K: PNSObject,
+        V: PNSObject,
+    {
+        unsafe { msg_send![self.m_self(), setObject: value forKey: key] }
+    }
+
+    /// Adds a given key-value pair to the dictionary.
+    fn im_set_object_forkeyed_superscript(&mut self, key: K, value: V)
+    where
+        K: Into<id>,
+        V: Into<id>,
+    {
+        unsafe { msg_send![self.m_self(), setObject: value forKeyedSubscript: key] }
+    }
+
+    /// Adds a given key-value pair to the dictionary.
+    fn im_set_value_for_key(&mut self, key: K, value: V)
+    where
+        K: Into<NSString>,
+        V: Into<id>,
+    {
+        unsafe { msg_send![self.m_self(), setValue: value forKey: key] }
+    }
+
+    /// Adds to the receiving dictionary the entries from another dictionary.
+    fn im_add_entries_from_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
+        unsafe { msg_send![self.m_self(), addEntriesFromDictionary: dictionary] }
+    }
+
+    /// Sets the contents of the receiving dictionary to entries in a given dictionary.
+    fn im_set_dictionary(&mut self, dictionary: NSDictionary<K, V>) {
+        unsafe { msg_send![self.m_self(), setDictionary: dictionary] }
+    }
+
+    /* Removing Entries From a Mutable Dictionary
+     */
+
+    /// Removes a given key and its associated value from the dictionary.
+    fn im_remove_object_for_key(&mut self, key: K)
+    where
+        K: Into<id>,
+    {
+        unsafe { msg_send![self.m_self(), removeObjectForKey: key.into()] }
+    }
+
+    /// Empties the dictionary of its entries.
+    fn im_remove_all_objects(&mut self) {
+        unsafe { msg_send![self.m_self(), removeAllObjects] }
+    }
+
+    /// Removes from the dictionary entries specified by elements in a given array.
+    fn im_remove_objects_for_keys(&mut self, keys: NSArray<K>)
+    where
+        K: PNSObject,
+    {
+        unsafe { msg_send![self.m_self(), removeObjectsForKeys: keys] }
     }
 }
 
@@ -53,7 +132,7 @@ impl<K, V> Default for NSMutableDictionary<K, V> {
 
 impl Borrow<NSDictionary<NSString, NSString>> for NSMutableDictionary<NSString, NSString> {
     fn borrow(&self) -> &NSDictionary<NSString, NSString> {
-        unsafe { msg_send![self.im_self(), dictionaryWithDictionary: self] }
+        unsafe { msg_send![self.m_self(), dictionaryWithDictionary: self] }
     }
 }
 
@@ -63,7 +142,7 @@ where
     V: PNSObject,
 {
     fn from(dictionary: NSDictionary<K, V>) -> Self {
-        unsafe { Self::from_id(dictionary.im_self()) }
+        unsafe { Self::from_id(dictionary.m_self()) }
     }
 }
 

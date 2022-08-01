@@ -8,9 +8,6 @@ pub type NLLanguage = foundation::NSString;
 /// Constants for the tag schemes specified when initializing a linguistic tagger.
 pub type NLTagScheme = foundation::NSString;
 
-/// Traits for the Natural Language framework.
-pub mod traits;
-
 mod enums;
 mod nl_language;
 mod nl_language_recognizer;

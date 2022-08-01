@@ -4,17 +4,18 @@ use libc::c_char;
 use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 
 use crate::{
-    foundation::{traits::INSArray, NSString},
+    foundation::NSString,
     objective_c_runtime::{
         id,
         macros::shared_object,
         traits::{FromId, PNSObject},
     },
+    utils::to_bool,
 };
 
 use self::iter::Iter;
 
-use super::{ns_mutable_array::NSMutableArray, NSNumber, UInt8};
+use super::{ns_mutable_array::NSMutableArray, NSLocale, NSNumber, NSRange, UInt, UInt8};
 
 /// Iterator for Array
 pub mod iter;
@@ -42,7 +43,7 @@ impl<T> NSArray<T> {
 impl<T> NSArray<T> {
     /// Creates an empty array.
     pub fn new() -> Self {
-        unsafe { Self::from_id(msg_send![Self::im_class(), new]) }
+        unsafe { Self::from_id(msg_send![Self::m_class(), new]) }
     }
 
     /// Returns true if the obect is an instance of NSArray.
@@ -59,13 +60,181 @@ impl<T> NSArray<T> {
     }
 }
 
-impl<T> Default for NSArray<T> {
-    fn default() -> Self {
-        Self::new()
+/// A static ordered collection of objects.
+pub trait INSArray<T>: PNSObject {
+    /* Querying an Array
+     */
+
+    /// Returns a Boolean value that indicates whether a given object is present in the array.
+    ///
+    /// # Arguments
+    ///
+    /// * `object` - An object to look for in the array..
+    ///
+    /// # Returns
+    ///
+    /// A Boolean value that indicates whether `object` is present in the array.
+    ///
+    fn im_contains_object(&self, object: T) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), containsObject: object]) }
+    }
+
+    /// The number of objects in the array.
+    fn ip_count(&self) -> UInt {
+        unsafe { msg_send![self.m_self(), count] }
+    }
+
+    /// The first object in the array.
+    fn ip_first_object(&self) -> Option<T>
+    where
+        T: PNSObject + FromId,
+    {
+        unsafe {
+            let id: id = msg_send![self.m_self(), firstObject];
+            if id.is_null() {
+                None
+            } else {
+                Some(T::from_id(id))
+            }
+        }
+    }
+
+    /// The last object in the array.
+    fn ip_last_object(&self) -> Option<T>
+    where
+        T: PNSObject + FromId,
+    {
+        unsafe {
+            let id: id = msg_send![self.m_self(), lastObject];
+            if id.is_null() {
+                None
+            } else {
+                Some(T::from_id(id))
+            }
+        }
+    }
+
+    /// The object at the specified index.
+    fn im_object_at_index(&self, index: UInt) -> T
+    where
+        T: PNSObject + FromId,
+    {
+        unsafe { T::from_id(msg_send![self.m_self(), objectAtIndex: index]) }
+    }
+
+    /// The index of the specified object.
+    fn im_object_at_indexed_subscript(&self, index: UInt) -> Option<id> {
+        unsafe {
+            let id: id = msg_send![self.m_self(), objectAtIndexedSubscript: index];
+            if id.is_null() {
+                None
+            } else {
+                Some(id)
+            }
+        }
+    }
+
+    /* Finding Objects in an Array
+     */
+
+    /// Returns the lowest index whose corresponding array value is equal to a given object.
+    fn im_index_of_object(&self, object: T) -> UInt {
+        unsafe { msg_send![self.m_self(), indexOfObject: object] }
+    }
+
+    /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
+    fn im_index_of_object_in_range(&self, object: T, range: NSRange) -> UInt {
+        unsafe { msg_send![self.m_self(), indexOfObject: object inRange: range] }
+    }
+
+    /// Returns the lowest index whose corresponding array value is identical to a given object.
+    fn im_index_of_object_identical_to(&self, object: T) -> UInt {
+        unsafe { msg_send![self.m_self(), indexOfObjectIdenticalTo: object] }
+    }
+
+    /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
+    fn im_index_of_object_identical_to_in_range(&self, object: T, range: NSRange) -> UInt {
+        unsafe { msg_send![self.m_self(), indexOfObjectIdenticalTo: object inRange: range] }
+    }
+
+    /* Comparing Arrays
+     */
+
+    /// Returns the first object contained in the receiving array that’s equal to an object in another given array.
+    fn im_first_object_common_with_array(&self, other: &NSArray<T>) -> Option<T>
+    where
+        T: PNSObject + FromId,
+    {
+        unsafe {
+            let id: id = msg_send![self.m_self(), firstObjectCommonWithArray: other.m_self()];
+            if id.is_null() {
+                None
+            } else {
+                Some(T::from_id(id))
+            }
+        }
+    }
+
+    /// Compares the receiving array to another array.
+    fn im_is_equal_to_array(&self, other: &NSArray<T>) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), isEqualToArray: other.m_self()]) }
+    }
+
+    /* Deriving New Arrays
+     */
+
+    /// Returns a new array that is a copy of the receiving array with a given object added to the end.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    unsafe fn im_array_by_adding_object(&self, object: T) -> NSArray<T> {
+        NSArray::from_id(msg_send![self.m_self(), arrayByAddingObject: object])
+    }
+
+    /// Returns a new array that is a copy of the receiving array with the objects contained in another array added to the end.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    unsafe fn im_array_by_adding_objects_from_array<A>(&self, objects: A) -> NSArray<T>
+    where
+        A: INSArray<T>,
+    {
+        NSArray::from_id(msg_send![self.m_self(), arrayByAddingObjectsFromArray: objects.m_self()])
+    }
+
+    /// Returns a new array containing the receiving array’s elements that fall within the limits specified by a given range.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    unsafe fn im_subarray_with_range(&self, range: NSRange) -> NSArray<T> {
+        NSArray::from_id(msg_send![self.m_self(), subarrayWithRange: range])
+    }
+    /* Creating a Description
+     */
+
+    /// A string that represents the contents of the array, formatted as a property list.
+
+    /// Returns a string that represents the contents of the array, formatted as a property list.
+    fn im_description_with_locale(&self, locale: &NSLocale) -> NSString {
+        unsafe { msg_send![self.m_self(), descriptionWithLocale: locale.m_self()] }
+    }
+
+    /// Returns a string that represents the contents of the array, formatted as a property list.
+    fn im_description_with_locale_indent(&self, locale: &NSLocale, indent: UInt) -> NSString {
+        unsafe { msg_send![self.m_self(), descriptionWithLocale: locale.m_self() indent: indent] }
     }
 }
 
 impl<T> INSArray<T> for NSArray<T> {}
+
+impl<T> Default for NSArray<T> {
+    fn default() -> Self {
+        Self::m_new()
+    }
+}
 
 impl<'a, T> IntoIterator for &'a NSArray<T>
 where

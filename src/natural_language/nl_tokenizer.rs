@@ -1,86 +1,110 @@
-use std::ops::Range;
-
 use block::{ConcreteBlock, IntoConcreteBlock};
+use objc::{msg_send, sel, sel_impl};
+use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{NSArray, NSRange, NSString, UInt},
-    objective_c_runtime::{macros::object, traits::INSValue},
+    objective_c_runtime::{
+        macros::object,
+        traits::{FromId, INSValue, PNSObject},
+    },
 };
 
-use super::{traits::INLTokenizer, NLLanguage, NLTokenUnit, NLTokenizerAttributes};
+use super::{NLLanguage, NLTokenUnit, NLTokenizerAttributes};
 
 object! {
     /// A tokenizer that segments natural language text into semantic units.
     unsafe pub struct NLTokenizer;
 }
 
+#[interface_impl(NSObject)]
 impl NLTokenizer {
+    /* Creating a Tokenizer
+     */
+
     /// Creates a tokenizer with the specified unit.
-    pub fn with_unit(unit: NLTokenUnit) -> Self {
-        Self::im_init_with_unit(unit)
+    #[method]
+    pub fn init_with_unit(&mut self, unit: NLTokenUnit) -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![self.m_self(), initWithUnit: unit]) }
     }
 
+    /* Configuring a Tokenizer
+     */
+
     /// The text to be tokenized.
+    #[property]
     pub fn string(&self) -> NSString {
-        self.ip_string()
+        unsafe { NSString::from_id(msg_send![self.m_self(), string]) }
     }
 
     /// Sets the text to be tokenized.
-    pub fn set_string<S>(&self, string: S)
-    where
-        S: Into<NSString>,
-    {
-        self.ip_set_string(string.into())
+    #[property]
+    pub fn set_string(&self, string: NSString) {
+        unsafe { msg_send![self.m_self(), setString: string] }
     }
 
     /// Sets the language of the text to be tokenized.
-    pub fn set_language<L>(&self, language: L)
-    where
-        L: Into<NLLanguage>,
-    {
-        self.im_set_language(language.into())
+    #[method]
+    pub fn set_language(&self, language: NLLanguage) {
+        unsafe { msg_send![self.m_self(), setLanguage: language] }
     }
 
     /// The linguistic unit that this tokenizer uses.
+    #[property]
     pub fn unit(&self) -> NLTokenUnit {
-        self.ip_unit()
+        unsafe { msg_send![self.m_self(), unit] }
     }
 
+    /* Enumerating the Tokens
+     */
+
     /// Enumerates over a given range of the string and calls the specified block for each token.
-    ///
-    /// # Argumnets
-    ///
-    /// * `range` - The range of the string to be tokenized.
-    /// * `block` - The block to be called for each token.
-    pub fn enumerate_tokens_in_range<F>(&self, range: NSRange, block: F)
+    #[method]
+    pub fn enumerate_tokens_in_range_using_block<F>(&self, range: NSRange, block: F)
     where
         F: IntoConcreteBlock<(NSRange, NLTokenizerAttributes, *mut bool), Ret = ()> + 'static,
     {
         let block = ConcreteBlock::new(block);
         let block = block.copy();
-        self.im_enumerate_tokens_in_range_using_block(range, block)
+        unsafe {
+            msg_send![
+                self.m_self(),
+                enumerateTokensInRange: range
+                usingBlock: block
+            ]
+        }
     }
 
     /// Tokenizes the string within the provided range.
+    #[method]
     pub fn tokens_for_range<T>(&self, range: NSRange) -> NSArray<T>
     where
         T: INSValue,
     {
-        self.im_tokens_for_range(range)
+        unsafe { NSArray::from_id(msg_send![self.m_self(), tokensForRange: range]) }
     }
 
     /// Finds the range of the token at the given index.
-    pub fn token_range_at(&self, index: UInt) -> NSRange {
-        self.im_token_range_at_index(index)
+    #[method]
+    pub fn token_range_at_index(&self, character_index: UInt) -> NSRange {
+        unsafe { msg_send![self.m_self(), tokenRangeAtIndex: character_index] }
     }
 
     /// Finds the entire range of all tokens contained completely or partially within the specified range.
-    pub fn token_range_for(&self, range: Range<usize>) -> NSRange {
-        self.im_token_range_for_range(range.into())
+    #[method]
+    pub fn token_range_for_range(&self, range: NSRange) -> NSRange {
+        unsafe { msg_send![self.m_self(), tokenRangeForRange: range] }
     }
 }
 
-impl INLTokenizer for NLTokenizer {}
+impl Default for NLTokenizer {
+    fn default() -> Self {
+        Self::m_new()
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -91,60 +115,71 @@ mod tests {
 
     #[test]
     fn test_init() {
-        let tokenizer = NLTokenizer::with_unit(NLTokenUnit::Word);
+        let mut tokenizer = NLTokenizer::default();
+        tokenizer = tokenizer.init_with_unit(NLTokenUnit::Word);
         assert_ne!(tokenizer.unit(), super::NLTokenUnit::Sentence);
         assert_eq!(tokenizer.unit(), super::NLTokenUnit::Word);
     }
 
     #[test]
     fn test_string() {
-        let tokenizer = NLTokenizer::with_unit(NLTokenUnit::Word);
-        tokenizer.set_string("Hello, world!");
+        let mut tokenizer = NLTokenizer::default();
+        tokenizer = tokenizer.init_with_unit(NLTokenUnit::Word);
+        tokenizer.set_string("Hello, world!".into());
         assert_ne!(tokenizer.string(), "Goodbye, world!");
         assert_eq!(tokenizer.string(), "Hello, world!");
     }
 
     #[test]
     fn test_set_string() {
-        let tokenizer = NLTokenizer::with_unit(NLTokenUnit::Word);
-        tokenizer.set_string("Hello, world!");
+        let mut tokenizer = NLTokenizer::default();
+        tokenizer = tokenizer.init_with_unit(NLTokenUnit::Word);
+        tokenizer.set_string("Hello, world!".into());
         assert_ne!(tokenizer.string(), "Goodbye, world!");
         assert_eq!(tokenizer.string(), "Hello, world!");
     }
 
     #[test]
     fn test_set_language() {
-        let tokenizer = NLTokenizer::with_unit(NLTokenUnit::Word);
+        let mut tokenizer = NLTokenizer::default();
+        tokenizer = tokenizer.init_with_unit(NLTokenUnit::Word);
         tokenizer.set_language(unsafe { English.clone() });
     }
 
     #[test]
     fn test_unit() {
-        let tokenizer = NLTokenizer::with_unit(NLTokenUnit::Word);
+        let mut tokenizer = NLTokenizer::default();
+        tokenizer = tokenizer.init_with_unit(NLTokenUnit::Word);
         assert_ne!(tokenizer.unit(), NLTokenUnit::Sentence);
         assert_eq!(tokenizer.unit(), NLTokenUnit::Word);
     }
 
     #[test]
     fn test_token_range_at_index() {
-        let tokenizer = NLTokenizer::with_unit(NLTokenUnit::Word);
-        tokenizer.set_string("Hello, world!");
-        assert_eq!(tokenizer.token_range_at(0), (0..5).into());
+        let mut tokenizer = NLTokenizer::default();
+        tokenizer = tokenizer.init_with_unit(NLTokenUnit::Word);
+        tokenizer.set_string("Hello, world!".into());
+        assert_eq!(tokenizer.token_range_at_index(0), (0..5).into());
     }
 
     #[test]
     fn test_token_range_for_range() {
-        let tokenizer = NLTokenizer::with_unit(NLTokenUnit::Word);
-        tokenizer.set_string("Hello, world!");
-        assert_eq!(tokenizer.token_range_for(0..5), (0..5).into());
+        let mut tokenizer = NLTokenizer::default();
+        tokenizer = tokenizer.init_with_unit(NLTokenUnit::Word);
+        tokenizer.set_string("Hello, world!".into());
+        assert_eq!(
+            tokenizer.token_range_for_range((0..5).into()),
+            (0..5).into()
+        );
     }
 
     #[test]
     fn test_enumerate_tokens_in_range() {
-        let tokenizer = NLTokenizer::with_unit(NLTokenUnit::Word);
+        let mut tokenizer = NLTokenizer::default();
+        tokenizer = tokenizer.init_with_unit(NLTokenUnit::Word);
         let text = "Hello";
-        tokenizer.set_string(text);
-        tokenizer.enumerate_tokens_in_range((0..text.len()).into(), |_, attr, _| {
+        tokenizer.set_string(text.into());
+        tokenizer.enumerate_tokens_in_range_using_block((0..text.len()).into(), |_, attr, _| {
             assert_eq!(attr, NLTokenizerAttributes::None);
         });
     }

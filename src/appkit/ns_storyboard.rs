@@ -26,8 +26,8 @@ pub trait INSStoryboard: PNSObject {
     {
         unsafe {
             Self::from_id(
-                msg_send![Self::im_class(), storyboardWithName: name bundle: match bundle {
-                    Some(val) => val.im_self(),
+                msg_send![Self::m_class(), storyboardWithName: name bundle: match bundle {
+                    Some(val) => val.m_self(),
                     None => nil
                 }],
             )
@@ -36,7 +36,7 @@ pub trait INSStoryboard: PNSObject {
 
     /// The app's main storyboard.
     fn tp_main_storyboard() -> NSStoryboard {
-        unsafe { NSStoryboard::from_id(msg_send![Self::im_class(), mainStoryboard]) }
+        unsafe { NSStoryboard::from_id(msg_send![Self::m_class(), mainStoryboard]) }
     }
 
     /* Loading the Initial View Controller
@@ -44,6 +44,6 @@ pub trait INSStoryboard: PNSObject {
 
     /// Creates the initial view controller or window controller from a storyboard.
     fn im_instantiate_initial_controller(&self) -> id {
-        unsafe { msg_send![Self::im_class(), instantiateInitialController] }
+        unsafe { msg_send![Self::m_class(), instantiateInitialController] }
     }
 }

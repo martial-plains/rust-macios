@@ -1,12 +1,11 @@
 #![allow(trivial_casts)]
 
-use crate::objective_c_runtime::traits::PNSObject;
+use objc::{msg_send, sel, sel_impl};
+use objective_c_runtime_proc_macros::interface_impl;
 
-use super::{
-    object,
-    traits::{INSButton, INSControl, INSResponder, INSStatusBarButton, INSView},
-    ActionHandler,
-};
+use crate::{objective_c_runtime::traits::PNSObject, utils::to_bool};
+
+use super::{object, ActionHandler, INSButton, INSControl, INSResponder, INSView};
 
 object! {
     /// The appearance and behavior of an item in the systemwide menu bar.
@@ -23,7 +22,7 @@ impl NSStatusBarButton {
     ///
     /// * `action` - The new action-message.
     pub fn set_action<F: Fn() + Send + Sync + 'static>(&mut self, action: F) {
-        let this = self.im_self();
+        let this = self.m_self();
         let handler = ActionHandler::new(unsafe { &*this }, action);
         unsafe {
             NSSTATUS_BAR_BUTTON_HANDLER = Some(handler);
@@ -39,4 +38,11 @@ impl INSControl for NSStatusBarButton {}
 
 impl INSButton for NSStatusBarButton {}
 
-impl INSStatusBarButton for NSStatusBarButton {}
+#[interface_impl(NSButton)]
+impl NSStatusBarButton {
+    ///
+    #[property]
+    pub fn appears_disabled(&self) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), appearsDisabled]) }
+    }
+}

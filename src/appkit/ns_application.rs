@@ -11,13 +11,16 @@ use objc::{
 };
 use objc_id::Id;
 
-use crate::objective_c_runtime::{
-    id,
-    traits::{FromId, PNSObject, ToId},
+use crate::{
+    objective_c_runtime::{
+        id,
+        traits::{FromId, PNSObject, ToId},
+    },
+    utils::to_bool,
 };
 
 use super::{
-    traits::{INSApplication, INSResponder},
+    ns_application_delegate::PNSApplicationDelegate, register_app_delegate_class, INSResponder,
     NSApplicationActivationPolicy, NSApplicationDelegateReply, NSMenu,
 };
 ///
@@ -41,6 +44,159 @@ pub struct NSApplication<'app, M = ()> {
     /// The underlying Objective-C object.
     pub ptr: Id<Object>,
     _message: PhantomData<&'app M>,
+}
+
+/// An object that manages an app’s main event loop and resources used by all
+/// of that app’s objects.
+pub trait INSApplication: INSResponder {
+    /// Returns the application instance, creating it if it doesn’t exist yet.
+    fn tp_shared_application() -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::m_class(), sharedApplication]) }
+    }
+
+    /// The app delegate object.
+    fn ip_delegate(&self) -> id {
+        unsafe { msg_send![self.m_self(), delegate] }
+    }
+
+    /// Sets the app delegate object.
+    fn ip_set_delegate<'app, T>(&'app mut self, app_delegate: T)
+    where
+        T: PNSApplicationDelegate + 'app,
+    {
+        unsafe {
+            let delegate_class = register_app_delegate_class::<T>();
+            let delegate: id = msg_send![delegate_class, new];
+            let delegate_ptr: *const T = &app_delegate;
+            (*delegate).set_ivar(NSAPPLICATION_PTR, delegate_ptr as usize);
+            msg_send![self.m_self(), setDelegate: delegate]
+        }
+    }
+
+    /* Managing the Event Loop
+     */
+
+    /// A Boolean value indicating whether the main event loop is running.
+    fn ip_running(&self) -> bool {
+        unsafe { msg_send![self.m_self(), isRunning] }
+    }
+
+    /// Starts the main event loop.
+    fn im_run(&self) {
+        unsafe { msg_send![self.m_self(), run] }
+    }
+
+    /// Activates the app, opens any files specified by the NSOpen user default, and unhighlights the app’s icon.
+    fn im_finish_launching(&self) {
+        unsafe { msg_send![self.m_self(), finishLaunching] }
+    }
+
+    /// Stops the main event loop.
+    fn im_stop(&self, sender: id) {
+        unsafe { msg_send![self.m_self(), stop: sender] }
+    }
+
+    /* Terminating the App
+     */
+
+    /// Terminates the receiver.
+    fn im_terminate(&self, sender: id) {
+        unsafe { msg_send![self.m_self(), terminate: sender] }
+    }
+
+    /// Responds to NSTerminateLater once the app knows whether it can terminate.
+    fn im_reply_to_application_should_terminate(&self, should_terminate: bool) {
+        unsafe {
+            msg_send![
+                self.m_self(),
+                replyToApplicationShouldTerminate: should_terminate
+            ]
+        }
+    }
+
+    /* Activating and Deactivating the App
+     */
+
+    /// A Boolean value indicating whether this is the active app.
+    fn ip_active(&self) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), isActive]) }
+    }
+
+    /// Makes the receiver the active app.
+    fn im_activate_ignoring_other_apps(&mut self, flag: bool) {
+        unsafe { msg_send![self.m_self(), activateIgnoringOtherApps: flag] }
+    }
+
+    /// Deactivates the receiver.
+    fn im_deactivate(&mut self) {
+        unsafe { msg_send![self.m_self(), deactivate] }
+    }
+
+    /* Managing Relaunch on Login
+     */
+
+    /// Disables relaunching the app on login.
+    fn im_disable_relaunch_on_login(&mut self) {
+        unsafe { msg_send![self.m_self(), disableRelaunchOnLogin] }
+    }
+
+    /// Enables relaunching the app on login.
+    fn im_enable_relaunch_on_login(&mut self) {
+        unsafe { msg_send![self.m_self(), enableRelaunchOnLogin] }
+    }
+
+    /* Managing Remote Notifications
+     */
+
+    /// Register for notifications sent by Apple Push Notification service (APNs).
+    fn im_register_for_remote_notifications(&mut self) {
+        unsafe { msg_send![self.m_self(), registerForRemoteNotifications] }
+    }
+
+    /// Unregister for notifications received from Apple Push Notification service.
+    fn im_unregister_for_remote_notifications(&mut self) {
+        unsafe { msg_send![self.m_self(), unregisterForRemoteNotifications] }
+    }
+
+    /* Managing User Attention Requests
+     */
+
+    /// Handles errors that might occur when the user attempts to open or print files.
+    fn im_reply_to_open_or_print(&self, response: NSApplicationDelegateReply) {
+        unsafe { msg_send![self.m_self(), replyToOpenOrPrint: response] }
+    }
+
+    /* Configuring the Activation Policy
+     */
+
+    /// Returns the app’s activation policy.
+    fn im_activation_policy(&self) -> NSApplicationActivationPolicy {
+        unsafe { msg_send![self.m_self(), activationPolicy] }
+    }
+
+    /// Sets the app’s activation policy.
+    ///
+    /// # Arguments
+    ///
+    /// * `policy` - The activation policy to set.
+    fn im_set_activation_policy(&mut self, policy: NSApplicationActivationPolicy) {
+        unsafe { msg_send![self.m_self(), setActivationPolicy: policy] }
+    }
+
+    /* Menu */
+
+    /// The app’s main menu bar.
+    fn ip_main_menu(&self) -> NSMenu {
+        unsafe { msg_send![self.m_self(), mainMenu] }
+    }
+
+    /// Sets the app’s main menu bar.
+    fn ip_set_main_menu(&mut self, menu: NSMenu) {
+        unsafe { msg_send![self.m_self(), setMainMenu: menu] }
+    }
 }
 
 impl<'app> NSApplication<'app> {
@@ -158,11 +314,11 @@ impl Default for NSApplication<'_> {
 }
 
 impl PNSObject for NSApplication<'_> {
-    fn im_class<'a>() -> &'a Class {
+    fn m_class<'a>() -> &'a Class {
         unsafe { &*register_app_class() }
     }
 
-    fn im_self(&self) -> id {
+    fn m_self(&self) -> id {
         unsafe { msg_send![&*self.ptr, self] }
     }
 }
@@ -173,7 +329,7 @@ impl INSApplication for NSApplication<'_> {}
 
 impl fmt::Debug for NSApplication<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.ip_debug_description())
+        write!(f, "{}", self.p_debug_description())
     }
 }
 

@@ -1,41 +1,40 @@
 use objc::{msg_send, sel, sel_impl};
+use objective_c_runtime_proc_macros::interface_impl;
 
-use crate::objective_c_runtime::{
-    macros::object,
-    traits::{PNSObject, ToId},
-};
-
-use super::traits::INSAutoreleasePool;
+use crate::objective_c_runtime::{id, macros::object, traits::PNSObject};
 
 object! {
     /// An object that supports Cocoa’s reference-counted memory management system.
     unsafe pub struct NSAutoreleasePool;
 }
 
+#[interface_impl(NSObject)]
 impl NSAutoreleasePool {
-    /// Creates a new autorelease pool.
-    pub fn new() -> Self {
-        unsafe { msg_send![Self::im_class(), new] }
-    }
+    /* Managing a Pool
+     */
 
-    /// In a reference-counted environment, releases and pops the receiver; in a garbage-collected environment, triggers garbage collection if the memory allocated since the last collection is greater than the current threshold.
+    /// In a reference-counted environment, releases and pops the receiver; in
+    /// a garbage-collected environment, triggers garbage collection if the
+    /// memory allocated since the last collection is greater than the current
+    /// threshold.
+    #[method]
     pub fn drain(&mut self) {
-        self.im_drain();
+        unsafe { msg_send![self.m_self(), drain] }
     }
 
     /// Adds a given object to the active autorelease pool in the current thread.
-    pub fn add_object<T>(&mut self, object: &T)
-    where
-        T: ToId + Clone,
-    {
-        self.im_add_object(object.clone().to_id());
+    ///
+    /// # Arguments
+    ///
+    /// * `object` - The object to be added to the pool in the current thread.
+    #[method]
+    pub fn add_object(&mut self, object: id) {
+        unsafe { msg_send![self.m_self(), addObject: object] }
     }
 }
 
 impl Default for NSAutoreleasePool {
     fn default() -> Self {
-        Self::new()
+        Self::m_new()
     }
 }
-
-impl INSAutoreleasePool for NSAutoreleasePool {}

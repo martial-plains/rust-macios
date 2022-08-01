@@ -1,12 +1,14 @@
 use objc::{class, msg_send, runtime::Sel, sel, sel_impl, Encode, Encoding};
+use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     core_graphics::CGFloat,
     foundation::{Int, NSString},
-    objective_c_runtime::traits::FromId,
+    objective_c_runtime::traits::{FromId, PNSObject},
+    utils::to_bool,
 };
 
-use super::{ns_menu_item::NSMenuItem, object, traits::INSMenu};
+use super::{object, NSMenuItem};
 
 object! {
     /// An object that manages an app’s menus.
@@ -20,92 +22,113 @@ impl NSMenu {
     }
 }
 
+#[interface_impl(NSObject)]
 impl NSMenu {
+    /* Managing the Menu Bar
+     */
+
     /// Returns a Boolean value that indicates whether the menu bar is visible.
-    pub fn menubar_visible() -> bool {
-        NSMenu::tm_menu_bar_visible()
+    #[method]
+    pub fn menu_bar_visible() -> bool {
+        unsafe { to_bool(msg_send![Self::m_class(), isMenuBarVisible]) }
     }
 
     /// Sets whether the menu bar is visible and selectable by the user.
-    pub fn set_menubar_visible(&self, visible: bool) {
-        NSMenu::tm_set_menu_bar_visible(visible);
+    #[method]
+    pub fn set_menu_bar_visible(visible: bool) {
+        unsafe { msg_send![Self::m_class(), setMenuBarVisible: visible] }
     }
 
     /// The menu bar height for the main menu in pixels.
-    pub fn menubar_height(&self) -> CGFloat {
-        self.ip_menu_bar_height()
+    #[property]
+    pub fn menu_bar_height(&self) -> CGFloat {
+        unsafe { msg_send![self.m_self(), menuBarHeight] }
     }
 
-    /// Initializes and returns a menu having the specified title and with autoenabling of menu items turned on.
-    pub fn with_title<S>(title: S) -> Self
+    /* Creating an NSMenu Object
+     */
+
+    /// Initializes and returns a menu having the specified title and with
+    /// autoenabling of menu items turned on.
+    #[method]
+    pub fn init_with_title(title: NSString) -> Self
     where
-        S: Into<NSString>,
+        Self: Sized + FromId,
     {
-        Self::im_init_with_title(title.into())
+        unsafe { Self::from_id(msg_send![Self::m_class(), initWithTitle: title]) }
     }
+
+    /* Adding and Removing Menu Items
+     */
 
     /// Inserts a menu item into the menu at a specific location.
-    pub fn insert_at_index(&mut self, item: NSMenuItem, index: Int) {
-        self.im_insert_item_at_index(item, index);
+    #[method]
+    pub fn insert_item_at_index(&mut self, new_item: NSMenuItem, index: Int) {
+        unsafe { msg_send![self.m_self(), insertItem: new_item atIndex: index] }
     }
 
     /// Creates and adds a menu item at a specified location in the menu.
-
-    pub fn insert_with_title_action_key_at_index<Title, Key>(
+    #[method]
+    pub fn insert_item_with_title_action_key_equivalent_at_index(
         &mut self,
-        title: Title,
-        action: Sel,
-        key: Key,
+        string: NSString,
+        sel: Sel,
+        char_code: NSString,
         index: Int,
-    ) -> NSMenuItem
-    where
-        Title: Into<NSString>,
-        Key: Into<NSString>,
-    {
-        self.im_insert_item_with_title_action_key_equivalent_at_index(
-            title.into(),
-            action,
-            key.into(),
-            index,
-        )
+    ) -> NSMenuItem {
+        unsafe {
+            NSMenuItem::from_id(msg_send![
+                self.m_self(),
+                insertItemWithTitle: string
+                action: sel
+                keyEquivalent: char_code
+                atIndex: index
+            ])
+        }
     }
 
     /// Adds a menu item to the end of the menu.
-    pub fn add_item(&mut self, item: NSMenuItem) {
-        self.im_add_item(item);
+    #[method]
+    pub fn add_item(&mut self, new_item: NSMenuItem) {
+        unsafe { msg_send![self.m_self(), addItem: new_item] }
     }
 
     /// Creates a new menu item and adds it to the end of the menu.
-    pub fn add_item_with_title_action_key<Title, Key>(
+    #[method]
+    pub fn add_item_with_title_action_key_equivalent(
         &mut self,
-        title: Title,
-        action: Sel,
-        key: Key,
-    ) -> NSMenuItem
-    where
-        Title: Into<NSString>,
-        Key: Into<NSString>,
-    {
-        self.im_add_item_with_title_action_key_equivalent(title.into(), action, key.into())
+        title: NSString,
+        sel: Sel,
+        char_code: NSString,
+    ) -> NSMenuItem {
+        unsafe {
+            NSMenuItem::from_id(msg_send![
+                self.m_self(),
+                addItemWithTitle: title
+                action: sel
+                keyEquivalent: char_code
+            ])
+        }
     }
 
     /// Removes a menu item from the menu.
+    #[method]
     pub fn remove_item(&mut self, item: NSMenuItem) {
-        self.im_remove_item(item);
+        unsafe { msg_send![self.m_self(), removeItem: item] }
     }
 
     /// Removes the menu item at a specified location in the menu.
-    pub fn remove_item_at(&mut self, index: Int) {
-        self.im_remove_item_at_index(index);
+    #[method]
+    pub fn remove_item_at_index(&mut self, index: Int) {
+        unsafe { msg_send![self.m_self(), removeItemAtIndex: index] }
     }
 
     /// Removes all the menu items in the menu.
+    #[method]
     pub fn remove_all_items(&mut self) {
-        self.im_remove_all_items();
+        unsafe { msg_send![self.m_self(), removeAllItems] }
     }
 }
-
-impl INSMenu for NSMenu {}
 
 impl Default for NSMenu {
     fn default() -> Self {
