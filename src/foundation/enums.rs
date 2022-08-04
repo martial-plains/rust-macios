@@ -606,47 +606,81 @@ pub enum NSStringDrawingOptions {
 #[derive(Debug)]
 #[repr(u64)]
 pub enum NSNumberFormatterStyle {
+    /// An integer representation.
     None = 0,
+    /// A decimal style format.
     Decimal = 1,
+    /// A currency style format that uses the currency symbol defined by the
+    /// number formatter locale.
     Currency = 2,
+    /// A percent style format.
     Percent = 3,
+    /// A scientific style format.
     Scientific = 4,
+    /// A style format in which numbers are spelled out in the language
+    /// defined by the number formatter locale.
     SpellOut = 5,
+    /// An ordinal style format.
     OrdinalStyle = 6,
+    /// A currency style format that uses the ISO 4217 currency code defined
+    /// by the number formatter locale.
     CurrencyIsoCodeStyle = 8,
+    /// A currency style format that uses the pluralized denomination defined
+    /// by the number formatter locale.
     CurrencyPluralStyle = 9,
+    /// An accounting currency style format that uses the currency symbol
+    /// defined by the number formatter locale.
     CurrencyAccountingStyle = 10,
 }
 
 #[derive(Debug)]
 #[repr(u64)]
 pub enum NSNumberFormatterBehavior {
+    /// The number-formatter behavior set as the default for new instances.
+    /// You can set the default formatter behavior with the class method setDefaultFormatterBehavior:.
     Default = 0,
+    /// The number-formatter behavior as it existed prior to macOS 10.4.
     #[cfg(target_os = "macos")]
     #[allow(non_camel_case_types)]
     Version_10_0 = 1000,
+    /// The number-formatter behavior since macOS 10.4.
     #[allow(non_camel_case_types)]
     Version_10_4 = 1040,
 }
 
+/// These constants are used to specify how numbers should be padded. These constants are used by the paddingPosition property.
 #[derive(Debug)]
 #[repr(u64)]
 pub enum NSNumberFormatterPadPosition {
+    /// Specifies that the padding should occur before the prefix.
     BeforePrefix,
+    /// Specifies that the padding should occur after the prefix.
     AfterPrefix,
+    /// Specifies that the padding should occur before the suffix.
     BeforeSuffix,
+    /// Specifies that the padding should occur after the suffix.
     AfterSuffix,
 }
+
+/// These constants are used to specify how numbers should be rounded. These
+/// constants are used by the roundingMode property.
 
 #[derive(Debug)]
 #[repr(u64)]
 pub enum NSNumberFormatterRoundingMode {
+    /// Round towards positive infinity.
     Ceiling,
+    /// Round towards negative infinity.
     Floor,
+    /// Round towards zero.
     Down,
+    /// Round away from zero.
     Up,
+    /// Round towards the nearest integer, or towards an even number if equidistant.
     HalfEven,
+    /// Round towards the nearest integer, or towards zero if equidistant.
     HalfDown,
+    /// Round towards the nearest integer, or away from zero if equidistant.
     HalfUp,
 }
 
@@ -985,15 +1019,22 @@ pub enum NSDateComponentsFormatterUnitsStyle {
     Brief,
 }
 
+/// The formatting context for a formatter.
 #[cfg(any(target_os = "ios", target_os = "macos"))]
 #[derive(Debug)]
 #[repr(i64)]
 pub enum NSFormattingContext {
+    /// An unknown formatting context.
     Unknown = 0,
+    /// A formatting context determined automatically at runtime.
     Dynamic = 1,
+    /// The formatting context for stand-alone usage.
     Standalone = 2,
+    /// The formatting context for a list or menu item.
     ListItem = 3,
+    /// The formatting context for the beginning of a sentence.
     BeginningOfSentence = 4,
+    /// The formatting context for the middle of a sentence.
     MiddleOfSentence = 5,
 }
 
@@ -1018,12 +1059,16 @@ pub enum NSEnergyFormatterUnit {
     Kilocalorie = (7 << 8) + 2,
 }
 
+/// Specifies the width of the unit, determining the textual representation.
 #[cfg(any(target_os = "ios", target_os = "macos"))]
 #[derive(Debug)]
 #[repr(i64)]
 pub enum NSFormattingUnitStyle {
+    /// Specifies a short unit style.
     Short = 1,
+    /// Specifies a medium unit style.
     Medium,
+    /// Specifies a long unit style.
     Long,
 }
 

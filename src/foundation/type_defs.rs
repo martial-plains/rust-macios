@@ -5,7 +5,7 @@ use libc::c_double;
 
 use crate::core_graphics::{CGPoint, CGRect, CGSize};
 
-use super::{NSDecimalNumber, NSString};
+use super::{NSDecimalNumber, NSRange, NSString};
 
 /// Describes an integer.
 #[cfg(target_pointer_width = "32")]
@@ -94,3 +94,15 @@ pub type NSErrorDomain = NSString;
 
 /// These keys may exist in the user info dictionary.
 pub type NSErrorUserInfoKey = NSString;
+
+/// Attributes that you can apply to text in an attributed string.
+pub type NSAttributedStringKey = NSString;
+
+/// Type indicating a parameter is a pointer to an NSRange structure.
+pub type NSRangePointer = *mut NSRange;
+
+/// Options for importing documents.
+pub type NSAttributedStringDocumentReadingOptionKey = NSString;
+
+/// Attributes that apply to a document.
+pub type NSAttributedStringDocumentAttributeKey = NSString;

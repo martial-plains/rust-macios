@@ -1,5 +1,9 @@
-use rust_macios::foundation::NSLocale;
+use rust_macios::{
+    foundation::{NSLocale},
+};
 
 fn main() {
-    println!("From Class: {}", NSLocale::current_locale());
+    let locale = NSLocale::iso_country_codes();
+
+    println!("{:?}", locale);
 }
