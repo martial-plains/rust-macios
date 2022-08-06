@@ -1,0 +1,22 @@
+use objc::{msg_send, sel, sel_impl};
+use objective_c_runtime_proc_macros::interface_impl;
+
+use crate::{foundation::NSString, objective_c_runtime::macros::object};
+
+use super::ICNGroup;
+
+object! {
+    /// A mutable object that represents a group of contacts.
+    unsafe pub struct CNMutableGroup;
+}
+
+impl ICNGroup for CNMutableGroup {}
+
+#[interface_impl(CNGroup)]
+impl CNMutableGroup {
+    /// The name of the group.
+    #[property]
+    pub fn set_name(&mut self, name: NSString) {
+        unsafe { msg_send![self.m_self(), setName: name] }
+    }
+}

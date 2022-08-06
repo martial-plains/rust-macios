@@ -58,6 +58,19 @@ pub trait PNSObject {
         unsafe { Self::from_id(msg_send![Self::m_class(), new]) }
     }
 
+    /// Returns a new instance of the receiving class.
+    fn m_alloc() -> Self
+    where
+        Self: Sized + FromId,
+    {
+        unsafe { Self::from_id(msg_send![Self::m_class(), alloc]) }
+    }
+
+    /// Initializes the class before it receives its first message.
+    fn m_initialize() {
+        unsafe { msg_send![Self::m_class(), initialize] }
+    }
+
     /* Identifying Classes
      */
 

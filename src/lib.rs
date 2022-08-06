@@ -35,6 +35,8 @@ pub mod appkit;
 pub mod background_tasks;
 #[cfg(feature = "compression")]
 pub mod compression;
+#[cfg(feature = "contacts")]
+pub mod contacts;
 #[cfg(feature = "core_foundation")]
 pub mod core_foundation;
 #[cfg(feature = "core_graphics")]

@@ -3,9 +3,12 @@
 
 use libc::c_double;
 
-use crate::core_graphics::{CGPoint, CGRect, CGSize};
+use crate::{
+    core_graphics::{CGPoint, CGRect, CGSize},
+    objective_c_runtime::id,
+};
 
-use super::{NSDecimalNumber, NSRange, NSString};
+use super::{NSComparisonResult, NSDecimalNumber, NSRange, NSString};
 
 /// Describes an integer.
 #[cfg(target_pointer_width = "32")]
@@ -106,3 +109,6 @@ pub type NSAttributedStringDocumentReadingOptionKey = NSString;
 
 /// Attributes that apply to a document.
 pub type NSAttributedStringDocumentAttributeKey = NSString;
+
+/// Defines the signature for a block object used for comparison operations.
+pub type NSComparator = fn(a: id, b: id) -> NSComparisonResult;
