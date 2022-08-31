@@ -1,7 +1,7 @@
 use rust_macios::foundation::NSLocale;
 
 fn main() {
-    let locale = NSLocale::iso_country_codes();
+    let ident = NSLocale::current_locale().locale_identifier();
 
-    println!("{:?}", locale);
+    println!("{}", ident);
 }
