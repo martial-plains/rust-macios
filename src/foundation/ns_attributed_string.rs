@@ -1,10 +1,13 @@
 use objc::{msg_send, sel, sel_impl};
 use objective_c_runtime_proc_macros::interface_impl;
 
-use crate::objective_c_runtime::{
-    id,
-    macros::object,
-    traits::{FromId, PNSObject},
+use crate::{
+    objective_c_runtime::{
+        id,
+        macros::object,
+        traits::{FromId, PNSObject},
+    },
+    utils::to_bool,
 };
 
 use super::{
@@ -25,37 +28,39 @@ impl NSAttributedString {
 
     /// Creates an attributed string with the characters of the specified string and no attribute information.
     #[method]
-    pub fn init_with_string(string: NSString) -> Self
+    pub fn init_with_string(string: &NSString) -> Self
     where
         Self: Sized + FromId,
     {
-        unsafe { Self::from_id(msg_send![Self::m_class(), initWithString: string]) }
+        unsafe { Self::from_id(msg_send![Self::m_class(), initWithString: string.m_self()]) }
     }
 
     /// Creates an attributed string with the specified string and attributes.
     #[method]
     pub fn init_with_string_attributes(
-        string: NSString,
-        attributes: NSDictionary<NSAttributedStringKey, id>,
+        string: &NSString,
+        attributes: &NSDictionary<NSAttributedStringKey, id>,
     ) -> Self
     where
         Self: Sized + FromId,
     {
         unsafe {
-            Self::from_id(msg_send![Self::m_class(), initWithString: string attributes: attributes])
+            Self::from_id(
+                msg_send![Self::m_class(), initWithString: string.m_self() attributes: attributes.m_self()],
+            )
         }
     }
 
     /// Creates an attributed string with the characters and attributes of the specified attributed string.
     #[method]
-    pub fn init_with_attributed_string(attr_string: NSAttributedString) -> Self
+    pub fn init_with_attributed_string(attr_string: &NSAttributedString) -> Self
     where
         Self: Sized + FromId,
     {
         unsafe {
             Self::from_id(msg_send![
                 Self::m_class(),
-                initWithAttributedString: attr_string
+                initWithAttributedString: attr_string.m_self()
             ])
         }
     }
@@ -63,9 +68,9 @@ impl NSAttributedString {
     /// Creates an attributed string from the data in the specified data object.
     #[method]
     pub fn init_with_data_options_document_attributes_error(
-        data: NSData,
-        options: NSDictionary<NSAttributedStringDocumentReadingOptionKey, id>,
-        document: NSDictionary<NSAttributedStringDocumentAttributeKey, id>,
+        data: &NSData,
+        options: &NSDictionary<NSAttributedStringDocumentReadingOptionKey, id>,
+        document: &NSDictionary<NSAttributedStringDocumentAttributeKey, id>,
         error: *mut *mut NSError,
     ) -> Self
     where
@@ -73,7 +78,7 @@ impl NSAttributedString {
     {
         unsafe {
             Self::from_id(
-                msg_send![Self::m_class(), initWithData: data options: options documentAttributes: document error: error],
+                msg_send![Self::m_class(), initWithData: data.m_self() options: options.m_self() documentAttributes: document.m_self() error: error],
             )
         }
     }
@@ -130,8 +135,8 @@ impl NSAttributedString {
 
     /// Returns a Boolean value that indicates whether the attributed string is equal to another attributed string.
     #[method]
-    pub fn is_equal_to_attributed_string(&self, other: NSAttributedString) -> bool {
-        unsafe { msg_send![self.m_self(), isEqualToAttributedString: other] }
+    pub fn is_equal_to_attributed_string(&self, other: &NSAttributedString) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), isEqualToAttributedString: other.m_self()]) }
     }
 
     /* Extracting a Substring
