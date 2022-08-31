@@ -1,21 +1,3 @@
-/// Constants for linguistic tagger enumeration specifying which tokens to omit and whether to join names.
-#[derive(Debug)]
-#[repr(u64)]
-pub enum NLTaggerOptions {
-    /// Omit tokens of type word (items considered to be words).
-    OmitWords = 1 << 0,
-    /// Omit tokens of type punctuation (all punctuation).
-    OmitPunctuation = 1 << 1,
-    /// Omit tokens of type whitespace (whitespace of all sorts).
-    OmitWhitespace = 1 << 2,
-    /// Omit tokens of type other (non-linguistic items, such as symbols).
-    OmitOther = 1 << 3,
-    /// Typically, multiple-word names will be returned as multiple tokens, following the standard tokenization practice of the tagger.
-    JoinNames = 1 << 4,
-    /// Contractions will be returned as one token.
-    JoinContractions = 1 << 5,
-}
-
 /// The different types of a natural language model.
 #[derive(Debug)]
 #[repr(i64)]
@@ -27,7 +9,7 @@ pub enum NLModelType {
 }
 
 /// Constants representing linguistic units.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[repr(i64)]
 pub enum NLTokenUnit {
     /// An individual word.
@@ -52,16 +34,4 @@ pub enum NLTokenizerAttributes {
     Symbolic = 1 << 1,
     /// The string contains emoji.
     Emoji = 1 << 2,
-}
-
-/// The response to an asset request.
-#[derive(Debug, PartialEq, Eq)]
-#[repr(i64)]
-pub enum NLTaggerAssetsResult {
-    /// The asset is now available and loaded onto the device.
-    Available,
-    /// The asset is unavailable on the device.
-    NotAvailable,
-    /// The framework couldn’t load the asset due to an error.
-    Error,
 }
