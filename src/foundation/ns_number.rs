@@ -7,12 +7,15 @@ use libc::{
 use objc::{msg_send, sel, sel_impl};
 use objective_c_runtime_proc_macros::interface_impl;
 
-use crate::objective_c_runtime::{
-    macros::object,
-    traits::{FromId, INSValue, PNSObject},
+use crate::{
+    objective_c_runtime::{
+        macros::object,
+        traits::{FromId, INSValue, PNSObject},
+    },
+    utils::to_bool,
 };
 
-use super::{Int, NSComparisonResult, NSDecimal, NSLocale, NSString, UInt};
+use super::{Int, NSCoder, NSComparisonResult, NSDecimal, NSLocale, NSString, UInt};
 
 object! {
     /// An object wrapper for primitive scalar numeric values.
@@ -40,7 +43,7 @@ impl NSNumber {
     where
         Self: Sized + 'static + FromId,
     {
-        unsafe { msg_send![Self::m_class(), numberWithBool: value] }
+        unsafe { Self::from_id(msg_send![Self::m_class(), numberWithBool: value]) }
     }
 
     /// Creates and returns an NSNumber object containing a given value, treating it as a signed char.
@@ -294,7 +297,7 @@ impl NSNumber {
     ///
     /// * `value` - The value to store in the NSNumber object.
     #[method]
-    pub fn init_with_bool(&self, value: bool) -> Self
+    pub fn init_with_bool(&mut self, value: bool) -> Self
     where
         Self: Sized + FromId,
     {
@@ -311,7 +314,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_char(&self, value: c_schar) -> Self
+    pub fn init_with_char(&mut self, value: c_schar) -> Self
     where
         Self: Sized + FromId,
     {
@@ -328,7 +331,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_double(&self, value: c_double) -> Self
+    pub fn init_with_double(&mut self, value: c_double) -> Self
     where
         Self: Sized + FromId,
     {
@@ -345,7 +348,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_float(&self, value: c_float) -> Self
+    pub fn init_with_float(&mut self, value: c_float) -> Self
     where
         Self: Sized + FromId,
     {
@@ -362,7 +365,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_int(&self, value: c_int) -> Self
+    pub fn init_with_int(&mut self, value: c_int) -> Self
     where
         Self: Sized + FromId,
     {
@@ -379,7 +382,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_integer(&self, value: Int) -> Self
+    pub fn init_with_integer(&mut self, value: Int) -> Self
     where
         Self: Sized + FromId,
     {
@@ -396,7 +399,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_long(&self, value: c_long) -> Self
+    pub fn init_with_long(&mut self, value: c_long) -> Self
     where
         Self: Sized + FromId,
     {
@@ -413,7 +416,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_long_long(&self, value: c_longlong) -> Self
+    pub fn init_with_long_long(&mut self, value: c_longlong) -> Self
     where
         Self: Sized + FromId,
     {
@@ -430,7 +433,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_short(&self, value: c_short) -> Self
+    pub fn init_with_short(&mut self, value: c_short) -> Self
     where
         Self: Sized + FromId,
     {
@@ -447,7 +450,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_unsigned_char(&self, value: c_uchar) -> Self
+    pub fn init_with_unsigned_char(&mut self, value: c_uchar) -> Self
     where
         Self: Sized + FromId,
     {
@@ -464,7 +467,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_unsigned_int(&self, value: c_uint) -> Self
+    pub fn init_with_unsigned_int(&mut self, value: c_uint) -> Self
     where
         Self: Sized + FromId,
     {
@@ -481,7 +484,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_unsigned_integer(&self, value: c_uint) -> Self
+    pub fn init_with_unsigned_integer(&mut self, value: c_uint) -> Self
     where
         Self: Sized + FromId,
     {
@@ -498,7 +501,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_unsigned_long(&self, value: c_ulong) -> Self
+    pub fn init_with_unsigned_long(&mut self, value: c_ulong) -> Self
     where
         Self: Sized + FromId,
     {
@@ -515,7 +518,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_unsigned_long_long(&self, value: c_ulonglong) -> Self
+    pub fn init_with_unsigned_long_long(&mut self, value: c_ulonglong) -> Self
     where
         Self: Sized + FromId,
     {
@@ -532,7 +535,7 @@ impl NSNumber {
     ///
     /// Returns an `NSNumber` object containing the value.
     #[method]
-    pub fn init_with_unsigned_short(&self, value: c_ushort) -> Self
+    pub fn init_with_unsigned_short(&mut self, value: c_ushort) -> Self
     where
         Self: Sized + FromId,
     {
@@ -544,145 +547,97 @@ impl NSNumber {
 
     /// The number object's value expressed as a Boolean value.
     #[property]
-    pub fn bool_value(&self) -> bool
-    where
-        Self: Sized + FromId,
-    {
-        unsafe { msg_send![self.m_self(), boolValue] }
+    pub fn bool_value(&self) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), boolValue]) }
     }
 
     /// The number object's value expressed as a char.
     #[property]
-    pub fn char_value(&self) -> c_schar
-    where
-        Self: Sized + FromId,
-    {
+    pub fn char_value(&self) -> c_schar {
         unsafe { msg_send![self.m_self(), charValue] }
     }
 
     /// The number object's value expressed as an NSDecimal structure.
     #[property]
-    pub fn decimal_value(&self) -> NSDecimal
-    where
-        Self: Sized + FromId,
-    {
-        unsafe { msg_send![self.m_self(), decimalValue] }
+    pub fn decimal_value(&self) -> NSDecimal {
+        unsafe { NSDecimal::from_id(msg_send![self.m_self(), decimalValue]) }
     }
 
     /// The number object's value expressed as a double, converted as necessary.
     #[property]
-    pub fn double_value(&self) -> c_double
-    where
-        Self: Sized + FromId,
-    {
+    pub fn double_value(&self) -> c_double {
         unsafe { msg_send![self.m_self(), doubleValue] }
     }
 
     /// The number object's value expressed as a float, converted as necessary.
     #[property]
-    pub fn float_value(&self) -> c_float
-    where
-        Self: Sized + FromId,
-    {
+    pub fn float_value(&self) -> c_float {
         unsafe { msg_send![self.m_self(), floatValue] }
     }
 
     /// The number object's value expressed as an int, converted as necessary.
     #[property]
-    pub fn int_value(&self) -> c_int
-    where
-        Self: Sized + FromId,
-    {
+    pub fn int_value(&self) -> c_int {
         unsafe { msg_send![self.m_self(), intValue] }
     }
 
     /// The number object's value expressed as an NSInteger object, converted as necessary.
     #[property]
-    pub fn integer_value(&self) -> Int
-    where
-        Self: Sized + FromId,
-    {
+    pub fn integer_value(&self) -> Int {
         unsafe { msg_send![self.m_self(), integerValue] }
     }
 
     /// The number object’s value expressed as a long long, converted as necessary.
     #[property]
-    pub fn long_long_value(&self) -> c_longlong
-    where
-        Self: Sized + FromId,
-    {
+    pub fn long_long_value(&self) -> c_longlong {
         unsafe { msg_send![self.m_self(), longLongValue] }
     }
 
     /// The number object’s value expressed as a long, converted as necessary.
     #[property]
-    pub fn long_value(&self) -> c_long
-    where
-        Self: Sized + FromId,
-    {
+    pub fn long_value(&self) -> c_long {
         unsafe { msg_send![self.m_self(), longValue] }
     }
 
     /// The number object's value expressed as a short, converted as necessary.
     #[property]
-    pub fn short_value(&self) -> c_short
-    where
-        Self: Sized + FromId,
-    {
+    pub fn short_value(&self) -> c_short {
         unsafe { msg_send![self.m_self(), shortValue] }
     }
 
     /// The number object's value expressed as an unsigned char, converted as necessary.
     #[property]
-    pub fn unsigned_char_value(&self) -> c_uchar
-    where
-        Self: Sized + FromId,
-    {
+    pub fn unsigned_char_value(&self) -> c_uchar {
         unsafe { msg_send![self.m_self(), unsignedCharValue] }
     }
 
     /// The number object's value expressed as an NSUInteger object, converted as necessary.
     #[property]
-    pub fn unsigned_integer_value(&self) -> UInt
-    where
-        Self: Sized + FromId,
-    {
+    pub fn unsigned_integer_value(&self) -> UInt {
         unsafe { msg_send![self.m_self(), unsignedIntegerValue] }
     }
 
     /// The number object's value expressed as an unsigned int, converted as necessary.
     #[property]
-    pub fn unsigned_int_value(&self) -> c_uint
-    where
-        Self: Sized + FromId,
-    {
+    pub fn unsigned_int_value(&self) -> c_uint {
         unsafe { msg_send![self.m_self(), unsignedIntValue] }
     }
 
     /// The number object’s value expressed as an unsigned long long, converted as necessary.
     #[property]
-    pub fn unsigned_long_long_value(&self) -> c_ulonglong
-    where
-        Self: Sized + FromId,
-    {
+    pub fn unsigned_long_long_value(&self) -> c_ulonglong {
         unsafe { msg_send![self.m_self(), unsignedLongLongValue] }
     }
 
     /// The number object's value expressed as an unsigned long, converted as necessary.
     #[property]
-    pub fn unsigned_long_value(&self) -> c_ulong
-    where
-        Self: Sized + FromId,
-    {
+    pub fn unsigned_long_value(&self) -> c_ulong {
         unsafe { msg_send![self.m_self(), unsignedLongValue] }
     }
 
     /// The number object's value expressed as an unsigned short, converted as necessary.
     #[property]
-    pub fn unsigned_short_value(&self) -> c_ushort
-    where
-        Self: Sized + FromId,
-    {
+    pub fn unsigned_short_value(&self) -> c_ushort {
         unsafe { msg_send![self.m_self(), unsignedShortValue] }
     }
 
@@ -699,20 +654,16 @@ impl NSNumber {
     ///
     /// A string that represents the contents of the number object formatted using the locale information in `locale`.
     #[method]
-    pub fn description_with_locale(&self, locale: NSLocale) -> NSString
-    where
-        Self: Sized + FromId,
-    {
-        unsafe { msg_send![self.m_self(), descriptionWithLocale: locale.m_self()] }
+    pub fn description_with_locale(&self, locale: &NSLocale) -> NSString {
+        unsafe {
+            NSString::from_id(msg_send![self.m_self(), descriptionWithLocale: locale.m_self()])
+        }
     }
 
     /// The number object's value expressed as a human-readable string.
     #[property]
-    pub fn string_value(&self) -> NSString
-    where
-        Self: Sized + FromId,
-    {
-        unsafe { msg_send![self.m_self(), stringValue] }
+    pub fn string_value(&self) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.m_self(), stringValue]) }
     }
 
     /* Comparing NSNumber Objects
@@ -724,10 +675,7 @@ impl NSNumber {
     ///
     /// * `other` - The number to compare to the number object’s value.
     #[method]
-    pub fn compare(&self, other: &Self) -> NSComparisonResult
-    where
-        Self: Sized + FromId,
-    {
+    pub fn compare(&self, other: &Self) -> NSComparisonResult {
         unsafe { msg_send![self.m_self(), compare: other.m_self()] }
     }
 
@@ -737,11 +685,32 @@ impl NSNumber {
     ///
     /// * `other` - The number to compare to the number object’s value.
     #[method]
-    pub fn is_equal_to_number(&self, other: Self) -> bool
+    pub fn is_equal_to_number(&self, other: &Self) -> bool {
+        unsafe { to_bool(msg_send![self.m_self(), isEqualToNumber: other.m_self()]) }
+    }
+
+    /* Accessing Type Information
+     */
+
+    /// Returns a C string containing the Objective-C type of the data contained in the number object.
+    ///
+    /// # Return Value
+    /// A C string containing the Objective-C type of the data contained in the number object,
+    /// as encoded by the @encode() compiler directive.
+    #[method]
+    pub fn objc_type(&self) -> *const char {
+        unsafe { msg_send![self.m_self(), objCType] }
+    }
+
+    /* Initializers */
+
+    ///
+    #[method]
+    fn init_with_coder(&mut self, coder: &NSCoder) -> Self
     where
         Self: Sized + FromId,
     {
-        unsafe { msg_send![self.m_self(), isEqualToNumber: other.m_self()] }
+        unsafe { Self::from_id(msg_send![self.m_self(), initWithCoder: coder.m_self()]) }
     }
 }
 
@@ -753,7 +722,7 @@ impl Default for NSNumber {
 
 impl PartialEq for NSNumber {
     fn eq(&self, other: &Self) -> bool {
-        self.is_equal_to_number(other.clone())
+        self.is_equal_to_number(other)
     }
 }
 

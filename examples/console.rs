@@ -1,7 +1,10 @@
-use rust_macios::foundation::NSLocale;
+use rust_macios::foundation::{NSDecimal, NSLocale, NSNumber};
 
 fn main() {
-    let ident = NSLocale::current_locale().locale_identifier();
+    let fake_number: NSDecimal = NSDecimal::from("one");
 
-    println!("{}", ident);
+    println!(
+        "{}",
+        NSNumber::ns_decimal_is_not_a_number(&fake_number as *const _)
+    );
 }
