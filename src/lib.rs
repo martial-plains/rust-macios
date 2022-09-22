@@ -51,4 +51,7 @@ pub mod objective_c_runtime;
 #[cfg(feature = "uikit")]
 pub mod uikit;
 
+#[cfg(feature = "user_notifications")]
+pub mod user_notifications;
+
 pub(crate) mod utils;

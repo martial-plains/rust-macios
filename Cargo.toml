@@ -32,6 +32,7 @@ default = [
     "natural_language",
     "objective_c_runtime",
     "uikit",
+    "user_notifications",
 ]
 appkit = ["objective_c_runtime"]
 background_tasks = ["foundation"]
@@ -43,6 +44,7 @@ foundation = ["objective_c_runtime", "core_foundation", "core_graphics"]
 natural_language = ["foundation"]
 objective_c_runtime = ["foundation"]
 uikit = ["foundation"]
+user_notifications = ["foundation"]
 
 [dependencies]
 # Macros defined in workspace

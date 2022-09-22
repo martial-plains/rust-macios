@@ -14,6 +14,7 @@ use rust_macios::{
         Id, ShareId,
     },
     uikit::{INSLayoutAnchor, NSLayoutConstraint},
+    user_notifications::{UNAuthorizationStatus, UNNotificationSettings, UNUserNotificationCenter},
 };
 
 pub struct ViewController {
@@ -79,7 +80,20 @@ struct AppDelegate {
     window: Option<NSWindow>,
 }
 
-impl AppDelegate {}
+impl AppDelegate {
+    fn send_notification_in_5_seconds() {
+        let center = UNUserNotificationCenter::current_notification_center();
+        center.get_notification_settings_with_completion_handler(
+            |settings: UNNotificationSettings| {
+                if settings.authorization_status() != UNAuthorizationStatus::Authorized {
+                    println!("Not Authorized");
+                } else {
+                    println!("Authorised");
+                }
+            },
+        );
+    }
+}
 
 impl PNSApplicationDelegate for AppDelegate {
     fn did_finish_launching(&mut self) {

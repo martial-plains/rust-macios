@@ -1,4 +1,4 @@
-use objc::{class, msg_send, runtime::Sel, sel, sel_impl, Encode, Encoding};
+use objc::{class, msg_send, runtime::Sel, sel, sel_impl};
 use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
@@ -133,11 +133,5 @@ impl NSMenu {
 impl Default for NSMenu {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-unsafe impl Encode for NSMenu {
-    fn encode() -> Encoding {
-        unsafe { Encoding::from_str("@") }
     }
 }

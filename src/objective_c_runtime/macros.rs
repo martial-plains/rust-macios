@@ -94,6 +94,12 @@ pub(crate) macro object {
                 unsafe { &mut *self.m_self()}
             }
         }
+
+        unsafe impl<$($t $(: $b)?),*> $crate::objective_c_runtime::Encode for $name<$($t),*> {
+            fn encode() -> $crate::objective_c_runtime::Encoding {
+                unsafe { $crate::objective_c_runtime::Encoding::from_str("@") }
+            }
+        }
     },
 }
 

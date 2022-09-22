@@ -1,4 +1,4 @@
-use objc::{msg_send, sel, sel_impl, Encode};
+use objc::{msg_send, sel, sel_impl};
 use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::objective_c_runtime::{
@@ -12,12 +12,6 @@ use super::{NSCoder, NSDictionary, NSNotificationName};
 object! {
     /// A container for information broadcast through a notification center to all registered observers.
     unsafe pub struct NSNotification;
-}
-
-unsafe impl Encode for NSNotification {
-    fn encode() -> objc::Encoding {
-        unsafe { objc::Encoding::from_str("@") }
-    }
 }
 
 #[interface_impl(NSObject)]
