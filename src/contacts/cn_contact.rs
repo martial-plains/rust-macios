@@ -6,6 +6,7 @@ use crate::{
     objective_c_runtime::{
         id,
         macros::object,
+        nil,
         traits::{FromId, PNSObject},
     },
     utils::to_bool,
@@ -13,7 +14,7 @@ use crate::{
 
 use super::{
     CNContactRelation, CNContactSortOrder, CNContactType, CNInstantMessageAddress, CNLabeledValue,
-    CNPhoneNumber, CNPostalAddress,
+    CNPhoneNumber, CNPostalAddress, CNSocialProfile,
 };
 
 object! {
@@ -155,16 +156,44 @@ impl CNContact {
         unsafe { NSArray::from_id(msg_send![self.m_self(), phoneNumbers]) }
     }
 
+    /* Getting Social Profiles
+     */
+
+    /// An array of labeled social profiles for a contact.
+    #[property]
+    pub fn social_profiles(&self) -> NSArray<CNLabeledValue<CNSocialProfile>> {
+        unsafe { NSArray::from_id(msg_send![self.m_self(), socialProfiles]) }
+    }
+
     /// A date component for the Gregorian birthday of the contact.
     #[property]
-    pub fn birthday(&self) -> NSDateComponents {
-        unsafe { NSDateComponents::from_id(msg_send![self.m_self(), birthday]) }
+    pub fn birthday(&self) -> Option<NSDateComponents> {
+        unsafe {
+            let ptr = msg_send![self.m_self(), birthday];
+
+            if ptr != nil {
+                Some(NSDateComponents::from_id(ptr))
+            } else {
+                None
+            }
+        }
     }
+
+    /* Getting Birthday Information
+     */
 
     /// A date component for the non-Gregorian birthday of the contact.
     #[property]
-    pub fn non_gregorian_birthday(&self) -> NSDateComponents {
-        unsafe { NSDateComponents::from_id(msg_send![self.m_self(), nonGregorianBirthday]) }
+    pub fn non_gregorian_birthday(&self) -> Option<NSDateComponents> {
+        unsafe {
+            let ptr = msg_send![self.m_self(), nonGregorianBirthday];
+
+            if ptr != nil {
+                Some(NSDateComponents::from_id(ptr))
+            } else {
+                None
+            }
+        }
     }
 
     /// An array containing labeled Gregorian dates.
@@ -184,14 +213,30 @@ impl CNContact {
 
     /// The profile picture of a contact.
     #[property]
-    pub fn image_data(&self) -> NSData {
-        unsafe { NSData::from_id(msg_send![self.m_self(), imageData]) }
+    pub fn image_data(&self) -> Option<NSData> {
+        unsafe {
+            let ptr = msg_send![self.m_self(), imageData];
+
+            if ptr != nil {
+                Some(NSData::from_id(ptr))
+            } else {
+                None
+            }
+        }
     }
 
     /// The thumbnail version of the contact’s profile picture.
     #[property]
-    pub fn thumbnail_image_data(&self) -> NSData {
-        unsafe { NSData::from_id(msg_send![self.m_self(), thumbnailImageData]) }
+    pub fn thumbnail_image_data(&self) -> Option<NSData> {
+        unsafe {
+            let ptr = msg_send![self.m_self(), thumbnailImageData];
+
+            if ptr != nil {
+                Some(NSData::from_id(ptr))
+            } else {
+                None
+            }
+        }
     }
 
     /// A Boolean indicating whether a contact has a profile picture.
@@ -331,5 +376,47 @@ impl CNContact {
                 predicateForContactsMatchingEmailAddress: email_address
             ])
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{contacts::CNContactType, objective_c_runtime::traits::PNSObject};
+
+    use super::CNContact;
+
+    #[test]
+    fn test_contact() {
+        let contact = CNContact::m_new();
+
+        assert!(contact.birthday().is_none());
+        assert!(contact.contact_relations().count() == 0);
+        assert!(contact.contact_type() == CNContactType::Person);
+        assert!(contact.dates().count() == 0);
+        assert!(contact.department_name() == "");
+        assert!(contact.email_addresses().count() == 0);
+        assert!(contact.family_name() == "");
+        assert!(contact.given_name() == "");
+        assert!(contact.identifier() != "");
+        assert!(contact.image_data().is_none());
+        assert!(!contact.image_data_available());
+        assert!(contact.instant_messaging_addresses().count() == 0);
+        assert!(contact.job_title() == "");
+        assert!(contact.middle_name() == "");
+        assert!(contact.name_prefix() == "");
+        assert!(contact.name_suffix() == "");
+        assert!(contact.nickname() == "");
+        assert!(contact.non_gregorian_birthday().is_none());
+        assert!(contact.note() == "");
+        assert!(contact.organization_name() == "");
+        assert!(contact.phone_numbers().count() == 0);
+        assert!(contact.phonetic_given_name() == "");
+        assert!(contact.phonetic_middle_name() == "");
+        assert!(contact.phonetic_family_name() == "");
+        assert!(contact.postal_addresses().count() == 0);
+        assert!(contact.previous_family_name() == "");
+        assert!(contact.social_profiles().count() == 0);
+        assert!(contact.thumbnail_image_data().is_none());
+        assert!(contact.url_addresses().count() == 0);
     }
 }

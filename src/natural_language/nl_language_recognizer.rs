@@ -115,7 +115,7 @@ impl Default for NLLanguageRecognizer {
 #[cfg(test)]
 mod tests {
     use crate::{
-        foundation::macros::{ns_array, ns_dictionary},
+        foundation::macros::{nsarray, nsdictionary},
         natural_language::English,
     };
 
@@ -133,7 +133,7 @@ mod tests {
     fn test_lang_hints() {
         let mut lr = NLLanguageRecognizer::default();
         lr.process_string("This is a test.".into());
-        lr.set_language_hints(ns_dictionary!(
+        lr.set_language_hints(nsdictionary!(
             unsafe {English.clone()} => NSNumber::from(1.0),
         ));
         let lang_hints = lr.language_hints();
@@ -144,7 +144,7 @@ mod tests {
             NSNumber::from(1.0)
         );
 
-        lr.set_language_hints(ns_dictionary!(
+        lr.set_language_hints(nsdictionary!(
             unsafe {English.clone()} => NSNumber::from(1.0),
             unsafe {English.clone()} => NSNumber::from(2.0),
         ));
@@ -154,7 +154,7 @@ mod tests {
     fn test_lang_constraints() {
         let mut lr = NLLanguageRecognizer::default();
         lr.process_string("This is a test.".into());
-        lr.set_language_constraints(ns_array!(unsafe { English.clone() }));
+        lr.set_language_constraints(nsarray!(unsafe { English.clone() }));
         let lang_constraints = lr.language_constraints();
 
         assert_eq!(lang_constraints.count(), 1);

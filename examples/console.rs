@@ -1,5 +1,12 @@
-use rust_macios::natural_language::nl_tag_scheme;
+use rust_macios::foundation::{LatinToHiragana, NSString};
 
 fn main() {
-    println!("{}", unsafe { nl_tag_scheme::Script.clone() });
+    println!(
+        "{}",
+        unsafe {
+            NSString::from("Hiragana")
+                .string_by_applying_transform_reverse(&*LatinToHiragana, false)
+        }
+        .unwrap()
+    );
 }

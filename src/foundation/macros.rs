@@ -1,5 +1,5 @@
 /// A macro to create new `NSArray`s.
-pub macro ns_array {
+pub macro nsarray {
     () => {
         $crate::foundation::NSArray::new()
     },
@@ -9,14 +9,14 @@ pub macro ns_array {
 }
 
 /// A macro to create new `NSDictionary`s.
-pub macro ns_dictionary {
+pub macro nsdictionary {
     (@single $($x:tt)*) => (()),
-    (@count $($rest:expr),*) => (<[()]>::len(&[$(ns_dictionary!(@single $rest)),*])),
+    (@count $($rest:expr),*) => (<[()]>::len(&[$(nsdictionary!(@single $rest)),*])),
 
-    ($($key:expr => $value:expr,)+) => { ns_dictionary!($($key => $value),+) },
+    ($($key:expr => $value:expr,)+) => { nsdictionary!($($key => $value),+) },
     ($($key:expr => $value:expr),*) => {
         {
-            let capacity = ns_dictionary!(@count $($key),*);
+            let capacity = nsdictionary!(@count $($key),*);
             let mut map = $crate::foundation::NSMutableDictionary::with_capacity(capacity as u64);
             $(
                 let _ = map.insert($key, $value);
@@ -27,7 +27,7 @@ pub macro ns_dictionary {
 }
 
 /// Respond to problem situations in your interactions with APIs, and fine-tune your app for better debugging.
-pub macro ns_log {
+pub macro nslog {
     ($format:expr) => {
         use $crate::foundation::NSLog;
         unsafe {

@@ -6,7 +6,7 @@ use rust_macios::{
         NSApplication, NSApplicationActivationPolicy, NSPopover, NSPopoverBehavior, NSStatusBar,
         NSStatusItem, NSTextField, NSView, PNSApplicationDelegate,
     },
-    foundation::{macros::ns_array, NSPoint, NSRect, NSRectEdge, NSSize, NSString},
+    foundation::{macros::nsarray, NSPoint, NSRect, NSRectEdge, NSSize, NSString},
     objective_c_runtime::{
         id, msg_send, nil, objc_impl, objc_impl_init, objc_selector_impl,
         runtime::{Class, Object},
@@ -51,7 +51,7 @@ impl ViewController {
         view.p_add_subview(label.clone());
         self.p_set_view(view);
 
-        NSLayoutConstraint::activate_constraints(ns_array![
+        NSLayoutConstraint::activate_constraints(nsarray![
             label
                 .p_center_x_anchor()
                 .m_constraint_equal_to_anchor(self.p_view().p_center_x_anchor()),

@@ -7,8 +7,8 @@ use crate::{
 };
 
 use super::{
-    CNContactRelation, CNInstantMessageAddress, CNLabeledValue, CNPhoneNumber, CNPostalAddress,
-    CNSocialProfile, ICNContact,
+    CNContactRelation, CNInstantMessageAddress, CNLabeledValue, CNPhoneNumber, CNSocialProfile,
+    ICNContact, ICNPostalAddress,
 };
 
 object! {
@@ -117,10 +117,12 @@ impl CNMutableContact {
 
     /// An array of labeled postal addresses for a contact.
     #[property]
-    pub fn set_postal_addresses(
+    pub fn set_postal_addresses<PostalAddress>(
         &mut self,
-        postal_addresses: NSArray<CNLabeledValue<CNPostalAddress>>,
-    ) {
+        postal_addresses: NSArray<CNLabeledValue<PostalAddress>>,
+    ) where
+        PostalAddress: ICNPostalAddress,
+    {
         unsafe { msg_send![self.m_self(), setPostalAddresses: postal_addresses] }
     }
 
@@ -222,5 +224,48 @@ impl CNMutableContact {
                 setInstantMessageAddresses: instant_messenger_addresses
             ]
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{
+        contacts::{CNContactType, CNMutableContact, ICNContact},
+        objective_c_runtime::traits::PNSObject,
+    };
+
+    #[test]
+    fn test_mutable_contact() {
+        let contact = CNMutableContact::m_new();
+
+        assert!(contact.p_birthday().is_none());
+        assert!(contact.p_contact_relations().count() == 0);
+        assert!(contact.p_contact_type() == CNContactType::Person);
+        assert!(contact.p_dates().count() == 0);
+        assert!(contact.p_department_name() == "");
+        assert!(contact.p_email_addresses().count() == 0);
+        assert!(contact.p_family_name() == "");
+        assert!(contact.p_given_name() == "");
+        assert!(contact.p_identifier() != "");
+        assert!(contact.p_image_data().is_none());
+        assert!(!contact.p_image_data_available());
+        assert!(contact.p_instant_messaging_addresses().count() == 0);
+        assert!(contact.p_job_title() == "");
+        assert!(contact.p_middle_name() == "");
+        assert!(contact.p_name_prefix() == "");
+        assert!(contact.p_name_suffix() == "");
+        assert!(contact.p_nickname() == "");
+        assert!(contact.p_non_gregorian_birthday().is_none());
+        assert!(contact.p_note() == "");
+        assert!(contact.p_organization_name() == "");
+        assert!(contact.p_phone_numbers().count() == 0);
+        assert!(contact.p_phonetic_given_name() == "");
+        assert!(contact.p_phonetic_middle_name() == "");
+        assert!(contact.p_phonetic_family_name() == "");
+        assert!(contact.p_postal_addresses().count() == 0);
+        assert!(contact.p_previous_family_name() == "");
+        assert!(contact.p_social_profiles().count() == 0);
+        assert!(contact.p_thumbnail_image_data().is_none());
+        assert!(contact.p_url_addresses().count() == 0);
     }
 }

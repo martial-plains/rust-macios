@@ -23,26 +23,28 @@ where
     ValueType: PNSObject + FromId,
 {
     /// Returns a new labeled value identifier.
-    fn m_init_with_label_value(&mut self, label: NSString, value: ValueType) -> Self
+    fn m_init_with_label_value(&mut self, label: &NSString, value: ValueType) -> Self
     where
         Self: Sized + FromId,
     {
         unsafe {
             Self::from_id(msg_send![
                 self.m_self(),
-                initWithLabel:label
+                initWithLabel:label.m_self()
                 value:value
             ])
         }
     }
 
     /// Returns a new labeled value identifier.
-    fn m_labeled_value_with_label_value(label: NSString, value: ValueType) -> Self
+    fn m_labeled_value_with_label_value(label: &NSString, value: ValueType) -> Self
     where
         Self: Sized + FromId,
     {
         unsafe {
-            Self::from_id(msg_send![Self::m_class(), labeledValueWithLabel:label value:value])
+            Self::from_id(
+                msg_send![Self::m_class(), labeledValueWithLabel:label.m_self() value:value],
+            )
         }
     }
 
@@ -63,22 +65,24 @@ where
      */
 
     /// Returns a labeled value object with an existing value and identifier.
-    fn m_labeled_value_by_setting_label(&self, label: NSString) -> Self
+    fn m_labeled_value_by_setting_label(&self, label: &NSString) -> Self
     where
         Self: Sized + FromId,
     {
-        unsafe { Self::from_id(msg_send![self.m_self(), labeledValueBySettingLabel: label]) }
+        unsafe {
+            Self::from_id(msg_send![self.m_self(), labeledValueBySettingLabel: label.m_self()])
+        }
     }
 
     /// Returns a labeled value object with the specified label and value with the existing identifier.
-    fn m_labeled_value_by_setting_label_value(&self, label: NSString, value: ValueType) -> Self
+    fn m_labeled_value_by_setting_label_value(&self, label: &NSString, value: ValueType) -> Self
     where
         Self: Sized + FromId,
     {
         unsafe {
             Self::from_id(msg_send![
                 self.m_self(),
-                labeledValueBySettingLabel:label
+                labeledValueBySettingLabel:label.m_self()
                 value:value
             ])
         }
@@ -96,8 +100,10 @@ where
      */
 
     /// Returns a localized string for the specified label.
-    fn m_localized_string_for_label(label: NSString) -> NSString {
-        unsafe { NSString::from_id(msg_send![Self::m_class(), localizedStringForLabel: label]) }
+    fn m_localized_string_for_label(label: &NSString) -> NSString {
+        unsafe {
+            NSString::from_id(msg_send![Self::m_class(), localizedStringForLabel: label.m_self()])
+        }
     }
 
     /// A unique identifier for the labeled value object.
@@ -116,12 +122,12 @@ where
     ValueType: PNSObject + FromId,
 {
     /// Returns a new labeled value identifier.
-    pub fn init_with_label_value(&mut self, label: NSString, value: ValueType) -> Self {
+    pub fn init_with_label_value(&mut self, label: &NSString, value: ValueType) -> Self {
         self.m_init_with_label_value(label, value)
     }
 
     /// Returns a new labeled value identifier.
-    pub fn labeled_value_with_label_value(label: NSString, value: ValueType) -> Self {
+    pub fn labeled_value_with_label_value(label: &NSString, value: ValueType) -> Self {
         Self::m_labeled_value_with_label_value(label, value)
     }
 
@@ -142,12 +148,12 @@ where
      */
 
     /// Returns a labeled value object with an existing value and identifier.
-    pub fn labeled_value_by_setting_label(&self, label: NSString) -> Self {
+    pub fn labeled_value_by_setting_label(&self, label: &NSString) -> Self {
         self.m_labeled_value_by_setting_label(label)
     }
 
     /// Returns a labeled value object with the specified label and value with the existing identifier.
-    pub fn labeled_value_by_setting_label_value(&self, label: NSString, value: ValueType) -> Self {
+    pub fn labeled_value_by_setting_label_value(&self, label: &NSString, value: ValueType) -> Self {
         self.m_labeled_value_by_setting_label_value(label, value)
     }
 
@@ -160,7 +166,7 @@ where
      */
 
     /// Returns a localized string for the specified label.
-    pub fn localized_string_for_label(label: NSString) -> NSString {
+    pub fn localized_string_for_label(label: &NSString) -> NSString {
         Self::m_localized_string_for_label(label)
     }
 
@@ -168,4 +174,30 @@ where
     pub fn identifier(&self) -> NSString {
         self.p_identifier()
     }
+}
+
+extern "C" {
+    /* Getting Common Labels
+     */
+
+    /// The label for identifying home information.
+    pub static CNLabelHome: NSString;
+
+    /// The label for identifying work information.
+    pub static CNLabelWork: NSString;
+
+    /// The label for the contact’s school.
+    pub static CNLabelSchool: NSString;
+
+    /// The label for identifying other information.
+    pub static CNLabelOther: NSString;
+
+    /// The label for identifying the contact's iCloud email information.
+    pub static CNLabelEmailiCloud: NSString;
+
+    /// The label for identifying URL information.
+    pub static CNLabelURLAddressHomePage: NSString;
+
+    /// The label for identifying the contact's anniversary date.
+    pub static CNLabelDateAnniversary: NSString;
 }
