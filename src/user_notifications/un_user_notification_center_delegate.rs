@@ -166,7 +166,7 @@ pub fn register_user_notification_center_delegate_class<
 
     INIT.call_once(|| unsafe {
         let superclass = class!(NSObject);
-        let mut decl = ClassDecl::new("RSTNSApplicationDelegate", superclass).unwrap();
+        let mut decl = ClassDecl::new("RSTUNUserNotificationCenterDelegate", superclass).unwrap();
 
         decl.add_ivar::<usize>(UNUSER_NOTIFICATION_CENTER_PTR);
 
