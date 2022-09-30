@@ -7,8 +7,10 @@ use crate::{
     objective_c_runtime::{
         id,
         macros::object,
+        nil,
         traits::{FromId, PNSObject},
     },
+    utils::to_bool,
 };
 
 use super::{
@@ -222,8 +224,19 @@ impl CNContactStore {
 
     /// Executes a save request and returns success or failure.
     #[method]
-    pub fn execute_save_request_error(&self, request: CNSaveRequest, error: &mut NSError) -> bool {
-        unsafe { msg_send![self.m_self(), executeSaveRequest: request error: error] }
+    pub fn execute_save_request(&self, request: CNSaveRequest) -> Result<bool, NSError> {
+        unsafe {
+            let mut error = NSError::m_alloc();
+
+            let ptr =
+                to_bool(msg_send![self.m_self(), executeSaveRequest: request error: &mut error]);
+
+            if error.m_self() != nil {
+                Err(error)
+            } else {
+                Ok(ptr)
+            }
+        }
     }
 }
 

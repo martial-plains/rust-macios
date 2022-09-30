@@ -7,15 +7,13 @@ use rust_macios::{
     objective_c_runtime::traits::PNSObject,
 };
 
-fn main() {
+fn main() -> Result<(), NSError> {
     // Create a new mutable contact (read/write)
     let mut contact = CNMutableContact::m_new();
 
     // Set standard properties
     contact.set_given_name("John".into());
     contact.set_family_name("Appleseed".into());
-
-    println!("{:?}", unsafe { &CNLabelHome });
 
     // Add email addresses
     let home_email = CNLabeledValue::<NSString>::labeled_value_with_label_value(
@@ -48,11 +46,9 @@ fn main() {
 
     save_request.add_contact_to_container_with_identifier(contact, None);
 
-    let mut error = NSError::m_alloc();
-
-    if store.execute_save_request_error(save_request, &mut error) {
+    if store.execute_save_request(save_request)? {
         println!("New contact saved!");
-    } else {
-        println!("Save error: {}", error);
     }
+
+    Ok(())
 }
