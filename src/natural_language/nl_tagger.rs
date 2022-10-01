@@ -14,6 +14,7 @@ use crate::{
         traits::{FromId, PNSObject},
         NSValue,
     },
+    utils::to_optional,
 };
 
 use super::{NLGazetteer, NLLanguage, NLModel, NLTokenUnit};
@@ -259,21 +260,15 @@ impl NLTagger {
     /// The string being analyzed by the linguistic tagger.
     #[property]
     pub fn string(&self) -> Option<NSString> {
-        unsafe {
-            let ptr: id = msg_send![self.m_self(), string];
-
-            if ptr != nil {
-                Some(NSString::from_id(ptr))
-            } else {
-                None
-            }
-        }
+        unsafe { to_optional(msg_send![self.m_self(), string]) }
     }
 
     /// Sets the string being analyzed by the linguistic tagger.
     #[property]
-    pub fn set_string(&mut self, value: &NSString) {
-        unsafe { msg_send![self.m_self(), setString: value.m_self() ] }
+    pub fn set_string(&mut self, value: Option<NSString>) {
+        unsafe {
+            msg_send![self.m_self(), setString: if let Some(value) = value {value.m_self()} else {nil} ]
+        }
     }
 
     /* Getting the tag schemes
@@ -318,15 +313,7 @@ impl NLTagger {
     /// The dominant language of the string set for the linguistic tagger.
     #[property]
     pub fn dominant_language(&self) -> Option<NLLanguage> {
-        unsafe {
-            let ptr: id = msg_send![self.m_self(), dominantLanguage];
-
-            if ptr != nil {
-                Some(NLLanguage::from_id(ptr))
-            } else {
-                None
-            }
-        }
+        unsafe { to_optional(msg_send![self.m_self(), dominantLanguage]) }
     }
 
     /// Sets the dominant language of the string set for the linguistic tagger.
@@ -530,7 +517,7 @@ mod tests {
             let mut tagger =
                 NLTagger::m_new().init_with_tag_schemes(nsarray![nl_tag_scheme::Lemma.clone()]);
 
-            tagger.set_string(&TEXT.into());
+            tagger.set_string(Some(TEXT.into()));
 
             let mut range = NSRange::default();
 
@@ -557,7 +544,7 @@ mod tests {
             let mut tagger = NLTagger::m_new()
                 .init_with_tag_schemes(nsarray![nl_tag_scheme::LexicalClass.clone()]);
 
-            tagger.set_string(&TEXT.into());
+            tagger.set_string(Some(TEXT.into()));
 
             let dict = tagger.tag_hypotheses_at_index_unit_scheme_maximum_count_token_range(
                 0,
@@ -579,7 +566,7 @@ mod tests {
             let mut tagger = NLTagger::m_new()
                 .init_with_tag_schemes(nsarray![nl_tag_scheme::LexicalClass.clone()]);
 
-            tagger.set_string(&TEXT.into());
+            tagger.set_string(Some(TEXT.into()));
 
             let mut range = NSRange::default();
 

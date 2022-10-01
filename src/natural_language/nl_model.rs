@@ -5,11 +5,11 @@ use crate::{
     core_ml::MLModel,
     foundation::{NSArray, NSDictionary, NSError, NSNumber, NSString, UInt, NSURL},
     objective_c_runtime::{
-        id,
         macros::object,
         nil,
         traits::{FromId, PNSObject},
     },
+    utils::to_optional,
 };
 
 use super::NLModelConfiguration;
@@ -72,15 +72,7 @@ impl NLModel {
     /// Predicts a label for the given input string.
     #[method]
     pub fn predicted_label_for_string(&self, string: &NSString) -> Option<NSString> {
-        unsafe {
-            let ptr: id = msg_send![self.m_self(), predictedLabelForString: string.m_self()];
-
-            if ptr != nil {
-                Some(NSString::from_id(ptr))
-            } else {
-                None
-            }
-        }
+        unsafe { to_optional(msg_send![self.m_self(), predictedLabelForString: string.m_self()]) }
     }
 
     /// Predicts a label for each string in the given array.

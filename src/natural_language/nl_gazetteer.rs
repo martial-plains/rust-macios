@@ -4,12 +4,11 @@ use objective_c_runtime_proc_macros::interface_impl;
 use crate::{
     foundation::{NSArray, NSData, NSDictionary, NSError, NSString, NSURL},
     objective_c_runtime::{
-        id,
         macros::object,
         nil,
         traits::{FromId, PNSObject},
     },
-    utils::to_bool,
+    utils::{to_bool, to_optional},
 };
 
 use super::NLLanguage;
@@ -124,15 +123,7 @@ impl NLGazetteer {
     /// Retrieves the label for the given term.
     #[method]
     pub fn label_for_string(&self, string: &NSString) -> Option<NSString> {
-        unsafe {
-            let ptr: id = msg_send![self.m_self(), labelForString: string.m_self()];
-
-            if ptr == nil {
-                None
-            } else {
-                Some(NSString::from_id(ptr))
-            }
-        }
+        unsafe { to_optional(msg_send![self.m_self(), labelForString: string.m_self()]) }
     }
 
     /* Inspecting a Gazetteer
@@ -152,7 +143,7 @@ impl NLGazetteer {
 
     /// The language of the gazetteer.
     #[property]
-    pub fn language(&self) -> NLLanguage {
-        unsafe { msg_send![self.m_self(), language] }
+    pub fn language(&self) -> Option<NLLanguage> {
+        unsafe { to_optional(msg_send![self.m_self(), language]) }
     }
 }

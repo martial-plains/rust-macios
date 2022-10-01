@@ -9,6 +9,7 @@ use crate::{
         macros::object,
         traits::{FromId, PNSObject},
     },
+    utils::to_optional,
 };
 
 use super::NLLanguage;
@@ -37,9 +38,9 @@ impl NLLanguageRecognizer {
 
     /// Finds the most likely language of a piece of text.
     #[method]
-    pub fn dominant_language_for_string(&self, string: &NSString) -> NLLanguage {
+    pub fn dominant_language_for_string(&self, string: &NSString) -> Option<NLLanguage> {
         unsafe {
-            NLLanguage::from_id(msg_send![
+            to_optional(msg_send![
                 Self::m_class(),
                 dominantLanguageForString: string.m_self()
             ])
@@ -54,8 +55,8 @@ impl NLLanguageRecognizer {
 
     /// The most likely language for the processed text.
     #[method]
-    pub fn dominant_language(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.m_self(), dominantLanguage]) }
+    pub fn dominant_language(&self) -> Option<NSString> {
+        unsafe { to_optional(msg_send![self.m_self(), dominantLanguage]) }
     }
 
     /// Generates the probabilities of possible languages for the processed text.
@@ -126,7 +127,7 @@ mod tests {
         let mut lr = NLLanguageRecognizer::default();
         lr.process_string(&"This is a test.".into());
         let lang = lr.dominant_language();
-        assert_eq!(lang, "en");
+        assert_eq!(lang.unwrap_or_default(), "en");
     }
 
     #[test]
@@ -165,11 +166,11 @@ mod tests {
         let mut lr = NLLanguageRecognizer::default();
         lr.process_string(&"This is a test.".into());
         let mut lang = lr.dominant_language();
-        assert_eq!(lang, "en");
+        assert_eq!(lang.unwrap_or_default(), "en");
         lr.reset();
         lr.process_string(&"Det här är ett test".into());
         lang = lr.dominant_language();
-        assert_eq!(lang, "sv");
+        assert_eq!(lang.unwrap_or_default(), "sv");
     }
 
     #[test]
@@ -185,6 +186,6 @@ mod tests {
         let mut lr = NLLanguageRecognizer::default();
         lr.process_string(&"This is a test.".into());
         let lang = lr.dominant_language_for_string(&"This is a test.".into());
-        assert_eq!(lang, "en");
+        assert_eq!(lang.unwrap_or_default(), "en");
     }
 }

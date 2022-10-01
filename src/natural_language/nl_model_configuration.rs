@@ -4,11 +4,10 @@ use objective_c_runtime_proc_macros::interface_impl;
 use crate::{
     foundation::{NSIndexSet, UInt},
     objective_c_runtime::{
-        id,
         macros::object,
-        nil,
         traits::{FromId, PNSObject},
     },
+    utils::to_optional,
 };
 
 use super::{NLLanguage, NLModelType};
@@ -26,15 +25,7 @@ impl NLModelConfiguration {
     /// The language the model supports.
     #[property]
     pub fn language(&self) -> Option<NLLanguage> {
-        unsafe {
-            let ptr: id = msg_send![self.m_self(), language];
-
-            if ptr != nil {
-                Some(NLLanguage::from_id(ptr))
-            } else {
-                None
-            }
-        }
+        unsafe { to_optional(msg_send![self.m_self(), language]) }
     }
 
     /// The version of the Natural Language framework that trained the model.

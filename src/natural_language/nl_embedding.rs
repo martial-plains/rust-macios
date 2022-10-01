@@ -287,7 +287,7 @@ impl NLEmbedding {
     /// The language of the text in the word embedding.
     #[property]
     pub fn language(&self) -> NLLanguage {
-        unsafe { NLLanguage::from_id(msg_send![self.m_self(), language]) }
+        unsafe { to_optional(msg_send![self.m_self(), language]) }
     }
 
     /// Requests a Boolean value that indicates whether the term is in the vocabulary.
