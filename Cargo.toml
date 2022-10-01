@@ -28,6 +28,7 @@ default = [
     "contacts",
     "core_foundation",
     "core_graphics",
+    "core_ml",
     "foundation",
     "natural_language",
     "objective_c_runtime",
@@ -40,8 +41,9 @@ compression = []
 contacts = ["foundation"]
 core_foundation = []
 core_graphics = []
+core_ml = ["foundation"]
 foundation = ["objective_c_runtime", "core_foundation", "core_graphics"]
-natural_language = ["foundation"]
+natural_language = ["foundation", "core_ml"]
 objective_c_runtime = ["foundation"]
 uikit = ["foundation"]
 user_notifications = ["foundation"]
@@ -60,3 +62,4 @@ lazy_static = "1.4.0"
 
 [dev-dependencies]
 test-case = "2.1.0"
+log = "0.4.17"

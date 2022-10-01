@@ -7,7 +7,7 @@ use crate::{
     foundation::NSString,
     objective_c_runtime::{
         id,
-        macros::shared_object,
+        macros::object,
         traits::{FromId, PNSObject},
     },
     utils::to_bool,
@@ -20,7 +20,7 @@ use super::{ns_mutable_array::NSMutableArray, NSLocale, NSNumber, NSRange, UInt,
 /// Iterator for Array
 pub mod iter;
 
-shared_object! {
+object! {
     /// A static ordered collection of objects.
     unsafe pub struct NSArray<T> {
         _marker: PhantomData<T>,
@@ -43,7 +43,7 @@ impl<T> NSArray<T> {
 impl<T> NSArray<T> {
     /// Creates an empty array.
     pub fn new() -> Self {
-        unsafe { Self::from_id(msg_send![Self::m_class(), new]) }
+        NSArray::m_new()
     }
 
     /// Returns true if the obect is an instance of NSArray.
@@ -51,12 +51,12 @@ impl<T> NSArray<T> {
     where
         T: PNSObject,
     {
-        self.im_contains_object(object)
+        self.m_contains_object(object)
     }
 
     /// Returns the number of objects in the array.
     pub fn count(&self) -> u64 {
-        self.ip_count()
+        self.p_count()
     }
 }
 
@@ -75,17 +75,17 @@ pub trait INSArray<T>: PNSObject {
     ///
     /// A Boolean value that indicates whether `object` is present in the array.
     ///
-    fn im_contains_object(&self, object: T) -> bool {
+    fn m_contains_object(&self, object: T) -> bool {
         unsafe { to_bool(msg_send![self.m_self(), containsObject: object]) }
     }
 
     /// The number of objects in the array.
-    fn ip_count(&self) -> UInt {
+    fn p_count(&self) -> UInt {
         unsafe { msg_send![self.m_self(), count] }
     }
 
     /// The first object in the array.
-    fn ip_first_object(&self) -> Option<T>
+    fn p_first_object(&self) -> Option<T>
     where
         T: PNSObject + FromId,
     {
@@ -100,7 +100,7 @@ pub trait INSArray<T>: PNSObject {
     }
 
     /// The last object in the array.
-    fn ip_last_object(&self) -> Option<T>
+    fn p_last_object(&self) -> Option<T>
     where
         T: PNSObject + FromId,
     {
@@ -115,7 +115,7 @@ pub trait INSArray<T>: PNSObject {
     }
 
     /// The object at the specified index.
-    fn im_object_at_index(&self, index: UInt) -> T
+    fn m_object_at_index(&self, index: UInt) -> T
     where
         T: PNSObject + FromId,
     {
@@ -123,7 +123,7 @@ pub trait INSArray<T>: PNSObject {
     }
 
     /// The index of the specified object.
-    fn im_object_at_indexed_subscript(&self, index: UInt) -> Option<id> {
+    fn m_object_at_indexed_subscript(&self, index: UInt) -> Option<id> {
         unsafe {
             let id: id = msg_send![self.m_self(), objectAtIndexedSubscript: index];
             if id.is_null() {
@@ -138,22 +138,22 @@ pub trait INSArray<T>: PNSObject {
      */
 
     /// Returns the lowest index whose corresponding array value is equal to a given object.
-    fn im_index_of_object(&self, object: T) -> UInt {
+    fn m_index_of_object(&self, object: T) -> UInt {
         unsafe { msg_send![self.m_self(), indexOfObject: object] }
     }
 
     /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
-    fn im_index_of_object_in_range(&self, object: T, range: NSRange) -> UInt {
+    fn m_index_of_object_in_range(&self, object: T, range: NSRange) -> UInt {
         unsafe { msg_send![self.m_self(), indexOfObject: object inRange: range] }
     }
 
     /// Returns the lowest index whose corresponding array value is identical to a given object.
-    fn im_index_of_object_identical_to(&self, object: T) -> UInt {
+    fn m_index_of_object_identical_to(&self, object: T) -> UInt {
         unsafe { msg_send![self.m_self(), indexOfObjectIdenticalTo: object] }
     }
 
     /// Returns the lowest index within a specified range whose corresponding array value is equal to a given object .
-    fn im_index_of_object_identical_to_in_range(&self, object: T, range: NSRange) -> UInt {
+    fn m_index_of_object_identical_to_in_range(&self, object: T, range: NSRange) -> UInt {
         unsafe { msg_send![self.m_self(), indexOfObjectIdenticalTo: object inRange: range] }
     }
 
@@ -161,7 +161,7 @@ pub trait INSArray<T>: PNSObject {
      */
 
     /// Returns the first object contained in the receiving array that’s equal to an object in another given array.
-    fn im_first_object_common_with_array(&self, other: &NSArray<T>) -> Option<T>
+    fn m_first_object_common_with_array(&self, other: &NSArray<T>) -> Option<T>
     where
         T: PNSObject + FromId,
     {
@@ -176,7 +176,7 @@ pub trait INSArray<T>: PNSObject {
     }
 
     /// Compares the receiving array to another array.
-    fn im_is_equal_to_array(&self, other: &NSArray<T>) -> bool {
+    fn m_is_equal_to_array(&self, other: &NSArray<T>) -> bool {
         unsafe { to_bool(msg_send![self.m_self(), isEqualToArray: other.m_self()]) }
     }
 
@@ -188,7 +188,7 @@ pub trait INSArray<T>: PNSObject {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn im_array_by_adding_object(&self, object: T) -> NSArray<T> {
+    unsafe fn m_array_by_adding_object(&self, object: T) -> NSArray<T> {
         NSArray::from_id(msg_send![self.m_self(), arrayByAddingObject: object])
     }
 
@@ -197,7 +197,7 @@ pub trait INSArray<T>: PNSObject {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn im_array_by_adding_objects_from_array<A>(&self, objects: A) -> NSArray<T>
+    unsafe fn m_array_by_adding_objects_from_array<A>(&self, objects: A) -> NSArray<T>
     where
         A: INSArray<T>,
     {
@@ -209,7 +209,7 @@ pub trait INSArray<T>: PNSObject {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    unsafe fn im_subarray_with_range(&self, range: NSRange) -> NSArray<T> {
+    unsafe fn m_subarray_with_range(&self, range: NSRange) -> NSArray<T> {
         NSArray::from_id(msg_send![self.m_self(), subarrayWithRange: range])
     }
     /* Creating a Description
@@ -218,12 +218,12 @@ pub trait INSArray<T>: PNSObject {
     /// A string that represents the contents of the array, formatted as a property list.
 
     /// Returns a string that represents the contents of the array, formatted as a property list.
-    fn im_description_with_locale(&self, locale: &NSLocale) -> NSString {
+    fn m_description_with_locale(&self, locale: &NSLocale) -> NSString {
         unsafe { msg_send![self.m_self(), descriptionWithLocale: locale.m_self()] }
     }
 
     /// Returns a string that represents the contents of the array, formatted as a property list.
-    fn im_description_with_locale_indent(&self, locale: &NSLocale, indent: UInt) -> NSString {
+    fn m_description_with_locale_indent(&self, locale: &NSLocale, indent: UInt) -> NSString {
         unsafe { msg_send![self.m_self(), descriptionWithLocale: locale.m_self() indent: indent] }
     }
 }
@@ -467,8 +467,8 @@ mod tests {
     fn test_array_from_vec() {
         let array: NSArray<NSString> = vec!["foo", "bar"].into();
         assert_eq!(array.count(), 2);
-        assert_eq!(array.im_object_at_index(0), NSString::from("foo"));
-        assert_eq!(array.im_object_at_index(1), NSString::from("bar"));
+        assert_eq!(array.m_object_at_index(0), NSString::from("foo"));
+        assert_eq!(array.m_object_at_index(1), NSString::from("bar"));
     }
 
     #[test]
@@ -476,7 +476,7 @@ mod tests {
         let array: NSArray<NSString> = vec!["foo", "bar"].into();
         let array2: NSArray<NSString> = vec!["foo", "bar"].into();
         assert_eq!(
-            array.im_first_object_common_with_array(&array2),
+            array.m_first_object_common_with_array(&array2),
             Some(NSString::from("foo"))
         );
     }

@@ -22,10 +22,10 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.index >= self.array.ip_count() {
+        if self.index >= self.array.p_count() {
             None
         } else {
-            let item = self.array.im_object_at_index(self.index);
+            let item = self.array.m_object_at_index(self.index);
             self.index += 1;
             Some(item)
         }

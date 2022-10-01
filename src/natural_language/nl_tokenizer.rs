@@ -6,7 +6,8 @@ use crate::{
     foundation::{NSArray, NSRange, NSString, UInt},
     objective_c_runtime::{
         macros::object,
-        traits::{FromId, INSValue, PNSObject},
+        traits::{FromId, PNSObject},
+        INSValue,
     },
 };
 

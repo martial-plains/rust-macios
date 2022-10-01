@@ -5,6 +5,9 @@ use crate::foundation;
 /// The languages that the Natural Language framework supports.
 pub type NLLanguage = foundation::NSString;
 
+mod enums;
+pub use enums::*;
+
 /* Tokenization
  */
 
@@ -26,5 +29,18 @@ pub use nl_language::*;
 mod nl_tagger;
 pub use nl_tagger::*;
 
-mod enums;
-pub use enums::*;
+mod nl_gazetteer;
+pub use nl_gazetteer::*;
+
+/* Text embedding */
+mod nl_embedding;
+pub use nl_embedding::*;
+
+/* Natural language models
+ */
+
+mod nl_model;
+pub use nl_model::*;
+
+mod nl_model_configuration;
+pub use nl_model_configuration::*;

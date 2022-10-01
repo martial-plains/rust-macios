@@ -156,9 +156,6 @@ pub trait PNSObject {
     }
 }
 
-/// The group of methods that are fundamental to all Objective-C objects.
-pub trait INSValue: PNSObject {}
-
 /// Converting an Objective-C pointer to Object
 pub trait FromId: ToId {
     /// Returns `Self` representation of the object.

@@ -7,10 +7,12 @@ pub mod traits;
 pub mod macros;
 
 mod globals;
+mod ns_value;
 mod reexports;
 mod type_defs;
 
 pub use globals::*;
+pub use ns_value::*;
 pub use reexports::*;
 pub use type_defs::*;
 

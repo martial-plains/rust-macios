@@ -10,7 +10,8 @@ use objective_c_runtime_proc_macros::interface_impl;
 use crate::{
     objective_c_runtime::{
         macros::object,
-        traits::{FromId, INSValue, PNSObject},
+        traits::{FromId, PNSObject},
+        INSValue,
     },
     utils::to_bool,
 };

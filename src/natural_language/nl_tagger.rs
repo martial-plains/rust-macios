@@ -3,14 +3,20 @@ use objc::{msg_send, sel, sel_impl};
 use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
-    foundation::{NSArray, NSError, NSOrthography, NSRange, NSString},
+    foundation::{
+        NSArray, NSDictionary, NSError, NSNumber, NSOrthography, NSRange, NSRangePointer, NSString,
+        UInt,
+    },
     objective_c_runtime::{
+        id,
         macros::object,
+        nil,
         traits::{FromId, PNSObject},
+        NSValue,
     },
 };
 
-use super::{NLLanguage, NLTokenUnit};
+use super::{NLGazetteer, NLLanguage, NLModel, NLTokenUnit};
 
 object! {
     /// A tagger that analyzes natural language text.
@@ -105,6 +111,104 @@ pub mod nl_tag {
         #[link_name = "NLTagAdjective"]
         pub static Adjective: NLTag;
 
+        /// A tag indicating that the token is an adverb.
+        #[link_name = "NLTagAdverb"]
+        pub static Adverb: NLTag;
+
+        /// A tag indicating that the token is a pronoun.
+        #[link_name = "NLTagPronoun"]
+        pub static Pronoun: NLTag;
+
+        /// A tag indicating that the token is a determiner.
+        #[link_name = "NLTagDeterminer"]
+        pub static Determiner: NLTag;
+
+        /// A tag indicating that the token is a particle.
+        #[link_name = "NLTagParticle"]
+        pub static Particle: NLTag;
+
+        /// A tag indicating that the token is a preposition.
+        #[link_name = "NLTagPreposition"]
+        pub static Preposition: NLTag;
+
+        /// A tag indicating that the token is a number.
+        #[link_name = "NLTagNumber"]
+        pub static Number: NLTag;
+
+        /// A tag indicating that the token is a conjunction.
+        #[link_name = "NLTagConjunction"]
+        pub static Conjuction: NLTag;
+
+        /// A tag indicating that the token is an interjection.
+        #[link_name = "NLTagInterjection"]
+        pub static Interjection: NLTag;
+
+        /// A tag indicating that the token is a classifier.
+        #[link_name = "NLTagClassifier"]
+        pub static Classifier: NLTag;
+
+        /// A tag indicating that the token is an idiom.
+        #[link_name = "NLTagIdiom"]
+        pub static Idion: NLTag;
+
+        /// A tag indicating that the token is a word other than a kind described by other lexical classes (noun, verb, adjective, adverb, pronoun, determiner, particle, preposition, number, conjunction, interjection, classifier, and idiom).
+        #[link_name = "NLTagOtherWord"]
+        pub static OtherWord: NLTag;
+
+        /// A tag indicating that the token is punctuation at the end of a sentence.
+        #[link_name = "NLTagSentenceTerminator"]
+        pub static SentenceTerminator: NLTag;
+
+        /// A tag indicating that the token is an open quote.
+        #[link_name = "NLTagOpenQuote"]
+        pub static OpenQuote: NLTag;
+
+        /// A tag indicating that the token is a close quote.
+        #[link_name = "NLTagCloseQuote"]
+        pub static CloseQuote: NLTag;
+
+        /// A tag indicating that the token is an open parenthesis.
+        #[link_name = "NLTagOpenParenthesis"]
+        pub static OpenParenthesis: NLTag;
+
+        /// A tag indicating that the token is a close parenthesis.
+        #[link_name = "NLTagCloseParenthesis"]
+        pub static CloseParenthesis: NLTag;
+
+        /// A tag indicating that the token is a word joiner, signifying that two tokens on each side should not be broken up.
+        #[link_name = "NLTagWordJoiner"]
+        pub static WordJoiner: NLTag;
+
+        /// A tag indicating that the token is a dash.
+        #[link_name = "NLTagDash"]
+        pub static Dash: NLTag;
+
+        /// A tag indicating that the token is punctuation other than a kind described by other lexical classes (sentence terminator, open or close quote, open or close parenthesis, word joiner, and dash).
+        #[link_name = "NLTagOtherPunctuation"]
+        pub static OtherPunctuation: NLTag;
+
+        /// A tag indicating that the token is a paragraph break.
+        #[link_name = "NLTagParagraphBreak"]
+        pub static ParagraphBreak: NLTag;
+
+        /// A tag indicating that the token is whitespace other than a kind described by other lexical classes (paragraph break).
+        #[link_name = "NLTagOtherWhitespace"]
+        pub static OtherWhitespace: NLTag;
+
+        /* Name types
+         */
+
+        /// A tag indicating that the token is a personal name.
+        #[link_name = "NLTagPersonalName"]
+        pub static PersonalName: NLTag;
+
+        /// A tag indicating that the token is an organization name.
+        #[link_name = "NLTagOrganizationName"]
+        pub static OrganizationName: NLTag;
+
+        /// A tag indicating that the token is a place name.
+        #[link_name = "NLTagPlaceName"]
+        pub static PlaceName: NLTag;
     }
 }
 
@@ -154,8 +258,22 @@ impl NLTagger {
 
     /// The string being analyzed by the linguistic tagger.
     #[property]
-    pub fn string(&self) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.m_self(), string]) }
+    pub fn string(&self) -> Option<NSString> {
+        unsafe {
+            let ptr: id = msg_send![self.m_self(), string];
+
+            if ptr != nil {
+                Some(NSString::from_id(ptr))
+            } else {
+                None
+            }
+        }
+    }
+
+    /// Sets the string being analyzed by the linguistic tagger.
+    #[property]
+    pub fn set_string(&mut self, value: &NSString) {
+        unsafe { msg_send![self.m_self(), setString: value.m_self() ] }
     }
 
     /* Getting the tag schemes
@@ -199,8 +317,24 @@ impl NLTagger {
 
     /// The dominant language of the string set for the linguistic tagger.
     #[property]
-    pub fn dominant_language(&self) -> NLLanguage {
-        unsafe { NLLanguage::from_id(msg_send![self.m_self(), dominantLanguage]) }
+    pub fn dominant_language(&self) -> Option<NLLanguage> {
+        unsafe {
+            let ptr: id = msg_send![self.m_self(), dominantLanguage];
+
+            if ptr != nil {
+                Some(NLLanguage::from_id(ptr))
+            } else {
+                None
+            }
+        }
+    }
+
+    /// Sets the dominant language of the string set for the linguistic tagger.
+    #[property]
+    pub fn set_dominant_language(&self, language: Option<&NLLanguage>) {
+        unsafe {
+            msg_send![self.m_self(), setDominantLanguage: if let Some(language) = language { language.m_self() } else { nil }]
+        }
     }
 
     /// Sets the language for a range of text within the tagger's string.
@@ -229,19 +363,239 @@ impl NLTagger {
     /// Enumerates a block over the tagger’s string, given a range, token unit, and tag scheme.
     #[method]
     pub fn enumerate_tags_in_range_unit_scheme_options_using_block<F>(
-        &mut self,
+        &self,
         range: NSRange,
         unit: NLTokenUnit,
         scheme: &NLTagScheme,
-        options: NLTaggerOptions,
+        options: &[NLTaggerOptions],
         block: F,
     ) where
         F: IntoConcreteBlock<(NLTag, NSRange, *mut bool), Ret = ()> + 'static,
     {
         unsafe {
+            let options = options.iter().fold(0, |init, unit| init | *unit as UInt);
+
             msg_send![
                 self.m_self(), enumerateTagsInRange: range unit: unit scheme: scheme.m_self() options: options usingBlock: block
             ]
+        }
+    }
+
+    /* Getting linguistic tags
+     */
+
+    /// Finds an array of linguistic tags and token ranges for a given string range and linguistic unit.
+    #[method]
+    pub fn tags_in_range_unit_scheme_options_token_ranges(
+        &self,
+        range: NSRange,
+        unit: NLTokenUnit,
+        scheme: &NLTagScheme,
+        options: &[NLTaggerOptions],
+        token_ranges: &mut NSArray<NSValue>,
+    ) -> NSArray<NLTag> {
+        unsafe {
+            let options = options
+                .iter()
+                .fold(0, |init, option| init | *option as UInt);
+
+            NSArray::from_id(
+                msg_send![self.m_self(), tagsInRange: range unit:unit scheme: scheme.m_self() options: options tokenRanges: token_ranges
+                ],
+            )
+        }
+    }
+
+    /// Finds a tag for a given linguistic unit, for a single scheme, at the specified character position.
+    #[method]
+    pub fn tag_at_index_unit_scheme_token_range(
+        &self,
+        character_index: UInt,
+        unit: NLTokenUnit,
+        scheme: &NLTagScheme,
+        token_range: NSRangePointer,
+    ) -> Option<NLTag> {
+        unsafe {
+            let ptr: id = msg_send![self.m_self(), tagAtIndex:character_index unit: unit scheme: scheme.m_self() tokenRange: token_range];
+
+            if ptr != nil {
+                Some(NLTag::from_id(ptr))
+            } else {
+                None
+            }
+        }
+    }
+
+    /// Finds multiple possible tags for a given linguistic unit, for a single scheme, at the specified character position.
+    #[method]
+    pub fn tag_hypotheses_at_index_unit_scheme_maximum_count_token_range(
+        &self,
+        character_index: UInt,
+        unit: NLTokenUnit,
+        scheme: &NLTagScheme,
+        maximum_count: UInt,
+        token_range: Option<NSRangePointer>,
+    ) -> NSDictionary<NLTag, NSNumber> {
+        unsafe {
+            let token_range = match token_range {
+                Some(value) => value,
+                None => std::ptr::null_mut(),
+            };
+
+            NSDictionary::from_id(
+                msg_send![self.m_self(), tagHypothesesAtIndex:character_index unit: unit scheme: scheme.m_self() maximumCount: maximum_count tokenRange: token_range],
+            )
+        }
+    }
+
+    /* Determining the range of a unit token */
+
+    /// Returns the range of the linguistic unit containing the specified character index.
+    #[method]
+    pub fn token_range_at_index_unit(&self, character_index: UInt, unit: NLTokenUnit) -> NSRange {
+        unsafe { msg_send![self.m_self(), tokenRangeAtIndex: character_index unit: unit] }
+    }
+
+    /// Finds the entire range of all tokens of the specified linguistic unit contained completely or partially within the specified range.
+    #[method]
+    pub fn token_range_for_range_unit(&self, range: NSRange, unit: NLTokenUnit) -> NSRange {
+        unsafe { msg_send![self.m_self(), tokenRangeForRange: range unit: unit] }
+    }
+
+    /* Using models with a tagger
+     */
+
+    /// Assigns models for a tag scheme.
+    #[method]
+    pub fn set_models_for_tag_scheme(
+        &mut self,
+        models: &NSArray<NLModel>,
+        tag_scheme: &NLTagScheme,
+    ) {
+        unsafe {
+            msg_send![self.m_self(),  setModels:models.m_self() forTagScheme: tag_scheme.m_self()]
+        }
+    }
+
+    /// Returns the models that apply to the given tag scheme.
+    #[method]
+    pub fn models_for_tag_scheme(&self, tag_scheme: &NLTagScheme) -> NSArray<NLModel> {
+        unsafe {
+            NSArray::from_id(msg_send![self.m_self(), modelsForTagScheme: tag_scheme.m_self()])
+        }
+    }
+
+    /* Using gazetteers with a tagger
+     */
+
+    /// Attaches gazetteers to a tag scheme, typically one gazetteer per language or one language-independent gazetteer.
+    #[method]
+    pub fn set_gazetteers_for_tag_scheme(
+        &mut self,
+        gazetteers: &NSArray<NLGazetteer>,
+        tag_scheme: &NLTagScheme,
+    ) {
+        unsafe {
+            msg_send![self.m_self(), setGazetteers: gazetteers.m_self() forTagScheme: tag_scheme.m_self()]
+        }
+    }
+
+    /// Retrieves the gazetteers attached to a tag scheme.
+    #[method]
+    pub fn gazetteers_for_tag_scheme(&self, tag_scheme: &NLTagScheme) -> NSArray<NLGazetteer> {
+        unsafe {
+            NSArray::from_id(msg_send![self.m_self(), gazetteersForTagScheme: tag_scheme.m_self()])
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::ptr::addr_of_mut;
+
+    use crate::{
+        foundation::{macros::nsarray, ns_array::INSArray, INSDictionary, NSNumber, NSRange, UInt},
+        natural_language::{nl_language, NLTokenUnit},
+        objective_c_runtime::traits::PNSObject,
+    };
+
+    use super::{nl_tag_scheme, NLTagger};
+
+    const TEXT: &str =
+        "The ripe taste of cheese improves with age, but it can not get younger nor shouldn't it.";
+
+    #[test]
+    fn test_get_tag() {
+        unsafe {
+            let mut tagger =
+                NLTagger::m_new().init_with_tag_schemes(nsarray![nl_tag_scheme::Lemma.clone()]);
+
+            tagger.set_string(&TEXT.into());
+
+            let mut range = NSRange::default();
+
+            let tag = tagger.tag_at_index_unit_scheme_token_range(
+                0,
+                NLTokenUnit::Word,
+                &nl_tag_scheme::Lemma,
+                addr_of_mut!(range),
+            );
+
+            assert!(tagger.dominant_language() == Some(nl_language::English.clone()));
+            assert!(range.location == 0);
+            assert!(range.length == 3);
+
+            if let Some(tag) = tag {
+                assert!(tag == "the");
+            }
+        }
+    }
+
+    #[test]
+    fn test_get_tag_hypotheses() {
+        unsafe {
+            let mut tagger = NLTagger::m_new()
+                .init_with_tag_schemes(nsarray![nl_tag_scheme::LexicalClass.clone()]);
+
+            tagger.set_string(&TEXT.into());
+
+            let dict = tagger.tag_hypotheses_at_index_unit_scheme_maximum_count_token_range(
+                0,
+                NLTokenUnit::Sentence,
+                &nl_tag_scheme::LexicalClass,
+                UInt::MAX,
+                None,
+            );
+
+            assert!(dict.count() == 1);
+            let item = dict.p_all_values().m_object_at_index(0);
+            assert!(item == NSNumber::from(1.0))
+        }
+    }
+
+    #[test]
+    fn test_get_tag_hypotheses_range() {
+        unsafe {
+            let mut tagger = NLTagger::m_new()
+                .init_with_tag_schemes(nsarray![nl_tag_scheme::LexicalClass.clone()]);
+
+            tagger.set_string(&TEXT.into());
+
+            let mut range = NSRange::default();
+
+            let dict = tagger.tag_hypotheses_at_index_unit_scheme_maximum_count_token_range(
+                0,
+                NLTokenUnit::Sentence,
+                &nl_tag_scheme::LexicalClass,
+                UInt::MAX,
+                Some(addr_of_mut!(range)),
+            );
+
+            assert!(dict.count() == 1);
+            let item = dict.p_all_values().m_object_at_index(0);
+            assert!(item == NSNumber::from(1.0));
+            assert!(range.location == 0);
+            assert!(range.length == 88);
         }
     }
 }

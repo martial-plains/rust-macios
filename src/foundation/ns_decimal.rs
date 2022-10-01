@@ -10,10 +10,7 @@ use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{INSLocale, INSNumber, INSString, NSComparisonResult, NSLocale, NSString},
-    objective_c_runtime::{
-        macros::object,
-        traits::{FromId, INSValue},
-    },
+    objective_c_runtime::{macros::object, traits::FromId, INSValue},
 };
 
 use super::{

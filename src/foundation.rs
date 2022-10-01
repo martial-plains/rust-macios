@@ -35,6 +35,7 @@ mod ns_edge_insets;
 mod ns_enumerator;
 mod ns_error;
 mod ns_formatter;
+mod ns_index_set;
 mod ns_locale;
 mod ns_mutable_array;
 mod ns_mutable_dictionary;
@@ -48,7 +49,9 @@ mod ns_predicate;
 mod ns_range;
 mod ns_set;
 mod ns_string;
+mod ns_url;
 mod ns_uuid;
+
 mod string_transform;
 
 pub use ns_attributed_string::*;
@@ -65,6 +68,7 @@ pub use ns_edge_insets::*;
 pub use ns_enumerator::*;
 pub use ns_error::*;
 pub use ns_formatter::*;
+pub use ns_index_set::*;
 pub use ns_locale::*;
 pub use ns_mutable_array::NSMutableArray;
 pub use ns_mutable_dictionary::*;
@@ -78,6 +82,7 @@ pub use ns_predicate::*;
 pub use ns_range::*;
 pub use ns_set::*;
 pub use ns_string::*;
+pub use ns_url::*;
 pub use ns_uuid::*;
 pub use string_transform::*;
 

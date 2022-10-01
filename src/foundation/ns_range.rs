@@ -3,7 +3,7 @@ use std::ops::Range;
 use super::{NSString, UInt};
 
 /// A structure used to describe a portion of a series, such as characters in a string or objects in an array.
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
 #[repr(C)]
 pub struct NSRange {
     /// The number of items in the range (can be 0). For type compatibility with the rest of the system, LONG_MAX is the maximum value you should use for length.

@@ -37,19 +37,19 @@ impl NLLanguageRecognizer {
 
     /// Finds the most likely language of a piece of text.
     #[method]
-    pub fn dominant_language_for_string(&self, string: NSString) -> NLLanguage {
+    pub fn dominant_language_for_string(&self, string: &NSString) -> NLLanguage {
         unsafe {
             NLLanguage::from_id(msg_send![
                 Self::m_class(),
-                dominantLanguageForString: string
+                dominantLanguageForString: string.m_self()
             ])
         }
     }
 
     /// Analyzes the piece of text to determine its dominant language.
     #[method]
-    pub fn process_string(&mut self, string: NSString) {
-        unsafe { msg_send![self.m_self(), processString: string] }
+    pub fn process_string(&mut self, string: &NSString) {
+        unsafe { msg_send![self.m_self(), processString: string.m_self()] }
     }
 
     /// The most likely language for the processed text.
@@ -89,8 +89,8 @@ impl NLLanguageRecognizer {
 
     /// Sets a dictionary that maps languages to their probabilities in the language identification process.
     #[property]
-    pub fn set_language_hints(&mut self, language_hints: NSDictionary<NLLanguage, NSNumber>) {
-        unsafe { msg_send![self.m_self(), setLanguageHints: language_hints] }
+    pub fn set_language_hints(&mut self, language_hints: &NSDictionary<NLLanguage, NSNumber>) {
+        unsafe { msg_send![self.m_self(), setLanguageHints: language_hints.m_self()] }
     }
 
     /// Limits the set of possible languages that the recognizer will return.
@@ -101,8 +101,8 @@ impl NLLanguageRecognizer {
 
     /// Sets the limits  of the set of possible languages that the recognizer will return.
     #[property]
-    pub fn set_language_constraints(&mut self, language_constraints: NSArray<NLLanguage>) {
-        unsafe { msg_send![self.m_self(), setLanguageConstraints: language_constraints] }
+    pub fn set_language_constraints(&mut self, language_constraints: &NSArray<NLLanguage>) {
+        unsafe { msg_send![self.m_self(), setLanguageConstraints: language_constraints.m_self()] }
     }
 }
 
@@ -124,7 +124,7 @@ mod tests {
     #[test]
     fn test_dominant_language() {
         let mut lr = NLLanguageRecognizer::default();
-        lr.process_string("This is a test.".into());
+        lr.process_string(&"This is a test.".into());
         let lang = lr.dominant_language();
         assert_eq!(lang, "en");
     }
@@ -132,8 +132,8 @@ mod tests {
     #[test]
     fn test_lang_hints() {
         let mut lr = NLLanguageRecognizer::default();
-        lr.process_string("This is a test.".into());
-        lr.set_language_hints(nsdictionary!(
+        lr.process_string(&"This is a test.".into());
+        lr.set_language_hints(&nsdictionary!(
             unsafe {English.clone()} => NSNumber::from(1.0),
         ));
         let lang_hints = lr.language_hints();
@@ -141,10 +141,10 @@ mod tests {
         assert_eq!(lang_hints.count(), 1);
         assert_eq!(
             lang_hints.object_for_key(unsafe { English.clone() }),
-            NSNumber::from(1.0)
+            Some(NSNumber::from(1.0))
         );
 
-        lr.set_language_hints(nsdictionary!(
+        lr.set_language_hints(&nsdictionary!(
             unsafe {English.clone()} => NSNumber::from(1.0),
             unsafe {English.clone()} => NSNumber::from(2.0),
         ));
@@ -153,8 +153,8 @@ mod tests {
     #[test]
     fn test_lang_constraints() {
         let mut lr = NLLanguageRecognizer::default();
-        lr.process_string("This is a test.".into());
-        lr.set_language_constraints(nsarray!(unsafe { English.clone() }));
+        lr.process_string(&"This is a test.".into());
+        lr.set_language_constraints(&nsarray!(unsafe { English.clone() }));
         let lang_constraints = lr.language_constraints();
 
         assert_eq!(lang_constraints.count(), 1);
@@ -163,11 +163,11 @@ mod tests {
     #[test]
     fn test_reset() {
         let mut lr = NLLanguageRecognizer::default();
-        lr.process_string("This is a test.".into());
+        lr.process_string(&"This is a test.".into());
         let mut lang = lr.dominant_language();
         assert_eq!(lang, "en");
         lr.reset();
-        lr.process_string("Det här är ett test".into());
+        lr.process_string(&"Det här är ett test".into());
         lang = lr.dominant_language();
         assert_eq!(lang, "sv");
     }
@@ -175,7 +175,7 @@ mod tests {
     #[test]
     fn test_lang_hypotheses() {
         let mut lr = NLLanguageRecognizer::default();
-        lr.process_string("This is a test.".into());
+        lr.process_string(&"This is a test.".into());
         let lang_hypotheses = lr.language_hypotheses_with_maximum(1);
         assert_eq!(lang_hypotheses.count(), 1);
     }
@@ -183,8 +183,8 @@ mod tests {
     #[test]
     fn test_dominant_language_for_string() {
         let mut lr = NLLanguageRecognizer::default();
-        lr.process_string("This is a test.".into());
-        let lang = lr.dominant_language_for_string("This is a test.".into());
+        lr.process_string(&"This is a test.".into());
+        let lang = lr.dominant_language_for_string(&"This is a test.".into());
         assert_eq!(lang, "en");
     }
 }

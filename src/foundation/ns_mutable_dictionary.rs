@@ -102,7 +102,7 @@ pub trait INSMutableDictionary<K, V>: INSDictionary<K, V> {
 impl<K, V> NSMutableDictionary<K, V> {
     /// Creates a new empty dictionary.
     pub fn new() -> Self {
-        Self::im_init()
+        Self::m_init()
     }
 
     /// Creates a new dictionary with the specified capacity.

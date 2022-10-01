@@ -41,9 +41,10 @@ pub mod contacts;
 pub mod core_foundation;
 #[cfg(feature = "core_graphics")]
 pub mod core_graphics;
+#[cfg(feature = "core_ml")]
+pub mod core_ml;
 #[cfg(feature = "foundation")]
 pub mod foundation;
-
 #[cfg(feature = "natural_language")]
 pub mod natural_language;
 #[cfg(feature = "objective_c_runtime")]
