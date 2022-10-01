@@ -1,6 +1,6 @@
 [package]
 name = "rust-macios"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Allister Isaiah Harvey <a.i.harvey@icloud.com>"]
 description = "Apple Frameworks for Rust"
@@ -56,10 +56,9 @@ objective-c-runtime-proc-macros = { version = "0.1.0", path = "src/objective_c_r
 # crates.io dependencies
 objc = { version = "0.2.7", features = ["exception"] }
 objc_id = "0.1.1"
-libc = "0.2.132"
+libc = "0.2.134"
 block = "0.1.6"
 lazy_static = "1.4.0"
 
 [dev-dependencies]
 test-case = "2.1.0"
-log = "0.4.17"
