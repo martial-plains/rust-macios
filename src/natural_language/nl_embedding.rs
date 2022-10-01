@@ -286,7 +286,7 @@ impl NLEmbedding {
 
     /// The language of the text in the word embedding.
     #[property]
-    pub fn language(&self) -> NLLanguage {
+    pub fn language(&self) -> Option<NLLanguage> {
         unsafe { to_optional(msg_send![self.m_self(), language]) }
     }
 
