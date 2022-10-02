@@ -25,7 +25,7 @@
     while_true
 )]
 #![warn(clippy::all, missing_debug_implementations)]
-#![allow(improper_ctypes)]
+#![allow(improper_ctypes, deprecated)]
 #![feature(decl_macro)]
 #![feature(type_ascription)]
 

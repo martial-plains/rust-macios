@@ -1110,15 +1110,6 @@ pub enum NSQualityOfService {
 
 #[derive(Debug)]
 #[repr(i64)]
-pub enum NSProcessInfoThermalState {
-    Nominal,
-    Fair,
-    Serious,
-    Critical,
-}
-
-#[derive(Debug)]
-#[repr(i64)]
 pub enum NSUrlRelationship {
     Contains,
     Same,
