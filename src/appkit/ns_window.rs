@@ -30,7 +30,7 @@ use super::{
     NSWindowTitleVisibility, NSWindowToolbarStyle,
 };
 
-pub(crate) static WINDOW_DELEGATE_PTR: &str = "rstNSWindowDelegate";
+pub(crate) static NSWINDOW_DELEGATE_PTR: &str = "RUST_NSWindowDelegate";
 
 /// A config for a window.
 #[derive(Debug)]
@@ -157,12 +157,12 @@ impl NSWindow {
     }
 
     /// Allocates a new `Window`
-    fn alloc<T>(delegate: &T) -> Self
+    fn alloc<T>() -> Self
     where
         T: PNSWindowDelegate + 'static,
     {
         let objc = unsafe {
-            let class = register_window_class_with_delegate::<T>(delegate);
+            let class = register_window_class_with_delegate::<T>();
             let alloc: id = msg_send![class, alloc];
             ShareId::from_ptr(alloc)
         };
@@ -184,7 +184,7 @@ where
 {
     /// Constructs a new NSWindow with a `config`
     pub fn with(config: WindowConfig, delegate: T) -> Self {
-        let mut window = NSWindow::alloc::<T>(&delegate);
+        let mut window = NSWindow::alloc::<T>();
         let mut delegate = Box::new(delegate);
 
         let objc = unsafe {
@@ -202,7 +202,7 @@ where
             let delegate_ptr: *const T = &*delegate;
             let ptr: id = msg_send![&*window.ptr, self];
 
-            (*ptr).set_ivar(WINDOW_DELEGATE_PTR, delegate_ptr as usize);
+            (*ptr).set_ivar(NSWINDOW_DELEGATE_PTR, delegate_ptr as usize);
 
             let mut window = NSWindow::from_id(ptr);
 
