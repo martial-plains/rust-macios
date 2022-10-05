@@ -20,7 +20,7 @@ impl ExportAttributes {
     }
 }
 
-pub fn objc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn register_class(attr: TokenStream, item: TokenStream) -> TokenStream {
     let attributes = ExportAttributes::new(&attr.to_string());
 
     let input = parse_macro_input!(item as ItemImpl);
@@ -57,7 +57,7 @@ pub fn objc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
                 if path.is_ident("selector_init") {
                     let add_method = quote! {
                         decl.add_method(
-                            objc::sel!(init),
+                            rust_macios::objective_c_runtime::sel!(init),
                             #input_type::generated_init as extern "C" fn(&Object, _) -> id,
                         );
                     };
@@ -71,7 +71,7 @@ pub fn objc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
 
                     let add_method = quote! {
                         decl.add_method(
-                            objc::sel!(#sel_ts),
+                            rust_macios::objective_c_runtime::sel!(#sel_ts),
                             #input_type::#fn_name as #fn_type,
                         );
                     };
@@ -86,8 +86,8 @@ pub fn objc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let dealloc_method = quote! {
         decl.add_method(
-            objc::sel!(dealloc),
-            #input_type::generated_dealloc as extern "C" fn(&objc::runtime::Object, _),
+            rust_macios::objective_c_runtime::sel!(dealloc),
+            #input_type::generated_dealloc as extern "C" fn(&rust_macios::objective_c_runtime::runtime::Object, _),
         );
     };
 
@@ -98,7 +98,7 @@ pub fn objc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
     let objc_class_ident = format_ident!("RUST_{}", input_type_string);
     quote! {
         impl #input_type {
-            pub fn register_class() -> *const objc::runtime::Class {
+            pub fn register_class() -> &'static rust_macios::objective_c_runtime::runtime::Class {
                 use std::sync::Once;
 
                 use rust_macios::objective_c_runtime::{
@@ -109,7 +109,6 @@ pub fn objc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
                     sel, sel_impl,
                 };
 
-                static mut CLASS_POINTER: *const Class = 0 as *const Class;
                 static INIT: Once = Once::new();
 
                 INIT.call_once(|| unsafe {
@@ -126,13 +125,13 @@ pub fn objc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
 
                     #dealloc_method
 
-                    CLASS_POINTER = decl.register();
+                    decl.register();
                 });
 
-                unsafe { CLASS_POINTER }
+                Class::get(stringify!(#objc_class_ident)).unwrap()
             }
 
-            pub fn init_objc_proxy_obj(self: std::sync::Arc<Self>) -> *mut objc::runtime::Object {
+            pub fn init_objc_proxy_obj(self: std::sync::Arc<Self>) -> *mut rust_macios::objective_c_runtime::runtime::Object {
                 use rust_macios::objective_c_runtime::{
                     class,
                     declare::ClassDecl,
@@ -143,7 +142,7 @@ pub fn objc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
 
                 let class = #input_type::register_class();
                 let objc_object = unsafe {
-                    let ret: *mut objc::runtime::Object = msg_send![class, new];
+                    let ret: *mut rust_macios::objective_c_runtime::runtime::Object = msg_send![class, new];
                     ret
                 };
                 let raw_ptr = std::sync::Arc::into_raw(self);
@@ -156,7 +155,7 @@ pub fn objc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
                 objc_object
             }
 
-            extern "C" fn generated_dealloc(this: &objc::runtime::Object, _: objc::runtime::Sel) {
+            extern "C" fn generated_dealloc(this: &rust_macios::objective_c_runtime::runtime::Object, _: rust_macios::objective_c_runtime::runtime::Sel) {
                 let arc = unsafe {
                     let raw_ptr_value: usize = *this.get_ivar("RUST_OBJ_PTR");
                     let raw_ptr = raw_ptr_value as *const Self;
@@ -165,6 +164,19 @@ pub fn objc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
                 drop(arc);
             }
         }
+
+        impl PNSObject for #input_type {
+            fn m_class<'a>() -> &'a rust_macios::objective_c_runtime::runtime::Class {
+                Self::register_class()
+            }
+
+            fn m_self(&self) -> id {
+                unsafe { msg_send![&*self.ptr, self] }
+            }
+        }
+
+
+        unsafe impl rust_macios::objective_c_runtime::Message for #input_type { }
 
         #input
     }
@@ -185,7 +197,7 @@ pub fn sel_impl(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 std::sync::Arc::from_raw(raw_ptr)
             };
 
-            arc.#method_name(this, #(#args,)*)
+            arc.#method_name(#(#args,)*)
         }
     };
 
@@ -206,7 +218,7 @@ pub fn impl_init(_attr: TokenStream, item: TokenStream) -> TokenStream {
     quote! {
         #input
 
-        extern "C" fn generated_init(this: &Object, _: objc::runtime::Sel) -> rust_macios::objective_c_runtime::id {
+        extern "C" fn generated_init(this: &Object, _: rust_macios::objective_c_runtime::runtime::Sel) -> rust_macios::objective_c_runtime::id {
             use rust_macios::objective_c_runtime::{
                 class, declare::ClassDecl,
                 msg_send,
@@ -217,7 +229,7 @@ pub fn impl_init(_attr: TokenStream, item: TokenStream) -> TokenStream {
             let initialized_obj = Self::#method_name();
 
             let objc_object = unsafe {
-                let ret: *mut objc::runtime::Object = msg_send![super(this, class!(NSObject)), init];
+                let ret: *mut rust_macios::objective_c_runtime::runtime::Object = msg_send![super(this, class!(NSObject)), init];
                 ret
             };
             let arc = std::sync::Arc::new(initialized_obj);
@@ -245,20 +257,38 @@ fn gen_sel_fn(input: &ImplItemMethod) -> proc_macro2::TokenStream {
     let name = gen_sel_fn_name(input);
 
     let vis = input.vis.clone();
-    let args: Vec<_> = input.sig.inputs.clone().into_iter().skip(2).collect();
+    let args: Vec<_> = input
+        .sig
+        .inputs
+        .clone()
+        .into_iter()
+        .skip_while(|arg| match arg {
+            FnArg::Receiver(_) => true,
+            FnArg::Typed(_) => false,
+        })
+        .collect();
     let return_type = input.sig.output.clone();
 
     quote! {
-        #vis extern "C" fn #name(this: &objc::runtime::Object, _sel: objc::runtime::Sel,  #(#args,)*) #return_type
+        #vis extern "C" fn #name(this: &rust_macios::objective_c_runtime::runtime::Object, _sel: rust_macios::objective_c_runtime::runtime::Sel,  #(#args,)*) #return_type
     }
 }
 
 fn gen_sel_fn_type(input: &ImplItemMethod) -> proc_macro2::TokenStream {
-    let args: Vec<_> = input.sig.inputs.clone().into_iter().skip(2).collect();
+    let args: Vec<_> = input
+        .sig
+        .inputs
+        .clone()
+        .into_iter()
+        .skip_while(|arg| match arg {
+            FnArg::Receiver(_) => true,
+            FnArg::Typed(_) => false,
+        })
+        .collect();
     let return_type = input.sig.output.clone();
 
     quote! {
-        extern "C" fn(this: &objc::runtime::Object, _sel: objc::runtime::Sel,  #(#args,)*) #return_type
+        extern "C" fn(this: &rust_macios::objective_c_runtime::runtime::Object, _sel: rust_macios::objective_c_runtime::runtime::Sel,  #(#args,)*) #return_type
     }
 }
 
@@ -275,7 +305,10 @@ fn gen_sel_fn_args(input: &ImplItemMethod) -> Vec<Pat> {
         .inputs
         .clone()
         .into_iter()
-        .skip(2)
+        .skip_while(|arg| match arg {
+            FnArg::Receiver(_) => true,
+            FnArg::Typed(_) => false,
+        })
         .map(|val| match val {
             FnArg::Receiver(_) => unreachable!(),
             FnArg::Typed(val) => *val.pat,

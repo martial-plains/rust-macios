@@ -7,11 +7,8 @@ use rust_macios::{
     },
     foundation::{macros::nsarray, NSPoint, NSRect, NSSize, NSString},
     objective_c_runtime::{
-        id, msg_send, nil, objc_impl, objc_impl_init, objc_selector_impl,
-        runtime::{Class, Object},
-        sel, sel_impl,
-        traits::PNSObject,
-        Id, ShareId,
+        class_init, id, msg_send, nil, objc_sel, register_class, runtime::Object, sel, sel_impl,
+        traits::PNSObject, Id, ShareId,
     },
     uikit::{INSLayoutAnchor, NSLayoutConstraint},
 };
@@ -20,22 +17,22 @@ pub struct ViewController {
     pub ptr: ShareId<Object>,
 }
 
-#[objc_impl(NSViewController)]
+#[register_class(NSViewController)]
 impl ViewController {
-    #[objc_impl_init]
+    #[class_init]
     fn init() -> Self {
         Self {
             ptr: unsafe { Id::from_ptr(msg_send![Self::m_class(), new]) },
         }
     }
 
-    #[objc_selector_impl("viewDidLoad")]
-    pub fn view_did_load(&self, _: &Object) {
+    #[objc_sel("viewDidLoad")]
+    pub fn view_did_load(&self) {
         // 1: Create a view
         self.p_set_view(NSView::init_with_frame(NSRect {
             origin: NSPoint { x: 0.0, y: 0.0 },
             size: NSSize {
-                width: 300.0,
+                width: 500.0,
                 height: 300.0,
             },
         }));
@@ -60,16 +57,6 @@ impl ViewController {
     }
 }
 
-impl PNSObject for ViewController {
-    fn m_class<'a>() -> &'a Class {
-        unsafe { &*Self::register_class() }
-    }
-
-    fn m_self(&self) -> id {
-        unsafe { msg_send![&*self.ptr, self] }
-    }
-}
-
 impl INSResponder for ViewController {}
 
 impl INSViewController for ViewController {}
@@ -84,7 +71,7 @@ impl AppDelegate {}
 impl PNSApplicationDelegate for AppDelegate {
     fn did_finish_launching(&mut self) {
         let view_controller = ViewController::init();
-        view_controller.view_did_load(&view_controller.ptr);
+        view_controller.view_did_load();
 
         let window = NSWindow::tm_window_with_content_view_controller(view_controller);
 
