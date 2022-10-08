@@ -1,6 +1,5 @@
 //! # A library to use Apple frameworks in Rust
 #![deny(
-    const_err,
     dead_code,
     improper_ctypes,
     missing_debug_implementations,
