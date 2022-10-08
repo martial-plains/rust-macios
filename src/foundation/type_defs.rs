@@ -56,10 +56,6 @@ pub type Double = c_double;
 /// Type alias for `NSDecimalNumber`.
 pub type NSDecimal = NSDecimalNumber;
 
-/// Type for UTF-16 code units.
-#[allow(non_camel_case_types)]
-pub type unichar = u16;
-
 /// A rectangle.
 pub type NSRect = CGRect;
 

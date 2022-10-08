@@ -20,14 +20,18 @@ use crate::{
         id, nil,
         traits::{FromId, PNSObject, ToId},
     },
-    utils::to_bool,
+    utils::{to_bool, to_optional},
 };
 
 use super::{
-    string::Encoding, unichar, Int, NSArray, NSData, NSLocale, NSMutableString, NSRange,
-    NSStringCompareOptions, NSStringEncodingConversionOptions, NSStringTransform, UInt,
-    UTF8_ENCODING,
+    string::Encoding, Int, NSArray, NSCharacterSet, NSData, NSError, NSLocale, NSMutableString,
+    NSRange, NSStringCompareOptions, NSStringEncodingConversionOptions, NSStringTransform, UInt,
+    NSURL, UTF8_ENCODING,
 };
+
+/// Type for UTF-16 code units.
+#[allow(non_camel_case_types)]
+pub type unichar = u16;
 
 /// This is a mapping to the Objective-C NSString class.
 #[repr(C)]
@@ -340,7 +344,7 @@ impl NSString {
     ///
     /// An NSString object containing the bytes in c_str, interpreted according to encoding.
     #[method]
-    pub fn string_with_cstring_encoding(c_str: *const c_char, encoding: &Encoding) -> Self
+    pub fn string_with_cstring_encoding(c_str: *const c_char, encoding: Encoding) -> Self
     where
         Self: Sized + FromId,
     {
@@ -365,6 +369,208 @@ impl NSString {
         Self: Sized + FromId,
     {
         unsafe { Self::from_id(msg_send![Self::m_class(), stringWithUTF8String: c_str]) }
+    }
+
+    /* Creating and Initializing a String from a File
+     */
+
+    /// Returns a string created by reading data from the file at a given path interpreted using a given encoding.
+    #[method]
+    pub fn string_with_contents_of_file_encoding(
+        path: &NSString,
+        enc: Encoding,
+    ) -> Result<Self, NSError>
+    where
+        Self: Sized + FromId,
+    {
+        let mut error = NSError::m_alloc();
+
+        let result = unsafe {
+            Self::from_id(
+                msg_send![Self::m_class(), stringWithContentsOfFile: path.m_self() encoding: enc error: &mut error],
+            )
+        };
+
+        if error.m_self() != nil {
+            Err(error)
+        } else {
+            Ok(result)
+        }
+    }
+
+    /// Returns an [`NSString`] object initialized by reading data from the file at a given path using a given encoding.
+    #[method]
+    pub fn init_with_contents_of_file_encoding(
+        &mut self,
+        path: &NSString,
+        enc: Encoding,
+    ) -> Result<Self, NSError>
+    where
+        Self: Sized + FromId,
+    {
+        let mut error = NSError::m_alloc();
+
+        let result = unsafe {
+            Self::from_id(
+                msg_send![self.m_self(), initWithContentsOfFile: path.m_self() encoding: enc error: &mut error],
+            )
+        };
+
+        if error.m_self() != nil {
+            Err(error)
+        } else {
+            Ok(result)
+        }
+    }
+
+    /// Returns an [`NSString`] object initialized by reading data from the file at a given path using a given encoding.
+    #[method]
+    pub fn string_with_contents_of_file_used_encoding(
+        path: &NSString,
+        enc: Encoding,
+    ) -> Result<Self, NSError>
+    where
+        Self: Sized + FromId,
+    {
+        let mut error = NSError::m_alloc();
+
+        let result = unsafe {
+            Self::from_id(
+                msg_send![Self::m_class(), stringWithContentsOfFile: path.m_self() usedEncoding: enc error: &mut error],
+            )
+        };
+
+        if error.m_self() != nil {
+            Err(error)
+        } else {
+            Ok(result)
+        }
+    }
+
+    /// Returns a string created by reading data from the file at a given path and returns by reference the encoding used to interpret the file.
+    #[method]
+    pub fn init_with_contents_of_file_used_encoding(
+        &mut self,
+        path: &NSString,
+        enc: Encoding,
+    ) -> Result<Self, NSError>
+    where
+        Self: Sized + FromId,
+    {
+        let mut error = NSError::m_alloc();
+
+        let result = unsafe {
+            Self::from_id(
+                msg_send![self.m_self(), initWithContentsOfFile: path.m_self() usedEncoding: enc error: &mut error],
+            )
+        };
+
+        if error.m_self() != nil {
+            Err(error)
+        } else {
+            Ok(result)
+        }
+    }
+
+    /* Creating and Initializing a String from an URL
+     */
+
+    /// Returns a string created by reading data from a given URL interpreted using a given encoding.
+    #[method]
+    pub fn string_with_contents_of_url_encoding(
+        path: &NSURL,
+        enc: Encoding,
+    ) -> Result<Self, NSError>
+    where
+        Self: Sized + FromId,
+    {
+        let mut error = NSError::m_alloc();
+
+        let result = unsafe {
+            Self::from_id(
+                msg_send![Self::m_class(), stringWithContentsOfURL: path.m_self() encoding: enc error: &mut error],
+            )
+        };
+
+        if error.m_self() != nil {
+            Err(error)
+        } else {
+            Ok(result)
+        }
+    }
+
+    /// Returns an [`NSString`] object initialized by reading data from a given URL interpreted using a given encoding.
+    #[method]
+    pub fn init_with_contents_of_url_encoding(
+        &mut self,
+        path: &NSURL,
+        enc: Encoding,
+    ) -> Result<Self, NSError>
+    where
+        Self: Sized + FromId,
+    {
+        let mut error = NSError::m_alloc();
+
+        let result = unsafe {
+            Self::from_id(
+                msg_send![self.m_self(), initWithContentsOfURL: path.m_self() encoding: enc error: &mut error],
+            )
+        };
+
+        if error.m_self() != nil {
+            Err(error)
+        } else {
+            Ok(result)
+        }
+    }
+
+    /// Returns a string created by reading data from a given URL and returns by reference the encoding used to interpret the data.
+    #[method]
+    pub fn string_with_contents_of_url_used_encoding(
+        path: &NSURL,
+        enc: Encoding,
+    ) -> Result<Self, NSError>
+    where
+        Self: Sized + FromId,
+    {
+        let mut error = NSError::m_alloc();
+
+        let result = unsafe {
+            Self::from_id(
+                msg_send![Self::m_class(), stringWithContentsOfURL: path.m_self() usedEncoding: enc error: &mut error],
+            )
+        };
+
+        if error.m_self() != nil {
+            Err(error)
+        } else {
+            Ok(result)
+        }
+    }
+
+    /// Returns an [`NSString`] object initialized by reading data from a given URL and returns by reference the encoding used to interpret the data.
+    #[method]
+    pub fn init_with_contents_of_url_used_encoding(
+        &mut self,
+        path: &NSURL,
+        enc: Encoding,
+    ) -> Result<Self, NSError>
+    where
+        Self: Sized + FromId,
+    {
+        let mut error = NSError::m_alloc();
+
+        let result = unsafe {
+            Self::from_id(
+                msg_send![self.m_self(), initWithContentsOfURL: path.m_self() usedEncoding: enc error: &mut error],
+            )
+        };
+
+        if error.m_self() != nil {
+            Err(error)
+        } else {
+            Ok(result)
+        }
     }
 
     /* Getting a String’s Length
@@ -457,8 +663,8 @@ impl NSString {
         buffer: *mut c_void,
         max_length: Int,
         used_length: *mut Int,
-        encoding: &Encoding,
-        options: &NSStringEncodingConversionOptions,
+        encoding: Encoding,
+        options: NSStringEncodingConversionOptions,
         range: NSRange,
         remaining_range: NSRange,
     ) -> bool {
@@ -789,14 +995,14 @@ impl NSString {
     /// A lowercase representation of the string.
     #[property]
     pub fn lowercase_string(&self) -> NSString {
-        unsafe { msg_send![self.m_self(), lowercaseString] }
+        unsafe { NSString::from_id(msg_send![self.m_self(), lowercaseString]) }
     }
 
     /// Returns a version of the string with all letters converted to lowercase,
     /// taking into account the current locale.
     #[property]
     pub fn localized_lowercase_string(&self) -> NSString {
-        unsafe { msg_send![self.m_self(), localizedLowercaseString] }
+        unsafe { NSString::from_id(msg_send![self.m_self(), localizedLowercaseString]) }
     }
 
     /// Returns a version of the string with all letters converted to
@@ -811,20 +1017,20 @@ impl NSString {
     /// A new string with all letters converted to lowercase.
     #[method]
     pub fn lowercase_string_with_locale(&self, locale: NSLocale) -> NSString {
-        unsafe { msg_send![self.m_self(), lowercaseStringWithLocale: locale] }
+        unsafe { NSString::from_id(msg_send![self.m_self(), lowercaseStringWithLocale: locale]) }
     }
 
     /// An uppercase representation of the string.
     #[property]
     pub fn uppercase_string(&self) -> NSString {
-        unsafe { msg_send![self.m_self(), uppercaseString] }
+        unsafe { NSString::from_id(msg_send![self.m_self(), uppercaseString]) }
     }
 
     /// Returns a version of the string with all letters converted to uppercase,
     /// taking into account the current locale.
     #[property]
     pub fn localized_uppercase_string(&self) -> NSString {
-        unsafe { msg_send![self.m_self(), localizedUppercaseString] }
+        unsafe { NSString::from_id(msg_send![self.m_self(), localizedUppercaseString]) }
     }
 
     /// Returns a version of the string with all letters converted to uppercase,
@@ -839,27 +1045,32 @@ impl NSString {
     /// A new string with all letters converted to uppercase.
     #[method]
     pub fn uppercase_string_with_locale(&self, locale: NSLocale) -> NSString {
-        unsafe { msg_send![self.m_self(), uppercaseStringWithLocale: locale] }
+        unsafe { NSString::from_id(msg_send![self.m_self(), uppercaseStringWithLocale: locale]) }
     }
 
     /// A capitalized representation of the string.
     #[property]
     pub fn capitalized_string(&self) -> NSString {
-        unsafe { msg_send![self.m_self(), capitalizedString] }
+        unsafe { NSString::from_id(msg_send![self.m_self(), capitalizedString]) }
     }
 
     /// Returns a capitalized representation of the receiver using the current
     /// locale.
     #[property]
     pub fn localized_capitalized_string(&self) -> NSString {
-        unsafe { msg_send![self.m_self(), localizedCapitalizedString] }
+        unsafe { NSString::from_id(msg_send![self.m_self(), localizedCapitalizedString]) }
     }
 
     /// Returns a capitalized representation of the receiver using the
     /// specified locale.
     #[method]
     pub fn capitalized_string_with_locale(&self, locale: NSLocale) -> NSString {
-        unsafe { msg_send![self.m_self(), capitalizedStringWithLocale: locale] }
+        unsafe {
+            NSString::from_id(msg_send![
+                self.m_self(),
+                capitalizedStringWithLocale: locale
+            ])
+        }
     }
 
     /* Dividing Strings
@@ -871,7 +1082,141 @@ impl NSString {
     where
         S: INSString,
     {
-        unsafe { msg_send![self.m_self(), componentsSeparatedByString: separator] }
+        unsafe {
+            NSArray::from_id(msg_send![
+                self.m_self(),
+                componentsSeparatedByString: separator
+            ])
+        }
+    }
+
+    /// Returns an array containing substrings from the receiver that have been divided by characters in a given set.
+    #[method]
+    pub fn components_separated_by_characters_in_set(
+        &self,
+        separator: &NSCharacterSet,
+    ) -> NSArray<NSString> {
+        unsafe {
+            NSArray::from_id(msg_send![
+                self.m_self(),
+                componentsSeparatedByCharactersInSet: separator.m_self()
+            ])
+        }
+    }
+
+    /// Returns a new string made by removing from both ends of the receiver characters contained in a given character set.
+    #[method]
+    pub fn string_by_trimming_characters_in_set(&self, set: &NSCharacterSet) -> NSString {
+        unsafe {
+            NSString::from_id(msg_send![
+                self.m_self(),
+                stringByTrimmingCharactersInSet: set.m_self()
+            ])
+        }
+    }
+
+    /// Returns a new string containing the characters of the receiver from the one at a given index to the end.
+    #[method]
+    pub fn substring_from_index(&self, from: UInt) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.m_self(), substringFromIndex: from]) }
+    }
+
+    /// Returns a string object containing the characters of the receiver that lie within a given range.
+    #[method]
+    pub fn substring_with_range(&self, range: NSRange) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.m_self(), substringWithRange: range]) }
+    }
+
+    /// Returns a new string containing the characters of the receiver up to, but not including, the one at a given index.
+    #[method]
+    pub fn substring_to_index(&self, to: UInt) -> NSString {
+        unsafe { NSString::from_id(msg_send![self.m_self(), substringToIndex: to]) }
+    }
+
+    /* Normalizing Strings
+     */
+
+    /// A string made by normalizing the string’s contents using the Unicode Normalization Form D.
+    #[property]
+    pub fn decomposed_string_with_canonical_mapping(&self) -> NSString {
+        unsafe {
+            NSString::from_id(msg_send![
+                self.m_self(),
+                decomposedStringWithCanonicalMapping
+            ])
+        }
+    }
+
+    /// A string made by normalizing the receiver’s contents using the Unicode Normalization Form KD.
+    #[property]
+    pub fn decomposed_string_with_compatibility_mapping(&self) -> NSString {
+        unsafe {
+            NSString::from_id(msg_send![
+                self.m_self(),
+                decomposedStringWithCompatibilityMapping
+            ])
+        }
+    }
+
+    /// A string made by normalizing the string’s contents using the Unicode Normalization Form C.
+    #[property]
+    pub fn precomposed_string_with_canonical_mapping(&self) -> NSString {
+        unsafe {
+            NSString::from_id(msg_send![
+                self.m_self(),
+                precomposedStringWithCanonicalMapping
+            ])
+        }
+    }
+
+    /// A string made by normalizing the receiver’s contents using the Unicode Normalization Form KC.
+    #[property]
+    pub fn precomposed_string_with_compatibility_mapping(&self) -> NSString {
+        unsafe {
+            NSString::from_id(msg_send![
+                self.m_self(),
+                precomposedStringWithCompatibilityMapping
+            ])
+        }
+    }
+
+    /* Folding Strings
+     */
+
+    /// Creates a string suitable for comparison by removing the specified character distinctions from a string.
+    #[method]
+    pub fn string_by_folding_with_options_locale(
+        &mut self,
+        options: NSStringCompareOptions,
+        locale: &NSLocale,
+    ) -> NSString {
+        unsafe {
+            NSString::from_id(
+                msg_send![self.m_self(), stringByFoldingWithOptions: options locale: locale.m_self() ],
+            )
+        }
+    }
+
+    /* Transforming Strings
+     */
+
+    /// Returns a new string made by appending to the receiver a given string.
+    ///
+    /// # Arguments
+    ///
+    /// * `transform` - The `StringTransform` to apply.
+    /// * `reverse` - If `true`, the transformation is applied in reverse.
+    #[method]
+    pub fn string_by_applying_transform_reverse(
+        &mut self,
+        transform: NSStringTransform,
+        reverse: bool,
+    ) -> Option<NSString> {
+        unsafe {
+            to_optional(
+                msg_send![self.m_self(), stringByApplyingTransform: transform reverse: reverse],
+            )
+        }
     }
 
     /* Finding Characters and Substrings
@@ -892,32 +1237,6 @@ impl NSString {
         S: INSString,
     {
         unsafe { to_bool(msg_send![self.m_self(), containsString: other]) }
-    }
-
-    /* Transforming Strings
-     */
-
-    /// Returns a new string made by appending to the receiver a given string.
-    ///
-    /// # Arguments
-    ///
-    /// * `transform` - The `StringTransform` to apply.
-    /// * `reverse` - If `true`, the transformation is applied in reverse.
-    #[method]
-    pub fn string_by_applying_transform_reverse(
-        &mut self,
-        transform: NSStringTransform,
-        reverse: bool,
-    ) -> Option<NSString> {
-        unsafe {
-            let string: id =
-                msg_send![self.m_self(), stringByApplyingTransform: transform reverse: reverse];
-            if string == nil {
-                None
-            } else {
-                Some(NSString::from_id(string))
-            }
-        }
     }
 
     /* Working with Encodings
