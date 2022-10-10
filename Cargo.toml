@@ -64,3 +64,23 @@ lazy_static = "1.4.0"
 
 [dev-dependencies]
 test-case = "2.1.0"
+
+[[example]]
+name = "app_delegate"
+path = "examples/appkit/app_delegate.rs"
+
+[[example]]
+name = "hello_world_window"
+path = "examples/appkit/hello_world_window.rs"
+
+[[example]]
+name = "popover"
+path = "examples/appkit/popover.rs"
+
+[[example]]
+name = "process_info"
+path = "examples/foundation/process_info.rs"
+
+[[example]]
+name = "create_contact"
+path = "examples/contacts/create_contact.rs"
