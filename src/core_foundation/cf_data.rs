@@ -1,17 +1,25 @@
+use std::fmt;
+
+use libc::c_void;
+
 use super::{
-    kCFAllocatorDefault, macros::declare_CFType, CFAllocatorRef, CFIndex, CFRange, CFTypeID,
+    kCFAllocatorDefault, macros::declare_CFType, CFAllocatorRef, CFIndex, CFRange, CFType,
+    CFTypeID, CFTypeObject, CFTypeRef,
 };
 
+#[derive(Debug)]
+#[repr(C)]
+pub struct __CFData(c_void);
+
 /// This provides support for data objects, object-oriented wrappers for byte buffer
-pub type CFDataRef = *const CFData;
+pub type CFDataRef = *const __CFData;
 
 declare_CFType! {
     /// This provides support for data objects, object-oriented wrappers for byte buffer
-    #[derive(Debug)]
-    CFData
+    CFData, CFDataRef
 }
 
-/// A [`CFOptionFlags`] type for specifying options for searching.
+/// A CFOptionFlags type for specifying options for searching.
 #[derive(Debug)]
 #[repr(u64)]
 pub enum CFDataSearchFlags {
@@ -28,7 +36,7 @@ impl CFData {
     ///
     /// This function dereferences a raw pointer
     pub unsafe fn create(allocator: CFAllocatorRef, bytes: *const u8, length: CFIndex) -> CFData {
-        unsafe { CFDataCreate(allocator, bytes, length) }
+        unsafe { Self::create_with_ref(CFDataCreate(allocator, bytes, length)) }
     }
 
     /// Creates an immutable copy of a CFData object.
@@ -36,8 +44,8 @@ impl CFData {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    pub unsafe fn create_copy(allocator: CFAllocatorRef, data: CFData) -> CFData {
-        CFDataCreateCopy(allocator, data)
+    pub unsafe fn create_copy(allocator: CFAllocatorRef, data: CFDataRef) -> CFData {
+        Self::create_with_ref(CFDataCreateCopy(allocator, data))
     }
 
     /// Creates an immutable CFData object from an external (client-owned) byte buffer.
@@ -51,12 +59,21 @@ impl CFData {
         length: CFIndex,
         bytes_deallocator: CFAllocatorRef,
     ) -> CFData {
-        unsafe { CFDataCreateWithBytesNoCopy(allocator, bytes, length, bytes_deallocator) }
+        Self::create_with_ref(CFDataCreateWithBytesNoCopy(
+            allocator,
+            bytes,
+            length,
+            bytes_deallocator,
+        ))
     }
 
     /// Returns a read-only pointer to the bytes of a CFData object.
-    pub fn get_byte_ptr(data: CFData) -> *const u8 {
-        unsafe { CFDataGetBytePtr(data) }
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_byte_ptr(data: CFDataRef) -> *const u8 {
+        CFDataGetBytePtr(data)
     }
 
     /// Copies the byte contents of a CFData object to an external buffer.
@@ -64,23 +81,31 @@ impl CFData {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    pub unsafe fn get_bytes(data: CFData, range: CFRange, buffer: *mut u8) {
+    pub unsafe fn get_bytes(data: CFDataRef, range: CFRange, buffer: *mut u8) {
         CFDataGetBytes(data, range, buffer)
     }
 
     /// Returns the number of bytes contained by a CFData object.
-    pub fn get_length(data: CFData) -> CFIndex {
-        unsafe { CFDataGetLength(data) }
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_length(data: CFDataRef) -> CFIndex {
+        CFDataGetLength(data)
     }
 
     /// Finds and returns the range within a data object of the first occurrence of the given data, within a given range, subject to any given options.
-    pub fn find(
-        data: CFData,
-        data_to_find: CFData,
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn find(
+        data: CFDataRef,
+        data_to_find: CFDataRef,
         search_range: CFRange,
         compare_options: CFDataSearchFlags,
     ) -> CFRange {
-        unsafe { CFDataFind(data, data_to_find, search_range, compare_options) }
+        CFDataFind(data, data_to_find, search_range, compare_options)
     }
 
     /// Returns the type identifier for the CFData opaque type.
@@ -89,32 +114,56 @@ impl CFData {
     }
 }
 
+impl fmt::Debug for CFData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        unsafe {
+            write!(
+                f,
+                "{:?}",
+                CFType::copy_description(self.get_internal_object() as CFTypeRef)
+            )
+        }
+    }
+}
+
+impl From<&[u8]> for CFData {
+    fn from(value: &[u8]) -> Self {
+        unsafe {
+            Self::create_with_ref(CFDataCreate(
+                kCFAllocatorDefault,
+                value.as_ptr(),
+                value.len() as CFIndex,
+            ))
+        }
+    }
+}
+
 extern "C" {
     /* Creating a CFData Object
      */
 
-    fn CFDataCreate(allocator: CFAllocatorRef, bytes: *const u8, length: CFIndex) -> CFData;
+    pub fn CFDataCreate(allocator: CFAllocatorRef, bytes: *const u8, length: CFIndex) -> CFDataRef;
 
-    fn CFDataCreateCopy(allocator: CFAllocatorRef, data: CFData) -> CFData;
-    fn CFDataCreateWithBytesNoCopy(
+    pub fn CFDataCreateCopy(allocator: CFAllocatorRef, data: CFDataRef) -> CFDataRef;
+    pub fn CFDataCreateWithBytesNoCopy(
         allocator: CFAllocatorRef,
         bytes: *const u8,
         length: CFIndex,
         bytes_deallocator: CFAllocatorRef,
-    ) -> CFData;
+    ) -> CFDataRef;
 
     /* Examining a CFData Object
      */
 
-    fn CFDataGetBytePtr(data: CFData) -> *const u8;
+    pub fn CFDataGetBytePtr(data: CFDataRef) -> *const u8;
 
-    fn CFDataGetBytes(data: CFData, range: CFRange, buffer: *mut u8);
+    pub fn CFDataGetBytes(data: CFDataRef, range: CFRange, buffer: *mut u8);
 
-    fn CFDataGetLength(data: CFData) -> CFIndex;
+    pub fn CFDataGetLength(data: CFDataRef) -> CFIndex;
 
-    fn CFDataFind(
-        data: CFData,
-        data_to_find: CFData,
+    pub fn CFDataFind(
+        data: CFDataRef,
+        data_to_find: CFDataRef,
         search_range: CFRange,
         compare_options: CFDataSearchFlags,
     ) -> CFRange;
@@ -122,29 +171,5 @@ extern "C" {
     /* Getting the CFData Type ID
      */
 
-    fn CFDataGetTypeID() -> CFTypeID;
-}
-
-impl From<&[u8]> for CFData {
-    fn from(value: &[u8]) -> Self {
-        unsafe { CFDataCreate(kCFAllocatorDefault, value.as_ptr(), value.len() as CFIndex) }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-
-    use crate::core_foundation::{kCFAllocatorDefault, CFIndex};
-
-    use super::CFData;
-
-    #[test]
-    fn test_data_provider() {
-        let buffer = vec![5];
-        let ptr = (*buffer).as_ref().as_ptr();
-        let len = (*buffer).as_ref().len() as CFIndex;
-        let _data_ref = unsafe {
-            CFData::create_with_bytes_no_copy(kCFAllocatorDefault, ptr, len, std::ptr::null())
-        };
-    }
+    pub fn CFDataGetTypeID() -> CFTypeID;
 }

@@ -1,6 +1,11 @@
+use core::fmt;
+
 use libc::{c_ulong, c_void};
 
-use super::{macros::declare_CFType, CFAllocatorRef, CFIndex, CFStringRef};
+use super::{
+    macros::declare_CFType, CFAllocator, CFAllocatorRef, CFIndex, CFString, CFStringRef,
+    CFTypeObject,
+};
 
 /// A type for unique, constant integer values that identify particular Core Foundation opaque types.
 pub type CFTypeID = c_ulong;
@@ -13,8 +18,7 @@ pub type CFHashCode = c_ulong;
 
 declare_CFType! {
     ///
-    #[derive(Debug)]
-    CFType
+    CFType, CFTypeRef
 }
 
 impl CFType {
@@ -26,8 +30,8 @@ impl CFType {
     /// # Safety
     ///
     /// This function dereferences a raw pointer.
-    pub unsafe fn get_allocator(cf: CFTypeRef) -> CFAllocatorRef {
-        CFGetAllocator(cf)
+    pub unsafe fn get_allocator(cf: CFTypeRef) -> CFAllocator {
+        CFAllocator::create_with_ref(CFGetAllocator(cf))
     }
 
     /// Returns the reference count of a Core Foundation object.
@@ -44,8 +48,8 @@ impl CFType {
     /// # Safety
     ///
     /// This function dereferences a raw pointer.
-    pub unsafe fn make_collectable(cf: CFTypeRef) -> CFTypeRef {
-        CFMakeCollectable(cf)
+    pub unsafe fn make_collectable(cf: CFTypeRef) -> CFType {
+        CFType::create_with_ref(CFMakeCollectable(cf))
     }
 
     /// Releases a Core Foundation object.
@@ -62,8 +66,8 @@ impl CFType {
     /// # Safety
     ///
     /// This function dereferences a raw pointer.
-    pub unsafe fn retain(cf: CFTypeRef) -> CFTypeRef {
-        CFRetain(cf)
+    pub unsafe fn retain(cf: CFTypeRef) -> CFType {
+        CFType::create_with_ref(CFRetain(cf))
     }
 
     /* Determining Equality
@@ -98,8 +102,8 @@ impl CFType {
     /// # Safety
     ///
     /// This function dereferences a raw pointer.
-    pub unsafe fn copy_description(cf: CFTypeRef) -> CFStringRef {
-        CFCopyDescription(cf)
+    pub unsafe fn copy_description(cf: CFTypeRef) -> CFString {
+        CFString::create_with_ref(CFCopyDescription(cf))
     }
 
     /// Returns a textual description of a Core Foundation type, as identified by its type ID, which can be used when debugging.
@@ -107,8 +111,8 @@ impl CFType {
     /// # Safety
     ///
     /// This function dereferences a raw pointer.
-    pub unsafe fn copy_type_id_description(type_id: CFTypeID) -> CFStringRef {
-        CFCopyTypeIDDescription(type_id)
+    pub unsafe fn copy_type_id_description(type_id: CFTypeID) -> CFString {
+        CFString::create_with_ref(CFCopyTypeIDDescription(type_id))
     }
 
     /// Returns the unique identifier of an opaque type to which a Core Foundation object belongs.
@@ -130,27 +134,39 @@ impl CFType {
     }
 }
 
+impl fmt::Debug for CFType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        unsafe {
+            write!(
+                f,
+                "{:?}",
+                CFType::copy_description(self.get_internal_object())
+            )
+        }
+    }
+}
+
 extern "C" {
-    fn CFGetAllocator(cf: CFTypeRef) -> CFAllocatorRef;
+    pub fn CFGetAllocator(cf: CFTypeRef) -> CFAllocatorRef;
 
-    fn CFGetRetainCount(cf: CFTypeRef) -> CFIndex;
+    pub fn CFGetRetainCount(cf: CFTypeRef) -> CFIndex;
 
-    fn CFMakeCollectable(cf: CFTypeRef) -> CFTypeRef;
+    pub fn CFMakeCollectable(cf: CFTypeRef) -> CFTypeRef;
 
-    fn CFRelease(cf: CFTypeRef);
+    pub fn CFRelease(cf: CFTypeRef);
 
-    fn CFRetain(cf: CFTypeRef) -> CFTypeRef;
+    pub fn CFRetain(cf: CFTypeRef) -> CFTypeRef;
 
-    fn CFEqual(cf1: CFTypeRef, cf2: CFTypeRef) -> bool;
+    pub fn CFEqual(cf1: CFTypeRef, cf2: CFTypeRef) -> bool;
 
-    fn CFHash(cf: CFTypeRef) -> CFHashCode;
+    pub fn CFHash(cf: CFTypeRef) -> CFHashCode;
 
-    fn CFCopyDescription(cf: CFTypeRef) -> CFStringRef;
+    pub fn CFCopyDescription(cf: CFTypeRef) -> CFStringRef;
 
-    fn CFCopyTypeIDDescription(type_id: CFTypeID) -> CFStringRef;
+    pub fn CFCopyTypeIDDescription(type_id: CFTypeID) -> CFStringRef;
 
-    fn CFGetTypeID(cf: CFTypeRef) -> CFTypeID;
+    pub fn CFGetTypeID(cf: CFTypeRef) -> CFTypeID;
 
-    fn CFShow(obj: CFTypeRef);
+    pub fn CFShow(obj: CFTypeRef);
 
 }

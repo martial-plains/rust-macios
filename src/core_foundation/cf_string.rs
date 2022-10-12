@@ -1,15 +1,28 @@
-use std::ffi::CString;
+#![allow(missing_docs)]
 
-use libc::c_char;
+use std::{borrow::Cow, ffi::CStr, fmt};
+
+use libc::{c_char, c_void};
 
 use bitflags::bitflags;
 
 use crate::{core_foundation::CFRange, kernel::UniChar};
 
-use super::{kCFAllocatorDefault, macros::declare_CFType, CFAllocatorRef, CFDataRef, CFIndex};
+use self::iter::Iter;
+
+use super::{
+    kCFAllocatorDefault, macros::declare_CFType, CFAllocatorRef, CFData, CFDataRef, CFIndex,
+    CFTypeObject,
+};
+
+pub mod iter;
+
+#[derive(Debug)]
+#[repr(C)]
+pub struct __CFString(c_void);
 
 /// A reference to a CFString object.
-pub type CFStringRef = *const CFString;
+pub type CFStringRef = *const __CFString;
 
 /// An integer type for constants used to specify supported string encodings in various CFString functions.
 pub type CFStringEncoding = u32;
@@ -17,6 +30,7 @@ pub type CFStringEncoding = u32;
 const KCF_STRING_INLINE_BUFFER_LENGTH: usize = 64;
 
 bitflags! {
+    /// An integer type for constants used to specify supported string encodings in various CFString functions.
     pub struct KCFStringEncoding: CFStringEncoding {
         /// An encoding constant that identifies the Mac Roman encoding.
         const MAC_ROMAN = 0;
@@ -208,8 +222,8 @@ bitflags! {
 
 declare_CFType! {
     /// A reference to a CFString object.
-    #[repr(C)]
-    CFString
+    #[repr(transparent)]
+    CFString, CFStringRef
 }
 
 /// The next two functions allow fast access to the contents of a string,
@@ -241,16 +255,25 @@ pub struct CFStringInlineBuffer {
 
 impl CFString {
     /// Creates a new [`CFStringRef`]
-    pub fn with_str(s: &str) -> CFStringRef {
+    pub fn with_str(s: &str) -> Self {
         unsafe {
-            let cstr = CString::new(s).unwrap();
-            CFStringCreateWithBytes(
+            let cstr = CStr::from_ptr(s.as_ptr() as *const i8);
+
+            Self(CFStringCreateWithBytes(
                 kCFAllocatorDefault,
                 cstr.as_ptr() as *const u8,
                 s.len() as CFIndex,
                 0,
                 false,
-            )
+            ))
+        }
+    }
+
+    /// Creates an iterator.
+    pub fn iter(&self) -> Iter<'_> {
+        Iter {
+            string: self,
+            index: 0,
         }
     }
 
@@ -265,14 +288,14 @@ impl CFString {
         num_bytes: CFIndex,
         encoding: CFStringEncoding,
         is_external_representation: bool,
-    ) -> CFStringRef {
-        CFStringCreateWithBytes(
+    ) -> Self {
+        Self::create_with_ref(CFStringCreateWithBytes(
             alloc,
             bytes,
             num_bytes,
             encoding,
             is_external_representation,
-        )
+        ))
     }
 
     /* Accessing Characters
@@ -288,8 +311,10 @@ impl CFString {
         string: CFStringEncoding,
         encoding: CFStringEncoding,
         loss_byte: u8,
-    ) -> CFDataRef {
-        CFStringCreateExternalRepresentation(alloc, string, encoding, loss_byte)
+    ) -> CFData {
+        CFData::create_with_ref(CFStringCreateExternalRepresentation(
+            alloc, string, encoding, loss_byte,
+        ))
     }
 
     /// Fetches a range of the characters from a string into a byte buffer after converting the characters to a specified encoding.
@@ -334,7 +359,7 @@ impl CFString {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    pub unsafe fn get_characters(string: CFStringRef, range: CFRange, buffer: *mut UniChar) {
+    pub unsafe fn get_characters(string: CFStringRef, range: CFRange, buffer: &mut [UniChar]) {
         CFStringGetCharacters(string, range, buffer)
     }
 
@@ -366,7 +391,7 @@ impl CFString {
     /// This function dereferences a raw pointer
     pub unsafe fn get_c_string(
         string: CFStringRef,
-        buffer: *mut c_char,
+        buffer: &mut [c_char],
         buffer_size: CFIndex,
         encoding: CFStringEncoding,
     ) -> bool {
@@ -395,8 +420,88 @@ impl CFString {
     }
 }
 
+impl<'a> From<&'a CFString> for Cow<'a, str> {
+    fn from(cf_str: &'a CFString) -> Cow<'a, str> {
+        unsafe {
+            // Do this without allocating if we can get away with it
+            let c_string =
+                CFStringGetCStringPtr(cf_str.get_internal_object(), KCFStringEncoding::UTF8.bits);
+            match c_string.is_null() {
+                true => {
+                    let char_len = CFString::get_length(cf_str.get_internal_object());
+
+                    // First, ask how big the buffer ought to be.
+                    let mut bytes_required: CFIndex = 0;
+                    let _ = CFStringGetBytes(
+                        cf_str.get_internal_object(),
+                        CFRange {
+                            location: 0,
+                            length: char_len,
+                        },
+                        KCFStringEncoding::UTF8.bits,
+                        0,
+                        false,
+                        std::ptr::null_mut(),
+                        0,
+                        &mut bytes_required,
+                    );
+
+                    // Then, allocate the buffer and actually copy.
+                    let mut buffer = vec![b'\x00'; bytes_required as usize];
+
+                    let mut bytes_used: CFIndex = 0;
+                    let chars_written = CFStringGetBytes(
+                        cf_str.get_internal_object(),
+                        CFRange {
+                            location: 0,
+                            length: char_len,
+                        },
+                        KCFStringEncoding::UTF8.bits,
+                        0,
+                        false,
+                        buffer.as_mut_ptr(),
+                        buffer.len() as CFIndex,
+                        &mut bytes_used,
+                    );
+                    assert_eq!(chars_written, char_len);
+
+                    // This is dangerous; we over-allocate and null-terminate the string (during
+                    // initialization).
+                    assert_eq!(bytes_used, buffer.len() as CFIndex);
+                    Cow::Owned(String::from_utf8_unchecked(buffer))
+                }
+                _ => {
+                    let c_str = CStr::from_ptr(c_string);
+                    String::from_utf8_lossy(c_str.to_bytes())
+                }
+            }
+        }
+    }
+}
+
+impl<'a> IntoIterator for &'a CFString {
+    type Item = UniChar;
+    type IntoIter = Iter<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+impl fmt::Display for CFString {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.write_str(&Cow::from(self))
+    }
+}
+
+impl fmt::Debug for CFString {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\"{}\"", self)
+    }
+}
+
 extern "C" {
-    fn CFStringCreateWithBytes(
+    pub fn CFStringCreateWithBytes(
         alloc: CFAllocatorRef,
         bytes: *const u8,
         num_bytes: CFIndex,
@@ -404,14 +509,14 @@ extern "C" {
         is_external_representation: bool,
     ) -> CFStringRef;
 
-    fn CFStringCreateExternalRepresentation(
+    pub fn CFStringCreateExternalRepresentation(
         alloc: CFStringRef,
         string: CFStringEncoding,
         encoding: CFStringEncoding,
         loss_byte: u8,
     ) -> CFDataRef;
 
-    fn CFStringGetBytes(
+    pub fn CFStringGetBytes(
         string: CFStringRef,
         range: CFRange,
         encoding: CFStringEncoding,
@@ -422,25 +527,65 @@ extern "C" {
         used_buf_len: *mut CFIndex,
     ) -> CFIndex;
 
-    fn CFStringGetCharacterAtIndex(string: CFStringRef, idx: CFIndex) -> UniChar;
+    pub fn CFStringGetCharacterAtIndex(string: CFStringRef, idx: CFIndex) -> UniChar;
 
-    fn CFStringGetCharacters(string: CFStringRef, range: CFRange, buffer: *mut UniChar);
+    pub fn CFStringGetCharacters(string: CFStringRef, range: CFRange, buffer: &mut [UniChar]);
 
-    fn CFStringGetCharactersPtr(string: CFStringRef) -> *const UniChar;
+    pub fn CFStringGetCharactersPtr(string: CFStringRef) -> *const UniChar;
 
-    fn CFStringGetCharacterFromInlineBuffer(
+    pub fn CFStringGetCharacterFromInlineBuffer(
         buf: *mut CFStringInlineBuffer,
         idx: CFIndex,
     ) -> UniChar;
 
-    fn CFStringGetCString(
+    pub fn CFStringGetCString(
         string: CFStringRef,
-        buffer: *mut c_char,
+        buffer: &mut [c_char],
         buffer_size: CFIndex,
         encoding: CFStringEncoding,
     ) -> bool;
 
-    fn CFStringGetCStringPtr(string: CFStringRef, encoding: CFStringEncoding) -> *const c_char;
+    pub fn CFStringGetCStringPtr(string: CFStringRef, encoding: CFStringEncoding) -> *const c_char;
 
-    fn CFStringGetLength(string: CFStringRef) -> CFIndex;
+    pub fn CFStringGetLength(string: CFStringRef) -> CFIndex;
+}
+
+impl PartialEq<&str> for CFString {
+    fn eq(&self, other: &&str) -> bool {
+        &self.to_string() == other
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::CFString;
+
+    #[test]
+    fn test_to_string() {
+        let original = "The quick brown fox jumped over the slow lazy dog.";
+        let cfstr = CFString::with_str(original);
+        let converted = cfstr.to_string();
+        assert_eq!(converted, original);
+    }
+
+    #[test]
+    fn test_index() {
+        let s = "Hello World!";
+        let native_str = CFString::with_str(s);
+
+        for i in 0..s.len() {
+            assert_eq!(
+                s.chars().nth(i).unwrap(),
+                native_str.iter().nth(i).unwrap() as u8 as char
+            );
+        }
+    }
+
+    #[test]
+    fn test_cmp_string() {
+        let mut s = "Hello World!";
+        let native_str = CFString::with_str(s);
+
+        assert_eq!(native_str, s);
+    }
 }

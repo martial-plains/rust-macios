@@ -1,18 +1,20 @@
-use std::{ffi::CStr, fmt};
+use std::fmt;
 
 use libc::c_void;
 
 use super::{
-    macros::declare_CFType, CFIndex, CFOptionFlags, CFString, CFStringRef, CFType, CFTypeObject,
-    KCFStringEncoding,
+    macros::declare_CFType, CFIndex, CFOptionFlags, CFStringRef, CFType, CFTypeObject, CFTypeRef,
 };
 
-/// A reference to a CFAllocator object.
-pub type CFAllocatorRef = *const CFAllocator;
+#[repr(C)]
+pub struct __CFAllocator(c_void);
+
+/// A reference to a [`CFAllocator`] object.
+pub type CFAllocatorRef = *const __CFAllocator;
 
 declare_CFType! {
     /// CFAllocator is an opaque type that allocates and deallocates memory for you.
-    CFAllocator
+    CFAllocator, CFAllocatorRef
 }
 
 /// A prototype for a function callback that retains the given data.
@@ -64,10 +66,11 @@ pub struct CFAllocatorContext {
 impl fmt::Debug for CFAllocator {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         unsafe {
-            let cftype = CFType::copy_description(self.get_internal_object());
-            let c_str = CFString::get_c_string_ptr(cftype, KCFStringEncoding::UTF8.bits());
-
-            write!(f, "{}", CStr::from_ptr(c_str).to_str().unwrap())
+            write!(
+                f,
+                "{:?}",
+                CFType::copy_description(self.get_internal_object() as CFTypeRef)
+            )
         }
     }
 }
