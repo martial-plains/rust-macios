@@ -1,4 +1,7 @@
 use libc::c_ulong;
 
-/// A type for unique, constant integer values that identify particular Core Foundation opaque types.
-pub type CFTypeID = c_ulong;
+/// Priority values used for kAXPriorityKey
+pub type CFIndex = c_ulong;
+
+/// A bitfield used for passing special allocation and other requests into Core Foundation functions.
+pub type CFOptionFlags = c_ulong;

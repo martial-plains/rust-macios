@@ -44,6 +44,8 @@ pub mod core_graphics;
 pub mod core_ml;
 #[cfg(feature = "foundation")]
 pub mod foundation;
+#[cfg(feature = "kernel")]
+pub mod kernel;
 #[cfg(feature = "natural_language")]
 pub mod natural_language;
 #[cfg(feature = "objective_c_runtime")]

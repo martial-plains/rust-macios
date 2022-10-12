@@ -27,6 +27,9 @@ fn main() {
     #[cfg(feature = "core_graphics")]
     println!("cargo:rustc-link-lib=framework=CoreGraphics");
 
+    #[cfg(feature = "core_foundation")]
+    println!("cargo:rustc-link-lib=framework=CoreFoundation");
+
     #[cfg(feature = "contacts")]
     println!("cargo:rustc-link-lib=framework=Contacts");
 
