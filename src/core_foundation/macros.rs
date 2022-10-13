@@ -10,6 +10,7 @@ pub macro declare_CFType {
             #[allow(trivial_casts)]
             fn drop(&mut self) {
                 unsafe {
+                    use $crate::core_foundation::CFTypeObject;
                     $crate::core_foundation::CFType::release(self.get_internal_object() as $crate::core_foundation::CFTypeRef) }
             }
         }

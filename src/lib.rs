@@ -3,6 +3,7 @@
 #![allow(improper_ctypes, deprecated)]
 #![feature(decl_macro)]
 #![feature(type_ascription)]
+#![feature(c_variadic)]
 
 #[cfg(feature = "appkit")]
 pub mod appkit;

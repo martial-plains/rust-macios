@@ -1,19 +1,36 @@
 #![allow(missing_docs)]
 
-use std::{borrow::Cow, ffi::CStr, fmt};
+use std::{
+    borrow::Cow,
+    ffi::{c_double, CStr, VaList},
+    fmt,
+};
 
-use libc::{c_char, c_void};
+use libc::{c_char, c_uchar, c_ulong, c_void};
 
 use bitflags::bitflags;
 
-use crate::{core_foundation::CFRange, kernel::UniChar};
+use crate::{
+    core_foundation::CFRange,
+    kernel::{SInt32, UniChar},
+};
 
 use self::iter::Iter;
 
 use super::{
-    kCFAllocatorDefault, macros::declare_CFType, CFAllocatorRef, CFData, CFDataRef, CFIndex,
-    CFTypeObject,
+    cf_array::CFArrayRef, kCFAllocatorDefault, macros::declare_CFType, CFAllocatorRef, CFArray,
+    CFCharacterSetRef, CFComparisonResult, CFData, CFDataRef, CFDictionaryRef, CFIndex,
+    CFLocaleRef, CFOptionFlags, CFTypeID, CFTypeObject,
 };
+
+/// For function parameters only - means string is const.
+pub type ConstStr255Param = *const c_uchar;
+
+/// Pointer to a pascal string.
+pub type StringPtr = *mut c_uchar;
+
+/// A complete Unicode character in UTF-32 format, with values from 0 through 0x10FFFF (excluding the surrogate range 0xD800-0xDFFF and certain disallowed values).
+pub type UTF32Char = u32;
 
 pub mod iter;
 
@@ -220,30 +237,44 @@ bitflags! {
     }
 }
 
+bitflags! {
+    /// A [`CFOptionFlags`] type for specifying options for string comparison .
+    pub struct CFStringCompareFlags: CFOptionFlags {
+        const DEFAULT = 0;
+        /// Specifies that the comparison should ignore differences in case between alphabetical characters.
+        const CASE_INSENSITIVE = 1;
+        /// Specifies that the comparison should start at the last elements of the entities being compared (for example, strings or arrays).
+        const BACKWARDS = 4;
+        /// Performs searching only on characters at the beginning or end of the range.
+        const ANCHORED = 8;
+        /// Specifies that loose equivalence is acceptable, especially as pertains to diacritical marks.
+        const NONLITERAL = 16;
+        /// Specifies that the comparison should take into account differences related to locale, such as the thousands separator character.
+        const LOCALIZED = 32;
+        /// Specifies that represented numeric values should be used as the basis for comparison and not the actual character values.
+        const NUMERICALLY = 64;
+        /// Specifies that the comparison should ignore diacritic markers.
+        const DIACRITIC_INSENSITIVE  = 128;
+        /// Specifies that the comparison should ignore width differences.
+        const WIDTH_INSENSITIVE  = 256;
+        /// Specifies that the comparison is forced to return either [`super::CFComparisonResult::KCFCompareLessThan`] or [`super::CFComparisonResult::KCFCompareGreaterThan`] if the strings are equivalent but not strictly equal.
+        const FORCED_ORDERING  = 512;
+    }
+}
+
 declare_CFType! {
     /// A reference to a CFString object.
-    #[repr(transparent)]
+    #[repr(C)]
     CFString, CFStringRef
 }
 
-/// The next two functions allow fast access to the contents of a string,
-/// assuming you are doing sequential or localized accesses. To use, call
-/// CFStringInitInlineBuffer() with a CFStringInlineBuffer (on the stack, say),
-/// and a range in the string to look at. Then call CFStringGetCharacterFromInlineBuffer()
-/// as many times as you want, with a index into that range (relative to the start
-/// of that range). These are INLINE functions and will end up calling CFString only
-/// once in a while, to fill a buffer.  CFStringGetCharacterFromInlineBuffer() returns 0 if
-/// a location outside the original range is specified.
+/// Defines the buffer and related fields used for in-line buffer access of characters in CFString objects.
 #[derive(Debug)]
 #[repr(C)]
 pub struct CFStringInlineBuffer {
-    ///
     pub buffer: [UniChar; KCF_STRING_INLINE_BUFFER_LENGTH],
-    ///
     pub string: CFStringRef,
-    ///
     pub direct_unichar_buffer: *const UniChar,
-    ///
     pub direct_c_string_buffer: *const c_char,
     /// Range in string to buffer
     pub range_to_buffer: CFRange,
@@ -277,6 +308,61 @@ impl CFString {
         }
     }
 
+    /* Creating a CFString
+     */
+
+    /// Creates an array of CFString objects from a single CFString object.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_array_by_separating_strings(
+        alloc: CFAllocatorRef,
+        string: CFStringRef,
+        separator: CFStringRef,
+    ) -> CFArray {
+        CFArray::create_with_ref(CFStringCreateArrayBySeparatingStrings(
+            alloc, string, separator,
+        ))
+    }
+
+    /// Creates a single string from the individual CFString objects that comprise the elements of an array.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_by_combining_strings(
+        alloc: CFAllocatorRef,
+        array: CFArrayRef,
+        separator: CFStringRef,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateByCombiningStrings(alloc, array, separator))
+    }
+
+    /// Creates an immutable copy of a string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_copy(alloc: CFAllocatorRef, string: CFStringRef) -> CFString {
+        CFString::create_with_ref(CFStringCreateCopy(alloc, string))
+    }
+
+    /// Creates a string from its “external representation.”
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_from_external_representation(
+        alloc: CFAllocatorRef,
+        data: CFDataRef,
+        encoding: CFStringEncoding,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateFromExternalRepresentation(
+            alloc, data, encoding,
+        ))
+    }
+
     /// Creates a string from a buffer containing characters in a specified encoding.
     ///
     /// # Safety
@@ -296,6 +382,343 @@ impl CFString {
             encoding,
             is_external_representation,
         ))
+    }
+
+    /// Creates a string from a buffer, containing characters in a specified encoding, that might serve as the backing store for the new string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_with_bytes_no_copy(
+        alloc: CFAllocatorRef,
+        bytes: *const u8,
+        num_bytes: CFIndex,
+        encoding: CFStringEncoding,
+        is_external_representation: bool,
+        contents_deallocator: CFAllocatorRef,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateWithBytesNoCopy(
+            alloc,
+            bytes,
+            num_bytes,
+            encoding,
+            is_external_representation,
+            contents_deallocator,
+        ))
+    }
+
+    /// Creates a string from a buffer of Unicode characters.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_with_characters(
+        alloc: CFAllocatorRef,
+        chars: *const UniChar,
+        num_chars: CFIndex,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateWithCharacters(alloc, chars, num_chars))
+    }
+
+    /// Creates a string from a buffer of Unicode characters that might serve as the backing store for the object.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_with_characters_no_copy(
+        alloc: CFAllocatorRef,
+        chars: *const UniChar,
+        num_chars: CFIndex,
+        contents_deallocator: CFAllocatorRef,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateWithCharactersNoCopy(
+            alloc,
+            chars,
+            num_chars,
+            contents_deallocator,
+        ))
+    }
+
+    /// Creates an immutable string from a C string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_with_c_string(
+        alloc: CFAllocatorRef,
+        c_str: *const c_char,
+        encoding: CFStringEncoding,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateWithCString(alloc, c_str, encoding))
+    }
+
+    /// Creates a CFString object from an external C string buffer that might serve as the backing store for the object.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_with_c_string_no_copy(
+        alloc: CFAllocatorRef,
+        c_str: *const c_char,
+        encoding: CFStringEncoding,
+        contents_deallocator: CFAllocatorRef,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateWithCStringNoCopy(
+            alloc,
+            c_str,
+            encoding,
+            contents_deallocator,
+        ))
+    }
+
+    /// Creates an immutable string from a formatted string and a variable number of arguments (specified in a parameter of type va_list).
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_with_format_and_arguments(
+        alloc: CFAllocatorRef,
+        format_options: CFDictionaryRef,
+        format: CFStringRef,
+        va_list: VaList,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateWithFormatAndArguments(
+            alloc,
+            format_options,
+            format,
+            va_list,
+        ))
+    }
+
+    /// Creates an immutable CFString object from a Pascal string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_with_pascal_string(
+        alloc: CFAllocatorRef,
+        p_str: ConstStr255Param,
+        encoding: CFStringEncoding,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateWithPascalString(alloc, p_str, encoding))
+    }
+
+    /// Creates a CFString object from an external Pascal string buffer that might serve as the backing store for the object.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_with_pascal_string_no_copy(
+        alloc: CFAllocatorRef,
+        p_str: ConstStr255Param,
+        encoding: CFStringEncoding,
+        contents_deallocator: CFAllocatorRef,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateWithPascalStringNoCopy(
+            alloc,
+            p_str,
+            encoding,
+            contents_deallocator,
+        ))
+    }
+
+    /// Creates an immutable string from a segment (substring) of an existing string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_with_substring(
+        alloc: CFAllocatorRef,
+        s: CFStringRef,
+        range: CFRange,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateWithSubstring(alloc, s, range))
+    }
+
+    /* Searching Strings
+     */
+
+    /// Searches a string for multiple occurrences of a substring and creates an array of ranges identifying the locations of these substrings within the target string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_array_with_find_results(
+        alloc: CFAllocatorRef,
+        string: CFStringRef,
+        string_to_find: CFStringRef,
+        range_to_search: CFRange,
+        compare_options: CFStringCompareFlags,
+    ) -> CFArray {
+        CFArray::create_with_ref(CFStringCreateArrayWithFindResults(
+            alloc,
+            string,
+            string_to_find,
+            range_to_search,
+            compare_options,
+        ))
+    }
+
+    /// Searches for a substring within a string and, if it is found, yields the range of the substring within the object's characters.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn find(
+        string: CFStringRef,
+        string_to_find: CFStringRef,
+        compare_options: CFStringCompareFlags,
+    ) -> CFRange {
+        CFStringFind(string, string_to_find, compare_options)
+    }
+
+    /// Query the range of the first character contained in the specified character set.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn find_character_from_set(
+        string: CFStringRef,
+        set: CFCharacterSetRef,
+        range_to_search: CFRange,
+        search_options: CFStringCompareFlags,
+        result: *mut CFRange,
+    ) -> bool {
+        CFStringFindCharacterFromSet(string, set, range_to_search, search_options, result)
+    }
+
+    /// Searches for a substring within a range of the characters represented by a string and, if the substring is found, returns its range within the object's characters.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn find_with_options(
+        string: CFStringRef,
+        string_to_find: CFStringRef,
+        range_to_search: CFRange,
+        search_options: CFStringCompareFlags,
+        result: *mut CFRange,
+    ) -> bool {
+        CFStringFindWithOptions(
+            string,
+            string_to_find,
+            range_to_search,
+            search_options,
+            result,
+        )
+    }
+
+    /// Returns a Boolean value that indicates whether a given string was found in a given source string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn find_with_options_and_locale(
+        string: CFStringRef,
+        string_to_find: CFStringRef,
+        range_to_search: CFRange,
+        search_options: CFStringCompareFlags,
+        locale: CFLocaleRef,
+        result: *mut CFRange,
+    ) -> bool {
+        CFStringFindWithOptionsAndLocale(
+            string,
+            string_to_find,
+            range_to_search,
+            search_options,
+            locale,
+            result,
+        )
+    }
+
+    /// Given a range of characters in a string, obtains the line bounds—that is, the indexes of the first character and the final characters of the lines containing the range.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_line_bounds(
+        string: CFStringRef,
+        range: CFRange,
+        line_begin_index: *mut CFIndex,
+        line_end_index: *mut CFIndex,
+        contents_end_index: *mut CFIndex,
+    ) {
+        CFStringGetLineBounds(
+            string,
+            range,
+            line_begin_index,
+            line_end_index,
+            contents_end_index,
+        )
+    }
+
+    /* Comparing Strings
+     */
+
+    /// Compares one string with another string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn compare(
+        string1: CFStringRef,
+        string2: CFStringRef,
+        compare_options: CFStringCompareFlags,
+    ) -> CFComparisonResult {
+        CFStringCompare(string1, string2, compare_options)
+    }
+
+    /// Compares a range of the characters in one string with that of another string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn compare_with_options(
+        string1: CFStringRef,
+        string2: CFStringRef,
+        range_to_compare: CFRange,
+        compare_options: CFStringCompareFlags,
+    ) -> CFComparisonResult {
+        CFStringCompareWithOptions(string1, string2, range_to_compare, compare_options)
+    }
+
+    /// Compares a range of the characters in one string with another string using a given locale.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn compare_with_options_and_locale(
+        string1: CFStringRef,
+        string2: CFStringRef,
+        range_to_compare: CFRange,
+        compare_options: CFStringCompareFlags,
+        locale: CFLocaleRef,
+    ) -> CFComparisonResult {
+        CFStringCompareWithOptionsAndLocale(
+            string1,
+            string2,
+            range_to_compare,
+            compare_options,
+            locale,
+        )
+    }
+
+    /// Determines if the character data of a string begin with a specified sequence of characters.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn has_prefix(string: CFStringRef, prefix: CFStringRef) -> bool {
+        CFStringHasPrefix(string, prefix)
+    }
+
+    ///Determines if a string ends with a specified sequence of characters.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn has_suffix(string: CFStringRef, suffix: CFStringRef) -> bool {
+        CFStringHasSuffix(string, suffix)
     }
 
     /* Accessing Characters
@@ -418,6 +841,376 @@ impl CFString {
     pub unsafe fn get_length(string: CFStringRef) -> CFIndex {
         CFStringGetLength(string)
     }
+
+    /// Copies the character contents of a [`CFString`] object to a local Pascal string buffer after converting the characters to a requested encoding.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_pascal_string(
+        string: CFStringRef,
+        buffer: StringPtr,
+        buffer_size: CFIndex,
+        encoding: CFStringEncoding,
+    ) -> bool {
+        CFStringGetPascalString(string, buffer, buffer_size, encoding)
+    }
+
+    /// Quickly obtains a pointer to a Pascal buffer containing the characters of a string in a given encoding.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_pascal_string_ptr(
+        string: CFStringRef,
+        encoding: CFStringEncoding,
+    ) -> ConstStr255Param {
+        CFStringGetPascalStringPtr(string, encoding)
+    }
+
+    /// Returns the range of the composed character sequence at a specified index.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_range_of_composed_characters_at_index(
+        string: CFStringRef,
+        index: CFIndex,
+    ) -> CFRange {
+        CFStringGetRangeOfComposedCharactersAtIndex(string, index)
+    }
+
+    /// Initializes an in-line buffer to use for efficient access of a [`CFString`] object's characters.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn init_inline_buffer(
+        s: CFStringRef,
+        buf: *mut CFStringInlineBuffer,
+        range: CFRange,
+    ) {
+        CFStringInitInlineBuffer(s, buf, range)
+    }
+
+    /* Working With Hyphenation
+     */
+
+    /// Retrieve the first potential hyphenation location found before the specified location.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_hyphenation_location_before_index(
+        string: CFStringRef,
+        location: CFIndex,
+        limit_range: CFRange,
+        options: CFOptionFlags,
+        locale: CFLocaleRef,
+        character: *mut UTF32Char,
+    ) -> CFIndex {
+        CFStringGetHyphenationLocationBeforeIndex(
+            string,
+            location,
+            limit_range,
+            options,
+            locale,
+            character,
+        )
+    }
+
+    /// Returns a [`bool`] value that indicates whether hyphenation data is available.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn is_hyphenation_available_for_locale(locale: CFLocaleRef) -> bool {
+        CFStringIsHyphenationAvailableForLocale(locale)
+    }
+
+    /* Working With Encodings
+     */
+
+    /// Returns the name of the IANA registry “charset” that is the closest mapping to a specified string encoding.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn convert_encoding_to_ianachar_set_name(encoding: CFStringEncoding) -> CFString {
+        CFString::create_with_ref(CFStringConvertEncodingToIANACharSetName(encoding))
+    }
+
+    /// Returns the Cocoa encoding constant that maps most closely to a given Core Foundation encoding constant.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn convert_encoding_to_nsstring_encoding(encoding: CFStringEncoding) -> c_ulong {
+        CFStringConvertEncodingToNSStringEncoding(encoding)
+    }
+
+    /// Returns the Windows codepage identifier that maps most closely to a given Core Foundation encoding constant.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn convert_encoding_to_windows_codepage(encoding: CFStringEncoding) -> u32 {
+        CFStringConvertEncodingToWindowsCodepage(encoding)
+    }
+
+    /// Returns the Core Foundation encoding constant that is the closest mapping to a given IANA registry “charset” name.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn convert_iana_char_set_name_to_encodingng(
+        string: CFStringRef,
+    ) -> CFStringEncoding {
+        CFStringConvertIANACharSetNameToEncoding(string)
+    }
+
+    /// Returns the Core Foundation encoding constant that is the closest mapping to a given Cocoa encoding.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn convert_nsstring_encoding_to_encodingng(encoding: c_ulong) -> CFStringEncoding {
+        CFStringConvertNSStringEncodingToEncoding(encoding)
+    }
+
+    /// Returns the Core Foundation encoding constant that is the closest mapping to a given Windows codepage identifier.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn convert_windows_codepage_to_encoding(codepage: u32) -> CFStringEncoding {
+        CFStringConvertWindowsCodepageToEncoding(codepage)
+    }
+
+    /// Returns for a [`CFString`] object the character encoding that requires the least conversion time.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_fastest_encoding(string: CFStringRef) -> CFStringEncoding {
+        CFStringGetFastestEncoding(string)
+    }
+
+    /// Returns a pointer to a list of string encodings supported by the current system.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_list_of_available_encodings() -> *const CFStringEncoding {
+        CFStringGetListOfAvailableEncodings()
+    }
+
+    /// Returns the maximum number of bytes a string of a specified length (in Unicode characters) will take up if encoded in a specified encoding.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_maximum_size_for_encoding(
+        length: CFIndex,
+        encoding: CFStringEncoding,
+    ) -> CFIndex {
+        CFStringGetMaximumSizeForEncoding(length, encoding)
+    }
+
+    /// Returns the most compatible Mac OS script value for the given input encoding.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_most_compatible_mac_string_encoding(
+        encoding: CFStringEncoding,
+    ) -> CFStringEncoding {
+        CFStringGetMostCompatibleMacStringEncoding(encoding)
+    }
+
+    /// Returns the canonical name of a specified string encoding.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_name_of_encoding(encoding: CFStringEncoding) -> CFString {
+        CFString::create_with_ref(CFStringGetNameOfEncoding(encoding))
+    }
+
+    /// Returns the smallest encoding on the current system for the character contents of a string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_smallest_encoding(string: CFStringRef) -> CFStringEncoding {
+        CFStringGetSmallestEncoding(string)
+    }
+
+    /// Returns the default encoding used by the operating system when it creates strings.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_system_encoding() -> CFStringEncoding {
+        CFStringGetSystemEncoding()
+    }
+
+    /// Determines whether a given Core Foundation string encoding is available on the current system.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn is_encoding_available(encoding: CFStringEncoding) -> bool {
+        CFStringIsEncodingAvailable(encoding)
+    }
+
+    /* Getting Numeric Values
+     */
+
+    /// Returns the primary [`c_double`] value represented by a string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_double_value(s: CFStringRef) -> c_double {
+        CFStringGetDoubleValue(s)
+    }
+
+    /// Returns the [`SInt32`] value represented by a string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_int_value(s: CFStringRef) -> SInt32 {
+        CFStringGetIntValue(s)
+    }
+
+    /* Getting String Properties
+     */
+
+    /// Prints the attributes of a string during debugging.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn cf_show_str(s: CFStringRef) {
+        CFShowStr(s)
+    }
+
+    /// Returns the type identifier for the [`CFString`] opaque type.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_type_id() -> CFTypeID {
+        CFStringGetTypeID()
+    }
+
+    /* String File System Representations
+     */
+
+    /// Creates a [`CFString`] from a zero-terminated POSIX file system representation.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn create_with_file_system_representation(
+        alloc: CFAllocatorRef,
+        buffer: *const c_char,
+    ) -> CFString {
+        CFString::create_with_ref(CFStringCreateWithFileSystemRepresentation(alloc, buffer))
+    }
+
+    /// Extracts the contents of a string as a NULL-terminated 8-bit string appropriate for passing to POSIX APIs.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_file_system_representation(
+        string: CFStringRef,
+        buffer: &mut [c_char],
+        max_buf_len: CFIndex,
+    ) -> bool {
+        CFStringGetFileSystemRepresentation(string, buffer, max_buf_len)
+    }
+
+    /// Determines the upper bound on the number of bytes required to hold the file system representation of the string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_maximum_size_of_file_system_representation(string: CFStringRef) -> CFIndex {
+        CFStringGetMaximumSizeOfFileSystemRepresentation(string)
+    }
+
+    /* Getting Paragraph Bounds
+     */
+
+    /// Determines the upper bound on the number of bytes required to hold the file system representation of the string.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_paragraph_bounds(
+        string: CFStringRef,
+        range: CFRange,
+        par_begin_index: *mut CFIndex,
+        par_end_index: *mut CFIndex,
+        contents_end_index: *mut CFIndex,
+    ) {
+        CFStringGetParagraphBounds(
+            string,
+            range,
+            par_begin_index,
+            par_end_index,
+            contents_end_index,
+        )
+    }
+
+    /* Managing Surrogates
+     */
+
+    /// Returns a UTF-32 character that corresponds to a given pair of UTF-16 surrogate characters.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_long_character_for_surrogate_pair(
+        surrogate_high: UniChar,
+        surrogate_low: UniChar,
+    ) -> UTF32Char {
+        CFStringGetLongCharacterForSurrogatePair(surrogate_high, surrogate_low)
+    }
+
+    /// Maps a given UTF-32 character to a pair of UTF-16 surrogate characters.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn get_surrogate_pair_for_long_character(
+        character: UTF32Char,
+        surrogates: &mut [UniChar],
+    ) -> bool {
+        CFStringGetSurrogatePairForLongCharacter(character, surrogates)
+    }
+
+    /// Returns a [`bool`] value that indicates whether a given character is a high character in a surrogate pair.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn is_surrogate_high_character(character: UniChar) -> bool {
+        CFStringIsSurrogateHighCharacter(character)
+    }
+
+    /// Returns a [`bool`] value that indicates whether a given character is a low character in a surrogate pair.
+    ///
+    /// # Safety
+    ///
+    /// This function dereferences a raw pointer
+    pub unsafe fn is_surrogate_low_character(character: UniChar) -> bool {
+        CFStringIsSurrogateLowCharacter(character)
+    }
 }
 
 impl<'a> From<&'a CFString> for Cow<'a, str> {
@@ -500,7 +1293,50 @@ impl fmt::Debug for CFString {
     }
 }
 
+impl PartialEq for CFString {
+    fn eq(&self, other: &Self) -> bool {
+        unsafe {
+            matches!(
+                CFStringCompare(
+                    self.get_internal_object(),
+                    other.get_internal_object(),
+                    CFStringCompareFlags::DEFAULT,
+                ),
+                CFComparisonResult::KCFCompareEqualTo
+            )
+        }
+    }
+}
+
+impl Eq for CFString {}
+
+impl PartialEq<&str> for CFString {
+    fn eq(&self, other: &&str) -> bool {
+        &self.to_string() == other
+    }
+}
+
 extern "C" {
+    pub fn CFStringCreateArrayBySeparatingStrings(
+        alloc: CFAllocatorRef,
+        string: CFStringRef,
+        separator: CFStringRef,
+    ) -> CFArrayRef;
+
+    pub fn CFStringCreateByCombiningStrings(
+        alloc: CFAllocatorRef,
+        array: CFArrayRef,
+        separator: CFStringRef,
+    ) -> CFStringRef;
+
+    pub fn CFStringCreateCopy(alloc: CFAllocatorRef, string: CFStringRef) -> CFStringRef;
+
+    pub fn CFStringCreateFromExternalRepresentation(
+        alloc: CFAllocatorRef,
+        data: CFDataRef,
+        encoding: CFStringEncoding,
+    ) -> CFStringRef;
+
     pub fn CFStringCreateWithBytes(
         alloc: CFAllocatorRef,
         bytes: *const u8,
@@ -508,6 +1344,146 @@ extern "C" {
         encoding: CFStringEncoding,
         is_external_representation: bool,
     ) -> CFStringRef;
+
+    pub fn CFStringCreateWithBytesNoCopy(
+        alloc: CFAllocatorRef,
+        bytes: *const u8,
+        num_bytes: CFIndex,
+        encoding: CFStringEncoding,
+        is_external_representation: bool,
+        contents_deallocator: CFAllocatorRef,
+    ) -> CFStringRef;
+
+    pub fn CFStringCreateWithCharacters(
+        alloc: CFAllocatorRef,
+        chars: *const UniChar,
+        num_chars: CFIndex,
+    ) -> CFStringRef;
+
+    pub fn CFStringCreateWithCharactersNoCopy(
+        alloc: CFAllocatorRef,
+        chars: *const UniChar,
+        num_chars: CFIndex,
+        contents_deallocator: CFAllocatorRef,
+    ) -> CFStringRef;
+
+    pub fn CFStringCreateWithCString(
+        alloc: CFAllocatorRef,
+        c_str: *const c_char,
+        encoding: CFStringEncoding,
+    ) -> CFStringRef;
+
+    pub fn CFStringCreateWithCStringNoCopy(
+        alloc: CFAllocatorRef,
+        c_str: *const c_char,
+        encoding: CFStringEncoding,
+        contents_deallocator: CFAllocatorRef,
+    ) -> CFStringRef;
+
+    pub fn CFStringCreateWithFormat(
+        alloc: CFAllocatorRef,
+        format_options: CFDictionaryRef,
+        format: CFStringRef,
+        ...
+    ) -> CFStringRef;
+
+    pub fn CFStringCreateWithFormatAndArguments(
+        alloc: CFAllocatorRef,
+        format_options: CFDictionaryRef,
+        format: CFStringRef,
+        va_list: VaList,
+    ) -> CFStringRef;
+
+    pub fn CFStringCreateWithPascalString(
+        alloc: CFAllocatorRef,
+        p_str: ConstStr255Param,
+        encoding: CFStringEncoding,
+    ) -> CFStringRef;
+
+    pub fn CFStringCreateWithPascalStringNoCopy(
+        alloc: CFAllocatorRef,
+        p_str: ConstStr255Param,
+        encoding: CFStringEncoding,
+        contents_deallocator: CFAllocatorRef,
+    ) -> CFStringRef;
+
+    pub fn CFStringCreateWithSubstring(
+        alloc: CFAllocatorRef,
+        s: CFStringRef,
+        range: CFRange,
+    ) -> CFStringRef;
+
+    pub fn CFStringCreateArrayWithFindResults(
+        alloc: CFAllocatorRef,
+        string: CFStringRef,
+        string_to_find: CFStringRef,
+        range_to_search: CFRange,
+        compare_options: CFStringCompareFlags,
+    ) -> CFArrayRef;
+
+    pub fn CFStringFind(
+        string: CFStringRef,
+        string_to_find: CFStringRef,
+        compare_options: CFStringCompareFlags,
+    ) -> CFRange;
+
+    pub fn CFStringFindCharacterFromSet(
+        string: CFStringRef,
+        set: CFCharacterSetRef,
+        range_to_search: CFRange,
+        search_options: CFStringCompareFlags,
+        result: *mut CFRange,
+    ) -> bool;
+
+    pub fn CFStringFindWithOptions(
+        string: CFStringRef,
+        string_to_find: CFStringRef,
+        range_to_search: CFRange,
+        search_options: CFStringCompareFlags,
+        result: *mut CFRange,
+    ) -> bool;
+
+    pub fn CFStringFindWithOptionsAndLocale(
+        string: CFStringRef,
+        string_to_find: CFStringRef,
+        range_to_search: CFRange,
+        search_options: CFStringCompareFlags,
+        locale: CFLocaleRef,
+        result: *mut CFRange,
+    ) -> bool;
+
+    pub fn CFStringGetLineBounds(
+        string: CFStringRef,
+        range: CFRange,
+        line_begin_index: *mut CFIndex,
+        line_end_index: *mut CFIndex,
+        contents_end_index: *mut CFIndex,
+    );
+
+    pub fn CFStringCompare(
+        string1: CFStringRef,
+        string2: CFStringRef,
+        compare_options: CFStringCompareFlags,
+    ) -> CFComparisonResult;
+
+    pub fn CFStringCompareWithOptions(
+        string1: CFStringRef,
+        string2: CFStringRef,
+        range_to_compare: CFRange,
+        compare_options: CFStringCompareFlags,
+    ) -> CFComparisonResult;
+
+    pub fn CFStringCompareWithOptionsAndLocale(
+        string1: CFStringRef,
+        string2: CFStringRef,
+        range_to_compare: CFRange,
+        compare_options: CFStringCompareFlags,
+        locale: CFLocaleRef,
+    ) -> CFComparisonResult;
+
+    pub fn CFStringHasPrefix(string: CFStringRef, prefix: CFStringRef) -> bool;
+
+    pub fn CFStringHasSuffix(string: CFStringRef, suffix: CFStringRef) -> bool;
 
     pub fn CFStringCreateExternalRepresentation(
         alloc: CFStringRef,
@@ -548,17 +1524,120 @@ extern "C" {
     pub fn CFStringGetCStringPtr(string: CFStringRef, encoding: CFStringEncoding) -> *const c_char;
 
     pub fn CFStringGetLength(string: CFStringRef) -> CFIndex;
-}
 
-impl PartialEq<&str> for CFString {
-    fn eq(&self, other: &&str) -> bool {
-        &self.to_string() == other
-    }
+    pub fn CFStringGetPascalString(
+        string: CFStringRef,
+        buffer: StringPtr,
+        buffer_size: CFIndex,
+        encoding: CFStringEncoding,
+    ) -> bool;
+
+    pub fn CFStringGetPascalStringPtr(
+        string: CFStringRef,
+        encoding: CFStringEncoding,
+    ) -> ConstStr255Param;
+
+    pub fn CFStringGetRangeOfComposedCharactersAtIndex(
+        string: CFStringRef,
+        index: CFIndex,
+    ) -> CFRange;
+
+    pub fn CFStringInitInlineBuffer(s: CFStringRef, buf: *mut CFStringInlineBuffer, range: CFRange);
+
+    pub fn CFStringGetHyphenationLocationBeforeIndex(
+        string: CFStringRef,
+        location: CFIndex,
+        limit_range: CFRange,
+        options: CFOptionFlags,
+        locale: CFLocaleRef,
+        character: *mut UTF32Char,
+    ) -> CFIndex;
+
+    pub fn CFStringIsHyphenationAvailableForLocale(locale: CFLocaleRef) -> bool;
+
+    pub fn CFStringConvertEncodingToIANACharSetName(encoding: CFStringEncoding) -> CFStringRef;
+
+    pub fn CFStringConvertEncodingToNSStringEncoding(encoding: CFStringEncoding) -> c_ulong;
+
+    pub fn CFStringConvertEncodingToWindowsCodepage(encoding: CFStringEncoding) -> u32;
+
+    pub fn CFStringConvertIANACharSetNameToEncoding(string: CFStringRef) -> CFStringEncoding;
+
+    pub fn CFStringConvertNSStringEncodingToEncoding(encoding: c_ulong) -> CFStringEncoding;
+
+    pub fn CFStringConvertWindowsCodepageToEncoding(codepage: u32) -> CFStringEncoding;
+
+    pub fn CFStringGetFastestEncoding(string: CFStringRef) -> CFStringEncoding;
+
+    pub fn CFStringGetListOfAvailableEncodings() -> *const CFStringEncoding;
+
+    pub fn CFStringGetMaximumSizeForEncoding(
+        length: CFIndex,
+        encoding: CFStringEncoding,
+    ) -> CFIndex;
+
+    pub fn CFStringGetMostCompatibleMacStringEncoding(
+        encoding: CFStringEncoding,
+    ) -> CFStringEncoding;
+
+    pub fn CFStringGetNameOfEncoding(encoding: CFStringEncoding) -> CFStringRef;
+
+    pub fn CFStringGetSmallestEncoding(string: CFStringRef) -> CFStringEncoding;
+
+    pub fn CFStringGetSystemEncoding() -> CFStringEncoding;
+
+    pub fn CFStringIsEncodingAvailable(encoding: CFStringEncoding) -> bool;
+
+    pub fn CFStringGetDoubleValue(s: CFStringRef) -> c_double;
+
+    pub fn CFStringGetIntValue(s: CFStringRef) -> SInt32;
+
+    pub fn CFShowStr(s: CFStringRef);
+
+    pub fn CFStringGetTypeID() -> CFTypeID;
+
+    pub fn CFStringCreateWithFileSystemRepresentation(
+        alloc: CFAllocatorRef,
+        buffer: *const c_char,
+    ) -> CFStringRef;
+
+    pub fn CFStringGetFileSystemRepresentation(
+        string: CFStringRef,
+        buffer: &mut [c_char],
+        max_buf_len: CFIndex,
+    ) -> bool;
+
+    pub fn CFStringGetMaximumSizeOfFileSystemRepresentation(string: CFStringRef) -> CFIndex;
+
+    pub fn CFStringGetParagraphBounds(
+        string: CFStringRef,
+        range: CFRange,
+        par_begin_index: *mut CFIndex,
+        par_end_index: *mut CFIndex,
+        contents_end_index: *mut CFIndex,
+    );
+
+    pub fn CFStringGetLongCharacterForSurrogatePair(
+        surrogate_high: UniChar,
+        surrogate_low: UniChar,
+    ) -> UTF32Char;
+
+    pub fn CFStringGetSurrogatePairForLongCharacter(
+        character: UTF32Char,
+        surrogates: &mut [UniChar],
+    ) -> bool;
+
+    pub fn CFStringIsSurrogateHighCharacter(character: UniChar) -> bool;
+
+    pub fn CFStringIsSurrogateLowCharacter(character: UniChar) -> bool;
 }
 
 #[cfg(test)]
 mod tests {
-    use super::CFString;
+
+    use crate::core_foundation::{kCFAllocatorDefault, CFRange, CFTypeObject};
+
+    use super::{CFString, KCFStringEncoding};
 
     #[test]
     fn test_to_string() {
@@ -582,10 +1661,70 @@ mod tests {
     }
 
     #[test]
+    fn test_cmp_cf_string() {
+        let native_str1 = CFString::with_str("Hello World!");
+        let native_str2 = CFString::with_str("Hello World!");
+        let native_str3 = CFString::with_str("Goodbye World!");
+
+        assert_eq!(native_str1, native_str2);
+        assert_ne!(native_str1, native_str3);
+    }
+
+    #[test]
     fn test_cmp_string() {
-        let mut s = "Hello World!";
+        let s = "Hello World!";
         let native_str = CFString::with_str(s);
 
         assert_eq!(native_str, s);
+    }
+
+    #[test]
+    fn test_create_with_bytes() {
+        unsafe {
+            let original = "The quick brown fox jumped over the slow lazy dog.";
+            let cfstr = CFString::create_with_bytes(
+                kCFAllocatorDefault,
+                original.as_ptr(),
+                original.bytes().len() as u64,
+                KCFStringEncoding::UTF8.bits,
+                false,
+            );
+
+            assert_eq!(cfstr, original);
+        }
+    }
+
+    #[test]
+    fn test_get_characters() {
+        let original = "The quick brown fox jumped over the slow lazy dog.";
+        let cfstr = CFString::with_str(original);
+
+        unsafe {
+            let mut buffer = vec![0; original.len()];
+
+            CFString::get_characters(
+                cfstr.get_internal_object(),
+                CFRange {
+                    location: 0,
+                    length: CFString::get_length(cfstr.get_internal_object()),
+                },
+                &mut buffer,
+            );
+
+            assert_eq!(original, String::from_utf16(&buffer).unwrap())
+        }
+    }
+
+    #[test]
+    fn test_get_length() {
+        let original = "The quick brown fox jumped over the slow lazy dog.";
+        let cfstr = CFString::with_str(original);
+
+        unsafe {
+            assert_eq!(
+                original.len(),
+                CFString::get_length(cfstr.get_internal_object()) as usize
+            )
+        }
     }
 }
