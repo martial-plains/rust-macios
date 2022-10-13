@@ -2,6 +2,8 @@ use core::fmt;
 
 use libc::{c_ulong, c_void};
 
+use crate::kernel::Boolean;
+
 use super::{
     macros::declare_CFType, CFAllocator, CFAllocatorRef, CFIndex, CFString, CFStringRef,
     CFTypeObject,
@@ -78,7 +80,7 @@ impl CFType {
     /// # Safety
     ///
     /// This function dereferences a raw pointer.
-    pub unsafe fn equal(cf1: CFTypeRef, cf2: CFTypeRef) -> bool {
+    pub unsafe fn equal(cf1: CFTypeRef, cf2: CFTypeRef) -> Boolean {
         CFEqual(cf1, cf2)
     }
 
@@ -157,7 +159,7 @@ extern "C" {
 
     pub fn CFRetain(cf: CFTypeRef) -> CFTypeRef;
 
-    pub fn CFEqual(cf1: CFTypeRef, cf2: CFTypeRef) -> bool;
+    pub fn CFEqual(cf1: CFTypeRef, cf2: CFTypeRef) -> Boolean;
 
     pub fn CFHash(cf: CFTypeRef) -> CFHashCode;
 

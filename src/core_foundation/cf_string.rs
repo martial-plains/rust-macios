@@ -12,7 +12,7 @@ use bitflags::bitflags;
 
 use crate::{
     core_foundation::CFRange,
-    kernel::{SInt32, UniChar},
+    kernel::{Boolean, SInt32, UInt32, UInt8, UniChar},
 };
 
 use self::iter::Iter;
@@ -370,7 +370,7 @@ impl CFString {
     /// This function dereferences a raw pointer
     pub unsafe fn create_with_bytes(
         alloc: CFAllocatorRef,
-        bytes: *const u8,
+        bytes: *const UInt8,
         num_bytes: CFIndex,
         encoding: CFStringEncoding,
         is_external_representation: bool,
@@ -391,10 +391,10 @@ impl CFString {
     /// This function dereferences a raw pointer
     pub unsafe fn create_with_bytes_no_copy(
         alloc: CFAllocatorRef,
-        bytes: *const u8,
+        bytes: *const UInt8,
         num_bytes: CFIndex,
         encoding: CFStringEncoding,
-        is_external_representation: bool,
+        is_external_representation: Boolean,
         contents_deallocator: CFAllocatorRef,
     ) -> CFString {
         CFString::create_with_ref(CFStringCreateWithBytesNoCopy(
@@ -733,7 +733,7 @@ impl CFString {
         alloc: CFStringRef,
         string: CFStringEncoding,
         encoding: CFStringEncoding,
-        loss_byte: u8,
+        loss_byte: UInt8,
     ) -> CFData {
         CFData::create_with_ref(CFStringCreateExternalRepresentation(
             alloc, string, encoding, loss_byte,
@@ -750,9 +750,9 @@ impl CFString {
         string: CFStringRef,
         range: CFRange,
         encoding: CFStringEncoding,
-        loss_byte: u8,
-        is_external_representation: bool,
-        buffer: *mut u8,
+        loss_byte: UInt8,
+        is_external_representation: Boolean,
+        buffer: *mut UInt8,
         max_buf_len: CFIndex,
         used_buf_len: *mut CFIndex,
     ) -> CFIndex {
@@ -919,12 +919,12 @@ impl CFString {
         )
     }
 
-    /// Returns a [`bool`] value that indicates whether hyphenation data is available.
+    /// Returns a [`Boolean`] value that indicates whether hyphenation data is available.
     ///
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    pub unsafe fn is_hyphenation_available_for_locale(locale: CFLocaleRef) -> bool {
+    pub unsafe fn is_hyphenation_available_for_locale(locale: CFLocaleRef) -> Boolean {
         CFStringIsHyphenationAvailableForLocale(locale)
     }
 
@@ -954,7 +954,7 @@ impl CFString {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    pub unsafe fn convert_encoding_to_windows_codepage(encoding: CFStringEncoding) -> u32 {
+    pub unsafe fn convert_encoding_to_windows_codepage(encoding: CFStringEncoding) -> UInt32 {
         CFStringConvertEncodingToWindowsCodepage(encoding)
     }
 
@@ -983,7 +983,7 @@ impl CFString {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    pub unsafe fn convert_windows_codepage_to_encoding(codepage: u32) -> CFStringEncoding {
+    pub unsafe fn convert_windows_codepage_to_encoding(codepage: UInt32) -> CFStringEncoding {
         CFStringConvertWindowsCodepageToEncoding(codepage)
     }
 
@@ -1130,7 +1130,7 @@ impl CFString {
         string: CFStringRef,
         buffer: &mut [c_char],
         max_buf_len: CFIndex,
-    ) -> bool {
+    ) -> Boolean {
         CFStringGetFileSystemRepresentation(string, buffer, max_buf_len)
     }
 
@@ -1190,25 +1190,25 @@ impl CFString {
     pub unsafe fn get_surrogate_pair_for_long_character(
         character: UTF32Char,
         surrogates: &mut [UniChar],
-    ) -> bool {
+    ) -> Boolean {
         CFStringGetSurrogatePairForLongCharacter(character, surrogates)
     }
 
-    /// Returns a [`bool`] value that indicates whether a given character is a high character in a surrogate pair.
+    /// Returns a [`Boolean`] value that indicates whether a given character is a high character in a surrogate pair.
     ///
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    pub unsafe fn is_surrogate_high_character(character: UniChar) -> bool {
+    pub unsafe fn is_surrogate_high_character(character: UniChar) -> Boolean {
         CFStringIsSurrogateHighCharacter(character)
     }
 
-    /// Returns a [`bool`] value that indicates whether a given character is a low character in a surrogate pair.
+    /// Returns a [`Boolean`] value that indicates whether a given character is a low character in a surrogate pair.
     ///
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    pub unsafe fn is_surrogate_low_character(character: UniChar) -> bool {
+    pub unsafe fn is_surrogate_low_character(character: UniChar) -> Boolean {
         CFStringIsSurrogateLowCharacter(character)
     }
 }
@@ -1339,18 +1339,18 @@ extern "C" {
 
     pub fn CFStringCreateWithBytes(
         alloc: CFAllocatorRef,
-        bytes: *const u8,
+        bytes: *const UInt8,
         num_bytes: CFIndex,
         encoding: CFStringEncoding,
-        is_external_representation: bool,
+        is_external_representation: Boolean,
     ) -> CFStringRef;
 
     pub fn CFStringCreateWithBytesNoCopy(
         alloc: CFAllocatorRef,
-        bytes: *const u8,
+        bytes: *const UInt8,
         num_bytes: CFIndex,
         encoding: CFStringEncoding,
-        is_external_representation: bool,
+        is_external_representation: Boolean,
         contents_deallocator: CFAllocatorRef,
     ) -> CFStringRef;
 
@@ -1481,24 +1481,24 @@ extern "C" {
         locale: CFLocaleRef,
     ) -> CFComparisonResult;
 
-    pub fn CFStringHasPrefix(string: CFStringRef, prefix: CFStringRef) -> bool;
+    pub fn CFStringHasPrefix(string: CFStringRef, prefix: CFStringRef) -> Boolean;
 
-    pub fn CFStringHasSuffix(string: CFStringRef, suffix: CFStringRef) -> bool;
+    pub fn CFStringHasSuffix(string: CFStringRef, suffix: CFStringRef) -> Boolean;
 
     pub fn CFStringCreateExternalRepresentation(
         alloc: CFStringRef,
         string: CFStringEncoding,
         encoding: CFStringEncoding,
-        loss_byte: u8,
+        loss_byte: UInt8,
     ) -> CFDataRef;
 
     pub fn CFStringGetBytes(
         string: CFStringRef,
         range: CFRange,
         encoding: CFStringEncoding,
-        loss_byte: u8,
-        is_external_representation: bool,
-        buffer: *mut u8,
+        loss_byte: UInt8,
+        is_external_representation: Boolean,
+        buffer: *mut UInt8,
         max_buf_len: CFIndex,
         used_buf_len: *mut CFIndex,
     ) -> CFIndex;
@@ -1519,7 +1519,7 @@ extern "C" {
         buffer: &mut [c_char],
         buffer_size: CFIndex,
         encoding: CFStringEncoding,
-    ) -> bool;
+    ) -> Boolean;
 
     pub fn CFStringGetCStringPtr(string: CFStringRef, encoding: CFStringEncoding) -> *const c_char;
 
@@ -1530,7 +1530,7 @@ extern "C" {
         buffer: StringPtr,
         buffer_size: CFIndex,
         encoding: CFStringEncoding,
-    ) -> bool;
+    ) -> Boolean;
 
     pub fn CFStringGetPascalStringPtr(
         string: CFStringRef,
@@ -1553,19 +1553,19 @@ extern "C" {
         character: *mut UTF32Char,
     ) -> CFIndex;
 
-    pub fn CFStringIsHyphenationAvailableForLocale(locale: CFLocaleRef) -> bool;
+    pub fn CFStringIsHyphenationAvailableForLocale(locale: CFLocaleRef) -> Boolean;
 
     pub fn CFStringConvertEncodingToIANACharSetName(encoding: CFStringEncoding) -> CFStringRef;
 
     pub fn CFStringConvertEncodingToNSStringEncoding(encoding: CFStringEncoding) -> c_ulong;
 
-    pub fn CFStringConvertEncodingToWindowsCodepage(encoding: CFStringEncoding) -> u32;
+    pub fn CFStringConvertEncodingToWindowsCodepage(encoding: CFStringEncoding) -> UInt32;
 
     pub fn CFStringConvertIANACharSetNameToEncoding(string: CFStringRef) -> CFStringEncoding;
 
     pub fn CFStringConvertNSStringEncodingToEncoding(encoding: c_ulong) -> CFStringEncoding;
 
-    pub fn CFStringConvertWindowsCodepageToEncoding(codepage: u32) -> CFStringEncoding;
+    pub fn CFStringConvertWindowsCodepageToEncoding(codepage: UInt32) -> CFStringEncoding;
 
     pub fn CFStringGetFastestEncoding(string: CFStringRef) -> CFStringEncoding;
 
@@ -1586,7 +1586,7 @@ extern "C" {
 
     pub fn CFStringGetSystemEncoding() -> CFStringEncoding;
 
-    pub fn CFStringIsEncodingAvailable(encoding: CFStringEncoding) -> bool;
+    pub fn CFStringIsEncodingAvailable(encoding: CFStringEncoding) -> Boolean;
 
     pub fn CFStringGetDoubleValue(s: CFStringRef) -> c_double;
 
@@ -1605,7 +1605,7 @@ extern "C" {
         string: CFStringRef,
         buffer: &mut [c_char],
         max_buf_len: CFIndex,
-    ) -> bool;
+    ) -> Boolean;
 
     pub fn CFStringGetMaximumSizeOfFileSystemRepresentation(string: CFStringRef) -> CFIndex;
 
@@ -1625,11 +1625,11 @@ extern "C" {
     pub fn CFStringGetSurrogatePairForLongCharacter(
         character: UTF32Char,
         surrogates: &mut [UniChar],
-    ) -> bool;
+    ) -> Boolean;
 
-    pub fn CFStringIsSurrogateHighCharacter(character: UniChar) -> bool;
+    pub fn CFStringIsSurrogateHighCharacter(character: UniChar) -> Boolean;
 
-    pub fn CFStringIsSurrogateLowCharacter(character: UniChar) -> bool;
+    pub fn CFStringIsSurrogateLowCharacter(character: UniChar) -> Boolean;
 }
 
 #[cfg(test)]

@@ -2,6 +2,8 @@ use std::fmt;
 
 use libc::c_void;
 
+use crate::kernel::UInt8;
+
 use super::{
     kCFAllocatorDefault, macros::declare_CFType, CFAllocatorRef, CFIndex, CFRange, CFType,
     CFTypeID, CFTypeObject, CFTypeRef,
@@ -35,7 +37,11 @@ impl CFData {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    pub unsafe fn create(allocator: CFAllocatorRef, bytes: *const u8, length: CFIndex) -> CFData {
+    pub unsafe fn create(
+        allocator: CFAllocatorRef,
+        bytes: *const UInt8,
+        length: CFIndex,
+    ) -> CFData {
         unsafe { Self::create_with_ref(CFDataCreate(allocator, bytes, length)) }
     }
 
@@ -55,7 +61,7 @@ impl CFData {
     /// This function dereferences a raw pointer
     pub unsafe fn create_with_bytes_no_copy(
         allocator: CFAllocatorRef,
-        bytes: *const u8,
+        bytes: *const UInt8,
         length: CFIndex,
         bytes_deallocator: CFAllocatorRef,
     ) -> CFData {
@@ -72,7 +78,7 @@ impl CFData {
     /// # Safety
     ///
     /// This function dereferences a raw pointer
-    pub unsafe fn get_byte_ptr(data: CFDataRef) -> *const u8 {
+    pub unsafe fn get_byte_ptr(data: CFDataRef) -> *const UInt8 {
         CFDataGetBytePtr(data)
     }
 
@@ -142,12 +148,16 @@ extern "C" {
     /* Creating a CFData Object
      */
 
-    pub fn CFDataCreate(allocator: CFAllocatorRef, bytes: *const u8, length: CFIndex) -> CFDataRef;
+    pub fn CFDataCreate(
+        allocator: CFAllocatorRef,
+        bytes: *const UInt8,
+        length: CFIndex,
+    ) -> CFDataRef;
 
     pub fn CFDataCreateCopy(allocator: CFAllocatorRef, data: CFDataRef) -> CFDataRef;
     pub fn CFDataCreateWithBytesNoCopy(
         allocator: CFAllocatorRef,
-        bytes: *const u8,
+        bytes: *const UInt8,
         length: CFIndex,
         bytes_deallocator: CFAllocatorRef,
     ) -> CFDataRef;
@@ -155,9 +165,9 @@ extern "C" {
     /* Examining a CFData Object
      */
 
-    pub fn CFDataGetBytePtr(data: CFDataRef) -> *const u8;
+    pub fn CFDataGetBytePtr(data: CFDataRef) -> *const UInt8;
 
-    pub fn CFDataGetBytes(data: CFDataRef, range: CFRange, buffer: *mut u8);
+    pub fn CFDataGetBytes(data: CFDataRef, range: CFRange, buffer: *mut UInt8);
 
     pub fn CFDataGetLength(data: CFDataRef) -> CFIndex;
 
