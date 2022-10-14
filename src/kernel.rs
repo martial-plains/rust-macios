@@ -1,8 +1,8 @@
 //! Develop kernel-resident device drivers and kernel extensions.
-
+#![allow(non_camel_case_types)]
 use libc::{
-    c_char, c_double, c_float, c_int, c_longlong, c_schar, c_short, c_uchar, c_uint, c_ulonglong,
-    c_ushort, c_void,
+    c_char, c_double, c_float, c_int, c_longlong, c_schar, c_short, c_uchar, c_uint, c_ulong,
+    c_ulonglong, c_ushort, c_void,
 };
 
 /* Kernel Data Types */
@@ -78,4 +78,32 @@ pub type UniChar = u16;
 pub type VOID = c_void;
 pub type VideoDeviceType = UInt32;
 pub type WK_word = c_uint;
+pub type size_t = libc::size_t;
 pub type uint = c_uint;
+pub type uInt = c_uint;
+pub type uIntf = uInt;
+pub type uLong = c_ulong;
+pub type uLongf = uLong;
+pub type u_char = c_uchar;
+pub type u_int = c_uint;
+pub type u_int16_t = c_ushort;
+pub type u_int32_t = c_uint;
+pub type u_int64_t = c_ulonglong;
+pub type u_int8_t = u_char;
+pub type u_long = c_ulong;
+pub type u_quad_t = u_int64_t;
+pub type u_short = c_ushort;
+pub type uint16_t = u_int16_t;
+pub type uint32_t = u_int32_t;
+pub type uint64_t = u_int64_t;
+pub type uint8_t = u_int8_t;
+pub type uint_fast16_t = uint16_t;
+pub type uint_fast32_t = uint32_t;
+pub type uint_fast64_t = uint64_t;
+pub type uint_fast8_t = uint8_t;
+pub type uint_least16_t = uint16_t;
+pub type uint_least32_t = uint32_t;
+pub type uint_least64_t = uint64_t;
+pub type uint_least8_t = uint8_t;
+pub type uintmax_t = c_ulong;
+pub type uintptr_t = c_ulong;

@@ -87,3 +87,7 @@ path = "examples/foundation/process_info.rs"
 [[example]]
 name = "create_contact"
 path = "examples/contacts/create_contact.rs"
+
+[[example]]
+name = "general_file_decompression"
+path = "examples/compression/general_file_decompression.rs"
