@@ -5,7 +5,6 @@ edition = "2021"
 authors = ["Allister Isaiah Harvey <a.i.harvey@icloud.com>"]
 description = "Apple Frameworks for Rust"
 license = "MIT"
-documentation = "https://a-isaiahharvey.github.io/rust-macios/rust_macios/index.html"
 repository = "https://github.com/a-isaiahharvey/rust-macios"
 
 [workspace]
@@ -54,8 +53,8 @@ user_notifications = ["foundation"]
 
 [dependencies]
 # Macros defined in workspace
-app-kit-proc-macros = { version = "0.1.0", path = "src/appkit/proc-macros" }
-objective-c-runtime-proc-macros = { version = "0.1.0", path = "src/objective_c_runtime/proc-macros" }
+app-kit-proc-macros = { version = "0.2.2", git = "https://github.com/a-isaiahharvey/rust-macios" }
+objective-c-runtime-proc-macros = { version = "0.2.2", git = "https://github.com/a-isaiahharvey/rust-macios" }
 
 # crates.io dependencies
 objc = { version = "0.2.7", features = ["exception"] }
