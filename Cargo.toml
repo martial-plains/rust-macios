@@ -44,7 +44,12 @@ contacts = ["foundation"]
 core_foundation = ["kernel"]
 core_graphics = []
 core_ml = ["foundation"]
-foundation = ["objective_c_runtime", "core_foundation", "core_graphics"]
+foundation = [
+    "objective_c_runtime",
+    "core_foundation",
+    "core_graphics",
+    "kernel",
+]
 kernel = []
 natural_language = ["foundation", "core_ml"]
 objective_c_runtime = ["foundation"]

@@ -1,5 +1,9 @@
 use std::ops::Range;
 
+use objc::Encoding;
+
+use crate::objective_c_runtime;
+
 use super::{NSString, UInt};
 
 /// A structure used to describe a portion of a series, such as characters in a string or objects in an array.
@@ -10,6 +14,12 @@ pub struct NSRange {
     pub location: UInt,
     /// The start index (0 is the first, as in C arrays). For type compatibility with the rest of the system, LONG_MAX is the maximum value you should use for location.
     pub length: UInt,
+}
+
+unsafe impl objective_c_runtime::Encode for NSRange {
+    fn encode() -> objc::Encoding {
+        unsafe { Encoding::from_str("{location=I, length=I}") }
+    }
 }
 
 extern "C" {

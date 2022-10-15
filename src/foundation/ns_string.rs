@@ -17,7 +17,7 @@ use objective_c_runtime_proc_macros::interface_impl;
 use crate::{
     foundation::NSComparisonResult,
     objective_c_runtime::{
-        id, nil,
+        self, id, nil,
         traits::{FromId, PNSObject, ToId},
     },
     utils::{to_bool, to_optional},
@@ -1274,6 +1274,12 @@ impl PNSObject for NSString {
 
     fn m_self(&self) -> id {
         unsafe { msg_send![&*self.ptr, self] }
+    }
+}
+
+unsafe impl objective_c_runtime::Encode for NSString {
+    fn encode() -> objc::Encoding {
+        unsafe { objective_c_runtime::Encoding::from_str("@") }
     }
 }
 

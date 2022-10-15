@@ -53,7 +53,7 @@ pub(crate) macro object {
         impl<$($t $(: $b)?),*> core::fmt::Display for $name<$($t),*> {
             fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 use $crate::objective_c_runtime::traits::PNSObject;
-                std::write!(f, "{}", self.clone().p_description())
+                std::write!(f, "{}", self.p_description())
             }
         }
 

@@ -4,7 +4,7 @@ use objc::{class, msg_send, sel, sel_impl};
 
 use crate::{
     objective_c_runtime::{
-        id,
+        self, id,
         macros::shared_object,
         nil,
         traits::{FromId, PNSObject},
@@ -185,6 +185,12 @@ pub trait INSDictionary<K, V>: PNSObject {
 }
 
 impl<K, V> INSDictionary<K, V> for NSDictionary<K, V> {}
+
+unsafe impl<K, V> objective_c_runtime::Encode for NSDictionary<K, V> {
+    fn encode() -> objc::Encoding {
+        unsafe { objective_c_runtime::Encoding::from_str("@") }
+    }
+}
 
 impl<K, V> Default for NSDictionary<K, V> {
     fn default() -> Self {

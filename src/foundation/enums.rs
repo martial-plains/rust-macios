@@ -1136,15 +1136,6 @@ pub enum NSTextCheckingType {
 
 #[derive(Debug)]
 #[repr(u64)]
-pub enum NSTextCheckingTypes {
-    #[allow(non_camel_case_types)]
-    llSystemTypes = 0xffffffff,
-    AllCustomTypes = 0xffffffff00000000,
-    AllTypes = 0xffffffffffffffff,
-}
-
-#[derive(Debug)]
-#[repr(u64)]
 pub enum NSRegularExpressionOptions {
     CaseInsensitive = 1 << 0,
     AllowCommentsAndWhitespace = 1 << 1,
