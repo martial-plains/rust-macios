@@ -214,7 +214,7 @@ pub mod nl_tag {
 }
 
 /// Constants for linguistic tagger enumeration specifying which tokens to omit and whether to join names.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[repr(u64)]
 pub enum NLTaggerOptions {
     /// Omit tokens of type word (items considered to be words).
