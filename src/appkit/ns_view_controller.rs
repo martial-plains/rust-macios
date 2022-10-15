@@ -1,12 +1,27 @@
+use bitflags::bitflags;
 use objc::{class, msg_send, sel, sel_impl};
 use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
-    foundation::NSBundle,
+    foundation::{NSBundle, UInt},
     objective_c_runtime::{id, traits::FromId},
 };
 
 use super::{object, INSResponder, INSView, NSNibName, NSView};
+
+bitflags! {
+    pub struct NSViewControllerTransitionOptions: UInt {
+        const NONE = 0x0;
+        const CROSSFADE = 0x1;
+        const SLIDE_UP = 0x10;
+        const SLIDE_DOWN = 0x20;
+        const SLIDE_LEFT = 0x40;
+        const SLIDE_RIGHT = 0x80;
+        const SLIDE_FORWARD = 0x140;
+        const SLIDE_BACKWARD = 0x180;
+        const ALLOW_USER_INTERACTION = 0x1000;
+    }
+}
 
 object! {
     /// A controller that manages a view, typically loaded from a nib file.
