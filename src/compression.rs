@@ -161,7 +161,7 @@ extern "C" {
     /// # Examples
     ///
     /// ```rust
-    /// use rust_macios::compression::{compression_algorithm, compression_encode_buffer};
+    /// use rust_macios::{compression::{compression_algorithm, compression_encode_buffer}, kernel::size_t};
     ///
     /// let source_string = r#"
     ///     Lorem ipsum dolor sit amet consectetur adipiscing elit mi
@@ -181,9 +181,9 @@ extern "C" {
     /// let compressed_size = unsafe {
     ///     compression_encode_buffer(
     ///         dest_buffer.as_mut_ptr(),
-    ///         source_string.len() as isize,
+    ///         source_string.len() as size_t,
     ///         source_buffer.as_ptr(),
-    ///         source_string.len() as isize,
+    ///         source_string.len() as size_t,
     ///         std::ptr::null_mut(),
     ///         algorithm,
     ///     )
