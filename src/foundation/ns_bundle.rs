@@ -14,6 +14,16 @@ object! {
     unsafe pub struct NSBundle;
 }
 
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[repr(usize)]
+pub enum MachOArchitecture {
+    ARM64 = 0x0100000c,
+    I386 = 0x00000007,
+    X86_64 = 0x01000007,
+    PPC = 0x00000012,
+    PPC64 = 0x01000012,
+}
+
 #[interface_impl(NSObject)]
 impl NSBundle {
     /* Getting Standard Bundle Objects */
