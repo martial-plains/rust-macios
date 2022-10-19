@@ -352,16 +352,6 @@ pub enum NSWindowDepth {
     OneHundredTwentyEightBitRgb = 0x220,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(i64)]
-///
-pub enum NSDisplayGamut {
-    ///
-    Srgb = 1,
-    ///
-    P3,
-}
-
 /// Options to use when retrieving window numbers from the system.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u64)]

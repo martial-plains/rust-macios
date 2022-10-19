@@ -3,9 +3,6 @@ use crate::foundation::{Int, NSString};
 /// Constants that specify color space names.
 pub type NSColorSpaceName = NSString;
 
-/// These constants are the keys for device description dictionaries.
-pub type NSDeviceDescriptionKey = NSString;
-
 /// A set of button return values for modal dialogs.
 pub type NSModalResponse = Int;
 
