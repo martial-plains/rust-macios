@@ -146,6 +146,7 @@ pub enum NSPasteboardContentsOptions {
 }
 
 object! {
+    /// An object that transfers data to and from the pasteboard server.
     unsafe pub struct NSPasteboard;
 }
 
