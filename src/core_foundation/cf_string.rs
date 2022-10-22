@@ -1,5 +1,3 @@
-#![allow(missing_docs)]
-
 use std::{
     borrow::Cow,
     ffi::{c_double, CStr, VaList},

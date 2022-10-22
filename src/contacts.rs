@@ -1,9 +1,5 @@
 //! Access the user's contacts and format and localize contact information.
 
-mod enums;
-
-pub use enums::*;
-
 /* Essentials
  */
 

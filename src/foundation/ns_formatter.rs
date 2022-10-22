@@ -15,7 +15,7 @@ use super::{
 };
 
 object! {
-    /// An abstract class that declares an interface for objects that create, 
+    /// An abstract class that declares an interface for objects that create,
     /// interpret, and validate the textual representation of values.
     unsafe pub struct NSFormatter;
 }
@@ -77,9 +77,9 @@ impl NSFormatter {
     #[method]
     pub fn get_object_value_for_string_error_description(
         &self,
-        obj: id,
+        obj: &mut id,
         string: NSString,
-        error: NSString,
+        error: &mut NSString,
     ) -> bool {
         unsafe {
             to_bool(
@@ -99,8 +99,8 @@ impl NSFormatter {
     pub fn is_partial_string_valid_new_editing_string_error_description(
         &self,
         partial_string: NSString,
-        new_string: NSString,
-        error: NSString,
+        new_string: &mut NSString,
+        error: &mut NSString,
     ) -> bool {
         unsafe {
             to_bool(
@@ -119,7 +119,7 @@ impl NSFormatter {
         proposed_sel_range_ptr: NSRangePointer,
         orig_string: NSString,
         orig_sel_range: NSRange,
-        error: NSString,
+        error: &mut NSString,
     ) -> bool {
         unsafe {
             to_bool(

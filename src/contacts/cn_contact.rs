@@ -13,9 +13,33 @@ use crate::{
 };
 
 use super::{
-    CNContactRelation, CNContactSortOrder, CNContactType, CNInstantMessageAddress, CNLabeledValue,
-    CNPhoneNumber, CNPostalAddress, CNSocialProfile,
+    CNContactRelation, CNInstantMessageAddress, CNLabeledValue, CNPhoneNumber, CNPostalAddress,
+    CNSocialProfile,
 };
+
+/// The types a contact can be.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[repr(i64)]
+pub enum CNContactType {
+    /// A person.
+    Person,
+    /// A organization.
+    Organization,
+}
+
+/// Indicates the sorting order for contacts.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[repr(i64)]
+pub enum CNContactSortOrder {
+    /// No sorting order.
+    None,
+    /// The user’s default sorting order.
+    UserDefault,
+    /// Sorting contacts by given name.
+    GivenName,
+    /// Sorting contacts by family name.
+    FamilyName,
+}
 
 object! {
     /// An immutable object that stores information about a single contact, such as the contact's first name, phone numbers, and addresses.

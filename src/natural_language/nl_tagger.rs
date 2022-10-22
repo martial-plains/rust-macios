@@ -1,4 +1,4 @@
-use block::IntoConcreteBlock;
+use block::{ConcreteBlock, IntoConcreteBlock};
 use objc::{msg_send, sel, sel_impl};
 use objective_c_runtime_proc_macros::interface_impl;
 
@@ -17,7 +17,21 @@ use crate::{
     utils::to_optional,
 };
 
-use super::{NLGazetteer, NLLanguage, NLModel, NLTokenUnit};
+use super::{NLGazetteer, NLLanguage, NLModel};
+
+/// Constants representing linguistic units.
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[repr(i64)]
+pub enum NLTokenUnit {
+    /// An individual word.
+    Word,
+    /// An individual sentence.
+    Sentence,
+    /// An individual paragraph.
+    Paragraph,
+    /// The document in its entirety.
+    Document,
+}
 
 object! {
     /// A tagger that analyzes natural language text.
@@ -297,6 +311,9 @@ impl NLTagger {
         F: IntoConcreteBlock<(NLTaggerAssetsResult, NSError), Ret = ()> + 'static,
     {
         unsafe {
+            let completion_hanlder = ConcreteBlock::new(completion_hanlder);
+            let completion_hanlder = completion_hanlder.copy();
+
             msg_send![Self::m_class(), requestAssetsForLanguage: language.m_self() tagScheme: tag_scheme.m_self() completionHandler: completion_hanlder]
         }
     }
@@ -361,6 +378,9 @@ impl NLTagger {
     {
         unsafe {
             let options = options.iter().fold(0, |init, unit| init | *unit as UInt);
+
+            let block = ConcreteBlock::new(block);
+            let block = block.copy();
 
             msg_send![
                 self.m_self(), enumerateTagsInRange: range unit: unit scheme: scheme.m_self() options: options usingBlock: block

@@ -11,7 +11,21 @@ use crate::{
     },
 };
 
-use super::{NLLanguage, NLTokenUnit, NLTokenizerAttributes};
+use super::{NLLanguage, NLTokenUnit};
+
+/// Hints about the contents of the string for the tokenizer.
+#[derive(Debug, PartialEq, Eq)]
+#[repr(u64)]
+pub enum NLTokenizerAttributes {
+    /// Doesn't contain any special attributes.
+    None = 0,
+    /// The string contains numbers.
+    Numeric = 1 << 0,
+    /// The string contains symbols.
+    Symbolic = 1 << 1,
+    /// The string contains emoji.
+    Emoji = 1 << 2,
+}
 
 object! {
     /// A tokenizer that segments natural language text into semantic units.
@@ -43,13 +57,13 @@ impl NLTokenizer {
 
     /// Sets the text to be tokenized.
     #[property]
-    pub fn set_string(&self, string: NSString) {
+    pub fn set_string(&mut self, string: NSString) {
         unsafe { msg_send![self.m_self(), setString: string] }
     }
 
     /// Sets the language of the text to be tokenized.
     #[method]
-    pub fn set_language(&self, language: NLLanguage) {
+    pub fn set_language(&mut self, language: NLLanguage) {
         unsafe { msg_send![self.m_self(), setLanguage: language] }
     }
 

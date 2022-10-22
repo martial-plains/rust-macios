@@ -5,6 +5,7 @@ use crate::{
     objective_c_runtime::{
         id,
         macros::object,
+        nil,
         traits::{FromId, PNSObject},
     },
     utils::to_bool,
@@ -67,19 +68,25 @@ impl NSAttributedString {
 
     /// Creates an attributed string from the data in the specified data object.
     #[method]
-    pub fn init_with_data_options_document_attributes_error(
+    pub fn init_with_data_options_document_attributes(
         data: &NSData,
         options: &NSDictionary<NSAttributedStringDocumentReadingOptionKey, id>,
         document: &NSDictionary<NSAttributedStringDocumentAttributeKey, id>,
-        error: *mut *mut NSError,
-    ) -> Self
+    ) -> Result<Self, NSError>
     where
         Self: Sized + FromId,
     {
         unsafe {
-            Self::from_id(
-                msg_send![Self::m_class(), initWithData: data.m_self() options: options.m_self() documentAttributes: document.m_self() error: error],
-            )
+            let mut error = NSError::m_alloc();
+            let result = Self::from_id(
+                msg_send![Self::m_class(), initWithData: data.m_self() options: options.m_self() documentAttributes: document.m_self() error: &mut error],
+            );
+
+            if error.m_self() == nil {
+                Ok(result)
+            } else {
+                Err(error)
+            }
         }
     }
 

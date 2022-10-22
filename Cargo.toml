@@ -95,3 +95,23 @@ path = "examples/contacts/create_contact.rs"
 [[example]]
 name = "general_file_decompression"
 path = "examples/compression/general_file_decompression.rs"
+
+[[example]]
+name = "identifying_parts_of_speech"
+path = "examples/natural_language/identifying_parts_of_speech.rs"
+
+[[example]]
+name = "identifying_people_places_and_organizations"
+path = "examples/natural_language/identifying_people_places_and_organizations.rs"
+
+[[example]]
+name = "identifying_the_language_in_text"
+path = "examples/natural_language/identifying_the_language_in_text.rs"
+
+[[example]]
+name = "finding_similarities_between_pieces_of_text"
+path = "examples/natural_language/finding_similarities_between_pieces_of_text.rs"
+
+[[example]]
+name = "tokenizing_natural_language_text"
+path = "examples/natural_language/tokenizing_natural_language_text.rs"
