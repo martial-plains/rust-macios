@@ -2,12 +2,6 @@
 
 use crate::foundation;
 
-/// The languages that the Natural Language framework supports.
-pub type NLLanguage = foundation::NSString;
-
-mod enums;
-pub use enums::*;
-
 /* Tokenization
  */
 
@@ -22,6 +16,9 @@ pub use nl_language_recognizer::*;
 
 mod nl_language;
 pub use nl_language::*;
+
+/// The languages that the Natural Language framework supports.
+pub type NLLanguage = foundation::NSString;
 
 /* Linguistic tags
  */

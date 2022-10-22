@@ -1,5 +1,3 @@
-#![allow(clippy::let_unit_value)]
-
 use std::{fmt, marker::PhantomData, sync::Once};
 
 use objc::{
@@ -50,7 +48,7 @@ pub struct NSApplication<'app, M = ()> {
 /// of that app’s objects.
 pub trait INSApplication: INSResponder {
     /// Returns the application instance, creating it if it doesn’t exist yet.
-    fn tp_shared_application() -> Self
+    fn p_shared_application() -> Self
     where
         Self: Sized + FromId,
     {
@@ -58,12 +56,12 @@ pub trait INSApplication: INSResponder {
     }
 
     /// The app delegate object.
-    fn ip_delegate(&self) -> id {
+    fn p_delegate(&self) -> id {
         unsafe { msg_send![self.m_self(), delegate] }
     }
 
     /// Sets the app delegate object.
-    fn ip_set_delegate<'app, T>(&'app mut self, app_delegate: T)
+    fn p_set_delegate<'app, T>(&'app mut self, app_delegate: T)
     where
         T: PNSApplicationDelegate + 'app,
     {
@@ -80,22 +78,22 @@ pub trait INSApplication: INSResponder {
      */
 
     /// A Boolean value indicating whether the main event loop is running.
-    fn ip_running(&self) -> bool {
+    fn p_running(&self) -> bool {
         unsafe { msg_send![self.m_self(), isRunning] }
     }
 
     /// Starts the main event loop.
-    fn im_run(&self) {
+    fn m_run(&self) {
         unsafe { msg_send![self.m_self(), run] }
     }
 
     /// Activates the app, opens any files specified by the NSOpen user default, and unhighlights the app’s icon.
-    fn im_finish_launching(&self) {
+    fn m_finish_launching(&self) {
         unsafe { msg_send![self.m_self(), finishLaunching] }
     }
 
     /// Stops the main event loop.
-    fn im_stop(&self, sender: id) {
+    fn m_stop(&self, sender: id) {
         unsafe { msg_send![self.m_self(), stop: sender] }
     }
 
@@ -103,12 +101,12 @@ pub trait INSApplication: INSResponder {
      */
 
     /// Terminates the receiver.
-    fn im_terminate(&self, sender: id) {
+    fn m_terminate(&self, sender: id) {
         unsafe { msg_send![self.m_self(), terminate: sender] }
     }
 
     /// Responds to NSTerminateLater once the app knows whether it can terminate.
-    fn im_reply_to_application_should_terminate(&self, should_terminate: bool) {
+    fn m_reply_to_application_should_terminate(&self, should_terminate: bool) {
         unsafe {
             msg_send![
                 self.m_self(),
@@ -121,17 +119,17 @@ pub trait INSApplication: INSResponder {
      */
 
     /// A Boolean value indicating whether this is the active app.
-    fn ip_active(&self) -> bool {
+    fn p_active(&self) -> bool {
         unsafe { to_bool(msg_send![self.m_self(), isActive]) }
     }
 
     /// Makes the receiver the active app.
-    fn im_activate_ignoring_other_apps(&mut self, flag: bool) {
+    fn m_activate_ignoring_other_apps(&mut self, flag: bool) {
         unsafe { msg_send![self.m_self(), activateIgnoringOtherApps: flag] }
     }
 
     /// Deactivates the receiver.
-    fn im_deactivate(&mut self) {
+    fn m_deactivate(&mut self) {
         unsafe { msg_send![self.m_self(), deactivate] }
     }
 
@@ -139,12 +137,12 @@ pub trait INSApplication: INSResponder {
      */
 
     /// Disables relaunching the app on login.
-    fn im_disable_relaunch_on_login(&mut self) {
+    fn m_disable_relaunch_on_login(&mut self) {
         unsafe { msg_send![self.m_self(), disableRelaunchOnLogin] }
     }
 
     /// Enables relaunching the app on login.
-    fn im_enable_relaunch_on_login(&mut self) {
+    fn m_enable_relaunch_on_login(&mut self) {
         unsafe { msg_send![self.m_self(), enableRelaunchOnLogin] }
     }
 
@@ -152,12 +150,12 @@ pub trait INSApplication: INSResponder {
      */
 
     /// Register for notifications sent by Apple Push Notification service (APNs).
-    fn im_register_for_remote_notifications(&mut self) {
+    fn m_register_for_remote_notifications(&mut self) {
         unsafe { msg_send![self.m_self(), registerForRemoteNotifications] }
     }
 
     /// Unregister for notifications received from Apple Push Notification service.
-    fn im_unregister_for_remote_notifications(&mut self) {
+    fn m_unregister_for_remote_notifications(&mut self) {
         unsafe { msg_send![self.m_self(), unregisterForRemoteNotifications] }
     }
 
@@ -165,7 +163,7 @@ pub trait INSApplication: INSResponder {
      */
 
     /// Handles errors that might occur when the user attempts to open or print files.
-    fn im_reply_to_open_or_print(&self, response: NSApplicationDelegateReply) {
+    fn m_reply_to_open_or_print(&self, response: NSApplicationDelegateReply) {
         unsafe { msg_send![self.m_self(), replyToOpenOrPrint: response] }
     }
 
@@ -173,7 +171,7 @@ pub trait INSApplication: INSResponder {
      */
 
     /// Returns the app’s activation policy.
-    fn im_activation_policy(&self) -> NSApplicationActivationPolicy {
+    fn m_activation_policy(&self) -> NSApplicationActivationPolicy {
         unsafe { msg_send![self.m_self(), activationPolicy] }
     }
 
@@ -182,19 +180,19 @@ pub trait INSApplication: INSResponder {
     /// # Arguments
     ///
     /// * `policy` - The activation policy to set.
-    fn im_set_activation_policy(&mut self, policy: NSApplicationActivationPolicy) {
+    fn m_set_activation_policy(&mut self, policy: NSApplicationActivationPolicy) {
         unsafe { msg_send![self.m_self(), setActivationPolicy: policy] }
     }
 
     /* Menu */
 
     /// The app’s main menu bar.
-    fn ip_main_menu(&self) -> NSMenu {
+    fn p_main_menu(&self) -> NSMenu {
         unsafe { msg_send![self.m_self(), mainMenu] }
     }
 
     /// Sets the app’s main menu bar.
-    fn ip_set_main_menu(&mut self, menu: NSMenu) {
+    fn p_set_main_menu(&mut self, menu: NSMenu) {
         unsafe { msg_send![self.m_self(), setMainMenu: menu] }
     }
 }
@@ -202,74 +200,74 @@ pub trait INSApplication: INSResponder {
 impl<'app> NSApplication<'app> {
     /// Returns the application instance, creating it if it doesn’t exist yet.
     pub fn shared_application() -> NSApplication<'app> {
-        NSApplication::tp_shared_application()
+        NSApplication::p_shared_application()
     }
 
     /// The app delegate object.
     pub fn delegate(&self) -> id {
-        self.ip_delegate()
+        self.p_delegate()
     }
 }
 
 impl NSApplication<'_> {
     /// A Boolean value indicating whether the main event loop is running.
     pub fn running(&self) -> bool {
-        self.ip_running()
+        self.p_running()
     }
 
     /// Starts the main event loop.
     pub fn run(&mut self) {
-        self.im_run();
+        self.m_run();
     }
 
     /// Activates the app, opens any files specified by the NSOpen user default, and unhighlights the app’s icon.
     pub fn finish_launching(&mut self) {
-        self.im_finish_launching()
+        self.m_finish_launching()
     }
 
     /// Stops the main event loop.
     pub fn stop(&mut self, sender: id) {
-        self.im_stop(sender)
+        self.m_stop(sender)
     }
 
     /// Terminates the receiver.
     pub fn terminate(&mut self, sender: id) {
-        self.im_terminate(sender)
+        self.m_terminate(sender)
     }
 
     /// Responds to NSTerminateLater once the app knows whether it can terminate.
     pub fn reply_to_application_should_terminate(&self, should_terminate: bool) {
-        self.im_reply_to_application_should_terminate(should_terminate)
+        self.m_reply_to_application_should_terminate(should_terminate)
     }
 
     /// Disables relaunching the app on login.
     pub fn disable_relaunch_on_login(&mut self) {
-        self.im_disable_relaunch_on_login()
+        self.m_disable_relaunch_on_login()
     }
 
     /// Enables relaunching the app on login.
     pub fn enable_relaunch_on_login(&mut self) {
-        self.im_enable_relaunch_on_login()
+        self.m_enable_relaunch_on_login()
     }
 
     /// Register for notifications sent by Apple Push Notification service (APNs).
     pub fn register_for_remote_notifications(&mut self) {
-        self.im_register_for_remote_notifications()
+        self.m_register_for_remote_notifications()
     }
 
     /// Unregister for notifications received from Apple Push Notification service.
     pub fn unregister_for_remote_notifications(&mut self) {
-        self.im_unregister_for_remote_notifications()
+        self.m_unregister_for_remote_notifications()
     }
 
     /// Handles errors that might occur when the user attempts to open or print files.
     pub fn reply_to_open_or_print(&self, response: NSApplicationDelegateReply) {
-        self.im_reply_to_open_or_print(response)
+        self.m_reply_to_open_or_print(response)
     }
 
     /// Returns the app’s activation policy.
     pub fn activation_policy(&self) -> NSApplicationActivationPolicy {
-        self.im_activation_policy()
+        self.m_activation_policy()
     }
 
     /// Sets the app’s activation policy.
@@ -278,17 +276,17 @@ impl NSApplication<'_> {
     ///
     /// * `policy` - The activation policy to set.
     pub fn set_activation_policy(&mut self, policy: NSApplicationActivationPolicy) {
-        self.im_set_activation_policy(policy)
+        self.m_set_activation_policy(policy)
     }
 
     /// The app’s main menu bar.
     pub fn main_menu(&self) -> NSMenu {
-        self.ip_main_menu()
+        self.p_main_menu()
     }
 
     /// Sets the app’s main menu bar.
     pub fn set_main_menu(&mut self, menu: NSMenu) {
-        self.ip_set_main_menu(menu)
+        self.p_set_main_menu(menu)
     }
 }
 

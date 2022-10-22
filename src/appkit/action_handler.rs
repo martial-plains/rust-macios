@@ -1,4 +1,4 @@
-#![allow(trivial_casts, clippy::let_unit_value)]
+#![allow(trivial_casts)]
 
 use std::{fmt, sync::Once};
 

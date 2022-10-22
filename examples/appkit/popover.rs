@@ -124,6 +124,6 @@ impl PNSApplicationDelegate for AppDelegate {
 fn main() {
     let mut app = NSApplication::shared_application();
 
-    app.ip_set_delegate(AppDelegate::default());
+    app.p_set_delegate(AppDelegate::default());
     app.set_activation_policy(NSApplicationActivationPolicy::Regular);
 }

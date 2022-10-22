@@ -9,7 +9,19 @@ use crate::{
     },
 };
 
-use super::CNContainerType;
+/// The container may be local on the device or associated with a server account that has contacts.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[repr(i64)]
+pub enum CNContainerType {
+    ///
+    Unassigned = 0,
+    /// A container for contacts only stored locally on the device. There is only one local container for a device.
+    Local,
+    /// A container for contacts stored in an Exchange folder from an Exchange server.
+    Exchange,
+    /// A container for contacts stored in an CardDAV server, such as iCloud.
+    CardDav,
+}
 
 object! {
     /// An immutable object that represents a collection of contacts.

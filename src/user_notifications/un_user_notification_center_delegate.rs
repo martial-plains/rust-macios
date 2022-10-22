@@ -1,4 +1,4 @@
-#![allow(trivial_casts, improper_ctypes_definitions)]
+#![allow(trivial_casts)]
 
 use std::sync::Once;
 

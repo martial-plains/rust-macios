@@ -10,7 +10,17 @@ use crate::{
     utils::to_optional,
 };
 
-use super::{NLLanguage, NLModelType};
+use super::NLLanguage;
+
+/// The different types of a natural language model.
+#[derive(Debug)]
+#[repr(i64)]
+pub enum NLModelType {
+    /// A classifier model type that tags text at the phrase, sentence, paragraph, or higher level.
+    Classifier,
+    /// A sequence model type that tags text at the token level.
+    Sequence,
+}
 
 object! {
     /// The configuration parameters of a natural language model.

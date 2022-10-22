@@ -14,9 +14,31 @@ use crate::{
 };
 
 use super::{
-    CNAuthorizationStatus, CNChangeHistoryEvent, CNChangeHistoryFetchRequest, CNContact,
-    CNContactFetchRequest, CNContainer, CNEntityType, CNFetchResult, CNGroup, CNSaveRequest,
+    CNChangeHistoryEvent, CNChangeHistoryFetchRequest, CNContact, CNContactFetchRequest,
+    CNContainer, CNFetchResult, CNGroup, CNSaveRequest,
 };
+
+/// The entities the user can grant access to.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[repr(i64)]
+pub enum CNEntityType {
+    /// The user's contacts.
+    Contacts,
+}
+
+/// An authorization status the user can grant for an app to access the specified entity type.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[repr(i64)]
+pub enum CNAuthorizationStatus {
+    /// The user has not yet made a choice regarding whether the application may access contact data.
+    NotDetermined = 0,
+    /// The application is not authorized to access contact data. The user cannot change this application’s status, possibly due to active restrictions such as parental controls being in place.
+    Restricted,
+    /// The user explicitly denied access to contact data for the application.
+    Denied,
+    /// The application is authorized to access contact data.
+    Authorized,
+}
 
 object! {
     /// The object that fetches and saves contacts, groups, and containers from the user's contacts database.
@@ -64,92 +86,124 @@ impl CNContactStore {
 
     /// Returns a Boolean value that indicates whether the enumeration of all contacts matching a contact fetch request executed successfully.
     #[method]
-    pub fn enumerate_contacts_with_fetch_request_error_using_block<F>(
+    pub fn enumerate_contacts_with_fetch_request_using_block<F>(
         &self,
         fetch_request: CNContactFetchRequest,
-        error: &mut NSError,
         block: F,
-    ) where
+    ) -> Result<bool, NSError>
+    where
         F: IntoConcreteBlock<(CNContact, bool), Ret = ()> + 'static,
     {
+        let mut error = NSError::m_alloc();
         let block = ConcreteBlock::new(block);
         let block = block.copy();
 
         unsafe {
-            msg_send![
+            let ptr = to_bool(msg_send![
                 self.m_self(),
                 enumerateContactsWithFetchRequest: fetch_request
-                error: error
+                error: &mut error
                 usingBlock: block
-            ]
+            ]);
+
+            if error.m_self() == nil {
+                Ok(ptr)
+            } else {
+                Err(error)
+            }
         }
     }
 
     /// Fetches the unified contact that’s the me card.
     #[method]
-    pub fn unified_me_contact_with_keys_to_fetch_error(
+    pub fn unified_me_contact_with_keys_to_fetch(
         &self,
         keys: NSArray<id>,
-        error: &mut NSError,
-    ) -> CNContact {
+    ) -> Result<CNContact, NSError> {
+        let mut error = NSError::m_alloc();
+
         unsafe {
-            CNContact::from_id(msg_send![
+            let result = CNContact::from_id(msg_send![
                 self.m_self(),
                 unifiedMeContactWithKeysToFetch: keys
-                error: error
-            ])
+                error: &mut error
+            ]);
+
+            if error.m_self() == nil {
+                Ok(result)
+            } else {
+                Err(error)
+            }
         }
     }
 
     /// Fetches a unified contact for the specified contact identifier.
     #[method]
-    pub fn unified_contact_with_identifier_keys_to_fetch_error(
+    pub fn unified_contact_with_identifier_keys_to_fetch(
         &self,
         identifier: NSString,
         keys: NSArray<id>,
-        error: &mut NSError,
-    ) -> CNContact {
+    ) -> Result<CNContact, NSError> {
+        let mut error = NSError::m_alloc();
         unsafe {
-            CNContact::from_id(msg_send![
+            let result = CNContact::from_id(msg_send![
                 self.m_self(),
                 unifiedContactWithIdentifier: identifier
                 keysToFetch: keys
-                error: error
-            ])
+                error: &mut error
+            ]);
+
+            if error.m_self() == nil {
+                Ok(result)
+            } else {
+                Err(error)
+            }
         }
     }
 
     /// Fetches all unified contacts matching the specified predicate.
     #[method]
-    pub fn unified_contacts_matching_predicate_keys_to_fetch_error(
+    pub fn unified_contacts_matching_predicate_keys_to_fetch(
         &self,
         predicate: NSPredicate,
         keys: NSArray<id>,
-        error: &mut NSError,
-    ) -> NSArray<CNContact> {
+    ) -> Result<NSArray<CNContact>, NSError> {
         unsafe {
-            NSArray::from_id(msg_send![
+            let mut error = NSError::m_alloc();
+            let result = NSArray::from_id(msg_send![
                 self.m_self(),
                 unifiedContactsMatchingPredicate: predicate
                 keysToFetch: keys
-                error: error
-            ])
+                error: &mut error
+            ]);
+
+            if error.m_self() == nil {
+                Ok(result)
+            } else {
+                Err(error)
+            }
         }
     }
 
     /// Enumerates a contact fetch request.
     #[method]
-    pub fn enumerator_for_contact_fetch_request_error(
+    pub fn enumerator_for_contact_fetch_request(
         &self,
         fetch_request: CNContactFetchRequest,
-        error: &mut NSError,
-    ) -> CNFetchResult<NSEnumerator<CNContact>> {
+    ) -> Result<CNFetchResult<NSEnumerator<CNContact>>, NSError> {
         unsafe {
-            CNFetchResult::from_id(msg_send![
+            let mut error = NSError::m_alloc();
+            let result = CNFetchResult::from_id(msg_send![
                 self.m_self(),
                 enumeratorForContactFetchRequest: fetch_request
-                error: error
-            ])
+                error: &mut error
+            ]);
+
+            if error.m_self() == nil {
+                Ok(result)
+            } else {
+                Err(error)
+            }
         }
     }
 
@@ -164,33 +218,46 @@ impl CNContactStore {
 
     /// Fetches all groups matching the specified predicate.
     #[method]
-    pub fn groups_matching_predicate_error(
+    pub fn groups_matching_predicate(
         &self,
         predicate: NSPredicate,
-        error: &mut NSError,
-    ) -> NSArray<CNGroup> {
+    ) -> Result<NSArray<CNGroup>, NSError> {
         unsafe {
-            NSArray::from_id(msg_send![
+            let mut error = NSError::m_alloc();
+
+            let result = NSArray::from_id(msg_send![
                 self.m_self(),
                 groupsMatchingPredicate: predicate
-                error: error
-            ])
+                error: &mut error
+            ]);
+
+            if error.m_self() == nil {
+                Ok(result)
+            } else {
+                Err(error)
+            }
         }
     }
 
     /// Fetches all containers matching the specified predicate.
     #[method]
-    pub fn containers_matching_predicate_error(
+    pub fn containers_matching_predicate(
         &self,
         predicate: NSPredicate,
-        error: &mut NSError,
-    ) -> NSArray<CNContainer> {
+    ) -> Result<NSArray<CNContainer>, NSError> {
         unsafe {
-            NSArray::from_id(msg_send![
+            let mut error = NSError::m_alloc();
+            let result = NSArray::from_id(msg_send![
                 self.m_self(),
                 containersMatchingPredicate: predicate
-                error: error
-            ])
+                error: &mut error
+            ]);
+
+            if error.m_self() == nil {
+                Ok(result)
+            } else {
+                Err(error)
+            }
         }
     }
 
@@ -199,17 +266,23 @@ impl CNContactStore {
 
     /// Enumerates a change history fetch request.
     #[method]
-    pub fn enumerator_for_change_history_fetch_request_error(
+    pub fn enumerator_for_change_history_fetch_request(
         &self,
         request: CNChangeHistoryFetchRequest,
-        error: &mut NSError,
-    ) -> CNFetchResult<NSEnumerator<CNChangeHistoryEvent>> {
+    ) -> Result<CNFetchResult<NSEnumerator<CNChangeHistoryEvent>>, NSError> {
         unsafe {
-            CNFetchResult::from_id(msg_send![
+            let mut error = NSError::m_alloc();
+            let result = CNFetchResult::from_id(msg_send![
                 self.m_self(),
                 enumeratorForChangeHistoryFetchRequest: request
-                error: error
-            ])
+                error: &mut error
+            ]);
+
+            if result.m_self() == nil {
+                Ok(result)
+            } else {
+                Err(error)
+            }
         }
     }
 

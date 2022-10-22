@@ -1,5 +1,3 @@
-#![allow(missing_docs)]
-
 //! Enums for the Foundation library.
 use crate::core_graphics::CGRectEdge;
 

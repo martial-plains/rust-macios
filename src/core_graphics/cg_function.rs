@@ -1,8 +1,11 @@
-use libc::{c_void, size_t};
+use libc::{c_uint, c_void, size_t};
 
 use crate::{core_foundation::CFTypeID, objective_c_runtime::macros::object};
 
-use super::{CGFloat, CGFunctionCallbacks, CGFunctionRef};
+use super::CGFloat;
+
+/// A general facility for defining and using callback functions.
+pub type CGFunctionRef = CGFunction;
 
 object! {
     /// A general facility for defining and using callback functions.
@@ -107,8 +110,28 @@ extern "C" {
     fn CGFunctionGetTypeID() -> CFTypeID;
 }
 
+/// Performs custom operations on the supplied input data to produce output data.
+pub type CGFunctionEvaluateCallback =
+    extern "C" fn(info: *mut c_void, in_values: *const CGFloat, out_values: *mut CGFloat);
+
+/// Performs custom clean-up tasks when Core Graphics deallocates a CGFunctionRef object.
+pub type CGFunctionReleaseInfoCallback = extern "C" fn(info: *mut c_void);
+
+/// A structure that contains callbacks needed by a CGFunctionRef object.
+#[derive(Debug)]
+pub struct CGFunctionCallbacks {
+    /// The structure version number. For this structure,the version should be 0.
+    pub version: c_uint,
+    /// The callback that evaluates the function.
+    pub evaluate: *mut CGFunctionEvaluateCallback,
+    /// If non-NULL,the callback used to release the info parameterpassed to CGFunctionCreate.
+    pub release_info: *mut CGFunctionReleaseInfoCallback,
+}
+
 #[cfg(test)]
 mod tests {
+    use std::ptr;
+
     use super::*;
 
     #[test]
@@ -116,18 +139,12 @@ mod tests {
         unsafe {
             let callbacks = CGFunctionCallbacks {
                 version: 0,
-                evaluate: None,
-                release_info: None,
+                evaluate: ptr::null_mut(),
+                release_info: ptr::null_mut(),
             };
 
-            let function = CGFunction::create(
-                std::ptr::null_mut(),
-                0,
-                std::ptr::null(),
-                0,
-                std::ptr::null(),
-                &callbacks,
-            );
+            let function =
+                CGFunction::create(ptr::null_mut(), 0, ptr::null(), 0, ptr::null(), &callbacks);
 
             let id = CGFunction::type_id();
 
