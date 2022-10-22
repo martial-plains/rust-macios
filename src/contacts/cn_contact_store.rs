@@ -107,7 +107,7 @@ impl CNContactStore {
             ]);
 
             if error.m_self() == nil {
-                Ok(to_bool(ptr))
+                Ok(ptr)
             } else {
                 Err(error)
             }
