@@ -4,10 +4,9 @@ use objective_c_runtime_proc_macros::interface_impl;
 use crate::{
     foundation::{NSArray, NSCoder, NSRect},
     objective_c_runtime::{id, traits::FromId},
-    uikit::{NSLayoutXAxisAnchor, NSLayoutYAxisAnchor},
 };
 
-use super::{object, INSResponder, NSMenuItem, NSWindow};
+use super::{object, INSResponder, NSLayoutXAxisAnchor, NSLayoutYAxisAnchor, NSMenuItem, NSWindow};
 
 object! {
     /// The infrastructure for drawing, printing, and handling events in an app.

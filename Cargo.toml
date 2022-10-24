@@ -42,7 +42,7 @@ background_tasks = ["foundation"]
 compression = []
 contacts = ["foundation"]
 core_foundation = ["kernel"]
-core_graphics = []
+core_graphics = ["objective_c_runtime"]
 core_ml = ["foundation"]
 foundation = [
     "objective_c_runtime",
