@@ -2,15 +2,15 @@ use app_kit_proc_macros::ns_application_main;
 
 use rust_macios::{
     appkit::{
-        INSApplication, INSResponder, INSView, INSViewController, INSWindow, NSApplication,
-        NSApplicationActivationPolicy, NSTextField, NSView, NSWindow, PNSApplicationDelegate,
+        INSApplication, INSLayoutAnchor, INSResponder, INSView, INSViewController, INSWindow,
+        NSApplication, NSApplicationActivationPolicy, NSLayoutConstraint, NSTextField, NSView,
+        NSWindow, PNSApplicationDelegate,
     },
     foundation::{macros::nsarray, NSPoint, NSRect, NSSize, NSString},
     objective_c_runtime::{
         class_init, id, msg_send, nil, objc_sel, register_class, runtime::Object, sel, sel_impl,
         traits::PNSObject, Id, ShareId,
     },
-    uikit::{INSLayoutAnchor, NSLayoutConstraint},
 };
 
 pub struct ViewController {
