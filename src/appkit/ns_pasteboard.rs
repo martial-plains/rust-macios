@@ -9,7 +9,7 @@ use crate::{
         id,
         traits::{FromId, PNSObject},
     },
-    utils::to_bool,
+    utils::{to_bool, to_optional},
 };
 
 pub type NSPasteboardType = NSString;
@@ -219,7 +219,7 @@ impl NSPasteboard {
 
     /// Clears the existing contents of the pasteboard.
     #[method]
-    pub fn clear_contents(&mut self) {
+    pub fn clear_contents(&mut self) -> Int {
         unsafe { msg_send![self.m_self(), clearContents] }
     }
 
@@ -256,9 +256,9 @@ impl NSPasteboard {
         &self,
         class_array: NSArray<Class>,
         options: NSDictionary<NSPasteboardReadingOptionKey, id>,
-    ) -> NSArray<id> {
+    ) -> Option<NSArray<id>> {
         unsafe {
-            NSArray::from_id(
+            to_optional(
                 msg_send![self.m_self(), readObjectsForClasses: class_array options: options],
             )
         }
@@ -266,8 +266,8 @@ impl NSPasteboard {
 
     /// An array that contains all the items held by the pasteboard.
     #[property]
-    pub fn pasteboard_items(&self) -> NSArray<NSPasteboardItem> {
-        unsafe { NSArray::from_id(msg_send![self.m_self(), pasteboardItems]) }
+    pub fn pasteboard_items(&self) -> Option<NSArray<NSPasteboardItem>> {
+        unsafe { to_optional(msg_send![self.m_self(), pasteboardItems]) }
     }
 
     /// Returns the index of the specified pasteboard item.
@@ -278,28 +278,37 @@ impl NSPasteboard {
 
     /// Returns the data for the specified type from the first item in the receiver that contains the type.
     #[method]
-    pub fn data_for_type(&self, data_type: NSPasteboardType) -> NSData {
-        unsafe { NSData::from_id(msg_send![self.m_self(), dataForType: data_type]) }
+    pub fn data_for_type(&self, data_type: NSPasteboardType) -> Option<NSData> {
+        unsafe { to_optional(msg_send![self.m_self(), dataForType: data_type]) }
     }
 
     /// Returns the property list for the specified type from the first item in the receiver that contains the type.
     #[method]
-    pub fn property_list_for_type(&self, data_type: NSPasteboardType) -> id {
-        unsafe { msg_send![self.m_self(), propertyListForType: data_type] }
+    pub fn property_list_for_type(&self, data_type: NSPasteboardType) -> Option<id> {
+        unsafe {
+            let ptr: id = msg_send![self.m_self(), propertyListForType: data_type];
+
+            if ptr.is_null() {
+                None
+            } else {
+                Some(ptr)
+            }
+        }
     }
 
     /// Returns a concatenation of the strings for the specified type from all the items in the receiver that contain the type.
     #[method]
-    pub fn string_for_type(&self, data_type: NSPasteboardType) -> NSString {
-        unsafe { NSString::from_id(msg_send![self.m_self(), stringForType: data_type]) }
+    pub fn string_for_type(&self, data_type: NSPasteboardType) -> Option<NSString> {
+        unsafe { to_optional(msg_send![self.m_self(), stringForType: data_type]) }
     }
 
     /// Scans the specified types for a type that the receiver supports.
     #[method]
-    pub fn available_type_from_array(&self, types: NSArray<NSPasteboardType>) -> NSPasteboardType {
-        unsafe {
-            NSPasteboardType::from_id(msg_send![self.m_self(), availableTypeFromArray: types])
-        }
+    pub fn available_type_from_array(
+        &self,
+        types: NSArray<NSPasteboardType>,
+    ) -> Option<NSPasteboardType> {
+        unsafe { to_optional(msg_send![self.m_self(), availableTypeFromArray: types]) }
     }
 
     /// Returns a Boolean value that indicates whether the receiver contains any items that conform to the specified UTIs.
@@ -327,8 +336,8 @@ impl NSPasteboard {
 
     /// An array of the receiver’s supported data types.
     #[property]
-    pub fn types(&self) -> NSArray<NSPasteboardType> {
-        unsafe { NSArray::from_id(msg_send![self.m_self(), types]) }
+    pub fn types(&self) -> Option<NSArray<NSPasteboardType>> {
+        unsafe { to_optional(msg_send![self.m_self(), types]) }
     }
 
     /// Returns the data types that can be converted to the specified type using the available filter services.
@@ -400,9 +409,9 @@ impl NSPasteboard {
         &self,
         r#type: NSPasteboardType,
         filename: NSString,
-    ) -> NSString {
+    ) -> Option<NSString> {
         unsafe {
-            NSString::from_id(msg_send![
+            to_optional(msg_send![
                 self.m_self(),
                 readFileContentsType: r#type
                 toFile: filename
@@ -412,7 +421,7 @@ impl NSPasteboard {
 
     /// Reads data representing a file’s contents from the receiver and returns it as a file wrapper.
     #[method]
-    pub fn read_file_wrapper(&self) -> NSFileWrapper {
-        unsafe { NSFileWrapper::from_id(msg_send![self.m_self(), readFileWrapper]) }
+    pub fn read_file_wrapper(&self) -> Option<NSFileWrapper> {
+        unsafe { to_optional(msg_send![self.m_self(), readFileWrapper]) }
     }
 }
