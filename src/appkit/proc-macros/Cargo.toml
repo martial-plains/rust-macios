@@ -8,7 +8,7 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
-syn = { version = "1.0.102", features = ["extra-traits"] }
-quote = "1.0.21"
-proc-macro2 = "1.0.47"
+syn = { version = "1.0.0", features = ["extra-traits"] }
+quote = "1.0.0"
+proc-macro2 = "1.0.0"
 r3bl_rs_utils = "0.9.0"
