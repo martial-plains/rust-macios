@@ -504,7 +504,7 @@ impl NSData {
     #[method]
     pub fn enumerate_byte_ranges_using_block<F>(&self, block: F)
     where
-        F: IntoConcreteBlock<(*const c_void, NSRange, *mut bool), Ret = ()>,
+        F: IntoConcreteBlock<(*const c_void, NSRange, *mut bool), Ret = ()> + 'static,
     {
         unsafe {
             let block = block.into_concrete_block();
