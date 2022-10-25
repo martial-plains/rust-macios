@@ -265,28 +265,6 @@ pub enum NSCalendarUnit {
 }
 
 #[derive(Debug)]
-#[repr(u64)]
-pub enum NSDataReadingOptions {
-    Mapped = 1 << 0,
-    Uncached = 1 << 1,
-    Coordinated = 1 << 2,
-    MappedAlways = 1 << 3,
-}
-
-#[derive(Debug)]
-#[repr(u64)]
-pub enum NSDataWritingOptions {
-    Atomic = 1,
-
-    WithoutOverwriting = 2,
-    FileProtectionNone = 0x10000000,
-    FileProtectionComplete = 0x20000000,
-    FileProtectionMask = 0xf0000000,
-    FileProtectionCompleteUnlessOpen = 0x30000000,
-    FileProtectionCompleteUntilFirstUserAuthentication = 0x40000000,
-}
-
-#[derive(Debug)]
 #[repr(i64)]
 pub enum NSOperationQueuePriority {
     VeryLow = -8,
@@ -310,13 +288,6 @@ pub enum NSPostingStyle {
     PostWhenIdle = 1,
     PostASAP = 2,
     Now = 3,
-}
-
-#[derive(Debug)]
-#[repr(u64)]
-pub enum NSDataSearchOptions {
-    SearchBackwards = 1,
-    SearchAnchored = 2,
 }
 
 #[derive(Debug)]
@@ -920,25 +891,6 @@ pub enum NSUrlRequestNetworkServiceType {
 pub enum NSSortOptions {
     Concurrent = 1 << 0,
     Stable = 1 << 4,
-}
-
-#[cfg(target_os = "ios")]
-#[derive(Debug)]
-#[repr(u64)]
-pub enum NSDataBase64DecodingOptions {
-    None = 0,
-    IgnoreUnknownCharacters = 1,
-}
-
-#[cfg(target_os = "ios")]
-#[derive(Debug)]
-#[repr(u64)]
-pub enum NSDataBase64EncodingOptions {
-    None = 0,
-    SixtyFourCharacterLineLength = 1,
-    SeventySixCharacterLineLength = 1 << 1,
-    EndLineWithCarriageReturn = 1 << 4,
-    EndLineWithLineFeed = 1 << 5,
 }
 
 #[cfg(target_os = "ios")]
