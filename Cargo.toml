@@ -1,6 +1,6 @@
 [package]
 name = "rust-macios"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 authors = ["Allister Isaiah Harvey <a.i.harvey@icloud.com>"]
 description = "Apple Frameworks for Rust"
@@ -11,7 +11,7 @@ repository = "https://github.com/a-isaiahharvey/rust-macios"
 documentation = "https://docs.rs/crate/rust-macios/"
 
 [package.metadata.docs.rs]
-default-target = "aarch64-apple-darwin"
+default-target = "x86_64-apple-darwin"
 targets = [
     # MacOS
     "x86_64-apple-darwin",
