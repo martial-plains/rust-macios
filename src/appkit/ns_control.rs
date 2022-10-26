@@ -1,9 +1,8 @@
 use objc::{msg_send, runtime::Sel, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::appkit::INSView;
 
-use super::{object, INSResponder};
+use super::{interface_impl, object, INSResponder};
 
 object! {
     /// A specialized view, such as a button or text field, that notifies your app of relevant events using the target-action design pattern.

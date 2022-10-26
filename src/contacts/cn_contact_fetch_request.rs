@@ -1,9 +1,12 @@
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{NSArray, NSPredicate, NSString},
-    objective_c_runtime::{id, macros::object, traits::FromId},
+    objective_c_runtime::{
+        id,
+        macros::{interface_impl, object},
+        traits::FromId,
+    },
     utils::to_bool,
 };
 

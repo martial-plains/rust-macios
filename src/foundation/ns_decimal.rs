@@ -6,11 +6,14 @@ use std::{
 
 use libc::{c_char, c_double, c_int, c_long, c_short, c_uint, c_ulong, c_ulonglong, c_ushort};
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{INSLocale, INSNumber, INSString, NSComparisonResult, NSLocale, NSString},
-    objective_c_runtime::{macros::object, traits::FromId, INSValue},
+    objective_c_runtime::{
+        macros::{interface_impl, object},
+        traits::FromId,
+        INSValue,
+    },
 };
 
 use super::{

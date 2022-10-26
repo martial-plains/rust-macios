@@ -1,9 +1,8 @@
 use libc::c_short;
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::objective_c_runtime::{
-    macros::object,
+    macros::{interface_impl, object},
     traits::{FromId, PNSObject},
 };
 

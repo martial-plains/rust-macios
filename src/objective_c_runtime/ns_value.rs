@@ -1,6 +1,7 @@
-use objective_c_runtime_proc_macros::interface_impl;
-
-use super::{macros::object, traits::PNSObject};
+use super::{
+    macros::{interface_impl, object},
+    traits::PNSObject,
+};
 
 object! {
     /// A simple container for a single C or Objective-C data item.

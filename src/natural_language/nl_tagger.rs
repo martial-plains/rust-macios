@@ -1,6 +1,5 @@
 use block::{ConcreteBlock, IntoConcreteBlock};
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{
@@ -9,7 +8,7 @@ use crate::{
     },
     objective_c_runtime::{
         id,
-        macros::object,
+        macros::{interface_impl, object},
         nil,
         traits::{FromId, PNSObject},
         NSValue,

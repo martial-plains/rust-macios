@@ -1,6 +1,7 @@
-use objective_c_runtime_proc_macros::interface_impl;
-
-use crate::objective_c_runtime::{macros::object, traits::PNSObject};
+use crate::objective_c_runtime::{
+    macros::{interface_impl, object},
+    traits::PNSObject,
+};
 
 object! {
     /// An object that represents the location of a resource, such as an item on a remote server or the path to a local file.

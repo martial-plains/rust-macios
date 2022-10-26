@@ -1,3 +1,5 @@
+pub use rust_macios_objective_c_runtime_proc_macros::*;
+
 /// The given name must be a valid Objective-C class that inherits NSObject.
 pub(crate) macro object {
     (

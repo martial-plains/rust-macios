@@ -12,12 +12,13 @@ use objc::{
     sel, sel_impl,
 };
 use objc_id::{Id, ShareId};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::NSComparisonResult,
     objective_c_runtime::{
-        self, id, nil,
+        self, id,
+        macros::interface_impl,
+        nil,
         traits::{FromId, PNSObject, ToId},
     },
     utils::{to_bool, to_optional},

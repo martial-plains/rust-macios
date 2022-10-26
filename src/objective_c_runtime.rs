@@ -16,4 +16,4 @@ pub use ns_value::*;
 pub use reexports::*;
 pub use type_defs::*;
 
-pub use objective_c_runtime_proc_macros::*;
+pub use rust_macios_objective_c_runtime_proc_macros::*;

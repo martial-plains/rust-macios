@@ -1,12 +1,11 @@
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     core_graphics::CGFloat,
     objective_c_runtime::traits::{FromId, PNSObject},
 };
 
-use super::{object, NSStatusItem};
+use super::{interface_impl, object, NSStatusItem};
 
 object! {
      /// An individual element displayed in the system menu bar.

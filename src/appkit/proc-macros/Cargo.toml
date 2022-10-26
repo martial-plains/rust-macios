@@ -1,5 +1,5 @@
 [package]
-name = "app-kit-proc-macros"
+name = "rust-macios-app-kit-proc-macros"
 version = "0.2.2"
 edition = "2021"
 
@@ -8,6 +8,6 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
-syn = { version = "1.0.0", features = ["extra-traits"] }
+syn = { version = "1.0.103", features = ["full"] }
 quote = "1.0.0"
 proc-macro2 = "1.0.0"

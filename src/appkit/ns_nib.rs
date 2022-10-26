@@ -1,5 +1,4 @@
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{NSArray, NSBundle, NSData, NSDictionary, NSString, NSURL},
@@ -10,7 +9,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::object;
+use super::{interface_impl, object};
 
 pub type NSNibName = NSString;
 

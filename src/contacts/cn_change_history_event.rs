@@ -1,7 +1,10 @@
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
-use crate::objective_c_runtime::{id, macros::object, traits::PNSObject};
+use crate::objective_c_runtime::{
+    id,
+    macros::{interface_impl, object},
+    traits::PNSObject,
+};
 
 object! {
     ///

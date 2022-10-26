@@ -1,6 +1,4 @@
-use objective_c_runtime_proc_macros::interface_impl;
-
-use crate::objective_c_runtime::macros::object;
+use crate::objective_c_runtime::macros::{interface_impl, object};
 
 use super::ICNFetchRequest;
 

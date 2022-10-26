@@ -1,7 +1,6 @@
-use app_kit_proc_macros::ns_application_main;
-
 use rust_macios::appkit::{
-    INSApplication, NSApplication, NSApplicationActivationPolicy, PNSApplicationDelegate,
+    ns_application_main, INSApplication, NSApplication, NSApplicationActivationPolicy,
+    PNSApplicationDelegate,
 };
 
 #[derive(Default, Clone)]

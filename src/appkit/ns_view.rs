@@ -1,12 +1,14 @@
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{NSArray, NSCoder, NSRect},
     objective_c_runtime::{id, traits::FromId},
 };
 
-use super::{object, INSResponder, NSLayoutXAxisAnchor, NSLayoutYAxisAnchor, NSMenuItem, NSWindow};
+use super::{
+    interface_impl, object, INSResponder, NSLayoutXAxisAnchor, NSLayoutYAxisAnchor, NSMenuItem,
+    NSWindow,
+};
 
 object! {
     /// The infrastructure for drawing, printing, and handling events in an app.

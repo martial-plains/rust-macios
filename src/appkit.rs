@@ -1,7 +1,7 @@
 //! Construct and manage a graphical, event-driven user interface for your
 //! macOS app.
 
-pub use app_kit_proc_macros::ns_application_main;
+pub use rust_macios_app_kit_proc_macros::ns_application_main;
 
 mod enums;
 mod globals;

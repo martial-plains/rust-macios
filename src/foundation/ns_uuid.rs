@@ -1,9 +1,7 @@
 use std::ffi::c_uchar;
 
-use objective_c_runtime_proc_macros::interface_impl;
-
 use crate::objective_c_runtime::{
-    macros::object,
+    macros::{interface_impl, object},
     msg_send, sel, sel_impl,
     traits::{FromId, PNSObject},
 };

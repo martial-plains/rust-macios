@@ -1,5 +1,4 @@
 use objc::{msg_send, runtime::Sel, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::NSString,
@@ -10,7 +9,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{object, NSMenu};
+use super::{interface_impl, object, NSMenu};
 
 object! {
     /// A command item in an app menu.

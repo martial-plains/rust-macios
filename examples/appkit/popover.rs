@@ -1,6 +1,5 @@
 use std::sync::{Arc, Mutex};
 
-use objective_c_runtime_proc_macros::objc_sel;
 use rust_macios::{
     appkit::{
         ns_application_main, INSApplication, INSButton, INSLayoutAnchor, INSResponder, INSView,
@@ -10,7 +9,7 @@ use rust_macios::{
     },
     foundation::{macros::nsarray, NSPoint, NSRect, NSRectEdge, NSSize, NSString},
     objective_c_runtime::{
-        class_init, id, msg_send, nil, register_class, runtime::Object, sel, sel_impl,
+        class_init, id, msg_send, nil, objc_sel, register_class, runtime::Object, sel, sel_impl,
         traits::PNSObject, Id, ShareId,
     },
 };

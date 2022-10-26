@@ -58,8 +58,8 @@ user_notifications = ["foundation"]
 
 [dependencies]
 # Macros defined in workspace
-app-kit-proc-macros = { version = "0.2.2", path = "src/appkit/proc-macros" }
-objective-c-runtime-proc-macros = { version = "0.2.2", path = "src/objective_c_runtime/proc-macros" }
+rust-macios-app-kit-proc-macros = { version = "0.2.2", path = "src/appkit/proc-macros" }
+rust-macios-objective-c-runtime-proc-macros = { version = "0.2.2", path = "src/objective_c_runtime/proc-macros" }
 
 # crates.io dependencies
 objc = { version = "0.2.7", features = ["exception"] }

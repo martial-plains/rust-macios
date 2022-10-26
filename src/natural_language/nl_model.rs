@@ -1,11 +1,10 @@
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     core_ml::MLModel,
     foundation::{NSArray, NSDictionary, NSError, NSNumber, NSString, UInt, NSURL},
     objective_c_runtime::{
-        macros::object,
+        macros::{interface_impl, object},
         nil,
         traits::{FromId, PNSObject},
     },

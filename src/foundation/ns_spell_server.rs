@@ -9,11 +9,11 @@ use objc::{
 };
 
 use objc_id::Id;
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     objective_c_runtime::{
         self, id,
+        macros::interface_impl,
         traits::{FromId, PNSObject, ToId},
     },
     utils::to_bool,

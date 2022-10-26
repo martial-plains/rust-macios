@@ -1,7 +1,6 @@
 use objc::{msg_send, runtime::Class, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
-use super::{ns_pasteboard_item::NSPasteboardItem, object};
+use super::{interface_impl, ns_pasteboard_item::NSPasteboardItem, object};
 
 use crate::{
     foundation::{Int, NSArray, NSData, NSDictionary, NSFileWrapper, NSString, UInt},

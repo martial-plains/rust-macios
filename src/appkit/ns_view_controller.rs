@@ -1,13 +1,12 @@
 use bitflags::bitflags;
 use objc::{class, msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{NSBundle, UInt},
     objective_c_runtime::{id, traits::FromId},
 };
 
-use super::{object, INSResponder, INSView, NSNibName, NSView};
+use super::{interface_impl, object, INSResponder, INSView, NSNibName, NSView};
 
 bitflags! {
     pub struct NSViewControllerTransitionOptions: UInt {

@@ -1,7 +1,6 @@
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
-use super::{object, NSImageName};
+use super::{interface_impl, object, NSImageName};
 
 use crate::objective_c_runtime::traits::PNSObject;
 

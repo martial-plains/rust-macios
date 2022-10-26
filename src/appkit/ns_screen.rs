@@ -1,5 +1,4 @@
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     core_graphics::CGFloat,
@@ -17,7 +16,7 @@ use crate::{
 /// These constants are the keys for device description dictionaries.
 pub type NSDeviceDescriptionKey = NSString;
 
-use super::{object, NSColorSpace, NSWindowDepth};
+use super::{interface_impl, object, NSColorSpace, NSWindowDepth};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[repr(u64)]

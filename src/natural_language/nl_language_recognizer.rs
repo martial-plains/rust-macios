@@ -1,12 +1,11 @@
 //! The language of a body of text.
 
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{NSArray, NSDictionary, NSNumber, NSString, UInt},
     objective_c_runtime::{
-        macros::object,
+        macros::{interface_impl, object},
         traits::{FromId, PNSObject},
     },
     utils::to_optional,

@@ -1,10 +1,8 @@
-use app_kit_proc_macros::ns_application_main;
-
 use rust_macios::{
     appkit::{
-        INSApplication, INSLayoutAnchor, INSResponder, INSView, INSViewController, INSWindow,
-        NSApplication, NSApplicationActivationPolicy, NSLayoutConstraint, NSTextField, NSView,
-        NSWindow, PNSApplicationDelegate,
+        ns_application_main, INSApplication, INSLayoutAnchor, INSResponder, INSView,
+        INSViewController, INSWindow, NSApplication, NSApplicationActivationPolicy,
+        NSLayoutConstraint, NSTextField, NSView, NSWindow, PNSApplicationDelegate,
     },
     foundation::{macros::nsarray, NSPoint, NSRect, NSSize, NSString},
     objective_c_runtime::{

@@ -1,5 +1,5 @@
 [package]
-name = "objective-c-runtime-proc-macros"
+name = "rust-macios-objective-c-runtime-proc-macros"
 version = "0.2.2"
 edition = "2021"
 
@@ -8,6 +8,6 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
-syn = { version = "1.0.0", features = ["full"] }
+syn = { version = "1.0.103", features = ["full"] }
 quote = "1.0.0"
 proc-macro2 = "1.0.0"

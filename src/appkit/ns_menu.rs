@@ -1,5 +1,4 @@
 use objc::{class, msg_send, runtime::Sel, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     core_graphics::CGFloat,
@@ -8,7 +7,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{object, NSMenuItem};
+use super::{interface_impl, object, NSMenuItem};
 
 object! {
     /// An object that manages an app’s menus.

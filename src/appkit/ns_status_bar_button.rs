@@ -1,11 +1,10 @@
 #![allow(trivial_casts)]
 
 use objc::{msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{objective_c_runtime::traits::PNSObject, utils::to_bool};
 
-use super::{object, ActionHandler, INSButton, INSControl, INSResponder, INSView};
+use super::{interface_impl, object, ActionHandler, INSButton, INSControl, INSResponder, INSView};
 
 object! {
     /// The appearance and behavior of an item in the systemwide menu bar.

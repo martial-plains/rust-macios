@@ -1,5 +1,4 @@
 use objc::{class, msg_send, sel, sel_impl};
-use objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     core_graphics::CGRectEdge,
@@ -9,7 +8,7 @@ use crate::{
 };
 
 use super::{
-    ns_appearance::NSAppearance, object, INSResponder, INSView, INSViewController,
+    interface_impl, ns_appearance::NSAppearance, object, INSResponder, INSView, INSViewController,
     NSPopoverBehavior, NSViewController,
 };
 

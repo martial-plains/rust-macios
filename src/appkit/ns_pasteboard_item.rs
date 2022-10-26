@@ -1,6 +1,4 @@
-use objective_c_runtime_proc_macros::interface_impl;
-
-use super::object;
+use super::{interface_impl, object};
 
 use crate::objective_c_runtime::traits::PNSObject;
 
