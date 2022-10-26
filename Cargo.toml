@@ -1,14 +1,25 @@
 [package]
 name = "rust-macios"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 authors = ["Allister Isaiah Harvey <a.i.harvey@icloud.com>"]
 description = "Apple Frameworks for Rust"
 license = "MIT"
+keywords = ["objective-c", "macos", "ios", "cocoa"]
+categories = ["api-bindings", "development-tools::ffi", "os::macos-apis"]
 repository = "https://github.com/a-isaiahharvey/rust-macios"
+documentation = "https://docs.rs/crate/rust-macios/"
 
-[workspace]
-members = ["src/appkit/proc-macros", "src/objective_c_runtime/proc-macros"]
+[package.metadata.docs.rs]
+default-target = "aarch64-apple-darwin"
+targets = [
+    # MacOS
+    "x86_64-apple-darwin",
+    "aarch64-apple-darwin",
+    # iOS
+    "aarch64-apple-ios",
+    "x86_64-apple-ios",
+]
 
 [profile.release]
 opt-level = 0
@@ -71,6 +82,9 @@ bitflags = "1.3.2"
 
 [dev-dependencies]
 test-case = "2.1.0"
+
+[workspace]
+members = ["src/appkit/proc-macros", "src/objective_c_runtime/proc-macros"]
 
 [[example]]
 name = "app_delegate"
