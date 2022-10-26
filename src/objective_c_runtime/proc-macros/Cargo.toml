@@ -1,6 +1,6 @@
 [package]
 name = "rust-macios-objective-c-runtime-proc-macros"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 description = "Macros for Objective-C for use in Rust-MaciOS library"
 license = "MIT"
