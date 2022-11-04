@@ -138,11 +138,14 @@ impl UNUserNotificationCenter {
     #[method]
     pub fn request_authorization_with_options_completion_handler<F>(
         &mut self,
-        options: UNAuthorizationOptions,
+        options: &[UNAuthorizationOptions],
         completion_handler: F,
     ) where
-        F: IntoConcreteBlock<(bool, NSError), Ret = ()> + 'static,
+        F: IntoConcreteBlock<(bool, Option<NSError>), Ret = ()> + 'static,
     {
+        let options = options
+            .iter()
+            .fold(0u64, |init, option| init | *option as u64);
         let block = ConcreteBlock::new(completion_handler);
         let block = block.copy();
 
@@ -156,8 +159,16 @@ impl UNUserNotificationCenter {
 
     /// The delegate of the notification center.
     #[property]
-    pub fn delegate(&self) -> id {
-        unsafe { msg_send![self.m_self(), delegate] }
+    pub fn delegate(&self) -> Option<id> {
+        unsafe {
+            let ptr: id = msg_send![self.m_self(), delegate];
+
+            if ptr.is_null() {
+                None
+            } else {
+                Some(ptr)
+            }
+        }
     }
 
     /// Sets the delegate of the notification center.

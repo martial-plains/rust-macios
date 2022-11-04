@@ -6,6 +6,7 @@ use crate::{
         macros::{interface_impl, object},
         traits::{FromId, PNSObject},
     },
+    utils::to_optional,
 };
 
 use super::{UNNotificationContent, UNNotificationTrigger};
@@ -54,7 +55,7 @@ impl UNNotificationRequest {
 
     /// The conditions that trigger the delivery of the notification.
     #[property]
-    pub fn trigger(&self) -> UNNotificationTrigger {
-        unsafe { UNNotificationTrigger::from_id(msg_send![self.m_self(), trigger]) }
+    pub fn trigger(&self) -> Option<UNNotificationTrigger> {
+        unsafe { to_optional(msg_send![self.m_self(), trigger]) }
     }
 }

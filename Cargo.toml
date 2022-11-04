@@ -41,6 +41,7 @@ default = [
     "core_foundation",
     "core_graphics",
     "core_ml",
+    "core_location",
     "foundation",
     "kernel",
     "natural_language",
@@ -54,6 +55,7 @@ compression = []
 contacts = ["foundation"]
 core_foundation = ["kernel"]
 core_graphics = ["objective_c_runtime"]
+core_location = []
 core_ml = ["foundation"]
 foundation = [
     "objective_c_runtime",
