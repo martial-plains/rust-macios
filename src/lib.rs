@@ -13,16 +13,23 @@ pub mod background_tasks;
 pub mod compression;
 #[cfg(feature = "contacts")]
 pub mod contacts;
+
 #[cfg(feature = "core_foundation")]
 pub mod core_foundation;
+
 #[cfg(feature = "core_graphics")]
 pub mod core_graphics;
+#[cfg(feature = "core_location")]
+pub mod core_location;
+
 #[cfg(feature = "core_ml")]
 pub mod core_ml;
+
 #[cfg(feature = "foundation")]
 pub mod foundation;
 #[cfg(feature = "kernel")]
 pub mod kernel;
+
 #[cfg(feature = "natural_language")]
 pub mod natural_language;
 #[cfg(feature = "objective_c_runtime")]
