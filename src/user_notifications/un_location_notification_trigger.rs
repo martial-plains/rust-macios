@@ -20,10 +20,7 @@ impl UNLocationNotificationTrigger {
     ///
     /// Required features: `"core_location"`
     #[method]
-    fn trigger_with_region_repeats(
-        region: crate::core_location::CLRegion,
-        repeats: objc::runtime::BOOL,
-    ) -> Self
+    fn trigger_with_region_repeats(region: crate::core_location::CLRegion, repeats: bool) -> Self
     where
         Self: Sized + crate::objective_c_runtime::traits::FromId,
     {

@@ -1,4 +1,4 @@
-use objc::{msg_send, runtime::BOOL, sel, sel_impl};
+use objc::{msg_send, sel, sel_impl};
 use rust_macios_objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
@@ -15,7 +15,7 @@ object! {
 impl UNNotificationTrigger {
     /// A Boolean value indicating whether the system reschedules the notification after it’s delivered.
     #[property]
-    pub fn repeats(&self) -> BOOL {
+    pub fn repeats(&self) -> bool {
         unsafe { to_bool(msg_send![self.m_self(), repeats]) }
     }
 }

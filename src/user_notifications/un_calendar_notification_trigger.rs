@@ -1,4 +1,4 @@
-use objc::{msg_send, runtime::BOOL, sel, sel_impl};
+use objc::{msg_send, sel, sel_impl};
 use rust_macios_objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
@@ -24,7 +24,7 @@ impl UNCalendarNotificationTrigger {
     #[method]
     pub fn trigger_with_date_matching_components_repeats(
         date_components: NSDateComponents,
-        repeats: BOOL,
+        repeats: bool,
     ) -> Self
     where
         Self: Sized + FromId,

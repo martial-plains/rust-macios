@@ -1,4 +1,4 @@
-use objc::{msg_send, runtime::BOOL, sel, sel_impl};
+use objc::{msg_send, sel, sel_impl};
 use rust_macios_objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
@@ -23,7 +23,7 @@ impl UNTimeIntervalNotificationTrigger {
 
     /// Creates a time interval trigger using the time value parameter.
     #[method]
-    pub fn trigger_with_time_interval_repeats(time_interval: NSTimeInterval, repeats: BOOL) -> Self
+    pub fn trigger_with_time_interval_repeats(time_interval: NSTimeInterval, repeats: bool) -> Self
     where
         Self: Sized + FromId,
     {
