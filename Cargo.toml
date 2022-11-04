@@ -1,6 +1,6 @@
 [package]
 name = "rust-macios"
-version = "0.2.6"
+version = "0.3.0"
 edition = "2021"
 authors = ["Allister Isaiah Harvey <a.i.harvey@icloud.com>"]
 description = "Apple Frameworks for Rust"
@@ -32,42 +32,6 @@ incremental = false
 codegen-units = 16
 rpath = false
 
-[features]
-default = [
-    "appkit",
-    "background_tasks",
-    "compression",
-    "contacts",
-    "core_foundation",
-    "core_graphics",
-    "core_ml",
-    "core_location",
-    "foundation",
-    "kernel",
-    "natural_language",
-    "objective_c_runtime",
-    "uikit",
-    "user_notifications",
-]
-appkit = ["objective_c_runtime"]
-background_tasks = ["foundation"]
-compression = []
-contacts = ["foundation"]
-core_foundation = ["kernel"]
-core_graphics = ["objective_c_runtime"]
-core_location = []
-core_ml = ["foundation"]
-foundation = [
-    "objective_c_runtime",
-    "core_foundation",
-    "core_graphics",
-    "kernel",
-]
-kernel = []
-natural_language = ["foundation", "core_ml"]
-objective_c_runtime = ["foundation"]
-uikit = ["foundation"]
-user_notifications = ["foundation"]
 
 [dependencies]
 # Macros defined in workspace
