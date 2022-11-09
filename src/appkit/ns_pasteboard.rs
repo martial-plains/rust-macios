@@ -1,9 +1,10 @@
 use objc::{msg_send, runtime::Class, sel, sel_impl};
 
-use super::{interface_impl, ns_pasteboard_item::NSPasteboardItem, object};
+use super::{interface_impl, ns_pasteboard_item::NSPasteboardItem};
 
 use crate::{
     foundation::{Int, NSArray, NSData, NSDictionary, NSFileWrapper, NSString, UInt},
+    object,
     objective_c_runtime::{
         id,
         traits::{FromId, PNSObject},

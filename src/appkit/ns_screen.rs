@@ -6,6 +6,7 @@ use crate::{
         Int, NSAlignmentOptions, NSDictionary, NSEdgeInsets, NSNotificationName, NSRect, NSString,
         NSTimeInterval,
     },
+    object,
     objective_c_runtime::{
         id,
         traits::{FromId, PNSObject},
@@ -16,7 +17,7 @@ use crate::{
 /// These constants are the keys for device description dictionaries.
 pub type NSDeviceDescriptionKey = NSString;
 
-use super::{interface_impl, object, NSColorSpace, NSWindowDepth};
+use super::{interface_impl, NSColorSpace, NSWindowDepth};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[repr(u64)]

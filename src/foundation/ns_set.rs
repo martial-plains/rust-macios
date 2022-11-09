@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::objective_c_runtime::macros::object;
+use crate::object;
 
 object! {
     /// A static, unordered collection of unique objects.

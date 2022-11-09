@@ -4,7 +4,8 @@ use rust_macios_objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{NSArray, NSDictionary, NSNumber, NSString, UInt},
-    objective_c_runtime::{id, macros::object},
+    object,
+    objective_c_runtime::id,
 };
 
 use super::{

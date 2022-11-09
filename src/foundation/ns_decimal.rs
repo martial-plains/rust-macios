@@ -9,11 +9,8 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{INSLocale, INSNumber, INSString, NSComparisonResult, NSLocale, NSString},
-    objective_c_runtime::{
-        macros::{interface_impl, object},
-        traits::FromId,
-        INSValue,
-    },
+    object,
+    objective_c_runtime::{macros::interface_impl, traits::FromId, INSValue},
 };
 
 use super::{

@@ -1,9 +1,7 @@
 use crate::{
     background_tasks::bg_task::IBGTask,
-    objective_c_runtime::{
-        macros::{interface_impl, object},
-        traits::PNSObject,
-    },
+    object,
+    objective_c_runtime::{macros::interface_impl, traits::PNSObject},
 };
 
 object! {

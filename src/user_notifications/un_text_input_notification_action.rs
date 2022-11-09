@@ -1,10 +1,7 @@
 use objc::{msg_send, sel, sel_impl};
 use rust_macios_objective_c_runtime_proc_macros::interface_impl;
 
-use crate::{
-    foundation::NSString,
-    objective_c_runtime::{macros::object, traits::FromId},
-};
+use crate::{foundation::NSString, object, objective_c_runtime::traits::FromId};
 
 use super::{IUNNotificationAction, UNNotificationActionIcon, UNNotificationActionOptions};
 

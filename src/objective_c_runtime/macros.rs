@@ -1,7 +1,8 @@
 pub use rust_macios_objective_c_runtime_proc_macros::*;
 
 /// The given name must be a valid Objective-C class that inherits NSObject.
-pub(crate) macro object {
+#[macro_export]
+macro_rules! object {
     (
         $(#[$m:meta])*
         unsafe $v:vis struct $name:ident $(;)?
@@ -10,7 +11,7 @@ pub(crate) macro object {
             $(#[$m])*
             unsafe $v struct $name<> {,}
         }
-    },
+    };
     (
         $(#[$m:meta])*
         unsafe $v:vis struct $name:ident<$($t:ident $(: $b:ident)?),*> {
@@ -102,11 +103,12 @@ pub(crate) macro object {
                 unsafe { $crate::objective_c_runtime::Encoding::from_str("@") }
             }
         }
-    },
+    };
 }
 
 /// The given name must be a valid Objective-C class that inherits NSObject.
-pub(crate) macro shared_object {
+#[macro_export]
+macro_rules! shared_object {
     (
         $(#[$m:meta])*
         unsafe $v:vis struct $name:ident<$($t:ident $(: $b:ident)?),*> {
@@ -165,7 +167,7 @@ pub(crate) macro shared_object {
         impl<$($t $(: $b)?),*> $crate::objective_c_runtime::traits::FromId for $name<$($t),*> {
             unsafe fn from_id(ptr: $crate::objective_c_runtime::id) -> Self {
                 Self {
-                    ptr: crate::objective_c_runtime::Id::from_ptr(ptr),
+                    ptr: $crate::objective_c_runtime::Id::from_ptr(ptr),
                     $($p: std::marker::PhantomData),*
                 }
             }
@@ -194,5 +196,5 @@ pub(crate) macro shared_object {
             }
         }
 
-    },
+    };
 }

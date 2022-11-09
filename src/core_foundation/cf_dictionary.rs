@@ -1,6 +1,6 @@
 use libc::c_void;
 
-use super::macros::declare_CFType;
+use crate::declare_CFType;
 
 #[derive(Debug)]
 #[repr(C)]

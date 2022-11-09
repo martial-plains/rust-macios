@@ -2,12 +2,9 @@ use core::fmt;
 
 use libc::{c_ulong, c_void};
 
-use crate::kernel::Boolean;
+use crate::{declare_CFType, kernel::Boolean};
 
-use super::{
-    macros::declare_CFType, CFAllocator, CFAllocatorRef, CFIndex, CFString, CFStringRef,
-    CFTypeObject,
-};
+use super::{CFAllocator, CFAllocatorRef, CFIndex, CFString, CFStringRef, CFTypeObject};
 
 /// A type for unique, constant integer values that identify particular Core Foundation opaque types.
 pub type CFTypeID = c_ulong;

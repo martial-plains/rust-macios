@@ -4,9 +4,9 @@ use rust_macios_objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{NSArray, NSDictionary, NSError, NSNumber, NSString, UInt},
+    object,
     objective_c_runtime::{
         id,
-        macros::object,
         traits::{FromId, PNSObject},
     },
     utils::to_optional,

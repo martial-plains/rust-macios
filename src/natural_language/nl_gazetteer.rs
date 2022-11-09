@@ -2,8 +2,9 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{NSArray, NSData, NSDictionary, NSError, NSString, NSURL},
+    object,
     objective_c_runtime::{
-        macros::{interface_impl, object},
+        macros::interface_impl,
         nil,
         traits::{FromId, PNSObject},
     },

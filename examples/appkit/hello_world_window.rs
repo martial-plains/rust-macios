@@ -4,7 +4,8 @@ use rust_macios::{
         INSViewController, INSWindow, NSApplication, NSApplicationActivationPolicy,
         NSLayoutConstraint, NSTextField, NSView, NSWindow, PNSApplicationDelegate,
     },
-    foundation::{macros::nsarray, NSPoint, NSRect, NSSize, NSString},
+    foundation::{NSPoint, NSRect, NSSize, NSString},
+    nsarray,
     objective_c_runtime::{
         class_init, id, msg_send, nil, objc_sel, register_class, runtime::Object, sel, sel_impl,
         traits::PNSObject, Id, ShareId,

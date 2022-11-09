@@ -1,12 +1,13 @@
 use std::ops::Range;
 
 use rust_macios::{
-    foundation::{macros::nsarray, NSRange},
+    foundation::NSRange,
     natural_language::{
         nl_tag::{OrganizationName, PersonalName, PlaceName},
         nl_tag_scheme::NameType,
         NLTag, NLTagger, NLTaggerOptions, NLTokenUnit,
     },
+    nsarray,
     objective_c_runtime::{nil, traits::PNSObject},
 };
 

@@ -1,8 +1,8 @@
 use objc::{msg_send, sel, sel_impl};
 
-use crate::{foundation::NSString, objective_c_runtime::traits::FromId};
+use crate::{foundation::NSString, objective_c_runtime::traits::FromId, object};
 
-use super::{interface_impl, object, INSControl, INSResponder, INSView};
+use super::{interface_impl,  INSControl, INSResponder, INSView};
 
 object! {
     /// Text the user can select or edit to send an action message to a target when the user presses the Return key.

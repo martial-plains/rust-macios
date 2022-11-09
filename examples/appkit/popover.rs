@@ -7,7 +7,8 @@ use rust_macios::{
         NSPopover, NSPopoverBehavior, NSStatusBar, NSStatusItem, NSTextField, NSView,
         PNSApplicationDelegate,
     },
-    foundation::{macros::nsarray, NSPoint, NSRect, NSRectEdge, NSSize, NSString},
+    foundation::{NSPoint, NSRect, NSRectEdge, NSSize, NSString},
+    nsarray,
     objective_c_runtime::{
         class_init, id, msg_send, nil, objc_sel, register_class, runtime::Object, sel, sel_impl,
         traits::PNSObject, Id, ShareId,

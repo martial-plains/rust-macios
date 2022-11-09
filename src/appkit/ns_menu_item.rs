@@ -2,6 +2,7 @@ use objc::{msg_send, runtime::Sel, sel, sel_impl};
 
 use crate::{
     foundation::NSString,
+    object,
     objective_c_runtime::{
         id, nil,
         traits::{FromId, PNSObject},
@@ -9,7 +10,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{interface_impl, object, NSMenu};
+use super::{interface_impl, NSMenu};
 
 object! {
     /// A command item in an app menu.

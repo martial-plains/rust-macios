@@ -3,7 +3,8 @@ use rust_macios_objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::{NSDate, NSDateComponents},
-    objective_c_runtime::{macros::object, traits::FromId},
+    object,
+    objective_c_runtime::traits::FromId,
     utils::to_optional,
 };
 

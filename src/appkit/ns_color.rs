@@ -1,4 +1,4 @@
-use super::object;
+use crate::object;
 
 object! {
     /// An object that stores color data and sometimes opacity (alpha value).

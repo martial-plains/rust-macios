@@ -3,8 +3,9 @@ use objc::{msg_send, sel, sel_impl};
 use crate::{
     background_tasks::IBGTaskRequest,
     foundation::NSString,
+    object,
     objective_c_runtime::{
-        macros::{interface_impl, object},
+        macros::interface_impl,
         traits::{FromId, PNSObject},
     },
 };

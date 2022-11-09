@@ -4,10 +4,8 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::NSString,
-    objective_c_runtime::{
-        macros::object,
-        traits::{FromId, PNSObject},
-    },
+    object,
+    objective_c_runtime::traits::{FromId, PNSObject},
 };
 
 object! {

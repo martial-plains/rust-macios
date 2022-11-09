@@ -1,10 +1,10 @@
 use objc::{msg_send, sel, sel_impl};
 
-use crate::objective_c_runtime::{
+use crate::{object, objective_c_runtime::{
     id,
-    macros::{interface_impl, object},
+    macros::{interface_impl},
     traits::PNSObject,
-};
+}};
 
 object! {
     /// An object that supports Cocoa’s reference-counted memory management system.

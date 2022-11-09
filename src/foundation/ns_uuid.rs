@@ -1,9 +1,12 @@
 use std::ffi::c_uchar;
 
-use crate::objective_c_runtime::{
-    macros::{interface_impl, object},
-    msg_send, sel, sel_impl,
-    traits::{FromId, PNSObject},
+use crate::{
+    object,
+    objective_c_runtime::{
+        macros::interface_impl,
+        msg_send, sel, sel_impl,
+        traits::{FromId, PNSObject},
+    },
 };
 
 use super::{NSComparisonResult, NSString};

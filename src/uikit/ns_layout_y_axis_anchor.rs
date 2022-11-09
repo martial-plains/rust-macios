@@ -1,4 +1,4 @@
-use crate::objective_c_runtime::macros::{interface_impl, object};
+use crate::{object, objective_c_runtime::macros::interface_impl};
 
 use super::INSLayoutAnchor;
 

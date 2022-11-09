@@ -4,8 +4,9 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{NSArray, NSDictionary, NSError, NSIndexSet, NSNumber, NSString, UInt, NSURL},
+    object,
     objective_c_runtime::{
-        macros::{interface_impl, object},
+        macros::interface_impl,
         nil,
         traits::{FromId, PNSObject},
     },

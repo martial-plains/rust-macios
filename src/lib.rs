@@ -1,9 +1,6 @@
 //! # A library to use Apple frameworks in Rust
 #![warn(clippy::all)]
 #![allow(improper_ctypes, deprecated, improper_ctypes_definitions)]
-#![feature(decl_macro)]
-#![feature(type_ascription)]
-#![feature(c_variadic)]
 
 pub mod appkit;
 pub mod background_tasks;

@@ -3,12 +3,13 @@ use objc::{class, msg_send, sel, sel_impl};
 use crate::{
     core_graphics::CGRectEdge,
     foundation::{NSCoder, NSRect, NSSize},
+    object,
     objective_c_runtime::{id, traits::FromId},
     utils::to_bool,
 };
 
 use super::{
-    interface_impl, ns_appearance::NSAppearance, object, INSResponder, INSView, INSViewController,
+    interface_impl, ns_appearance::NSAppearance, INSResponder, INSView, INSViewController,
     NSPopoverBehavior, NSViewController,
 };
 

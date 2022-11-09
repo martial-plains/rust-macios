@@ -1,4 +1,4 @@
-use super::object;
+use crate::object;
 
 object! {
     /// An object that represents a custom color space.
