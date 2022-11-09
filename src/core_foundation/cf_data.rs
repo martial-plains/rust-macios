@@ -2,11 +2,11 @@ use std::fmt;
 
 use libc::c_void;
 
-use crate::kernel::UInt8;
+use crate::{declare_CFType, kernel::UInt8};
 
 use super::{
-    kCFAllocatorDefault, macros::declare_CFType, CFAllocatorRef, CFIndex, CFRange, CFType,
-    CFTypeID, CFTypeObject, CFTypeRef,
+    kCFAllocatorDefault, CFAllocatorRef, CFIndex, CFRange, CFType, CFTypeID, CFTypeObject,
+    CFTypeRef,
 };
 
 #[derive(Debug)]

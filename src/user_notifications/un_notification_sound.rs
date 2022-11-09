@@ -2,9 +2,9 @@ use libc::c_float;
 use objc::{msg_send, sel, sel_impl};
 use rust_macios_objective_c_runtime_proc_macros::interface_impl;
 
-use crate::objective_c_runtime::{
-    macros::object,
-    traits::{FromId, PNSObject},
+use crate::{
+    object,
+    objective_c_runtime::traits::{FromId, PNSObject},
 };
 
 use super::UNNotificationSoundName;

@@ -1,4 +1,5 @@
-pub macro declare_CFType {
+#[macro_export]
+macro_rules! declare_CFType {
     (
         $(#[$doc:meta])*
         $ty:ident, $raw:ident

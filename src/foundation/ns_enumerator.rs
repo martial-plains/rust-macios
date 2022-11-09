@@ -2,9 +2,9 @@ use std::marker::PhantomData;
 
 use objc::{msg_send, sel, sel_impl};
 
-use crate::objective_c_runtime::{
-    macros::object,
-    traits::{FromId, PNSObject},
+use crate::{
+    object,
+    objective_c_runtime::traits::{FromId, PNSObject},
 };
 
 use super::NSArray;

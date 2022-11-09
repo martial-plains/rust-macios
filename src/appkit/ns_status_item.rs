@@ -2,6 +2,7 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     core_graphics::CGFloat,
+    object,
     objective_c_runtime::{
         nil,
         traits::{FromId, PNSObject},
@@ -9,7 +10,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{interface_impl, object, NSMenu, NSStatusBar, NSStatusBarButton, NSStatusItemBehavior};
+use super::{interface_impl, NSMenu, NSStatusBar, NSStatusBarButton, NSStatusItemBehavior};
 
 object! {
     /// An individual element displayed in the system menu bar.

@@ -2,13 +2,14 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::NSBundle,
+    object,
     objective_c_runtime::{
         id, nil,
         traits::{FromId, PNSObject},
     },
 };
 
-use super::{object, NSStoryboardName};
+use super::NSStoryboardName;
 
 object! {
     /// An encapsulation of the design-time view controller and window controller graph represented in an Interface Builder storyboard resource file.

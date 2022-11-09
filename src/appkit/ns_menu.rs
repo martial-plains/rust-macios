@@ -3,11 +3,12 @@ use objc::{class, msg_send, runtime::Sel, sel, sel_impl};
 use crate::{
     core_graphics::CGFloat,
     foundation::{Int, NSString},
+    object,
     objective_c_runtime::traits::{FromId, PNSObject},
     utils::to_bool,
 };
 
-use super::{interface_impl, object, NSMenuItem};
+use super::{interface_impl, NSMenuItem};
 
 object! {
     /// An object that manages an app’s menus.

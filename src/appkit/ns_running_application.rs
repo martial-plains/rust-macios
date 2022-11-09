@@ -1,8 +1,11 @@
 use objc::{msg_send, sel, sel_impl};
 
-use crate::objective_c_runtime::traits::{FromId, PNSObject};
+use crate::{
+    object,
+    objective_c_runtime::traits::{FromId, PNSObject},
+};
 
-use super::{interface_impl, object, NSApplicationActivationOptions};
+use super::{interface_impl, NSApplicationActivationOptions};
 
 object! {
     /// An object that can manipulate and provide information for a single instance of an app.

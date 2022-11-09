@@ -1,6 +1,6 @@
-use super::{interface_impl, object};
+use super::interface_impl;
 
-use crate::objective_c_runtime::traits::PNSObject;
+use crate::{object, objective_c_runtime::traits::PNSObject};
 
 object! {
     unsafe pub struct NSPasteboardItem;

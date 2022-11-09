@@ -2,7 +2,8 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{NSArray, NSData, NSDateComponents, NSString},
-    objective_c_runtime::macros::{interface_impl, object},
+    object,
+    objective_c_runtime::macros::interface_impl,
 };
 
 use super::{

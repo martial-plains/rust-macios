@@ -1,8 +1,8 @@
 use rust_macios::{
-    foundation::macros::{nsarray, nsdictionary},
     natural_language::{
         English, French, Italian, NLLanguageRecognizer, Portuguese, Spanish, Swedish,
     },
+    nsarray, nsdictionary,
     objective_c_runtime::traits::PNSObject,
 };
 

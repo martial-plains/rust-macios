@@ -1,6 +1,6 @@
 use std::{
     borrow::Cow,
-    ffi::{c_double, CStr, VaList},
+    ffi::{c_double, CStr},
     fmt,
 };
 
@@ -10,15 +10,16 @@ use bitflags::bitflags;
 
 use crate::{
     core_foundation::CFRange,
+    declare_CFType,
     kernel::{Boolean, SInt32, UInt32, UInt8, UniChar},
 };
 
 use self::iter::Iter;
 
 use super::{
-    cf_array::CFArrayRef, kCFAllocatorDefault, macros::declare_CFType, CFAllocatorRef, CFArray,
-    CFCharacterSetRef, CFComparisonResult, CFData, CFDataRef, CFDictionaryRef, CFIndex,
-    CFLocaleRef, CFOptionFlags, CFTypeID, CFTypeObject,
+    cf_array::CFArrayRef, kCFAllocatorDefault, CFAllocatorRef, CFArray, CFCharacterSetRef,
+    CFComparisonResult, CFData, CFDataRef, CFDictionaryRef, CFIndex, CFLocaleRef, CFOptionFlags,
+    CFTypeID, CFTypeObject,
 };
 
 /// For function parameters only - means string is const.
@@ -478,7 +479,7 @@ impl CFString {
         alloc: CFAllocatorRef,
         format_options: CFDictionaryRef,
         format: CFStringRef,
-        va_list: VaList,
+        va_list: va_list::VaList,
     ) -> CFString {
         CFString::create_with_ref(CFStringCreateWithFormatAndArguments(
             alloc,
@@ -1389,7 +1390,7 @@ extern "C" {
         alloc: CFAllocatorRef,
         format_options: CFDictionaryRef,
         format: CFStringRef,
-        va_list: VaList,
+        va_list: va_list::VaList,
     ) -> CFStringRef;
 
     pub fn CFStringCreateWithPascalString(

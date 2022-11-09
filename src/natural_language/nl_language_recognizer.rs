@@ -4,8 +4,9 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{NSArray, NSDictionary, NSNumber, NSString, UInt},
+    object,
     objective_c_runtime::{
-        macros::{interface_impl, object},
+        macros::interface_impl,
         traits::{FromId, PNSObject},
     },
     utils::to_optional,
@@ -114,10 +115,7 @@ impl Default for NLLanguageRecognizer {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        foundation::macros::{nsarray, nsdictionary},
-        natural_language::English,
-    };
+    use crate::{natural_language::English, nsarray, nsdictionary};
 
     use super::*;
 

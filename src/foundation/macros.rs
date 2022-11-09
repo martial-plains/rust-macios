@@ -1,19 +1,21 @@
 /// A macro to create new `NSArray`s.
-pub macro nsarray {
+#[macro_export]
+macro_rules! nsarray {
     () => {
         $crate::foundation::NSArray::new()
-    },
+    };
     ($($x:expr),*) => {
         $crate::foundation::NSArray::from(vec![$($x),*])
-    },
+    };
 }
 
 /// A macro to create new `NSDictionary`s.
-pub macro nsdictionary {
-    (@single $($x:tt)*) => (()),
-    (@count $($rest:expr),*) => (<[()]>::len(&[$(nsdictionary!(@single $rest)),*])),
+#[macro_export]
+macro_rules! nsdictionary {
+    (@single $($x:tt)*) => (());
+    (@count $($rest:expr),*) => (<[()]>::len(&[$(nsdictionary!(@single $rest)),*]));
 
-    ($($key:expr => $value:expr,)+) => { nsdictionary!($($key => $value),+) },
+    ($($key:expr => $value:expr,)+) => { nsdictionary!($($key => $value),+) };
     ($($key:expr => $value:expr),*) => {
         {
             let capacity = nsdictionary!(@count $($key),*);
@@ -23,21 +25,22 @@ pub macro nsdictionary {
             )*
             $crate::foundation::NSDictionary::from(map)
         }
-    },
+    };
 }
 
 /// Respond to problem situations in your interactions with APIs, and fine-tune your app for better debugging.
-pub macro nslog {
+#[macro_export]
+macro_rules! nslog {
     ($format:expr) => {
         use $crate::foundation::NSLog;
         unsafe {
             NSLog($format.into());
         }
-    },
+    };
     ($format:expr, $($arg:expr),+) => {
         use $crate::foundation::NSLog;
         unsafe {
             NSLog($format.into(), $($arg),+);
         }
-    },
+    };
 }

@@ -2,12 +2,12 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{NSArray, NSCoder, NSRect},
+    object,
     objective_c_runtime::{id, traits::FromId},
 };
 
 use super::{
-    interface_impl, object, INSResponder, NSLayoutXAxisAnchor, NSLayoutYAxisAnchor, NSMenuItem,
-    NSWindow,
+    interface_impl, INSResponder, NSLayoutXAxisAnchor, NSLayoutYAxisAnchor, NSMenuItem, NSWindow,
 };
 
 object! {

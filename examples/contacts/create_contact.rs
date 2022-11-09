@@ -3,7 +3,8 @@ use rust_macios::{
         CNContactStore, CNLabelHome, CNLabelWork, CNLabeledValue, CNMutableContact,
         CNMutablePostalAddress, CNSaveRequest,
     },
-    foundation::{macros::nsarray, NSError, NSString},
+    foundation::{NSError, NSString},
+    nsarray,
     objective_c_runtime::traits::PNSObject,
 };
 

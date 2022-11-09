@@ -1,6 +1,6 @@
 use libc::{c_uint, c_void, size_t};
 
-use crate::{core_foundation::CFTypeID, objective_c_runtime::macros::object};
+use crate::{core_foundation::CFTypeID, object};
 
 use super::CGFloat;
 

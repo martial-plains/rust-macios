@@ -2,9 +2,9 @@ use std::fmt;
 
 use libc::c_void;
 
-use super::{
-    macros::declare_CFType, CFIndex, CFOptionFlags, CFStringRef, CFType, CFTypeObject, CFTypeRef,
-};
+use crate::declare_CFType;
+
+use super::{CFIndex, CFOptionFlags, CFStringRef, CFType, CFTypeObject, CFTypeRef};
 
 #[repr(C)]
 pub struct __CFAllocator(c_void);

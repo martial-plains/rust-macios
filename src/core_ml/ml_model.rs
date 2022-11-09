@@ -1,6 +1,6 @@
-use crate::objective_c_runtime::{
-    macros::{interface_impl, object},
-    traits::PNSObject,
+use crate::{
+    object,
+    objective_c_runtime::{macros::interface_impl, traits::PNSObject},
 };
 
 object! {

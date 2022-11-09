@@ -3,10 +3,8 @@ use rust_macios_objective_c_runtime_proc_macros::interface_impl;
 
 use crate::{
     foundation::NSString,
-    objective_c_runtime::{
-        macros::object,
-        traits::{FromId, PNSObject},
-    },
+    object,
+    objective_c_runtime::traits::{FromId, PNSObject},
     utils::to_optional,
 };
 

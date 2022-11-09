@@ -1,9 +1,6 @@
 use objc::{msg_send, sel, sel_impl};
 
-use crate::{
-    foundation::NSString,
-    objective_c_runtime::macros::{interface_impl, object},
-};
+use crate::{foundation::NSString, object, objective_c_runtime::macros::interface_impl};
 
 use super::ICNPostalAddress;
 

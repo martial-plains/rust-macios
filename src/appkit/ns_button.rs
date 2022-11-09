@@ -1,7 +1,7 @@
 use objc::{msg_send, sel, sel_impl};
 
-pub(crate) use crate::objective_c_runtime::macros::{interface_impl, object};
 use crate::{foundation::NSString, objective_c_runtime::traits::FromId};
+pub(crate) use crate::{object, objective_c_runtime::macros::interface_impl};
 
 use super::{INSControl, INSResponder, INSView, NSImage};
 

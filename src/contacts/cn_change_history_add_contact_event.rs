@@ -2,10 +2,8 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::NSString,
-    objective_c_runtime::{
-        macros::{interface_impl, object},
-        traits::FromId,
-    },
+    object,
+    objective_c_runtime::{macros::interface_impl, traits::FromId},
 };
 
 use super::{CNContact, ICNChangeHistoryEvent};

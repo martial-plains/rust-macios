@@ -3,9 +3,10 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{NSArray, NSData, NSEnumerator, NSError, NSPredicate, NSString},
+    object,
     objective_c_runtime::{
         id,
-        macros::{interface_impl, object},
+        macros::interface_impl,
         nil,
         traits::{FromId, PNSObject},
     },

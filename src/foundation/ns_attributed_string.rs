@@ -1,9 +1,10 @@
 use objc::{msg_send, sel, sel_impl};
 
 use crate::{
+    object,
     objective_c_runtime::{
         id,
-        macros::{interface_impl, object},
+        macros::interface_impl,
         nil,
         traits::{FromId, PNSObject},
     },

@@ -1,4 +1,4 @@
-use crate::objective_c_runtime::macros::object;
+use crate::object;
 
 object! {
     unsafe pub struct UIScene;

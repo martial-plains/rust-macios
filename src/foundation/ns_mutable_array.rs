@@ -4,9 +4,9 @@ use objc::{class, msg_send, runtime::Object, sel, sel_impl};
 
 use crate::{
     foundation::UInt,
+    object,
     objective_c_runtime::{
         id,
-        macros::object,
         traits::{FromId, PNSObject},
     },
     utils::to_bool,

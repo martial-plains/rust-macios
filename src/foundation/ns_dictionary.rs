@@ -4,11 +4,10 @@ use objc::{class, msg_send, sel, sel_impl};
 
 use crate::{
     objective_c_runtime::{
-        self, id,
-        macros::shared_object,
-        nil,
+        self, id, nil,
         traits::{FromId, PNSObject},
     },
+    shared_object,
     utils::to_bool,
 };
 

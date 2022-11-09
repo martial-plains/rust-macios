@@ -2,6 +2,7 @@ use objc::{msg_send, sel, sel_impl};
 
 use crate::{
     foundation::{NSArray, NSBundle, NSData, NSDictionary, NSString, NSURL},
+    object,
     objective_c_runtime::{
         id, nil,
         traits::{FromId, PNSObject},
@@ -9,7 +10,7 @@ use crate::{
     utils::to_bool,
 };
 
-use super::{interface_impl, object};
+use super::interface_impl;
 
 pub type NSNibName = NSString;
 

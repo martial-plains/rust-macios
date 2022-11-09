@@ -1,4 +1,4 @@
-use crate::objective_c_runtime::macros::object;
+use crate::object;
 
 object! {
     /// An object that manages standard appearance attributes for UI elements in an app.

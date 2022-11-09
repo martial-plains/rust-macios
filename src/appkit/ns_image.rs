@@ -1,8 +1,8 @@
 use objc::{msg_send, sel, sel_impl};
 
-use super::{interface_impl, object, NSImageName};
+use super::{interface_impl, NSImageName};
 
-use crate::objective_c_runtime::traits::PNSObject;
+use crate::{object, objective_c_runtime::traits::PNSObject};
 
 object! {
     /// A high-level interface for manipulating image data.

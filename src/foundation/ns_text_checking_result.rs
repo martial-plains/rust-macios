@@ -1,6 +1,6 @@
 use objc::Encode;
 
-use crate::objective_c_runtime::macros::object;
+use crate::object;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[repr(u64)]

@@ -6,9 +6,10 @@ use crate::{
         NSArray, NSDictionary, NSError, NSNumber, NSOrthography, NSRange, NSRangePointer, NSString,
         UInt,
     },
+    object,
     objective_c_runtime::{
         id,
-        macros::{interface_impl, object},
+        macros::interface_impl,
         nil,
         traits::{FromId, PNSObject},
         NSValue,
@@ -520,8 +521,9 @@ mod tests {
     use std::ptr::addr_of_mut;
 
     use crate::{
-        foundation::{macros::nsarray, ns_array::INSArray, INSDictionary, NSNumber, NSRange, UInt},
+        foundation::{ns_array::INSArray, INSDictionary, NSNumber, NSRange, UInt},
         natural_language::{nl_language, NLTokenUnit},
+        nsarray,
         objective_c_runtime::traits::PNSObject,
     };
 

@@ -2,9 +2,9 @@
 
 use objc::{msg_send, sel, sel_impl};
 
-use crate::{objective_c_runtime::traits::PNSObject, utils::to_bool};
+use crate::{object, objective_c_runtime::traits::PNSObject, utils::to_bool};
 
-use super::{interface_impl, object, ActionHandler, INSButton, INSControl, INSResponder, INSView};
+use super::{interface_impl, ActionHandler, INSButton, INSControl, INSResponder, INSView};
 
 object! {
     /// The appearance and behavior of an item in the systemwide menu bar.

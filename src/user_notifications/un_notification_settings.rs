@@ -1,10 +1,8 @@
 use objc::{msg_send, sel, sel_impl};
 
 use crate::{
-    objective_c_runtime::{
-        macros::{interface_impl, object},
-        traits::PNSObject,
-    },
+    object,
+    objective_c_runtime::{macros::interface_impl, traits::PNSObject},
     utils::to_bool,
 };
 
