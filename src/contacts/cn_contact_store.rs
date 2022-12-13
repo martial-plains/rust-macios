@@ -92,19 +92,19 @@ impl CNContactStore {
         block: F,
     ) -> Result<bool, NSError>
     where
-        F: IntoConcreteBlock<(CNContact, bool), Ret = ()> + 'static,
+        F: IntoConcreteBlock<(CNContact, *mut bool), Ret = ()> + 'static,
     {
         let mut error = NSError::m_alloc();
         let block = ConcreteBlock::new(block);
         let block = block.copy();
 
         unsafe {
-            let ptr = to_bool(msg_send![
+            let ptr = msg_send![
                 self.m_self(),
                 enumerateContactsWithFetchRequest: fetch_request
                 error: &mut error
                 usingBlock: block
-            ]);
+            ];
 
             if error.m_self() == nil {
                 Ok(ptr)
@@ -199,7 +199,7 @@ impl CNContactStore {
                 error: &mut error
             ]);
 
-            if error.m_self() == nil {
+            if !result.m_self().is_null() {
                 Ok(result)
             } else {
                 Err(error)

@@ -72,7 +72,7 @@ fn main() {
         )
     };
 
-    println!("{} characters were decoded", decoded_char_count);
+    println!("{decoded_char_count} characters were decoded");
     println!(
         "Decoded message: {}",
         String::from_utf8_lossy(&decoded_destination_buffer)

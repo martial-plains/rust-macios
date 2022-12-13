@@ -294,7 +294,7 @@ fn gen_sel_fn_type(input: &ImplItemMethod) -> proc_macro2::TokenStream {
 
 fn gen_sel_fn_name(input: &ImplItemMethod) -> proc_macro2::Ident {
     let name = input.sig.ident.to_string();
-    let new_name = format!("generated_{}", name);
+    let new_name = format!("generated_{name}");
 
     Ident::new(&new_name, Span::call_site())
 }

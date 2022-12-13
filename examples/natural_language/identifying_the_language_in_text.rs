@@ -13,14 +13,14 @@ fn main() {
 
     // Identify the dominant language.
     if let Some(language) = recognizer.dominant_language() {
-        println!("{}", language)
+        println!("{language}")
     } else {
         println!("Language not recognized")
     }
 
     // Generate up to two language hypotheses.
     let hypotheses = recognizer.language_hypotheses_with_maximum(2);
-    println!("{}", hypotheses);
+    println!("{hypotheses}");
 
     // Specify constraints for language identification.
     unsafe {
@@ -44,7 +44,7 @@ fn main() {
     }
 
     let constrained_hypotheses = recognizer.language_hypotheses_with_maximum(2);
-    println!("{}", constrained_hypotheses);
+    println!("{constrained_hypotheses}");
 
     // Reset the recognizer to its initial state.
     recognizer.reset();

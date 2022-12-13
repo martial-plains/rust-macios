@@ -55,7 +55,7 @@ fn main() {
                             None,
                         );
 
-                    println!("{}", hypotheses)
+                    println!("{hypotheses}")
                 },
             )
     }

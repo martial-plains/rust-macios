@@ -99,7 +99,7 @@ impl NSStringCompareOptions {
             256 => NSStringCompareOptions::WidthInsensitive,
             512 => NSStringCompareOptions::ForcedOrdering,
             1024 => NSStringCompareOptions::RegularExpression,
-            _ => panic!("Unknown CompareOptions value: {}", raw_value),
+            _ => panic!("Unknown CompareOptions value: {raw_value}"),
         }
     }
 }

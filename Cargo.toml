@@ -1,6 +1,6 @@
 [package]
 name = "rust-macios"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 authors = ["Allister Isaiah Harvey <a.i.harvey@icloud.com>"]
 description = "Apple Frameworks for Rust"
@@ -55,45 +55,49 @@ test-case = "2.1.0"
 members = ["src/appkit/proc-macros", "src/objective_c_runtime/proc-macros"]
 
 [[example]]
-name = "app_delegate"
+name = "appkit-app_delegate"
 path = "examples/appkit/app_delegate.rs"
 
 [[example]]
-name = "hello_world_window"
+name = "appkit-hello_world_window"
 path = "examples/appkit/hello_world_window.rs"
 
 [[example]]
-name = "popover"
+name = "appkit-popover"
 path = "examples/appkit/popover.rs"
 
 [[example]]
-name = "process_info"
+name = "foundation-process_info"
 path = "examples/foundation/process_info.rs"
 
 [[example]]
-name = "create_contact"
+name = "contacts-create_contact"
 path = "examples/contacts/create_contact.rs"
 
 [[example]]
-name = "general_file_decompression"
+name = "contacts-fetch_contacts"
+path = "examples/contacts/fetch_contacts.rs"
+
+[[example]]
+name = "compression-general_file_decompression"
 path = "examples/compression/general_file_decompression.rs"
 
 [[example]]
-name = "identifying_parts_of_speech"
+name = "natural_language-identifying_parts_of_speech"
 path = "examples/natural_language/identifying_parts_of_speech.rs"
 
 [[example]]
-name = "identifying_people_places_and_organizations"
+name = "natural_language-identifying_people_places_and_organizations"
 path = "examples/natural_language/identifying_people_places_and_organizations.rs"
 
 [[example]]
-name = "identifying_the_language_in_text"
+name = "natural_language-identifying_the_language_in_text"
 path = "examples/natural_language/identifying_the_language_in_text.rs"
 
 [[example]]
-name = "finding_similarities_between_pieces_of_text"
+name = "natural_language-finding_similarities_between_pieces_of_text"
 path = "examples/natural_language/finding_similarities_between_pieces_of_text.rs"
 
 [[example]]
-name = "tokenizing_natural_language_text"
+name = "natural_language-tokenizing_natural_language_text"
 path = "examples/natural_language/tokenizing_natural_language_text.rs"

@@ -86,13 +86,13 @@ pub fn interface_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
         let sup_name = if &super_class_name == "NSObject" {
             Ident::new("PNSObject", Span::call_site())
         } else {
-            Ident::new(&format!("I{}", super_class_name), Span::call_site())
+            Ident::new(&format!("I{super_class_name}"), Span::call_site())
         };
 
         let name = {
             let input_type = quote!(#input_type).to_string();
 
-            Ident::new(&format!("I{}", input_type), Span::call_site())
+            Ident::new(&format!("I{input_type}"), Span::call_site())
         };
 
         let trait_fns = input
@@ -147,10 +147,10 @@ pub fn interface_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
     let trait_name = {
         let input_type = quote!(#input_type).to_string();
 
-        Ident::new(&format!("I{}", input_type), Span::call_site())
+        Ident::new(&format!("I{input_type}"), Span::call_site())
     };
 
-    let trait_doc = format!("A trait containing all the methods for [`{}`]", input_type);
+    let trait_doc = format!("A trait containing all the methods for [`{input_type}`]");
 
     match input.generics.params.is_empty() {
         true => quote! {
@@ -189,7 +189,7 @@ fn method_sig(input: &ImplItemMethod) -> proc_macro2::TokenStream {
     let name = input.sig.ident.clone();
     let return_type = input.sig.output.clone();
 
-    let trait_name = Ident::new(&format!("m_{}", name), Span::call_site());
+    let trait_name = Ident::new(&format!("m_{name}"), Span::call_site());
 
     let generics = input.sig.generics.clone();
 
@@ -505,7 +505,7 @@ fn property_sig(input: &ImplItemMethod) -> proc_macro2::TokenStream {
     let name = input.sig.ident.clone();
     let return_type = input.sig.output.clone();
 
-    let trait_name = Ident::new(&format!("p_{}", name), Span::call_site());
+    let trait_name = Ident::new(&format!("p_{name}"), Span::call_site());
 
     let generics = input.sig.generics.clone();
 

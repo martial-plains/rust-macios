@@ -69,7 +69,7 @@ macro_rules! object {
         impl<$($t $(: $b)?),*> $crate::objective_c_runtime::traits::FromId for $name<$($t),*> {
             unsafe fn from_id(ptr: $crate::objective_c_runtime::id) -> Self {
                 Self {
-                    ptr: crate::objective_c_runtime::Id::from_ptr(ptr),
+                    ptr: $crate::objective_c_runtime::Id::from_ptr(ptr),
                      $($p: std::marker::PhantomData),*
                 }
             }

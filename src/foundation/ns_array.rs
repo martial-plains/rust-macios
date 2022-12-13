@@ -418,6 +418,32 @@ impl From<&[u8]> for NSArray<u8> {
     }
 }
 
+impl From<&[id]> for NSArray<u8> {
+    /// Given a set of `Object`s, creates an `Array` that holds them.
+    fn from(objects: &[id]) -> Self {
+        unsafe {
+            let cls: id = msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ];
+            NSArray::from(cls)
+        }
+    }
+}
+
+impl From<Vec<id>> for NSArray<id> {
+    /// Given a set of `Object`s, creates an `Array` that holds them.
+    fn from(objects: Vec<id>) -> Self {
+        unsafe {
+            let cls: id = msg_send![class!(NSArray),
+                arrayWithObjects:objects.as_ptr()
+                count:objects.len()
+            ];
+            NSArray::from_id(cls)
+        }
+    }
+}
+
 impl From<Vec<&str>> for NSArray<NSString> {
     fn from(objects: Vec<&str>) -> Self {
         let objects: Vec<NSString> = objects.iter().map(|s| NSString::from(*s)).collect();

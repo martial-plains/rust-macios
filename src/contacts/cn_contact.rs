@@ -1,4 +1,4 @@
-use objc::{msg_send, sel, sel_impl};
+use std::fmt::Debug;
 
 use crate::{
     foundation::{NSArray, NSComparator, NSData, NSDateComponents, NSPredicate, NSString},
@@ -11,6 +11,7 @@ use crate::{
     },
     utils::to_bool,
 };
+use objc::{msg_send, sel, sel_impl};
 
 use super::{
     CNContactRelation, CNInstantMessageAddress, CNLabeledValue, CNPhoneNumber, CNPostalAddress,

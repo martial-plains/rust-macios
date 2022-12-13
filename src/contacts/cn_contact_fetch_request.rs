@@ -1,12 +1,9 @@
 use objc::{msg_send, sel, sel_impl};
 
-use crate::{object, 
-    foundation::{NSArray, NSPredicate, NSString},
-    objective_c_runtime::{
-        id,
-        macros::{interface_impl},
-        traits::FromId,
-    },
+use crate::{
+    foundation::{NSArray, NSPredicate},
+    object,
+    objective_c_runtime::{id, macros::interface_impl, traits::FromId},
     utils::to_bool,
 };
 
@@ -26,11 +23,11 @@ impl CNContactFetchRequest {
 
     /// Creates a fetch request for the specified keys.
     #[method]
-    pub fn init_with_keys_to_fetch(&self, keys: NSArray<NSString>) -> Self
+    pub fn init_with_keys_to_fetch(&self, keys: NSArray<id>) -> Self
     where
         Self: Sized + FromId,
     {
-        unsafe { Self::from_id(msg_send![self.m_self(), fetchRequestWithKeys: keys]) }
+        unsafe { Self::from_id(msg_send![self.m_self(), initWithKeysToFetch: keys]) }
     }
 
     /* Specifying the Search Predicate
