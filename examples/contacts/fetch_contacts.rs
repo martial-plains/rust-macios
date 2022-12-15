@@ -1,7 +1,7 @@
 use rust_macios::{
     contacts::{
-        CNContactFetchRequest, CNContactFormatter, CNContactFormatterStyle, CNContactStore,
-        CNEntityType, ICNContactStore,
+        CNContactFetchRequest, CNContactFormatter, CNContactFormatterStyle,
+        CNContactPhoneNumbersKey, CNContactStore, CNEntityType, ICNContactStore,
     },
     foundation::{INSEnumerator, NSError},
     nsarray,
@@ -26,10 +26,17 @@ fn main() -> Result<(), NSError> {
                 // in your program
                 //
                 // see more: <https://developer.apple.com/documentation/contacts/contact_keys?language=objc>
-                let keys_to_fetch =
-                    nsarray![CNContactFormatter::descriptor_for_required_keys_for_style(
+                let keys_to_fetch = nsarray![
+                    CNContactFormatter::descriptor_for_required_keys_for_style(
                         CNContactFormatterStyle::FullName
-                    )];
+                    ),
+                    // Create an unsafe block for ay additional keys
+                    unsafe {
+                        // For each key, call the `m_self` function because the array
+                        // needs to be of type `NSArray<*mut Object>` aka `NSArray<id>`
+                        CNContactPhoneNumbersKey.m_self()
+                    }
+                ];
 
                 // Creates the fetch request we would be using to partial
                 // fetch data from the database
@@ -42,7 +49,11 @@ fn main() -> Result<(), NSError> {
                     .unwrap();
 
                 for contact in &fetch_result.value().m_all_objects() {
-                    println!("{} {}", contact.given_name(), contact.family_name())
+                    println!("{} {}", contact.given_name(), contact.family_name());
+
+                    for phone_number in &contact.phone_numbers() {
+                        println!("{}", phone_number.value().string_value())
+                    }
                 }
             } else {
                 panic!("{}", error)
