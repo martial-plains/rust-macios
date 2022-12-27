@@ -54,7 +54,7 @@ impl CNContactStore {
         entity_type: CNEntityType,
         completion_handler: F,
     ) where
-        F: IntoConcreteBlock<(bool, NSError), Ret = ()> + 'static,
+        F: IntoConcreteBlock<(bool, *mut NSError), Ret = ()> + 'static,
     {
         let block = ConcreteBlock::new(completion_handler);
         let block = block.copy();

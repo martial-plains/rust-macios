@@ -8,7 +8,7 @@ use rust_macios::{
     objective_c_runtime::traits::PNSObject,
 };
 
-fn main() -> Result<(), NSError> {
+fn main() {
     // Create a new `CNContactStore` to fetch the contacts from the user's
     // contact database.
     let store = CNContactStore::m_new();
@@ -20,7 +20,7 @@ fn main() -> Result<(), NSError> {
     // Requests access to the users contact database
     store.request_access_for_entity_type_completion_handler(
         CNEntityType::Contacts,
-        move |granted: bool, error: NSError| {
+        move |granted: bool, _error: *mut NSError| {
             if granted {
                 // Create an `NSArray` filled keys you'd like to fetch and use
                 // in your program
@@ -55,11 +55,7 @@ fn main() -> Result<(), NSError> {
                         println!("{}", phone_number.value().string_value())
                     }
                 }
-            } else {
-                panic!("{}", error)
             }
         },
     );
-
-    Ok(())
 }
